@@ -7,6 +7,7 @@ import { Icon, type IconName } from "@/components/ui/Icon";
 import { DashboardProvider, useDashboard } from "@/context/DashboardContext";
 import { useTheme } from "@/context/ThemeContext";
 import { OnboardingTour } from "@/components/dashboard/OnboardingTour";
+import { VisualizationProvider } from "@/features/visualization/store";
 import { DOCS_URL } from "@/lib/docs";
 
 const navigation: Array<{
@@ -46,8 +47,8 @@ const pageTitles: Record<string, [string, string]> = {
   "/workspace/intelligence": ["System Intelligence", "Identify domain keywords & discover live time-series datasets"],
   "/workspace/data-selection": ["Data Selection", "Select time-series products & configure date range, region, and frequency"],
   "/workspace/data-preview": ["Data Preview", "Inspect retrieved time-series observations & quality metrics before analysis"],
-  "/workspace/visualize": ["Plot & Visualize · Case File", "Find the long-term signal & inspect full SRS Case File diagnostics"],
-  "/workspace/globe": ["Living Globe", "Explore versioned Global Trend Cube layers, BH-FDR significance & teleconnection dipoles"],
+  "/workspace/visualize": ["Plot & Visualize · Case File", "Explore retrieved data, compare locations and inspect temporal patterns"],
+  "/workspace/globe": ["Living Globe", "Inspect real NASA spatial fields and linked observations"],
   "/workspace/case-board": ["Regional Case Board", "Scan all Global Trend Cube variables for a region & compare two regions side-by-side"],
   "/workspace/case-studies": ["Case Studies & Guided Investigations", "Load a solved investigation or step through checkpointed NASA case files"],
   "/workspace/research": ["Existing Research", "Connect the active dataset to published work"],
@@ -230,9 +231,9 @@ function DashboardFrame({ children }: { children: ReactNode }) {
           <div className="dashboard-context-chip">
             <span>
               <i />
-              {dataset.code}
+              {extractedPreview?.product.variable_id || dataset.code}
             </span>
-            <strong>{region}</strong>
+            <strong>{extractedPreview?.extraction_config.region_name || region}</strong>
             {extractedPreview?.job_id && (
               <code
                 style={{
@@ -259,7 +260,7 @@ function DashboardFrame({ children }: { children: ReactNode }) {
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   return (
     <DashboardProvider>
-      <DashboardFrame>{children}</DashboardFrame>
+      <VisualizationProvider><DashboardFrame>{children}</DashboardFrame></VisualizationProvider>
     </DashboardProvider>
   );
 }
