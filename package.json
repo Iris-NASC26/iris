@@ -1,0 +1,32 @@
+{
+  "name": "project-iris",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "docs:dev": "npx serve documentation -p 3001"
+  },
+  "dependencies": {
+    "@mapbox/mapbox-gl-draw": "^1.5.2",
+    "@turf/turf": "^7.4.0",
+    "lucide-react": "^0.475.0",
+    "maplibre-gl": "^6.18.0",
+    "next": "^15.2.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-map-gl": "^8.1.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.0.0",
+    "@types/geojson": "^7946.0.16",
+    "@types/mapbox__mapbox-gl-draw": "^1.4.9",
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "tailwindcss": "^4.0.0",
+    "typescript": "^5.7.0"
+  }
+}
