@@ -168,6 +168,52 @@ class ChatTurnResponse(BaseModel):
     trigger_extraction: bool = False
 
 
+class AssistantHistoryTurn(BaseModel):
+    role: Literal["user", "assistant"]
+    content: str = Field(..., max_length=1200)
+
+
+class AssistantSelectedProduct(BaseModel):
+    id: str = Field(..., max_length=200)
+    title: str = Field(..., max_length=240)
+
+
+class AssistantSIContextTurn(BaseModel):
+    role: Literal["user", "assistant"]
+    summary: str = Field(..., max_length=300)
+
+
+class AssistantPageContext(BaseModel):
+    pathname: str = Field(..., max_length=160)
+    page_title: str = Field(..., max_length=160)
+    active_dataset_id: str = Field(default="", max_length=200)
+    active_variable: str = Field(default="", max_length=200)
+    source_api: str = Field(default="", max_length=160)
+    region_name: str = Field(default="", max_length=300)
+    bbox: List[float] = Field(default_factory=list, max_length=4)
+    start_date: str = Field(default="", max_length=30)
+    end_date: str = Field(default="", max_length=30)
+    target_frequency: str = Field(default="", max_length=40)
+    selected_products: List[AssistantSelectedProduct] = Field(default_factory=list, max_length=5)
+    extracted_preview_result_id: Optional[str] = Field(default=None, max_length=200)
+    extracted_preview_job_id: Optional[str] = Field(default=None, max_length=200)
+    si_conversation_stage: Optional[
+        Literal["topic_discovery", "keyword_confirmation", "parameter_definition", "ready_to_extract"]
+    ] = None
+    recent_si_turns: List[AssistantSIContextTurn] = Field(default_factory=list, max_length=6)
+
+
+class AssistantChatRequest(BaseModel):
+    message: str = Field(..., min_length=1, max_length=2000)
+    page_context: AssistantPageContext
+    history: List[AssistantHistoryTurn] = Field(default_factory=list, max_length=8)
+
+
+class AssistantChatResponse(BaseModel):
+    assistant_reply: str
+    llm_model_used: str
+
+
 class ProductDetailsResponse(BaseModel):
     product: DataProduct
     recommended_date_start: str

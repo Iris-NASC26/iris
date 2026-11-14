@@ -7,6 +7,7 @@ import { Icon, type IconName } from "@/components/ui/Icon";
 import { DashboardProvider, useDashboard } from "@/context/DashboardContext";
 import { useTheme } from "@/context/ThemeContext";
 import { OnboardingTour } from "@/components/dashboard/OnboardingTour";
+import { IrisAssistant } from "@/components/dashboard/IrisAssistant";
 import { DOCS_URL } from "@/lib/docs";
 
 const navigation: Array<{
@@ -252,6 +253,7 @@ function DashboardFrame({ children }: { children: ReactNode }) {
         <main className="dashboard-page">{children}</main>
       </div>
       <OnboardingTour onClose={closeTour} open={tourOpen} />
+      <IrisAssistant pageTitle={title[0]} tourOpen={tourOpen} />
     </div>
   );
 }
