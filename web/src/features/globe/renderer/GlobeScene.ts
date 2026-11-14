@@ -17,6 +17,7 @@ export type Nudge = 'left' | 'right' | 'up' | 'down' | 'in' | 'out';
 
 export interface GlobeScene {
   setCells(values: Float32Array | null, colorFor?: (value: number) => Rgba): void;
+  setField(layer: { mesh: THREE.Mesh; dispose(): void } | null): void;
   reset(): void;
   nudge(direction: Nudge): void;
   setAutoRotate(on: boolean, speed?: number): void;
@@ -56,8 +57,10 @@ export function createGlobeScene(container: HTMLElement, onPick: (cell: PickedCe
   observer.observe(container);
 
   let layer: CellLayer | null = null;
+  let field: { mesh: THREE.Mesh; dispose(): void } | null = null;
   let disposed = false;
   const dropLayer = () => { layer?.dispose(); layer = null; };
+  const dropField = () => { field?.dispose(); field = null; };
 
   return {
     setCells(values, colorFor) {
@@ -66,6 +69,12 @@ export function createGlobeScene(container: HTMLElement, onPick: (cell: PickedCe
       layer = createCellLayer();
       layer.paint(values, colorFor);
       globe.scene().add(layer.mesh);
+    },
+    setField(next) {
+      dropField();
+      if (!next) return;
+      field = next;
+      globe.scene().add(next.mesh);
     },
     reset() { globe.pointOfView(DEFAULT_VIEW, 700); },
     nudge(direction) {
@@ -114,6 +123,7 @@ export function createGlobeScene(container: HTMLElement, onPick: (cell: PickedCe
       disposed = true;
       observer.disconnect();
       dropLayer();
+      dropField();
       globe.pauseAnimation();
       globe.scene().traverse(object => {
         const item = object as THREE.Mesh;

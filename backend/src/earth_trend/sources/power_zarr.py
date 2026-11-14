@@ -38,6 +38,10 @@ class SourceFormatError(Exception):
     """The provider returned something this reader must not interpret."""
 
 
+class FieldRejected(Exception):
+    """The requested month or box is outside the source axis or cell limit."""
+
+
 @dataclass(frozen=True)
 class Store:
     variable_id: str
@@ -101,6 +105,22 @@ class MonthlyPoint:
     store_version: str
     acknowledgement: str
     declared_end: str
+    artifact_hashes: dict[str, str]
+    retrieved_at: datetime
+    from_cache: bool
+    stale_cache: bool
+
+
+@dataclass(frozen=True)
+class Field:
+    store: Store
+    month: str
+    cell_lats: list[float]
+    cell_lons: list[float]
+    values: list[float | None]
+    store_title: str
+    store_version: str
+    acknowledgement: str
     artifact_hashes: dict[str, str]
     retrieved_at: datetime
     from_cache: bool
@@ -206,14 +226,23 @@ def nearest_index(axis: Any, target: float, *, circular: bool) -> int:
     return int(np.argmin(difference))
 
 
-def read_point(
-    variable_id: str,
-    lat: float,
-    lon: float,
-    *,
-    root: Path | None = None,
-    client: httpx.Client | None = None,
-) -> MonthlyPoint:
+@dataclass(frozen=True)
+class _Context:
+    store: Store
+    hashes: dict[str, str]
+    fetches: list[Fetched]
+    get: Any
+    root_attrs: dict[str, Any]
+    field_array: dict[str, Any]
+    field_attrs: dict[str, Any]
+    shape: tuple[int, int, int]
+    chunks: tuple[int, int, int]
+    lat_axis: Any
+    lon_axis: Any
+    months: list[str]
+
+
+def _open(variable_id: str, *, root: Path | None, client: httpx.Client | None) -> _Context:
     store = STORES[variable_id]
     base = f"https://{HOST}/{store.path}"
     hashes: dict[str, str] = {}
@@ -249,6 +278,46 @@ def read_point(
     if (len(coordinates["time"]), len(lat_axis), len(lon_axis)) != shape:
         raise SourceFormatError("Coordinate lengths do not match the data array")
     months = month_labels(coordinates["time"], meta("time/.zattrs"))
+    return _Context(
+        store,
+        hashes,
+        fetches,
+        get,
+        root_attrs,
+        field_array,
+        field_attrs,
+        shape,
+        chunks,
+        lat_axis,
+        lon_axis,
+        months,
+    )
+
+
+def _decimals(ctx: _Context) -> int | None:
+    scale = next(
+        (
+            f["scale"]
+            for f in ctx.field_array.get("filters") or []
+            if f.get("id") == "fixedscaleoffset"
+        ),
+        None,
+    )
+    return int(round(math.log10(scale))) if scale else None
+
+
+def read_point(
+    variable_id: str,
+    lat: float,
+    lon: float,
+    *,
+    root: Path | None = None,
+    client: httpx.Client | None = None,
+) -> MonthlyPoint:
+    store = STORES[variable_id]
+    ctx = _open(variable_id, root=root, client=client)
+    get, field_array, chunks = ctx.get, ctx.field_array, ctx.chunks
+    lat_axis, lon_axis, months = ctx.lat_axis, ctx.lon_axis, ctx.months
 
     lat_index = nearest_index(lat_axis, lat, circular=False)
     lon_index = nearest_index(lon_axis, ((lon + 180.0) % 360.0) - 180.0, circular=True)
@@ -256,18 +325,14 @@ def read_point(
     chunk = decode(get(key).body, field_array, chunks)
     column = np.asarray(chunk[:, lat_index % chunks[1], lon_index % chunks[2]], dtype=np.float64)
 
-    low, high = float(field_attrs["valid_min"]), float(field_attrs["valid_max"])
+    low, high = float(ctx.field_attrs["valid_min"]), float(ctx.field_attrs["valid_max"])
     finite = np.isfinite(column)
     if bool(np.any(column[finite] < low) or np.any(column[finite] > high)):
         raise SourceFormatError("Decoded values fall outside the source's declared valid range")
     if not bool(np.any(finite)):
         raise SourceFormatError("No finite values exist for this location")
     last = int(np.max(np.nonzero(finite)))
-    scale = next(
-        (f["scale"] for f in field_array.get("filters") or [] if f.get("id") == "fixedscaleoffset"),
-        None,
-    )
-    decimals = int(round(math.log10(scale))) if scale else None
+    decimals = _decimals(ctx)
     values = [
         None if not finite[i] else (round(float(v), decimals) if decimals is not None else float(v))
         for i, v in enumerate(column[: last + 1])
@@ -282,12 +347,75 @@ def read_point(
         cell_lon=float(lon_axis[lon_index]),
         lat_step=float(abs(lat_axis[1] - lat_axis[0])),
         lon_step=float(abs(lon_axis[1] - lon_axis[0])),
-        store_title=str(root_attrs.get("title", store.path)),
-        store_version=str(root_attrs.get("version", "unknown")),
-        acknowledgement=str(root_attrs.get("acknowledgement", "")),
-        declared_end=str(root_attrs.get("time_coverage_end", "")),
-        artifact_hashes=hashes,
+        store_title=str(ctx.root_attrs.get("title", store.path)),
+        store_version=str(ctx.root_attrs.get("version", "unknown")),
+        acknowledgement=str(ctx.root_attrs.get("acknowledgement", "")),
+        declared_end=str(ctx.root_attrs.get("time_coverage_end", "")),
+        artifact_hashes=ctx.hashes,
         retrieved_at=datetime.now(UTC),
-        from_cache=all(item.cached for item in fetches),
-        stale_cache=any(item.stale for item in fetches),
+        from_cache=all(item.cached for item in ctx.fetches),
+        stale_cache=any(item.stale for item in ctx.fetches),
+    )
+
+
+MAX_FIELD_CELLS = 4000
+
+
+def read_field(
+    variable_id: str,
+    month: str,
+    lat_min: float,
+    lat_max: float,
+    lon_min: float,
+    lon_max: float,
+    *,
+    root: Path | None = None,
+    client: httpx.Client | None = None,
+) -> Field:
+    """Read one month's native cells inside a latitude/longitude box (no dateline wrap)."""
+    ctx = _open(variable_id, root=root, client=client)
+    if month not in ctx.months:
+        raise FieldRejected(f"Month {month} is outside the source axis")
+    time_index = ctx.months.index(month)
+    lat_axis, lon_axis, chunks = ctx.lat_axis, ctx.lon_axis, ctx.chunks
+    lat_mask = np.nonzero((lat_axis >= lat_min) & (lat_axis <= lat_max))[0]
+    lon_mask = np.nonzero((lon_axis >= lon_min) & (lon_axis <= lon_max))[0]
+    if lat_mask.size == 0 or lon_mask.size == 0:
+        raise FieldRejected("The box contains no native cells")
+    if lat_mask.size * lon_mask.size > MAX_FIELD_CELLS:
+        raise FieldRejected("The box exceeds the field cell limit")
+    needed = {(int(la) // chunks[1], int(lo) // chunks[2]) for la in lat_mask for lo in lon_mask}
+    decoded: dict[tuple[int, int], Any] = {}
+    for block in needed:
+        body = ctx.get(f"{ctx.store.field}/0.{block[0]}.{block[1]}")
+        decoded[block] = decode(body.body, ctx.field_array, ctx.chunks)
+    decimals = _decimals(ctx)
+    low, high = float(ctx.field_attrs["valid_min"]), float(ctx.field_attrs["valid_max"])
+    values: list[float | None] = []
+    for la in lat_mask:
+        for lo in lon_mask:
+            value = float(
+                decoded[(int(la) // chunks[1], int(lo) // chunks[2])][
+                    time_index, int(la) % chunks[1], int(lo) % chunks[2]
+                ]
+            )
+            if math.isfinite(value) and (value < low or value > high):
+                raise SourceFormatError("Decoded value outside the source's declared valid range")
+            if not math.isfinite(value):
+                values.append(None)
+            else:
+                values.append(round(value, decimals) if decimals is not None else value)
+    return Field(
+        store=ctx.store,
+        month=month,
+        cell_lats=[float(lat_axis[i]) for i in lat_mask],
+        cell_lons=[float(lon_axis[i]) for i in lon_mask],
+        values=values,
+        store_title=str(ctx.root_attrs.get("title", ctx.store.path)),
+        store_version=str(ctx.root_attrs.get("version", "unknown")),
+        acknowledgement=str(ctx.root_attrs.get("acknowledgement", "")),
+        artifact_hashes=ctx.hashes,
+        retrieved_at=datetime.now(UTC),
+        from_cache=all(item.cached for item in ctx.fetches),
+        stale_cache=any(item.stale for item in ctx.fetches),
     )

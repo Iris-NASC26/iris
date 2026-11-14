@@ -1,0 +1,44 @@
+{
+  "fixture_kind": "synthetic_contract",
+  "fixture_id": "field-result",
+  "model": "FieldResult",
+  "disclosure": "STRUCTURAL TEST ONLY. Invented values and IDs; no NASA observations, method validation or scientific findings. Never bundle as product data.",
+  "payload": {
+    "schema_version": "1.0",
+    "variable_id": "V01",
+    "month": "2003-01",
+    "box": {
+      "lat_min": 0.75,
+      "lat_max": 1.75,
+      "lon_min": 29.6875,
+      "lon_max": 40.3125,
+      "cell_lat_step": 0.5,
+      "cell_lon_step": 0.625,
+      "selection": "native_cells_in_box"
+    },
+    "cell_lats": [1.0, 1.5],
+    "cell_lons": [30.0, 40.0],
+    "values": [1.0, null, 0.5, 2.0],
+    "source": {
+      "variable_id": "V01",
+      "store_title": "Synthetic test store",
+      "store_version": "fixture-v1",
+      "field": "T2M",
+      "source_units": "C",
+      "units": "°C",
+      "time_standard": "UTC",
+      "data_kind": "model",
+      "retrieved_at": "2003-01-01T00:00:00Z",
+      "served_from_cache": false,
+      "stale_cache": false,
+      "artifact_sha256": {
+        "synthetic": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "acknowledgement": "Synthetic fixture",
+      "caveats": [
+        "Structural test only."
+      ],
+      "scientifically_validated": false
+    }
+  }
+}

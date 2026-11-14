@@ -2920,6 +2920,51 @@
         "title": "FdrResult",
         "type": "object"
       },
+      "FieldBox": {
+        "additionalProperties": false,
+        "properties": {
+          "cell_lat_step": {
+            "title": "Cell Lat Step",
+            "type": "number"
+          },
+          "cell_lon_step": {
+            "title": "Cell Lon Step",
+            "type": "number"
+          },
+          "lat_max": {
+            "title": "Lat Max",
+            "type": "number"
+          },
+          "lat_min": {
+            "title": "Lat Min",
+            "type": "number"
+          },
+          "lon_max": {
+            "title": "Lon Max",
+            "type": "number"
+          },
+          "lon_min": {
+            "title": "Lon Min",
+            "type": "number"
+          },
+          "selection": {
+            "const": "native_cells_in_box",
+            "title": "Selection",
+            "type": "string"
+          }
+        },
+        "required": [
+          "lat_min",
+          "lat_max",
+          "lon_min",
+          "lon_max",
+          "cell_lat_step",
+          "cell_lon_step",
+          "selection"
+        ],
+        "title": "FieldBox",
+        "type": "object"
+      },
       "FieldError": {
         "additionalProperties": false,
         "properties": {
@@ -2955,6 +3000,220 @@
           "message"
         ],
         "title": "FieldError",
+        "type": "object"
+      },
+      "FieldResult": {
+        "additionalProperties": false,
+        "description": "One month's raw native-cell field in a box. No aggregation, trend or analysis.",
+        "properties": {
+          "box": {
+            "$ref": "#/components/schemas/FieldBox"
+          },
+          "cell_lats": {
+            "items": {
+              "type": "number"
+            },
+            "title": "Cell Lats",
+            "type": "array"
+          },
+          "cell_lons": {
+            "items": {
+              "type": "number"
+            },
+            "title": "Cell Lons",
+            "type": "array"
+          },
+          "month": {
+            "pattern": "^(?:[1-9][0-9]{3}|0[1-9][0-9]{2}|00[1-9][0-9]|000[1-9])-(?:0[1-9]|1[0-2])$",
+            "title": "Month",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "1.0",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "source": {
+            "$ref": "#/components/schemas/FieldSource"
+          },
+          "values": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": "Values",
+            "type": "array"
+          },
+          "variable_id": {
+            "enum": [
+              "V01",
+              "V02",
+              "V03",
+              "V04",
+              "V05",
+              "V06",
+              "V07",
+              "V08",
+              "V09",
+              "V10",
+              "V11",
+              "V12",
+              "V13"
+            ],
+            "title": "Variable Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "schema_version",
+          "variable_id",
+          "month",
+          "box",
+          "cell_lats",
+          "cell_lons",
+          "values",
+          "source"
+        ],
+        "title": "FieldResult",
+        "type": "object"
+      },
+      "FieldSource": {
+        "additionalProperties": false,
+        "properties": {
+          "acknowledgement": {
+            "maxLength": 500,
+            "title": "Acknowledgement",
+            "type": "string"
+          },
+          "artifact_sha256": {
+            "additionalProperties": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            "title": "Artifact Sha256",
+            "type": "object"
+          },
+          "caveats": {
+            "items": {
+              "maxLength": 300,
+              "minLength": 1,
+              "type": "string"
+            },
+            "title": "Caveats",
+            "type": "array"
+          },
+          "data_kind": {
+            "const": "model",
+            "title": "Data Kind",
+            "type": "string"
+          },
+          "field": {
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Field",
+            "type": "string"
+          },
+          "retrieved_at": {
+            "format": "date-time",
+            "title": "Retrieved At",
+            "type": "string"
+          },
+          "scientifically_validated": {
+            "const": false,
+            "title": "Scientifically Validated",
+            "type": "boolean"
+          },
+          "served_from_cache": {
+            "title": "Served From Cache",
+            "type": "boolean"
+          },
+          "source_units": {
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Source Units",
+            "type": "string"
+          },
+          "stale_cache": {
+            "title": "Stale Cache",
+            "type": "boolean"
+          },
+          "store_title": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Store Title",
+            "type": "string"
+          },
+          "store_version": {
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Store Version",
+            "type": "string"
+          },
+          "time_standard": {
+            "enum": [
+              "UTC",
+              "LST"
+            ],
+            "title": "Time Standard",
+            "type": "string"
+          },
+          "units": {
+            "enum": [
+              "°C",
+              "mm/day",
+              "mm",
+              "10^15 molecules/cm²",
+              "dimensionless",
+              "mg/m³",
+              "W/m²"
+            ],
+            "title": "Units",
+            "type": "string"
+          },
+          "variable_id": {
+            "enum": [
+              "V01",
+              "V02",
+              "V03",
+              "V04",
+              "V05",
+              "V06",
+              "V07",
+              "V08",
+              "V09",
+              "V10",
+              "V11",
+              "V12",
+              "V13"
+            ],
+            "title": "Variable Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "variable_id",
+          "store_title",
+          "store_version",
+          "field",
+          "source_units",
+          "units",
+          "time_standard",
+          "data_kind",
+          "retrieved_at",
+          "served_from_cache",
+          "stale_cache",
+          "artifact_sha256",
+          "acknowledgement",
+          "caveats",
+          "scientifically_validated"
+        ],
+        "title": "FieldSource",
         "type": "object"
       },
       "GlobalRegion": {
@@ -6479,6 +6738,98 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/v1/field/{variable_id}": {
+      "get": {
+        "operationId": "monthly_field_api_v1_field__variable_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "variable_id",
+            "required": true,
+            "schema": {
+              "title": "Variable Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "month",
+            "required": true,
+            "schema": {
+              "title": "Month",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "lat_min",
+            "required": true,
+            "schema": {
+              "maximum": 90,
+              "minimum": -90,
+              "title": "Lat Min",
+              "type": "number"
+            }
+          },
+          {
+            "in": "query",
+            "name": "lat_max",
+            "required": true,
+            "schema": {
+              "maximum": 90,
+              "minimum": -90,
+              "title": "Lat Max",
+              "type": "number"
+            }
+          },
+          {
+            "in": "query",
+            "name": "lon_min",
+            "required": true,
+            "schema": {
+              "maximum": 180,
+              "minimum": -180,
+              "title": "Lon Min",
+              "type": "number"
+            }
+          },
+          {
+            "in": "query",
+            "name": "lon_max",
+            "required": true,
+            "schema": {
+              "maximum": 180,
+              "minimum": -180,
+              "title": "Lon Max",
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FieldResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Monthly Field"
+      }
+    },
     "/api/v1/health": {
       "get": {
         "operationId": "health_api_v1_health_get",
@@ -6569,6 +6920,7 @@
     "Error",
     "Estimate",
     "FdrResult",
+    "FieldResult",
     "Job",
     "JobAccepted",
     "LayerManifest",

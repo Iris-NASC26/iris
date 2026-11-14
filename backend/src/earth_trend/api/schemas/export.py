@@ -31,7 +31,7 @@ from . import (
     TestResult,
     Transform,
 )
-from .source_series import PointSeriesResult
+from .source_series import FieldResult, PointSeriesResult
 
 PUBLIC_MODELS: tuple[type[BaseModel], ...] = (
     AnalysisRequest,
@@ -43,6 +43,7 @@ PUBLIC_MODELS: tuple[type[BaseModel], ...] = (
     Error,
     Estimate,
     FdrResult,
+    FieldResult,
     Job,
     JobAccepted,
     LayerManifest,

@@ -346,6 +346,9 @@ td { color: var(--muted); }
 .globe-readout p { margin: 0; }
 @media (max-width: 900px) { .globe-layout { grid-template-columns: 1fr; } .globe-canvas { height: 56vh; min-height: 300px; } }
 .globe-notice { position: absolute; left: 12px; right: 12px; bottom: 42px; margin: 0; padding: 9px 12px; border-radius: 6px; background: rgba(60, 38, 24, .94); color: #f0c9a0; font-size: .68rem; line-height: 1.5; }
+.field-control { display: grid; gap: 5px; font-size: .64rem; color: var(--muted); }
+.field-control input, .field-control select { border: 1px solid var(--border); border-radius: 6px; background: var(--bg); color: var(--text); padding: 8px 10px; font: inherit; font-size: .76rem; }
+.field-box-inputs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 
 .series-view { display: grid; gap: 16px; }
 .series-form { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; padding: 16px; border: 1px solid var(--border); border-radius: 9px; background: var(--panel); }

@@ -64,6 +64,18 @@ limit, problem responses), 42 Vitest, contract drift, and Chromium journeys incl
 anomaly/trend/CI/test outputs, regional (area-weighted) series, the other 11 variables (Earthdata/Giovanni/AppEEARS), the
 Case File link, and ECharts-based views (U12).
 
+**U04 second real-data slice — globe field (REVIEW, not DONE).** The globe now also paints REAL raw monthly
+native-cell fields for V01/V12 in a bounded box (cap 4,000 cells, no dateline crossing). Path: Zarr chunk reads
+reused from the series reader -> FastAPI `GET /api/v1/field/{id}` returning the new `FieldResult` contract (month,
+box, native cell axes, row-major values, SHA-256 source record; `scientifically_validated` is always false) -> Next
+proxy -> one batched quad mesh at each cell's own corners. Missing cells are transparent, never zero-filled; the
+colour ramp is a fixed **absolute-value** scale labelled "not a trend scale" — it is not the approved diverging
+trend scale and carries no significance or relief channel (U08). Four region presets plus a custom box, month
+picker, per-cell value readout on globe click, source/caveat display. Verified live: V01 2024-01 over the Sri Lanka
+box painted real cells through Next and FastAPI; an opt-in live browser test (`EARTH_TREND_LIVE=1`) plus a mocked
+journey cover the path. Not done: global/unbounded layers (U08 needs chunked streaming and a contract decision),
+trend/q/relief channels, and the independent human spot-check.
+
 **U03 globe engine spike (REVIEW, not DONE).** `/workspace/globe` now runs globe.gl 2.46.2 /
 Three.js 0.186.1 with a bundled NASA GIBS `BlueMarble_ShadedRelief_Bathymetry` texture
 (WMS 1.3.0, EPSG:4326, latitude-first BBOX, 2048x1024, retrieved 14 November 2026; SHA-256

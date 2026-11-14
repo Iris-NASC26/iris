@@ -1,5 +1,22 @@
 // Generated from Python contracts. Do not edit; run python scripts/dev.py contracts.
 export interface paths {
+    readonly "/api/v1/field/{variable_id}": {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        /** Monthly Field */
+        readonly get: operations["monthly_field_api_v1_field__variable_id__get"];
+        readonly put?: never;
+        readonly post?: never;
+        readonly delete?: never;
+        readonly options?: never;
+        readonly head?: never;
+        readonly patch?: never;
+        readonly trace?: never;
+    };
     readonly "/api/v1/health": {
         readonly parameters: {
             readonly query?: never;
@@ -926,6 +943,26 @@ export interface components {
             /** Size */
             readonly size: number;
         };
+        /** FieldBox */
+        readonly FieldBox: {
+            /** Cell Lat Step */
+            readonly cell_lat_step: number;
+            /** Cell Lon Step */
+            readonly cell_lon_step: number;
+            /** Lat Max */
+            readonly lat_max: number;
+            /** Lat Min */
+            readonly lat_min: number;
+            /** Lon Max */
+            readonly lon_max: number;
+            /** Lon Min */
+            readonly lon_min: number;
+            /**
+             * Selection
+             * @constant
+             */
+            readonly selection: "native_cells_in_box";
+        };
         /** FieldError */
         readonly FieldError: {
             /** Code */
@@ -934,6 +971,85 @@ export interface components {
             readonly location: readonly (string | number)[];
             /** Message */
             readonly message: string;
+        };
+        /**
+         * FieldResult
+         * @description One month's raw native-cell field in a box. No aggregation, trend or analysis.
+         */
+        readonly FieldResult: {
+            readonly box: components["schemas"]["FieldBox"];
+            /** Cell Lats */
+            readonly cell_lats: readonly number[];
+            /** Cell Lons */
+            readonly cell_lons: readonly number[];
+            /** Month */
+            readonly month: string;
+            /**
+             * Schema Version
+             * @constant
+             */
+            readonly schema_version: "1.0";
+            readonly source: components["schemas"]["FieldSource"];
+            /** Values */
+            readonly values: readonly (number | null)[];
+            /**
+             * Variable Id
+             * @enum {string}
+             */
+            readonly variable_id: "V01" | "V02" | "V03" | "V04" | "V05" | "V06" | "V07" | "V08" | "V09" | "V10" | "V11" | "V12" | "V13";
+        };
+        /** FieldSource */
+        readonly FieldSource: {
+            /** Acknowledgement */
+            readonly acknowledgement: string;
+            /** Artifact Sha256 */
+            readonly artifact_sha256: {
+                readonly [key: string]: string;
+            };
+            /** Caveats */
+            readonly caveats: readonly string[];
+            /**
+             * Data Kind
+             * @constant
+             */
+            readonly data_kind: "model";
+            /** Field */
+            readonly field: string;
+            /**
+             * Retrieved At
+             * Format: date-time
+             */
+            readonly retrieved_at: string;
+            /**
+             * Scientifically Validated
+             * @constant
+             */
+            readonly scientifically_validated: false;
+            /** Served From Cache */
+            readonly served_from_cache: boolean;
+            /** Source Units */
+            readonly source_units: string;
+            /** Stale Cache */
+            readonly stale_cache: boolean;
+            /** Store Title */
+            readonly store_title: string;
+            /** Store Version */
+            readonly store_version: string;
+            /**
+             * Time Standard
+             * @enum {string}
+             */
+            readonly time_standard: "UTC" | "LST";
+            /**
+             * Units
+             * @enum {string}
+             */
+            readonly units: "°C" | "mm/day" | "mm" | "10^15 molecules/cm²" | "dimensionless" | "mg/m³" | "W/m²";
+            /**
+             * Variable Id
+             * @enum {string}
+             */
+            readonly variable_id: "V01" | "V02" | "V03" | "V04" | "V05" | "V06" | "V07" | "V08" | "V09" | "V10" | "V11" | "V12" | "V13";
         };
         /** GlobalRegion */
         readonly GlobalRegion: {
@@ -2006,6 +2122,43 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    readonly monthly_field_api_v1_field__variable_id__get: {
+        readonly parameters: {
+            readonly query: {
+                readonly lat_max: number;
+                readonly lat_min: number;
+                readonly lon_max: number;
+                readonly lon_min: number;
+                readonly month: string;
+            };
+            readonly header?: never;
+            readonly path: {
+                readonly variable_id: string;
+            };
+            readonly cookie?: never;
+        };
+        readonly requestBody?: never;
+        readonly responses: {
+            /** @description Successful Response */
+            readonly 200: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["FieldResult"];
+                };
+            };
+            /** @description Validation Error */
+            readonly 422: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     readonly health_api_v1_health_get: {
         readonly parameters: {
             readonly query?: never;
@@ -2094,7 +2247,10 @@ export type FailedJob = components["schemas"]["FailedJob"];
 export type FdrContext = components["schemas"]["FdrContext"];
 export type FdrMember = components["schemas"]["FdrMember"];
 export type FdrResult = components["schemas"]["FdrResult"];
+export type FieldBox = components["schemas"]["FieldBox"];
 export type FieldError = components["schemas"]["FieldError"];
+export type FieldResult = components["schemas"]["FieldResult"];
+export type FieldSource = components["schemas"]["FieldSource"];
 export type GlobalRegion = components["schemas"]["GlobalRegion"];
 export type Grade = components["schemas"]["Grade"];
 export type HTTPValidationError = components["schemas"]["HTTPValidationError"];

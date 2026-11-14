@@ -17,13 +17,15 @@ from fastapi.testclient import TestClient
 
 from earth_trend.api import series as series_module
 from earth_trend.api.app import create_app
-from earth_trend.api.schemas.source_series import PointSeriesResult
+from earth_trend.api.schemas.source_series import FieldResult, PointSeriesResult
 from earth_trend.sources import power_zarr
 from earth_trend.sources.power_zarr import (
     HOST,
     STORES,
+    FieldRejected,
     SourceFormatError,
     SourceUnavailable,
+    read_field,
     read_point,
 )
 
@@ -269,3 +271,138 @@ def test_provider_failures_map_to_retryable_or_invalid_problems(
 
 def test_only_the_approved_stores_are_configured() -> None:
     assert set(STORES) == {"V01", "V12"}
+
+
+def test_field_reads_native_cells_in_the_box_and_keeps_gaps(tmp_path: Path) -> None:
+    field = read_field(
+        "V01",
+        "1981-03",
+        0.9,
+        1.6,
+        29.0,
+        41.0,
+        root=tmp_path,
+        client=client_for(make_store()),
+    )
+    assert field.cell_lats == [1.0, 1.5] and field.cell_lons == [30.0, 40.0]
+    base = np.arange(80, dtype=np.float32).reshape(5, 4, 4) * 0.37 + 10.0
+    assert field.values[0] == pytest.approx(float(base[2, 2, 2]), abs=0.005)
+    assert field.values[1] == pytest.approx(float(base[2, 2, 3]), abs=0.005)
+    assert field.values[2] is None  # the interior gap at (1.5, 30) stays missing
+    assert field.values[3] == pytest.approx(float(base[2, 3, 3]), abs=0.005)
+
+
+@pytest.mark.parametrize(
+    ("month", "lat_min", "lat_max", "lon_min", "lon_max"),
+    [
+        ("1980-01", 0.9, 1.6, 29.0, 41.0),  # before the axis
+        ("1981-01", 50.0, 51.0, 29.0, 41.0),  # empty latitude band
+        ("1981-01", 0.9, 1.6, 100.0, 110.0),  # empty longitude band
+    ],
+)
+def test_field_rejects_out_of_axis_months_and_empty_boxes(
+    tmp_path: Path, month: str, lat_min: float, lat_max: float, lon_min: float, lon_max: float
+) -> None:
+    with pytest.raises(FieldRejected):
+        read_field(
+            "V01",
+            month,
+            lat_min,
+            lat_max,
+            lon_min,
+            lon_max,
+            root=tmp_path,
+            client=client_for(make_store()),
+        )
+
+
+def test_field_rejects_boxes_over_the_cell_limit(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(power_zarr, "MAX_FIELD_CELLS", 3)
+    with pytest.raises(FieldRejected, match="limit"):
+        read_field(
+            "V01",
+            "1981-01",
+            0.9,
+            1.6,
+            29.0,
+            41.0,
+            root=tmp_path,
+            client=client_for(make_store()),
+        )
+
+
+@pytest.fixture
+def field_api(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> TestClient:
+    files = make_store()
+    original: Callable[..., Any] = power_zarr.read_field
+    monkeypatch.setattr(
+        series_module,
+        "read_field",
+        lambda variable, month, lat_min, lat_max, lon_min, lon_max: original(
+            variable,
+            month,
+            lat_min,
+            lat_max,
+            lon_min,
+            lon_max,
+            root=tmp_path,
+            client=client_for(files),
+        ),
+    )
+    return TestClient(create_app(), base_url="http://127.0.0.1")
+
+
+def test_field_endpoint_returns_a_contract_valid_box(field_api: TestClient) -> None:
+    response = field_api.get(
+        "/api/v1/field/V01",
+        params={"month": "1981-03", "lat_min": 0.9, "lat_max": 1.6, "lon_min": 29, "lon_max": 41},
+    )
+    assert response.status_code == 200
+    result = FieldResult.model_validate_json(response.text)
+    assert result.month == "1981-03" and len(result.values) == 4
+    assert result.values[2] is None and result.box.selection == "native_cells_in_box"
+    assert result.source.scientifically_validated is False
+    assert any("not a trend" in caveat for caveat in result.source.caveats)
+
+
+BOX = {"month": "1981-01", "lat_min": 0, "lat_max": 1, "lon_min": 0, "lon_max": 1}
+
+
+@pytest.mark.parametrize(
+    ("params", "variable", "status", "code"),
+    [
+        ({**BOX, "month": "1981-1"}, "V01", 422, "INVALID_PARAMETERS"),
+        ({**BOX, "lat_min": 2}, "V01", 422, "INVALID_PARAMETERS"),
+        ({**BOX, "lon_min": 5, "lon_max": 5}, "V01", 422, "INVALID_PARAMETERS"),
+        ({**BOX, "lon_max": 200}, "V01", 422, "INVALID_PARAMETERS"),
+        (
+            {**BOX, "lat_min": 0.9, "lat_max": 1.6, "lon_min": 29, "lon_max": 41},
+            "V02",
+            409,
+            "MODE_UNAVAILABLE",
+        ),
+        (
+            {**BOX, "lat_min": 0.9, "lat_max": 1.6, "lon_min": 29, "lon_max": 41},
+            "V99",
+            404,
+            "NOT_FOUND",
+        ),
+    ],
+)
+def test_field_endpoint_rejects_bad_parameters(
+    field_api: TestClient, params: dict[str, Any], variable: str, status: int, code: str
+) -> None:
+    response = field_api.get(f"/api/v1/field/{variable}", params=params)
+    assert response.status_code == status
+    assert response.headers["content-type"].startswith("application/problem+json")
+    assert response.json()["code"] == code
+
+
+def test_field_endpoint_reports_out_of_axis_months(field_api: TestClient) -> None:
+    outside = field_api.get(
+        "/api/v1/field/V01",
+        params={"month": "1980-01", "lat_min": 0.9, "lat_max": 1.6, "lon_min": 29, "lon_max": 41},
+    )
+    assert outside.status_code == 422 and outside.json()["code"] == "INVALID_PARAMETERS"
