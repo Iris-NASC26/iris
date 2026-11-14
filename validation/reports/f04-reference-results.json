@@ -1,0 +1,683 @@
+{
+  "all_reference_checks_passed": true,
+  "approved_application_baseline": "634cd28",
+  "bh": {
+    "excluded_indices": [
+      4
+    ],
+    "q_fractions": [
+      "1/250",
+      "1/25",
+      "4/75",
+      "1/5",
+      null
+    ],
+    "size": 4
+  },
+  "checks": {
+    "bh:exact-fractions": true,
+    "calendar-gaps:ols": true,
+    "calendar-gaps:sen": true,
+    "constant:ols": true,
+    "constant:sen": true,
+    "hand-ols:f_statistic": true,
+    "hand-ols:intercept": true,
+    "hand-ols:r_squared": true,
+    "hand-ols:slope": true,
+    "hand-ols:sse": true,
+    "hand-ols:sxx": true,
+    "iid-rank:high": true,
+    "iid-rank:low": true,
+    "independent-ols:linregress": true,
+    "independent-ols:p-df2": true,
+    "negative-linear:ols": true,
+    "negative-linear:sen": true,
+    "outlier:sen": true,
+    "positive-linear:ols": true,
+    "positive-linear:sen": true,
+    "season-plus-trend:annual": true,
+    "season-plus-trend:climate": true,
+    "seasonal-cycle:annual": true,
+    "seasonal-cycle:climate": true,
+    "ties-and-iid-rank-ci:sen": true,
+    "weights:exact-mean": true,
+    "zero-trend-variable:ols": true,
+    "zero-trend-variable:sen": true
+  },
+  "external_function_hashes": {
+    "pymannkendall_hamed_rao": "bebec9c44771b325af2383de616be30488d1637a8afcdcc6d9593494ac03324e",
+    "scipy_robust_slopes": "15d8b7e168cd22c6e990a87eb52a7e51b02e25916d7246ddff234174a845368d"
+  },
+  "full_sm12_monte_carlo": "NOT_RUN",
+  "human_scientific_signoff": "PENDING",
+  "kind": "synthetic_reference_evidence_not_scientific_acceptance",
+  "nasa_reproduction": "NOT_RUN",
+  "note": "A VERIFIED source/analytic convention or a passed numerical comparison does not validate production inference. See method-gates.json.",
+  "outputs": {
+    "all-missing": {
+      "mk": {
+        "reason": "insufficient_record",
+        "status": "unavailable"
+      },
+      "ols": {
+        "reason": "insufficient_record",
+        "status": "unavailable"
+      },
+      "sen": {
+        "reason": "insufficient_record",
+        "status": "unavailable"
+      }
+    },
+    "ar1-no-generating-trend": {
+      "effective_df_supplied_rho_comparator": {
+        "ci_high": 0.00026950635473964177,
+        "ci_low": -0.0006044989258521172,
+        "df": 28.0,
+        "n_eff": 30.0,
+        "n_eff_raw": 30.0,
+        "p": 0.4389748495050588,
+        "rho_source": "supplied_fixture_parameter_not_residual_estimate",
+        "slope": -0.00016749628555623767,
+        "standard_error": 0.00021333778396851602,
+        "status": "PROVISIONAL",
+        "t": -0.7851224590434316
+      },
+      "hamed_rao_library_comparator": {
+        "detrending_axis": "month_index_not_actual_elapsed_midpoint_days",
+        "diagnostic_alpha": 0.05,
+        "lag_cap": 36,
+        "library": "pymannkendall==1.4.3",
+        "p": 0.15617729148544024,
+        "s": -798.0,
+        "scope": "complete_monthly_library_comparator_not_production_validation",
+        "status": "PROVISIONAL",
+        "variance": 315890.0253238219,
+        "z": -1.4180461499098482
+      },
+      "mk": {
+        "all_tied": false,
+        "limitation": "normal_approximation_not_exact_small_sample_test",
+        "n": 120,
+        "p": 0.07063954827581638,
+        "s": -798,
+        "variance": 194366.66666666666,
+        "z": -1.8077877036338383
+      },
+      "ols": {
+        "ci_high": 3.82967593778868e-05,
+        "ci_low": -0.00037328933049036214,
+        "f_statistic": 2.5977585189978494,
+        "intercept": 0.24815160934496647,
+        "n": 120,
+        "p": 0.10968655692297125,
+        "r_squared": 0.02154068658405972,
+        "reason": null,
+        "slope": -0.00016749628555623767,
+        "sse": 169.99668579749158,
+        "standard_error": 0.00010392159209910564,
+        "sxx": 133397246.14791664,
+        "t_statistic": -1.6117563460392672
+      },
+      "sen": -0.00017867247367442355
+    },
+    "calendar-gaps": {
+      "mk": {
+        "all_tied": false,
+        "limitation": "normal_approximation_not_exact_small_sample_test",
+        "n": 4,
+        "p": 0.08942935902899357,
+        "s": 6,
+        "variance": 8.666666666666666,
+        "z": 1.6984155512168937
+      },
+      "ols": {
+        "ci_high": null,
+        "ci_low": null,
+        "f_statistic": null,
+        "intercept": 1.0,
+        "n": 4,
+        "p": null,
+        "r_squared": 1.0,
+        "reason": "zero_residual_variance",
+        "slope": 0.019999999999999997,
+        "sse": 3.944304526105059e-31,
+        "standard_error": null,
+        "sxx": 11791.25,
+        "t_statistic": null
+      },
+      "sen": 0.019999999999999997
+    },
+    "constant": {
+      "mk": {
+        "all_tied": true,
+        "limitation": "normal_approximation_not_exact_small_sample_test",
+        "n": 6,
+        "p": 1.0,
+        "s": 0,
+        "variance": 0.0,
+        "z": 0.0
+      },
+      "ols": {
+        "ci_high": null,
+        "ci_low": null,
+        "f_statistic": null,
+        "intercept": 4.000000000000003,
+        "n": 6,
+        "p": null,
+        "r_squared": null,
+        "reason": "zero_residual_variance",
+        "slope": -1.2668116715137273e-17,
+        "sse": 2.208810534618833e-29,
+        "standard_error": null,
+        "sxx": 15886.375,
+        "t_statistic": null
+      },
+      "sen": 0.0
+    },
+    "insufficient": {
+      "mk": {
+        "reason": "insufficient_record",
+        "status": "unavailable"
+      },
+      "ols": {
+        "reason": "insufficient_record",
+        "status": "unavailable"
+      },
+      "sen": 0.03389830508474576
+    },
+    "negative-linear": {
+      "mk": {
+        "all_tied": false,
+        "limitation": "normal_approximation_not_exact_small_sample_test",
+        "n": 6,
+        "p": 0.008534920414227081,
+        "s": -15,
+        "variance": 28.333333333333332,
+        "z": -2.630142022557628
+      },
+      "ols": {
+        "ci_high": null,
+        "ci_low": null,
+        "f_statistic": null,
+        "intercept": 10.000000000000005,
+        "n": 6,
+        "p": null,
+        "r_squared": 1.0,
+        "reason": "zero_residual_variance",
+        "slope": -0.03000000000000003,
+        "sse": 6.074228970201791e-29,
+        "standard_error": null,
+        "sxx": 15886.375,
+        "t_statistic": null
+      },
+      "sen": -0.03
+    },
+    "ols-hand-algebra": {
+      "mk": {
+        "all_tied": false,
+        "limitation": "normal_approximation_not_exact_small_sample_test",
+        "n": 4,
+        "p": 0.4701007598741287,
+        "s": 3,
+        "variance": 7.666666666666667,
+        "z": 0.7223151185146152
+      },
+      "ols": {
+        "ci_high": 0.07249483685531248,
+        "ci_low": -0.03871485712330032,
+        "f_statistic": 1.7080715871780765,
+        "intercept": 0.9983954509627293,
+        "n": 4,
+        "p": 0.32129823393871193,
+        "r_squared": 0.46063608725471117,
+        "reason": null,
+        "slope": 0.016889989866006084,
+        "sse": 1.4832507600495441,
+        "standard_error": 0.012923387147850112,
+        "sxx": 4440.5,
+        "t_statistic": 1.3069321279921449
+      },
+      "sen": 0.019506517690875233
+    },
+    "outlier": {
+      "mk": {
+        "all_tied": false,
+        "limitation": "normal_approximation_not_exact_small_sample_test",
+        "n": 6,
+        "p": 0.13285495573105385,
+        "s": 9,
+        "variance": 28.333333333333332,
+        "z": 1.502938298604359
+      },
+      "ols": {
+        "ci_high": 0.9168338411096852,
+        "ci_low": -1.0751169610788414,
+        "f_statistic": 0.04867323040683317,
+        "intercept": 25.07749827551388,
+        "n": 6,
+        "p": 0.8361916184768499,
+        "r_squared": 0.012022019964783137,
+        "reason": null,
+        "slope": -0.079141559984578,
+        "sse": 8177.185376357624,
+        "standard_error": 0.3587232462221904,
+        "sxx": 15886.375,
+        "t_statistic": -0.2206201042671161
+      },
+      "sen": 0.019999999999999997
+    },
+    "positive-linear": {
+      "mk": {
+        "all_tied": false,
+        "limitation": "normal_approximation_not_exact_small_sample_test",
+        "n": 6,
+        "p": 0.008534920414227081,
+        "s": 15,
+        "variance": 28.333333333333332,
+        "z": 2.630142022557628
+      },
+      "ols": {
+        "ci_high": null,
+        "ci_low": null,
+        "f_statistic": null,
+        "intercept": 1.000000000000001,
+        "n": 6,
+        "p": null,
+        "r_squared": 1.0,
+        "reason": "zero_residual_variance",
+        "slope": 0.019999999999999993,
+        "sse": 2.267975102510409e-30,
+        "standard_error": null,
+        "sxx": 15886.375,
+        "t_statistic": null
+      },
+      "sen": 0.019999999999999997
+    },
+    "season-plus-trend": {
+      "annual": {
+        "2000": {
+          "valid_months": 12,
+          "value": -2.0
+        },
+        "2001": {
+          "valid_months": 12,
+          "value": -1.0
+        },
+        "2002": {
+          "valid_months": 12,
+          "value": 0.0
+        },
+        "2003": {
+          "valid_months": 12,
+          "value": 1.0
+        },
+        "2004": {
+          "valid_months": 12,
+          "value": 2.0
+        }
+      },
+      "climatology": {
+        "anomalies": [
+          -2.0,
+          -2.0,
+          -2.0,
+          -2.0,
+          -2.0,
+          -2.0,
+          -2.0,
+          -2.0,
+          -2.0,
+          -2.0,
+          -2.0,
+          -2.0,
+          -1.0,
+          -1.0,
+          -1.0,
+          -1.0,
+          -1.0,
+          -1.0,
+          -1.0,
+          -1.0,
+          -1.0,
+          -1.0,
+          -1.0,
+          -1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          2.0,
+          2.0,
+          2.0,
+          2.0,
+          2.0,
+          2.0,
+          2.0,
+          2.0,
+          2.0,
+          2.0,
+          2.0,
+          2.0
+        ],
+        "climatology": [
+          3.0,
+          4.0,
+          5.0,
+          6.0,
+          7.0,
+          8.0,
+          9.0,
+          10.0,
+          11.0,
+          12.0,
+          13.0,
+          14.0
+        ],
+        "counts": [
+          5,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5
+        ]
+      },
+      "mk": {
+        "all_tied": false,
+        "limitation": "normal_approximation_not_exact_small_sample_test",
+        "n": 60,
+        "p": 1.1937149526325978e-06,
+        "s": 760,
+        "variance": 24423.333333333332,
+        "z": 4.8566779662669
+      },
+      "ols": {
+        "ci_high": 0.005482398623561417,
+        "ci_low": 0.002390298433488456,
+        "f_statistic": 25.974400357228063,
+        "intercept": 4.967684845023745,
+        "n": 60,
+        "p": 3.957200888312545e-06,
+        "r_squared": 0.3093133174721423,
+        "reason": null,
+        "slope": 0.003936348528524937,
+        "sse": 576.7233799107612,
+        "standard_error": 0.0007723617879556405,
+        "sxx": 16668557.045833332,
+        "t_statistic": 5.09650864388829
+      },
+      "sen": 0.004774773092749277
+    },
+    "seasonal-cycle": {
+      "annual": {
+        "2000": {
+          "valid_months": 12,
+          "value": 0.0
+        },
+        "2001": {
+          "valid_months": 12,
+          "value": 0.0
+        },
+        "2002": {
+          "valid_months": 12,
+          "value": 0.0
+        },
+        "2003": {
+          "valid_months": 12,
+          "value": 0.0
+        },
+        "2004": {
+          "valid_months": 12,
+          "value": 0.0
+        },
+        "2005": {
+          "valid_months": 12,
+          "value": 0.0
+        }
+      },
+      "climatology": {
+        "anomalies": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "climatology": [
+          1.0,
+          2.0,
+          3.0,
+          4.0,
+          5.0,
+          6.0,
+          7.0,
+          8.0,
+          9.0,
+          10.0,
+          11.0,
+          12.0
+        ],
+        "counts": [
+          6,
+          6,
+          6,
+          6,
+          6,
+          6,
+          6,
+          6,
+          6,
+          6,
+          6,
+          6
+        ]
+      },
+      "mk": {
+        "all_tied": false,
+        "limitation": "normal_approximation_not_exact_small_sample_test",
+        "n": 72,
+        "p": 0.0538609019888149,
+        "s": 396,
+        "variance": 41976.0,
+        "z": 1.9279535666640164
+      },
+      "ols": {
+        "ci_high": 0.00219024671491045,
+        "ci_low": -0.00037532430260060485,
+        "f_statistic": 1.9906217240620856,
+        "intercept": 5.51994189735268,
+        "n": 72,
+        "p": 0.16270479893217557,
+        "r_squared": 0.027651125610389626,
+        "reason": null,
+        "slope": 0.0009074612061549227,
+        "sse": 834.2753342262857,
+        "standard_error": 0.0006431817284107459,
+        "sxx": 28810047.0,
+        "t_statistic": 1.410893945008655
+      },
+      "sen": 0.001314060446780552
+    },
+    "ties-and-iid-rank-ci": {
+      "iid_sen_ci": {
+        "ci_high": 0.04918032786885246,
+        "ci_low": 0.016666666666666666,
+        "confidence": 0.95,
+        "scope": "independent_errors_only_not_autocorrelation_adjusted",
+        "slope": 0.03278688524590164
+      },
+      "mk": {
+        "all_tied": false,
+        "limitation": "normal_approximation_not_exact_small_sample_test",
+        "n": 6,
+        "p": 0.01289887393508169,
+        "s": 14,
+        "variance": 27.333333333333332,
+        "z": 2.4865491809470193
+      },
+      "ols": {
+        "ci_high": 0.04303432309866546,
+        "ci_low": 0.01777250035854238,
+        "f_statistic": 44.66357153113483,
+        "intercept": -0.2726550267131427,
+        "n": 6,
+        "p": 0.00260644630624972,
+        "r_squared": 0.9178029915572307,
+        "reason": null,
+        "slope": 0.03040341172860392,
+        "sse": 1.31515213508431,
+        "standard_error": 0.0045493106801986335,
+        "sxx": 15886.375,
+        "t_statistic": 6.683080990915405
+      },
+      "sen": 0.03278688524590164
+    },
+    "zero-trend-variable": {
+      "mk": {
+        "all_tied": false,
+        "limitation": "normal_approximation_not_exact_small_sample_test",
+        "n": 4,
+        "p": 1.0,
+        "s": 0,
+        "variance": 6.666666666666667,
+        "z": 0.0
+      },
+      "ols": {
+        "ci_high": 0.007455442524246146,
+        "ci_low": -0.007455442524246146,
+        "f_statistic": 6.162975822039154e-33,
+        "intercept": 5.551115123125782e-17,
+        "n": 4,
+        "p": 1.0,
+        "r_squared": 0.0,
+        "reason": null,
+        "slope": 0.0,
+        "sse": 4.0,
+        "standard_error": 0.0017327548822840433,
+        "sxx": 666125.0,
+        "t_statistic": 0.0
+      },
+      "sen": 0.0
+    }
+  },
+  "python": "3.13.15",
+  "reference_version": "f04-reference-v1",
+  "source_hashes": {
+    "fixtures/acker-source-facts.json": "5432d61fe7a0276db2bb91423e60f3cf511dfb7af2810ef5cc210a9763163117",
+    "fixtures/calibration-plan.json": "347b78ba85d6d01a4b1794cec0ff60a34ce6abcda87ff187dd5421e7f05c4f18",
+    "fixtures/method-gates.json": "ccddcb171b58a33a1d34dbdf2eb520c1c199284f894c86b2ab0cdf852d928b89",
+    "fixtures/synthetic-v1.json": "c44cb68d47d37bfb14de1bbd7cd8001fd9b8619d3beacaef5dbea0a5262ef0fe",
+    "pyproject.toml": "3aaa42ea3c445bdd8c493a58d28c74ff9a0e74f68431899e39f4464d7b1a93c9",
+    "reference/__init__.py": "0678f824474c9013ea9292501513faff26f1205888a9d412833e56072ffc8d5d",
+    "reference/build_fixtures.py": "7b6c7c99e9be45c9ba33f0881030386b2b170cd4f4fa0b14b8dc2d1053f2ebfc",
+    "reference/oracles.py": "4677930acb249179e834709deb696fdc6ab3851b84e0094e224fb96e0ae09c8c",
+    "reference/run_checks.py": "7a7e14353cb7c68239be5fa145b5088824f347a2df17e8a73cef0928af32ebc3",
+    "reference/sources.json": "40915d0d5e86d7d39bb41d82abfacc6e954a90c3081ce66447f28d1688ed2813",
+    "tests/test_reference.py": "37936a8d5c3b39c73e2cc5dbb259938003480be7f0438af3adaf2e537936d22a",
+    "uv.lock": "5dfbb555252cdcdac38114e4d556b186717d5f592880b034eb9c96072078fb5e"
+  },
+  "versions": {
+    "numpy": "2.5.4",
+    "pymannkendall": "1.4.3",
+    "pytest": "9.2.0",
+    "scipy": "1.18.1"
+  },
+  "weighted_case": {
+    "coverage_fraction": "1",
+    "mean_fraction": "40/3",
+    "reason": null
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "kind": "approved_downstream_plan_not_executed",
+  "owner_tasks": ["S13","S14","R06"],
+  "source": "SRS SM-12; TDD 9.2",
+  "status": "NOT_RUN",
+  "minimum_realizations_per_scenario": 2000,
+  "monthly_positions_per_realization": 300,
+  "scenarios": ["white_noise","ar1_phi_0.3","ar1_phi_0.6","snr_0.5","snr_1","snr_2","season_plus_trend","summer_only_trend","registered_step","missing_at_random_20_percent","season_related_missingness_sensitivity"],
+  "snr_definition": "Total imposed linear change across the record divided by innovation/residual SD; record which noise scale is used for AR cases.",
+  "required_metrics": ["false_positive_rate","power","slope_bias","interval_coverage","eligible_count","grade_distribution","binomial_uncertainty"],
+  "note": "F04's single seeded 120-month AR fixture is not this suite. No false-positive or coverage threshold is claimed passed. Do not omit failed/ineligible realizations without reporting counts/reasons. Forecast leakage, paired-bootstrap validation and real-source reconstruction remain downstream."
+}

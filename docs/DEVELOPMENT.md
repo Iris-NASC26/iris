@@ -67,3 +67,18 @@ Create future science/providers/geometry/storage modules only when their approve
 H1 owns shared root configuration, Python dependencies and both lockfiles for F02. Coordinate future lockfile updates through one owner. Dependencies are exact at direct declarations and resolved in `pnpm-lock.yaml` / `backend/uv.lock`; the [licence inventory](DEPENDENCY_LICENSES.md) records installed transitive packages. Comprehensive CI, automated secret/license checks and branch protection remain F06. Human approval and post-merge checks are required before marking tasks DONE.
 
 The frontend uses Vite's built-in TSX transform; React fast-refresh and the full UI stack are deferred to U01. This avoids adding unused libraries to the foundation. Current technical references: [Vite setup](https://vite.dev/guide/), [uv project management](https://docs.astral.sh/uv/guides/projects/), [FastAPI testing](https://fastapi.tiangolo.com/tutorial/testing/).
+
+## Independent scientific references — F04
+
+The separately approved environment under `validation/` owns its own dependency pins/lockfile and imports no application code. Application setup, dependencies, contracts and scientific readiness are unchanged. See the [F04 reference guide](../validation/README.md), [method gates](../validation/fixtures/method-gates.json) and [validation-only licence inventory](../validation/DEPENDENCY_LICENSES.md).
+
+From the repository root:
+
+```powershell
+uv --directory validation sync --locked
+uv --directory validation run --locked pytest
+uv --directory validation run --locked python -m reference.build_fixtures --check
+uv --directory validation run --locked python -m reference.run_checks --check
+```
+
+H3 owns these references, with independent human scientific review required. Shared application lockfiles stay with H1. Synthetic fixtures and reference reports must not be exposed as NASA observations, prepared product results or proof that SM-12/VL-01/VL-02 passed. Scientific gates remain open even when deterministic tests pass. F04 checks are separate commands; adding full CI enforcement belongs to F06.
