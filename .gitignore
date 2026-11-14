@@ -34,3 +34,12 @@ __pycache__/
 *.py[cod]
 .venv/
 venv/
+
+# Visualization validation and source caches
+artifacts/
+test-results/
+playwright-report/
+.pytest_cache/
+
+# Existing backend durable runtime results are local data, not source fixtures.
+/backend/data/
