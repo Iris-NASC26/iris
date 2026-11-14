@@ -35,6 +35,9 @@ __pycache__/
 .venv/
 venv/
 
+# Cesium runtime assets are copied from the pinned npm package on install
+/public/cesium/
+
 # Visualization validation and source caches
 artifacts/
 test-results/

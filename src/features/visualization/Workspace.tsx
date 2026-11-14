@@ -8,7 +8,8 @@ import { Icon } from "@/components/ui/Icon";
 import { REGION_PRESETS, type DataProduct, type DiscoveryResponse, type ExtractionRequest, type PreviewResponse } from "@/lib/dataRetrievalEngine";
 import { useVisualizations } from "./store";
 import { CHARTS, type ChartKind } from "./Charts";
-import { coordinates, csvCell, format, MAX_SERIES, numeric, parseField, parsePreview, rows, summary, timestamp, type FieldData, type VisualSeries } from "./model";
+import { coordinates, csvCell, format, isOverview, MAX_SERIES, numeric, parseField, parseOverview, parsePreview, rows, summary, timestamp, type SpatialField, type VisualSeries } from "./model";
+import { EXTENT_PRESETS, estimateNativeCells, fieldRoute, parseBox, type ExtentBox } from "./extents";
 import type { MapPoint } from "./Globe";
 import './visualization.css';
 const DataChart = dynamic(() => import('./Charts').then(m => m.DataChart), { ssr: false, loading: () => <p className="viz-empty">Loading chart engine...</p> });
@@ -25,7 +26,8 @@ export function VisualizationWorkspace({ initialView = 'charts' }: {
     const [primaryId, setPrimaryId] = useState(''), [hidden, setHidden] = useState<string[]>([]), [filterStart, setFilterStart] = useState(''), [filterEnd, setFilterEnd] = useState('');
     const [includeFlagged, setIncludeFlagged] = useState(false), [normalized, setNormalized] = useState(false), [timeIndex, setTimeIndex] = useState(0), [playing, setPlaying] = useState(false), [tablePage, setTablePage] = useState(0);
     const [fieldVariable, setFieldVariable] = useState<'V01' | 'V12'>('V01'), [fieldMonth, setFieldMonth] = useState('2024-01'), [fieldBox, setFieldBox] = useState(['4', '16', '76', '86']);
-    const [field, setField] = useState<FieldData | null>(null), [fieldBusy, setFieldBusy] = useState(false), [fieldError, setFieldError] = useState('');
+    const [field, setField] = useState<SpatialField | null>(null), [fieldBusy, setFieldBusy] = useState(false), [fieldError, setFieldError] = useState('');
+    const [extentId, setExtentId] = useState('custom'), [basemapAlpha, setBasemapAlpha] = useState(1), [fieldAlpha, setFieldAlpha] = useState(0.93), [fieldVisible, setFieldVisible] = useState(true), [frameSignal, setFrameSignal] = useState(0);
     const request = useRef<AbortController | null>(null), fieldRequest = useRef<AbortController | null>(null), searchRequest = useRef<AbortController | null>(null), geoRequest = useRef<AbortController | null>(null);
     const seenPreview = useRef('');
     const productKey = (p: DataProduct) => `${p.product_id}::${p.variable_id}`;
@@ -70,7 +72,17 @@ export function VisualizationWorkspace({ initialView = 'charts' }: {
     useEffect(() => { if (!playing || times.length < 2)
         return; const id = window.setInterval(() => setTimeIndex(i => (i + 1) % times.length), 650); return () => clearInterval(id); }, [playing, times.length]);
     useEffect(() => () => { request.current?.abort(); fieldRequest.current?.abort(); searchRequest.current?.abort(); geoRequest.current?.abort(); }, []);
-    useEffect(() => { fieldRequest.current?.abort(); setField(null); setFieldError(''); setFieldBusy(false); }, [fieldVariable, fieldMonth, fieldBox.join(',')]);
+    const fieldKey = `${fieldVariable}|${fieldMonth}|${fieldBox.join(',')}`;
+    useEffect(() => {
+        // A request issued for this exact selection (e.g. the month steppers'
+        // immediate reload) supersedes the clear; older requests are stale.
+        if ((fieldRequest.current as { requestKey?: string } | null)?.requestKey === fieldKey)
+            return;
+        fieldRequest.current?.abort();
+        setField(null);
+        setFieldError('');
+        setFieldBusy(false);
+    }, [fieldKey]);
     async function discover(event: FormEvent) {
         event.preventDefault();
         if (!prompt.trim())
@@ -193,25 +205,44 @@ export function VisualizationWorkspace({ initialView = 'charts' }: {
                 setLoading(false);
         }
     }
-    async function loadField() {
+    const shiftMonth = (delta: number) => {
+        const [y, m] = fieldMonth.split('-').map(Number);
+        if (!y || !m)
+            return;
+        const next = new Date(Date.UTC(y, m - 1 + delta, 1)).toISOString().slice(0, 7);
+        setFieldMonth(next);
+        if (field)
+            void loadField(next);
+    };
+    async function loadField(month = fieldMonth) {
         fieldRequest.current?.abort();
         const controller = new AbortController();
         fieldRequest.current = controller;
         setField(null);
         setFieldError('');
-        const b = fieldBox.map(Number);
-        if (fieldBox.some(v => !v.trim()) || !b.every(numeric) || b[0] >= b[1] || b[2] >= b[3] || b[0] < -90 || b[1] > 90 || b[2] < -180 || b[3] > 180) {
+        const box = parseBox(fieldBox);
+        if (!box) {
             setFieldError('Enter an ordered region box within latitude/longitude limits.');
             return;
         }
+        if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(month)) {
+            setFieldError('Choose a valid month.');
+            return;
+        }
+        const route = fieldRoute(box, fieldVariable);
+        (controller as AbortController & { requestKey?: string }).requestKey = `${fieldVariable}|${month}|${fieldBox.join(',')}`;
         setFieldBusy(true);
         try {
-            const query = new URLSearchParams({ variable: fieldVariable, month: fieldMonth, lat_min: fieldBox[0], lat_max: fieldBox[1], lon_min: fieldBox[2], lon_max: fieldBox[3] });
-            const result = parseField(await json(`/api/v1/visualization/field?${query}`, { signal: controller.signal }));
-            if (result.variable_id !== fieldVariable || result.month !== fieldMonth)
+            const query = new URLSearchParams({ variable: fieldVariable, month, lat_min: fieldBox[0], lat_max: fieldBox[1], lon_min: fieldBox[2], lon_max: fieldBox[3] });
+            const result = route === 'overview'
+                ? parseOverview(await json(`/api/v1/visualization/overview?${query}`, { signal: controller.signal }))
+                : parseField(await json(`/api/v1/visualization/field?${query}`, { signal: controller.signal }));
+            if (result.variable_id !== fieldVariable || result.month !== month)
                 throw new Error("The spatial response does not match the requested variable and month.");
-            if (!controller.signal.aborted)
+            if (!controller.signal.aborted) {
                 setField(result);
+                setFrameSignal(s => s + 1);
+            }
         }
         catch (e) {
             if (!controller.signal.aborted)
@@ -276,17 +307,27 @@ export function VisualizationWorkspace({ initialView = 'charts' }: {
     {view === 'charts' && (primary ? <section className="viz-chart-card"><div className="viz-chart-types" role="group" aria-label="Chart type">{CHARTS.map(c => <button key={c.id} aria-pressed={kind === c.id} onClick={() => setKind(c.id)}>{c.label}</button>)}</div><p className="viz-chart-hint">{CHARTS.find(c => c.id === kind)?.hint}</p>{['line', 'area', 'bars'].includes(kind) && entries.length > 1 && <label className="viz-check"><input type="checkbox" checked={normalized} onChange={e => setNormalized(e.target.checked)}/> Standardize series for a unitless comparison</label>}{stats.count ? <DataChart kind={kind} entries={entries} primary={primary} data={data} normalized={normalized} onSelect={t => { const i = times.indexOf(t); if (i >= 0)
         setTimeIndex(i); }}/> : <div className="viz-empty">No usable observations in this period. Adjust the display filters or inspect the QA flags.</div>}</section> : <Empty />)}
     {view === 'globe' && <>
-     <Globe field={field} points={points} onPick={pick}/>
-     <section className="viz-field-controls"><div><span className="viz-eyebrow">REAL SPATIAL DATA</span><h3>Explore a month, cell by cell.</h3><p>Load a regional native grid, not an inferred surface from point samples. Up to 4,000 cells per request.</p></div>
-      <div className="viz-field-presets"><label>Spatial region preset<select defaultValue="" onChange={event=>{const region=REGION_PRESETS.find(r=>r.id===event.target.value);if(region)setFieldBox([String(region.bbox[1]),String(region.bbox[3]),String(region.bbox[0]),String(region.bbox[2])]);}}><option value="">Choose a region box...</option>{REGION_PRESETS.map(region=><option key={region.id} value={region.id}>{region.name}</option>)}</select></label><button className="viz-button" onClick={()=>{const a=Number(lat),b=Number(lon);if(numeric(a)&&numeric(b)&&lat.trim()&&lon.trim()&&Math.abs(a)<=90&&Math.abs(b)<=180)setFieldBox([String(Math.max(-90,a-5)),String(Math.min(90,a+5)),String(Math.max(-180,b-5)),String(Math.min(180,b+5))]);}}>Use box around selected location</button></div>
-      <div className="viz-field-form"><label>Spatial variable<select value={fieldVariable} onChange={e => setFieldVariable(e.target.value as 'V01' | 'V12')}><option value="V01">Air temperature / T2M</option><option value="V12">Surface sunlight / ALLSKY_SFC_SW_DWN</option></select></label><label>Spatial month<input type="month" value={fieldMonth} onChange={e => setFieldMonth(e.target.value)}/></label>
-       {['South latitude', 'North latitude', 'West longitude', 'East longitude'].map((label, i) => <label key={label}>{label}<input type="number" step="any" value={fieldBox[i]} onChange={e => setFieldBox(current => current.map((v, j) => i === j ? e.target.value : v))}/></label>)}
-       <button className="viz-button viz-primary" disabled={fieldBusy} onClick={() => void loadField()}>{fieldBusy ? 'Loading native cells...' : 'Load spatial field'}</button><button className="viz-button" onClick={() => { fieldRequest.current?.abort(); setField(null); setFieldBusy(false); }}>Clear field</button>
+     <Globe field={field} points={points} onPick={pick} extentBox={parseBox(fieldBox)} frameSignal={frameSignal} basemapAlpha={basemapAlpha} fieldAlpha={fieldAlpha} fieldVisible={fieldVisible}
+      onEngineState={s => { if (s.basemap === 'tiles-degraded') setNotice('Tiled basemap requests failed — switched to the local NASA image. "Retry tiled imagery" restores it.'); }}/>
+     <section className="viz-field-controls"><div><span className="viz-eyebrow">REAL SPATIAL DATA</span><h3>Explore a month, cell by cell.</h3><p>Dataset → spatial extent → month → load. Extents within the native cell budget load full-resolution cells; larger extents load a documented, area-weighted overview — never an inferred surface from point samples.</p></div>
+      <div className="viz-field-form"><label>Spatial variable<select value={fieldVariable} onChange={e => setFieldVariable(e.target.value as 'V01' | 'V12')}><option value="V01">Air temperature / T2M</option><option value="V12">Surface sunlight / ALLSKY_SFC_SW_DWN</option></select></label>
+       <label>Spatial extent<select value={extentId} onChange={e => { const preset = EXTENT_PRESETS.find(p => p.id === e.target.value); if (!preset) return; setExtentId(preset.id); if (preset.id !== 'custom') { setFieldBox(preset.box.map(String)); setFrameSignal(s => s + 1); } }}>{EXTENT_PRESETS.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</select><small className="viz-muted">{EXTENT_PRESETS.find(p => p.id === extentId)?.note}</small></label>
+       <button className="viz-button" onClick={() => { const a = Number(lat), b = Number(lon); if (numeric(a) && numeric(b) && lat.trim() && lon.trim() && Math.abs(a) <= 90 && Math.abs(b) <= 180) { setExtentId('custom'); setFieldBox([String(Math.max(-90, a - 5)), String(Math.min(90, a + 5)), String(Math.max(-180, b - 5)), String(Math.min(180, b + 5))]); } }}>Use box around selected location</button>
+       <div className="viz-month-row"><label>Spatial month<input type="month" value={fieldMonth} onChange={e => setFieldMonth(e.target.value)}/></label><div className="viz-month-steps"><button className="viz-button" aria-label="Previous month" onClick={() => shiftMonth(-1)}>◀</button><button className="viz-button" aria-label="Next month" onClick={() => shiftMonth(1)}>▶</button></div></div>
+       {['South latitude', 'North latitude', 'West longitude', 'East longitude'].map((label, i) => <label key={label}>{label}<input type="number" step="any" value={fieldBox[i]} onChange={e => { setExtentId('custom'); setFieldBox(current => current.map((v, j) => i === j ? e.target.value : v)); }}/></label>)}
+       <p className="viz-muted">{parseBox(fieldBox) ? `≈${estimateNativeCells(parseBox(fieldBox)!, fieldVariable).toLocaleString()} native cells — ${fieldRoute(parseBox(fieldBox)!, fieldVariable) === 'field' ? 'native-resolution read (≤ 4,000 cells)' : 'aggregated overview; the declared output resolution is shown with the loaded field'}.` : 'Enter an ordered extent before loading.'}</p>
+       <button className="viz-button viz-primary" disabled={fieldBusy} onClick={() => void loadField()}>{fieldBusy ? 'Loading cells...' : 'Load spatial field'}</button><button className="viz-button" onClick={() => { fieldRequest.current?.abort(); setField(null); setFieldBusy(false); }}>Clear field</button>
       </div>{fieldError && <p role="alert" className="viz-error">{fieldError}</p>}
-      {field && <div className="viz-field-source"><strong>{field.values.filter(numeric).length} of {field.values.length} native cells contain values / {field.month} / {field.units} / {field.time_standard}</strong><p>{field.source.title} / {field.source.version}{field.source.stale_cache ? ' / STALE CACHED SOURCE' : field.source.from_cache ? ' / Cached source' : ' / Retrieved source'}</p><p>Raw monthly model data. No slope, significance, forecast or scientific validation is implied.</p><details><summary>Spatial source and provenance</summary><a href={field.source.url} target="_blank" rel="noreferrer">NASA source store</a><p>Retrieved {field.source.retrieved_at}</p><ul>{field.source.caveats.map(c => <li key={c}>{c}</li>)}</ul><pre>{JSON.stringify(field.source.artifact_sha256, null, 2)}</pre></details></div>}
+      <div className="viz-layer-controls"><span className="viz-step">LAYERS</span>
+       <label className="viz-check"><input type="checkbox" checked={fieldVisible} onChange={e => setFieldVisible(e.target.checked)}/> Scientific field layer</label>
+       <label>Field opacity<input aria-label="Field opacity" type="range" min={0.2} max={1} step={0.05} value={fieldAlpha} onChange={e => setFieldAlpha(Number(e.target.value))}/></label>
+       <label>Basemap opacity<input aria-label="Basemap opacity" type="range" min={0.2} max={1} step={0.05} value={basemapAlpha} onChange={e => setBasemapAlpha(Number(e.target.value))}/></label>
+       <button className="viz-button" onClick={() => setFrameSignal(s => s + 1)}>Frame selected extent</button>
+      </div>
+      {field && <div className="viz-field-source"><strong>{field.values.filter(numeric).length} of {field.values.length} {isOverview(field) ? 'output cells' : 'native cells'} contain values / {field.month} / {field.units} / {field.time_standard}</strong>{isOverview(field) && <p>Extent {field.extent.lat_min}° to {field.extent.lat_max}° N, {field.extent.lon_min}° to {field.extent.lon_max}° E — {field.resolution.output_cells.toLocaleString()} output cells at {format(field.lat_step)}° × {format(field.lon_step)}°{field.resolution.aggregation === 'none' ? ' (native source resolution)' : `, ${field.resolution.factor_lat} × ${field.resolution.factor_lon} cells combined by cos(lat)-area-weighted mean from ${format(field.resolution.source_lat_step)}° × ${format(field.resolution.source_lon_step)}°`}.</p>}<p>{field.source.title} / {field.source.version}{field.source.stale_cache ? ' / STALE CACHED SOURCE' : field.source.from_cache ? ' / Cached source' : ' / Retrieved source'}</p><p>Raw monthly model data. No slope, significance, forecast or scientific validation is implied.</p><details><summary>Spatial source and provenance</summary><a href={field.source.url} target="_blank" rel="noreferrer">NASA source store</a><p>Retrieved {field.source.retrieved_at}</p><ul>{field.source.caveats.map(c => <li key={c}>{c}</li>)}</ul><pre>{JSON.stringify(field.source.artifact_sha256, null, 2)}</pre></details></div>}
      </section>
     </>}
-    {primary && primaryRows.length > 0 && <section className="viz-time-control"><button className="viz-button" onClick={() => setPlaying(p => !p)}>{playing ? 'Pause' : 'Play observations'}</button><label>Selected observation<input aria-label="Observation time" type="range" min={0} max={Math.max(0, times.length - 1)} value={primaryIndex} onChange={e => { setPlaying(false); setTimeIndex(Number(e.target.value)); }}/></label><strong>{primaryRows[primaryIndex]?.timestamp} / {format(primaryRows[primaryIndex]?.value ?? null)} {primary.preview.summary_stats.unit}</strong><p>Playback selects retrieved observations only. Spatial fields retain their separately labelled month and change only when loaded.</p></section>}
+    {primary && primaryRows.length > 0 && <section className="viz-time-control"><button className="viz-button" onClick={() => setPlaying(p => !p)}>{playing ? 'Pause' : 'Play observations'}</button><label>Selected observation<input aria-label="Observation time" type="range" min={0} max={Math.max(0, times.length - 1)} value={primaryIndex} onChange={e => { setPlaying(false); setTimeIndex(Number(e.target.value)); }}/></label><strong>{primaryRows[primaryIndex]?.timestamp} / {format(primaryRows[primaryIndex]?.value ?? null)} {primary.preview.summary_stats.unit}</strong><button className="viz-button" onClick={() => { const month = primaryRows[primaryIndex]?.timestamp.slice(0, 7); if (month) { setFieldMonth(month); void loadField(month); } }}>Load spatial field for the selected month</button><p>Playback selects retrieved observations only. Spatial fields retain their separately labelled month and change only on an explicit load.</p></section>}
     {view === 'table' && (primary ? <section className="viz-table-card"><h3>Inspect every observation</h3><p>Values are source observations; blank values are missing or excluded by the visible QA filter.</p><div className="viz-table-scroll"><table><caption>Observation data for {primary.label}</caption><thead><tr><th>Timestamp</th><th>Source value ({primary.preview.summary_stats.unit})</th><th>Plotted value</th><th>Source QA</th></tr></thead><tbody>{primaryRows.slice(tablePage * 50, tablePage * 50 + 50).map(r => <tr key={r.timestamp}><td>{r.timestamp}</td><td>{format(r.sourceValue ?? null, 4)}</td><td>{format(r.value, 4)}</td><td>{r.qa}</td></tr>)}</tbody></table></div><div className="viz-table-pages"><button disabled={tablePage === 0} onClick={() => setTablePage(p => p - 1)}>Previous rows</button><span>Page {tablePage + 1} of {Math.max(1, Math.ceil(primaryRows.length / 50))}</span><button disabled={(tablePage + 1) * 50 >= primaryRows.length} onClick={() => setTablePage(p => p + 1)}>Next rows</button></div></section> : <Empty />)}
     {primary && <SourceDetails entry={primary}/>}
    </section>
