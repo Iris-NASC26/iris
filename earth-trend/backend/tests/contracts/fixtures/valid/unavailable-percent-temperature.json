@@ -1,0 +1,23 @@
+{
+  "fixture_kind": "synthetic_contract",
+  "fixture_id": "unavailable-percent-temperature",
+  "model": "Estimate",
+  "disclosure": "STRUCTURAL TEST ONLY. Invented values and IDs; no NASA observations, method validation or scientific findings. Never bundle as product data.",
+  "payload": {
+    "quantity": "percent_change_per_decade",
+    "units": "%/decade",
+    "branch_id": "monthly_anomaly",
+    "provenance_id": "synthetic-provenance",
+    "status": "unavailable",
+    "value": null,
+    "reason": "interval_scale_variable",
+    "ci_low": null,
+    "ci_high": null,
+    "confidence_level": null,
+    "ci_method": null,
+    "ci_method_version": null,
+    "ci_reason": "interval_scale_variable",
+    "estimator": "derived",
+    "estimator_version": "synthetic-estimator-not-science"
+  }
+}

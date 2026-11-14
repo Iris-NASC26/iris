@@ -1,0 +1,24 @@
+{
+  "kind": "literature_transcription_not_observations",
+  "source_id": "ACKER-2009",
+  "source_sha256": "5209cee13b536f0b4df59b6e4fac9f631fafd1458f1e4d936d2cfab5edda0ab3",
+  "review_status": "AI visual transcription; independent human verification pending",
+  "candidate_window": {"start":"1998-01","end":"2007-12"},
+  "window_evidence": "PDF page 22, contrasted with nine-year wording on page 3; candidate follows TDD.",
+  "table": "Table 1 PDF page 4; Table 5 PDF page 17",
+  "coordinate_order": "west,south,east,north in decimal degrees",
+  "application_crs_assumption": "Use WGS84 per TDD; the paper table does not separately state a datum.",
+  "rows": [
+    {"river":"Amazon","bbox":[-51.0,7.5,-50.5,8.0],"published_slope_sign":-1,"published_monthly_p":0.78},
+    {"river":"Congo","bbox":[2.0,-5.5,2.5,-5.0],"published_slope_sign":-1,"published_monthly_p":0.28},
+    {"river":"Eel","bbox":[-125.9,41.0,-125.4,41.5],"published_slope_sign":1,"published_monthly_p":0.035},
+    {"river":"Ganges","bbox":[89.4,19.8,89.9,20.3],"published_slope_sign":-1,"published_monthly_p":0.03},
+    {"river":"Guadalquivir","bbox":[-6.8,36.0,-6.3,36.5],"published_slope_sign":-1,"published_monthly_p":0.07},
+    {"river":"Mississippi East","bbox":[-86.75,29.1,-86.25,29.6],"published_slope_sign":-1,"published_monthly_p":0.0169},
+    {"river":"Mississippi West","bbox":[-94.0,28.25,-93.5,28.75],"published_slope_sign":-1,"published_monthly_p":0.0018},
+    {"river":"Orinoco","bbox":[-64.8,12.0,-64.3,12.5],"published_slope_sign":-1,"published_monthly_p":0.63},
+    {"river":"Pearl","bbox":[117.5,22.0,118.0,22.5],"published_slope_sign":1,"published_monthly_p":0.068},
+    {"river":"Po","bbox":[13.5,44.0,14.0,44.5],"published_slope_sign":-1,"published_monthly_p":0.053}
+  ],
+  "limitations": ["Published slope units need separate verification; no absolute slope values are imported.","Table 5 footnotes distinguish Eel and Po support; preserve these in S14.","No source observations, annual-anomaly p-values or reproduced results are present."]
+}

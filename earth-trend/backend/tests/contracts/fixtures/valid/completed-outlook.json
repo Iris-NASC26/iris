@@ -1,0 +1,274 @@
+{
+  "fixture_kind": "synthetic_contract",
+  "fixture_id": "completed-outlook",
+  "model": "OutlookResult",
+  "disclosure": "STRUCTURAL TEST ONLY. Invented values and IDs; no NASA observations, method validation or scientific findings. Never bundle as product data.",
+  "payload": {
+    "schema_version": "1.0",
+    "created_at": "2026-11-14T00:00:00Z",
+    "status": "completed",
+    "result_id": "synthetic-outlook",
+    "request_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "data_release_id": "synthetic-release",
+    "mode": "local",
+    "evidence_kind": "synthetic_contract",
+    "provenance_id": "synthetic-provenance",
+    "provenance_map": {
+      "all_fixture_values": "synthetic-provenance"
+    },
+    "warnings": [
+      "synthetic_contract_only"
+    ],
+    "request": {
+      "schema_version": "1.0",
+      "analysis_result_id": "synthetic-analysis",
+      "projection_horizon_years": 1.0,
+      "forecast_horizon_months": 12
+    },
+    "historical_window": {
+      "start": "2003-01",
+      "end": "2023-12"
+    },
+    "record_length_years": 21.0,
+    "projection": {
+      "status": "available",
+      "reason": null,
+      "label": "Not a prediction",
+      "model": "trend_seasonality_ar1",
+      "model_version": "fixture-not-a-model",
+      "validation_report_id": "synthetic-reference-not-a-real-report",
+      "branch_id": "monthly_anomaly",
+      "seed": 42,
+      "simulation_paths": 2000,
+      "horizon_months": 12,
+      "units": "°C",
+      "quantiles": [
+        {
+          "time": "2024-01",
+          "lower95": 1.0,
+          "lower80": 2.0,
+          "median": 3.0,
+          "upper80": 4.0,
+          "upper95": 5.0
+        },
+        {
+          "time": "2024-02",
+          "lower95": 1.0,
+          "lower80": 2.0,
+          "median": 3.0,
+          "upper80": 4.0,
+          "upper95": 5.0
+        },
+        {
+          "time": "2024-03",
+          "lower95": 1.0,
+          "lower80": 2.0,
+          "median": 3.0,
+          "upper80": 4.0,
+          "upper95": 5.0
+        },
+        {
+          "time": "2024-04",
+          "lower95": 1.0,
+          "lower80": 2.0,
+          "median": 3.0,
+          "upper80": 4.0,
+          "upper95": 5.0
+        },
+        {
+          "time": "2024-05",
+          "lower95": 1.0,
+          "lower80": 2.0,
+          "median": 3.0,
+          "upper80": 4.0,
+          "upper95": 5.0
+        },
+        {
+          "time": "2024-06",
+          "lower95": 1.0,
+          "lower80": 2.0,
+          "median": 3.0,
+          "upper80": 4.0,
+          "upper95": 5.0
+        },
+        {
+          "time": "2024-07",
+          "lower95": 1.0,
+          "lower80": 2.0,
+          "median": 3.0,
+          "upper80": 4.0,
+          "upper95": 5.0
+        },
+        {
+          "time": "2024-08",
+          "lower95": 1.0,
+          "lower80": 2.0,
+          "median": 3.0,
+          "upper80": 4.0,
+          "upper95": 5.0
+        },
+        {
+          "time": "2024-09",
+          "lower95": 1.0,
+          "lower80": 2.0,
+          "median": 3.0,
+          "upper80": 4.0,
+          "upper95": 5.0
+        },
+        {
+          "time": "2024-10",
+          "lower95": 1.0,
+          "lower80": 2.0,
+          "median": 3.0,
+          "upper80": 4.0,
+          "upper95": 5.0
+        },
+        {
+          "time": "2024-11",
+          "lower95": 1.0,
+          "lower80": 2.0,
+          "median": 3.0,
+          "upper80": 4.0,
+          "upper95": 5.0
+        },
+        {
+          "time": "2024-12",
+          "lower95": 1.0,
+          "lower80": 2.0,
+          "median": 3.0,
+          "upper80": 4.0,
+          "upper95": 5.0
+        }
+      ],
+      "provenance_id": "synthetic-provenance"
+    },
+    "forecast": {
+      "status": "available",
+      "reason": null,
+      "label": "Statistical forecast",
+      "model": "trend_seasonality_ar1",
+      "model_version": "fixture-not-a-model",
+      "validation_report_id": "synthetic-reference-not-a-real-report",
+      "branch_id": "monthly_anomaly",
+      "seed": 42,
+      "horizon_months": 12,
+      "units": "°C",
+      "quantiles": [
+        {
+          "time": "2024-01",
+          "lower95": 1.0,
+          "lower80": 2.0,
+          "median": 3.0,
+          "upper80": 4.0,
+          "upper95": 5.0
+        },
+        {
+          "time": "2024-02",
+          "lower95": 1.0,
+          "lower80": 2.0,
+          "median": 3.0,
+          "upper80": 4.0,
+          "upper95": 5.0
+        },
+        {
+          "time": "2024-03",
+          "lower95": 1.0,
+          "lower80": 2.0,
+          "median": 3.0,
+          "upper80": 4.0,
+          "upper95": 5.0
+        },
+        {
+          "time": "2024-04",
+          "lower95": 1.0,
+          "lower80": 2.0,
+          "median": 3.0,
+          "upper80": 4.0,
+          "upper95": 5.0
+        },
+        {
+          "time": "2024-05",
+          "lower95": 1.0,
+          "lower80": 2.0,
+          "median": 3.0,
+          "upper80": 4.0,
+          "upper95": 5.0
+        },
+        {
+          "time": "2024-06",
+          "lower95": 1.0,
+          "lower80": 2.0,
+          "median": 3.0,
+          "upper80": 4.0,
+          "upper95": 5.0
+        },
+        {
+          "time": "2024-07",
+          "lower95": 1.0,
+          "lower80": 2.0,
+          "median": 3.0,
+          "upper80": 4.0,
+          "upper95": 5.0
+        },
+        {
+          "time": "2024-08",
+          "lower95": 1.0,
+          "lower80": 2.0,
+          "median": 3.0,
+          "upper80": 4.0,
+          "upper95": 5.0
+        },
+        {
+          "time": "2024-09",
+          "lower95": 1.0,
+          "lower80": 2.0,
+          "median": 3.0,
+          "upper80": 4.0,
+          "upper95": 5.0
+        },
+        {
+          "time": "2024-10",
+          "lower95": 1.0,
+          "lower80": 2.0,
+          "median": 3.0,
+          "upper80": 4.0,
+          "upper95": 5.0
+        },
+        {
+          "time": "2024-11",
+          "lower95": 1.0,
+          "lower80": 2.0,
+          "median": 3.0,
+          "upper80": 4.0,
+          "upper95": 5.0
+        },
+        {
+          "time": "2024-12",
+          "lower95": 1.0,
+          "lower80": 2.0,
+          "median": 3.0,
+          "upper80": 4.0,
+          "upper95": 5.0
+        }
+      ],
+      "provenance_id": "synthetic-provenance",
+      "skill": {
+        "decision": "passed",
+        "reason": null,
+        "candidate_mae": 1.0,
+        "seasonal_naive_mae": 2.0,
+        "climatology_mae": 3.0,
+        "mase": 0.5,
+        "coverage80": 0.8,
+        "coverage95": 0.95,
+        "origins": 60,
+        "targets": 720,
+        "window": {
+          "start": "2003-01",
+          "end": "2023-12"
+        },
+        "provenance_id": "synthetic-provenance"
+      }
+    }
+  }
+}

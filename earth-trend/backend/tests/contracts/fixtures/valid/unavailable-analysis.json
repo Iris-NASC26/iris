@@ -1,0 +1,359 @@
+{
+  "fixture_kind": "synthetic_contract",
+  "fixture_id": "unavailable-analysis",
+  "model": "AnalysisResult",
+  "disclosure": "STRUCTURAL TEST ONLY. Invented values and IDs; no NASA observations, method validation or scientific findings. Never bundle as product data.",
+  "payload": {
+    "schema_version": "1.0",
+    "created_at": "2026-11-14T00:00:00Z",
+    "status": "completed",
+    "result_id": "synthetic-analysis",
+    "request_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "data_release_id": "synthetic-release",
+    "mode": "local",
+    "evidence_kind": "synthetic_contract",
+    "provenance_id": "synthetic-provenance",
+    "provenance_map": {
+      "all_fixture_values": "synthetic-provenance"
+    },
+    "warnings": [
+      "synthetic_contract_only"
+    ],
+    "request": {
+      "schema_version": "1.0",
+      "window": {
+        "start": "2003-01",
+        "end": "2023-12"
+      },
+      "baseline": {
+        "kind": "analysis_window"
+      },
+      "alpha": 0.05,
+      "method_profile": "srs-p0-v1",
+      "data_release_id": "synthetic-release",
+      "variable_id": "V01",
+      "region": {
+        "kind": "bbox",
+        "bbox": [
+          -91,
+          42,
+          -86,
+          47
+        ]
+      }
+    },
+    "binding_id": "synthetic-binding",
+    "physical_units": "°C",
+    "scale_type": "interval",
+    "analysis_status": "unavailable",
+    "reason": "method_validation_required",
+    "series_refs": [
+      {
+        "series_id": "synthetic-series-monthly_anomaly",
+        "branch_id": "monthly_anomaly",
+        "provenance_id": "synthetic-provenance"
+      },
+      {
+        "series_id": "synthetic-series-reference_raw_monthly",
+        "branch_id": "reference_raw_monthly",
+        "provenance_id": "synthetic-provenance"
+      },
+      {
+        "series_id": "synthetic-series-reference_annual_anomaly",
+        "branch_id": "reference_annual_anomaly",
+        "provenance_id": "synthetic-provenance"
+      }
+    ],
+    "branches": [
+      {
+        "branch_id": "monthly_anomaly",
+        "series_id": "synthetic-series-monthly_anomaly",
+        "transform": "anomaly",
+        "frequency": "monthly",
+        "estimates": [
+          {
+            "quantity": "slope_per_decade",
+            "units": "°C/decade",
+            "branch_id": "monthly_anomaly",
+            "provenance_id": "synthetic-provenance",
+            "status": "unavailable",
+            "value": null,
+            "reason": "method_validation_required",
+            "ci_low": null,
+            "ci_high": null,
+            "confidence_level": null,
+            "ci_method": null,
+            "ci_method_version": null,
+            "ci_reason": "method_validation_required",
+            "estimator": "sen",
+            "estimator_version": "synthetic-estimator-not-science"
+          },
+          {
+            "quantity": "slope_per_decade",
+            "units": "°C/decade",
+            "branch_id": "monthly_anomaly",
+            "provenance_id": "synthetic-provenance",
+            "status": "unavailable",
+            "value": null,
+            "reason": "method_validation_required",
+            "ci_low": null,
+            "ci_high": null,
+            "confidence_level": null,
+            "ci_method": null,
+            "ci_method_version": null,
+            "ci_reason": "method_validation_required",
+            "estimator": "ols",
+            "estimator_version": "synthetic-estimator-not-science"
+          }
+        ],
+        "tests": [
+          {
+            "branch_id": "monthly_anomaly",
+            "role": "primary",
+            "method": {
+              "name": "hamed_rao_mk",
+              "version": "fixture-not-a-real-method",
+              "validation_status": "pending",
+              "validation_report_id": null
+            },
+            "valid_n": 120,
+            "provenance_id": "synthetic-provenance",
+            "status": "unavailable",
+            "p": null,
+            "statistic": null,
+            "df_numerator": null,
+            "df_denominator": null,
+            "effective_n": null,
+            "lags": {
+              "max_lag": 36,
+              "included_lags": [
+                1
+              ],
+              "diagnostic_alpha": 0.05,
+              "spacing": "calendar_months",
+              "gap_policy": "calendar_positions"
+            },
+            "reason": "method_validation_required"
+          },
+          {
+            "branch_id": "monthly_anomaly",
+            "role": "secondary",
+            "method": {
+              "name": "ols_ar1_effective_n",
+              "version": "fixture-not-a-real-method",
+              "validation_status": "pending",
+              "validation_report_id": null
+            },
+            "valid_n": 120,
+            "provenance_id": "synthetic-provenance",
+            "status": "unavailable",
+            "p": null,
+            "statistic": null,
+            "df_numerator": null,
+            "df_denominator": null,
+            "effective_n": null,
+            "lags": null,
+            "reason": "method_validation_required"
+          }
+        ],
+        "diagnostics": null,
+        "diagnostics_reason": "method_validation_required"
+      },
+      {
+        "branch_id": "reference_raw_monthly",
+        "series_id": "synthetic-series-reference_raw_monthly",
+        "transform": "raw",
+        "frequency": "monthly",
+        "estimates": [
+          {
+            "quantity": "slope_per_decade",
+            "units": "°C/decade",
+            "branch_id": "reference_raw_monthly",
+            "provenance_id": "synthetic-provenance",
+            "status": "unavailable",
+            "value": null,
+            "reason": "method_validation_required",
+            "ci_low": null,
+            "ci_high": null,
+            "confidence_level": null,
+            "ci_method": null,
+            "ci_method_version": null,
+            "ci_reason": "method_validation_required",
+            "estimator": "ols",
+            "estimator_version": "synthetic-estimator-not-science"
+          }
+        ],
+        "tests": [
+          {
+            "branch_id": "reference_raw_monthly",
+            "role": "reference",
+            "method": {
+              "name": "reference_ols_f",
+              "version": "fixture-not-a-real-method",
+              "validation_status": "pending",
+              "validation_report_id": null
+            },
+            "valid_n": 120,
+            "provenance_id": "synthetic-provenance",
+            "status": "unavailable",
+            "p": null,
+            "statistic": null,
+            "df_numerator": null,
+            "df_denominator": null,
+            "effective_n": null,
+            "lags": null,
+            "reason": "method_validation_required"
+          }
+        ],
+        "diagnostics": null,
+        "diagnostics_reason": "method_validation_required"
+      },
+      {
+        "branch_id": "reference_annual_anomaly",
+        "series_id": "synthetic-series-reference_annual_anomaly",
+        "transform": "annual_anomaly",
+        "frequency": "annual",
+        "estimates": [
+          {
+            "quantity": "slope_per_decade",
+            "units": "°C/decade",
+            "branch_id": "reference_annual_anomaly",
+            "provenance_id": "synthetic-provenance",
+            "status": "unavailable",
+            "value": null,
+            "reason": "method_validation_required",
+            "ci_low": null,
+            "ci_high": null,
+            "confidence_level": null,
+            "ci_method": null,
+            "ci_method_version": null,
+            "ci_reason": "method_validation_required",
+            "estimator": "ols",
+            "estimator_version": "synthetic-estimator-not-science"
+          }
+        ],
+        "tests": [
+          {
+            "branch_id": "reference_annual_anomaly",
+            "role": "reference",
+            "method": {
+              "name": "reference_ols_f",
+              "version": "fixture-not-a-real-method",
+              "validation_status": "pending",
+              "validation_report_id": null
+            },
+            "valid_n": 120,
+            "provenance_id": "synthetic-provenance",
+            "status": "unavailable",
+            "p": null,
+            "statistic": null,
+            "df_numerator": null,
+            "df_denominator": null,
+            "effective_n": null,
+            "lags": null,
+            "reason": "method_validation_required"
+          }
+        ],
+        "diagnostics": null,
+        "diagnostics_reason": "method_validation_required"
+      }
+    ],
+    "primary_branch": "monthly_anomaly",
+    "fdr": null,
+    "fdr_reason": "no_fdr_context",
+    "seasonality": null,
+    "seasonality_reason": "method_validation_required",
+    "grade": {
+      "status": "unavailable",
+      "value": null,
+      "reasons": [
+        "method_validation_required"
+      ],
+      "provenance_id": "synthetic-provenance"
+    },
+    "caveat_ids": [],
+    "detectability": {
+      "horizon": {
+        "quantity": "detectability_horizon_years",
+        "units": "years",
+        "branch_id": "monthly_anomaly",
+        "provenance_id": "synthetic-provenance",
+        "status": "unavailable",
+        "value": null,
+        "reason": "method_validation_required",
+        "ci_low": null,
+        "ci_high": null,
+        "confidence_level": null,
+        "ci_method": null,
+        "ci_method_version": null,
+        "ci_reason": "method_validation_required",
+        "estimator": "derived",
+        "estimator_version": "synthetic-estimator-not-science"
+      },
+      "years_still_needed": {
+        "quantity": "detectability_horizon_years",
+        "units": "years",
+        "branch_id": "monthly_anomaly",
+        "provenance_id": "synthetic-provenance",
+        "status": "unavailable",
+        "value": null,
+        "reason": "method_validation_required",
+        "ci_low": null,
+        "ci_high": null,
+        "confidence_level": null,
+        "ci_method": null,
+        "ci_method_version": null,
+        "ci_reason": "method_validation_required",
+        "estimator": "derived",
+        "estimator_version": "synthetic-estimator-not-science"
+      },
+      "emergence": [
+        {
+          "k": 1,
+          "estimate": {
+            "quantity": "emergence_year",
+            "units": "fractional_year",
+            "branch_id": "monthly_anomaly",
+            "provenance_id": "synthetic-provenance",
+            "status": "unavailable",
+            "value": null,
+            "reason": "method_validation_required",
+            "ci_low": null,
+            "ci_high": null,
+            "confidence_level": null,
+            "ci_method": null,
+            "ci_method_version": null,
+            "ci_reason": "method_validation_required",
+            "estimator": "derived",
+            "estimator_version": "synthetic-estimator-not-science"
+          }
+        },
+        {
+          "k": 2,
+          "estimate": {
+            "quantity": "emergence_year",
+            "units": "fractional_year",
+            "branch_id": "monthly_anomaly",
+            "provenance_id": "synthetic-provenance",
+            "status": "unavailable",
+            "value": null,
+            "reason": "method_validation_required",
+            "ci_low": null,
+            "ci_high": null,
+            "confidence_level": null,
+            "ci_method": null,
+            "ci_method_version": null,
+            "ci_reason": "method_validation_required",
+            "estimator": "derived",
+            "estimator_version": "synthetic-estimator-not-science"
+          }
+        }
+      ],
+      "first_valid_month": null,
+      "noise_units": "°C",
+      "significance_alpha": 0.05,
+      "detection_probability": 0.9,
+      "label": "if the trend continues"
+    }
+  }
+}

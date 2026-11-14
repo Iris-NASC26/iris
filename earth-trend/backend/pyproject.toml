@@ -1,0 +1,44 @@
+[project]
+name = "earth-trend"
+version = "0.1.0"
+description = "Local Earth Trend Detective runtime foundation"
+requires-python = ">=3.13,<3.14"
+dependencies = [
+  "fastapi==0.162.7",
+  "httpx==0.28.1",
+  "numcodecs==0.16.3",
+  "numpy==2.5.4",
+  "pydantic==2.14.3",
+  "starlette==1.10.0",
+  "uvicorn==0.54.0",
+]
+
+[project.scripts]
+earth-trend = "earth_trend.cli:main"
+
+[build-system]
+requires = ["hatchling==1.33.0"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = ["httpx==0.28.1", "mypy==2.4.1", "pytest==9.2.0", "ruff==0.17.5"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers"
+
+[tool.ruff]
+target-version = "py313"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.mypy]
+python_version = "3.13"
+strict = true
+files = ["src", "tests", "../scripts/dev.py"]
+
+[[tool.mypy.overrides]]
+module = ["numcodecs"]
+ignore_missing_imports = true

@@ -1,0 +1,23 @@
+{
+  "fixture_kind": "synthetic_contract",
+  "fixture_id": "available-estimate",
+  "model": "Estimate",
+  "disclosure": "STRUCTURAL TEST ONLY. Invented values and IDs; no NASA observations, method validation or scientific findings. Never bundle as product data.",
+  "payload": {
+    "quantity": "slope_per_decade",
+    "units": "°C/decade",
+    "branch_id": "monthly_anomaly",
+    "provenance_id": "synthetic-provenance",
+    "status": "available",
+    "value": 0.1,
+    "reason": null,
+    "ci_low": 0.05,
+    "ci_high": 0.15000000000000002,
+    "confidence_level": 0.95,
+    "ci_method": "synthetic-interval",
+    "ci_method_version": "fixture-v1",
+    "ci_reason": null,
+    "estimator": "sen",
+    "estimator_version": "synthetic-estimator-not-science"
+  }
+}
