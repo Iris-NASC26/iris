@@ -345,3 +345,4 @@ td { color: var(--muted); }
 .globe-readout { margin: 0; font-size: .7rem; line-height: 1.55; color: var(--muted); overflow-wrap: anywhere; }
 .globe-readout p { margin: 0; }
 @media (max-width: 900px) { .globe-layout { grid-template-columns: 1fr; } .globe-canvas { height: 56vh; min-height: 300px; } }
+.globe-notice { position: absolute; left: 12px; right: 12px; bottom: 42px; margin: 0; padding: 9px 12px; border-radius: 6px; background: rgba(60, 38, 24, .94); color: #f0c9a0; font-size: .68rem; line-height: 1.5; }

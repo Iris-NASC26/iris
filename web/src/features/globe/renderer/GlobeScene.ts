@@ -29,10 +29,17 @@ export function webglAvailable(): boolean {
   try { return document.createElement('canvas').getContext('webgl2') !== null; } catch { return false; }
 }
 
-export function createGlobeScene(container: HTMLElement, onPick: (cell: PickedCell) => void): GlobeScene {
-  const globe = new Globe(container, { rendererConfig: { antialias: true, powerPreference: 'high-performance' }, animateIn: false })
+export type BasemapState = 'loaded' | 'failed';
+
+export function createGlobeScene(container: HTMLElement, onPick: (cell: PickedCell) => void, onBasemap: (state: BasemapState) => void = () => undefined): GlobeScene {
+  const globe = new Globe(container, { rendererConfig: { antialias: true, powerPreference: 'high-performance' }, animateIn: false, waitForGlobeReady: false })
     .globeImageUrl(BASEMAP_URL).backgroundColor('#0b1412').showAtmosphere(true).atmosphereColor('#8cdeb6').atmosphereAltitude(0.12)
     .onGlobeClick(({ lat, lng }) => onPick({ lat, lon: lng, index: cellIndexFromLatLon(lat, lng) }));
+  // The sphere is drawn even if the image fails; the caller is told so it never implies a basemap is visible.
+  const probe = new Image();
+  probe.onload = () => onBasemap('loaded');
+  probe.onerror = () => onBasemap('failed');
+  probe.src = BASEMAP_URL;
   const renderer = globe.renderer();
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   const controls = globe.controls();

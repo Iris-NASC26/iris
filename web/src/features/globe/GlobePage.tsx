@@ -8,7 +8,7 @@ import { Icon } from '../../components/ui/Icon';
 import { usePreferences } from '../../state/preferences';
 import { CELL_COUNT } from './renderer/grid';
 import { createSyntheticField, syntheticColor, SYNTHETIC_LABEL } from './renderer/syntheticField';
-import type { GlobeScene, Nudge, PickedCell, RenderStats, SpinResult } from './renderer/GlobeScene';
+import type { BasemapState, GlobeScene, Nudge, PickedCell, RenderStats, SpinResult } from './renderer/GlobeScene';
 
 const BENCHMARK_SECONDS = 10;
 const fieldColors = { values: null as Float32Array | null };
@@ -20,6 +20,7 @@ export function GlobePage() {
   const container = useRef<HTMLDivElement>(null);
   const scene = useRef<GlobeScene | null>(null);
   const [status, setStatus] = useState<Status>('loading');
+  const [basemap, setBasemap] = useState<BasemapState | 'pending'>('pending');
   const [showCells, setShowCells] = useState(false);
   const [rotate, setRotate] = useState(false);
   const [picked, setPicked] = useState<PickedCell | null>(null);
@@ -34,7 +35,7 @@ export function GlobePage() {
       if (cancelled) return;
       if (!webglAvailable()) return setStatus('unsupported');
       try {
-        scene.current = createGlobeScene(element, setPicked);
+        scene.current = createGlobeScene(element, setPicked, setBasemap);
         setStatus('ready');
       } catch { setStatus('error'); }
     }).catch(() => { if (!cancelled) setStatus('error'); });
@@ -72,7 +73,8 @@ export function GlobePage() {
           <strong>{status === 'unsupported' ? 'WebGL 2 is not available in this browser.' : 'The globe could not start.'}</strong>
           <span>The workspace still works. An accessible 2D grid view with numeric region controls will replace this panel in a later task.</span></div>}
         {showCells && <p className="globe-banner" role="note">{SYNTHETIC_LABEL}</p>}
-        <p className="globe-attribution">Basemap: NASA EOSDIS Global Imagery Browse Services (GIBS), Blue Marble Shaded Relief &amp; Bathymetry. Decorative; no measurement is derived from it.</p>
+        {basemap === 'failed' && <p className="globe-notice" role="alert">The NASA basemap image could not be loaded, so a plain sphere is shown. If the development server was started before <code>web/public</code> existed, restart it.</p>}
+        <p className="globe-attribution">{basemap === 'failed' ? 'Basemap image unavailable.' : 'Basemap: NASA EOSDIS Global Imagery Browse Services (GIBS), Blue Marble Shaded Relief & Bathymetry. Decorative; no measurement is derived from it.'}</p>
       </div>
       <aside className="globe-panel" aria-label="Globe controls">
         <h2>View</h2>

@@ -98,4 +98,14 @@ test.describe('Living Globe renderer (U03)', () => {
     await expect(page.getByRole('checkbox', { name: /test-only cells/ })).toBeDisabled();
     await workspace.expectNoOverflow();
   });
+
+  test('says so, and still draws the sphere, when the basemap image cannot load', async ({ page }) => {
+    await page.route('**/globe/basemap-2048x1024.jpg', route => route.fulfill({ status: 404, body: 'missing' }));
+    await new WorkspacePage(page).open('/workspace/globe');
+    await expect(page.locator('.globe-notice')).toContainText('basemap image could not be loaded');
+    await expect(page.getByText('Basemap image unavailable.')).toBeVisible();
+    await expect(page.getByText(/NASA EOSDIS Global Imagery Browse Services/)).toHaveCount(0);
+    await expect(gpuObjects(page)).toContainText('2 geometries');
+    await expect(gpuObjects(page)).toContainText('0 textures');
+  });
 });
