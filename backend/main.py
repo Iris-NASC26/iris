@@ -142,6 +142,14 @@ async def si_discover_datasets(req: DiscoverRequest) -> DiscoveryResponse:
         preferred_providers=req.preferred_providers,
         user_api_key=req.gemini_api_key,
     )
+    if intent is None:
+        raise HTTPException(
+            status_code=422,
+            detail=(
+                "Please provide an Earth or environmental research topic or explicitly ask to discover "
+                "datasets for a topic."
+            ),
+        )
     candidates, queried_sources, provider_status = await discover_catalog_products(
         intent=intent,
         preferred_providers=req.preferred_providers,

@@ -176,6 +176,49 @@ class AssistantHistoryTurn(BaseModel):
 class AssistantSelectedProduct(BaseModel):
     id: str = Field(..., max_length=200)
     title: str = Field(..., max_length=240)
+    variable_id: str = Field(default="", max_length=200)
+    variable_name: str = Field(default="", max_length=240)
+    source_api: str = Field(default="", max_length=160)
+    what_it_measures: str = Field(default="", max_length=320)
+    description: str = Field(default="", max_length=320)
+    unit: str = Field(default="", max_length=80)
+    native_frequency: str = Field(default="", max_length=80)
+
+
+class AssistantProcessedObservation(BaseModel):
+    timestamp: str = Field(..., max_length=40)
+    value: Optional[float] = None
+    secondary_value: Optional[float] = None
+    rolling_avg: Optional[float] = None
+    anomaly_z: Optional[float] = None
+    unit: str = Field(default="", max_length=80)
+    qa_flag: Literal["Valid", "Flagged", "Interpolated", "Missing"] = "Valid"
+
+
+class AssistantProcessedSummary(BaseModel):
+    count: int
+    valid_count: int
+    flagged_count: int
+    missing_count: int
+    completeness_pct: float
+    missing_pct: float
+    mean: Optional[float] = None
+    median: Optional[float] = None
+    std_dev: Optional[float] = None
+    min_val: Optional[float] = None
+    min_date: str = Field(default="", max_length=40)
+    max_val: Optional[float] = None
+    max_date: str = Field(default="", max_length=40)
+    decadal_slope: Optional[float] = None
+    unit: str = Field(default="", max_length=80)
+
+
+class AssistantProcessedData(BaseModel):
+    result_id: Optional[str] = Field(default=None, max_length=200)
+    product_name: str = Field(default="", max_length=240)
+    total_rows: int
+    summary_stats: AssistantProcessedSummary
+    sampled_observations: List[AssistantProcessedObservation] = Field(default_factory=list, max_length=16)
 
 
 class AssistantSIContextTurn(BaseModel):
@@ -194,7 +237,14 @@ class AssistantPageContext(BaseModel):
     start_date: str = Field(default="", max_length=30)
     end_date: str = Field(default="", max_length=30)
     target_frequency: str = Field(default="", max_length=40)
+    temporal_aggregation: str = Field(default="", max_length=20)
+    spatial_level: str = Field(default="", max_length=20)
+    spatial_mode: str = Field(default="", max_length=20)
+    spatial_reduction: str = Field(default="", max_length=40)
+    point_lat: Optional[float] = None
+    point_lon: Optional[float] = None
     selected_products: List[AssistantSelectedProduct] = Field(default_factory=list, max_length=5)
+    processed_data: Optional[AssistantProcessedData] = None
     extracted_preview_result_id: Optional[str] = Field(default=None, max_length=200)
     extracted_preview_job_id: Optional[str] = Field(default=None, max_length=200)
     si_conversation_stage: Optional[

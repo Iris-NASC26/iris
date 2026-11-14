@@ -57,7 +57,7 @@ const pageTitles: Record<string, [string, string]> = {
 
 function DashboardFrame({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const { dataset, region, extractedPreview } = useDashboard();
+  const { dataset, region, extractedPreview, activeProduct, selectedProducts } = useDashboard();
   const { dark, toggleTheme } = useTheme();
   const [collapsed, setCollapsed] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -109,6 +109,11 @@ function DashboardFrame({ children }: { children: ReactNode }) {
     "Iris workspace",
     "Earth system intelligence",
   ];
+  const isEmptyDataPreview =
+    pathname?.startsWith("/workspace/data-preview") &&
+    !extractedPreview &&
+    !activeProduct &&
+    selectedProducts.length === 0;
 
   return (
     <div
@@ -229,11 +234,23 @@ function DashboardFrame({ children }: { children: ReactNode }) {
             <h1>{title[0]}</h1>
           </div>
           <div className="dashboard-context-chip">
-            <span>
-              <i />
-              {dataset.code}
-            </span>
-            <strong>{region}</strong>
+            {isEmptyDataPreview ? (
+              <>
+                <span>
+                  <i />
+                  No dataset selected
+                </span>
+                <strong>No data retrieved</strong>
+              </>
+            ) : (
+              <>
+                <span>
+                  <i />
+                  {dataset.code}
+                </span>
+                <strong>{region}</strong>
+              </>
+            )}
             {extractedPreview?.job_id && (
               <code
                 style={{

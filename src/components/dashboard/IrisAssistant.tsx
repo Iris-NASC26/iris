@@ -1,8 +1,17 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent, type PointerEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type FormEvent,
+  type PointerEvent as ReactPointerEvent,
+} from "react";
 import { usePathname } from "next/navigation";
 import { useDashboard } from "@/context/DashboardContext";
+import { AssistantMarkdown } from "@/components/dashboard/AssistantMarkdown";
 import { Icon } from "@/components/ui/Icon";
 
 type AssistantMessage = {
@@ -14,7 +23,7 @@ type AssistantMessage = {
 type AssistantPosition = { right: number; bottom: number };
 
 const STORAGE_KEY = "iris-assistant-state";
-const MAX_REQUEST_BYTES = 12_000;
+const MAX_REQUEST_BYTES = 24_000;
 const DEFAULT_POSITION: AssistantPosition = { right: 24, bottom: 24 };
 
 function redactSensitiveText(value: string) {
@@ -49,8 +58,7 @@ export function IrisAssistant({
     siConversationStage,
     siTurns,
   } = useDashboard();
-  const finished =
-    siConversationStage === "ready_to_extract" || Boolean(extractedPreview);
+  const isSystemIntelligencePage = pathname === "/workspace/intelligence";
 
   const [hydrated, setHydrated] = useState(false);
   const [open, setOpen] = useState(false);
@@ -61,6 +69,7 @@ export function IrisAssistant({
   const [error, setError] = useState("");
   const seeded = useRef(false);
   const launcherRef = useRef<HTMLButtonElement>(null);
+  const assistantRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const threadRef = useRef<HTMLDivElement>(null);
   const dragStart = useRef<{ x: number; y: number; position: AssistantPosition } | null>(null);
@@ -105,7 +114,7 @@ export function IrisAssistant({
   }, []);
 
   useEffect(() => {
-    if (!finished || seeded.current) return;
+    if (isSystemIntelligencePage || seeded.current) return;
     const previousTurns = siTurns
       .filter((turn) => turn.id !== "welcome" && turn.content.trim())
       .slice(-6)
@@ -126,7 +135,7 @@ export function IrisAssistant({
       ]);
     }
     seeded.current = true;
-  }, [finished, siTurns]);
+  }, [isSystemIntelligencePage, siTurns]);
 
   useEffect(() => {
     if (!open) return;
@@ -145,8 +154,29 @@ export function IrisAssistant({
   }, [open]);
 
   useEffect(() => {
+    if (!open) return;
+    const minimizeWhenUsingDashboardControls = (event: PointerEvent) => {
+      const target = event.target;
+      if (
+        target instanceof Element &&
+        !assistantRef.current?.contains(target) &&
+        target.closest("button, a[href], [role='button']")
+      ) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("pointerdown", minimizeWhenUsingDashboardControls, true);
+    return () =>
+      document.removeEventListener("pointerdown", minimizeWhenUsingDashboardControls, true);
+  }, [open]);
+
+  useEffect(() => {
     if (tourOpen) setOpen(false);
   }, [tourOpen]);
+
+  useEffect(() => {
+    if (isSystemIntelligencePage) setOpen(false);
+  }, [isSystemIntelligencePage]);
 
   useEffect(() => {
     threadRef.current?.scrollTo({ top: threadRef.current.scrollHeight, behavior: "auto" });
@@ -164,10 +194,54 @@ export function IrisAssistant({
       start_date: extractionConfig.start_date,
       end_date: extractionConfig.end_date,
       target_frequency: extractionConfig.target_frequency,
+      temporal_aggregation: extractionConfig.temporal_aggregation,
+      spatial_level: extractionConfig.spatial_level,
+      spatial_mode: extractionConfig.spatial_Submode,
+      spatial_reduction: extractionConfig.spatial_reduction,
+      point_lat: extractionConfig.point_lat,
+      point_lon: extractionConfig.point_lon,
       selected_products: selectedProducts.slice(0, 5).map((product) => ({
         id: product.product_id,
         title: product.title,
+        variable_id: product.variable_id,
+        variable_name: product.variable_name,
+        source_api: product.source_api,
+        what_it_measures: product.what_it_measures.slice(0, 320),
+        description: product.description.slice(0, 320),
+        unit: product.unit,
+        native_frequency: product.native_frequency,
       })),
+      processed_data: extractedPreview
+        ? {
+            result_id: extractedPreview.result_id || null,
+            product_name: extractedPreview.product.variable_name,
+            total_rows: extractedPreview.total_rows,
+            summary_stats: extractedPreview.summary_stats,
+            sampled_observations: Array.from(
+              { length: Math.min(16, extractedPreview.chart_series.length) },
+              (_, index) => {
+                const sampleCount = Math.min(16, extractedPreview.chart_series.length);
+                const rowIndex =
+                  sampleCount <= 1
+                    ? 0
+                    : Math.round(
+                        (index * (extractedPreview.chart_series.length - 1)) /
+                          (sampleCount - 1),
+                      );
+                const row = extractedPreview.chart_series[rowIndex];
+                return {
+                  timestamp: row.timestamp,
+                  value: row.value,
+                  secondary_value: row.secondary_value,
+                  rolling_avg: row.rolling_avg,
+                  anomaly_z: row.anomaly_z,
+                  unit: row.unit,
+                  qa_flag: row.qa_flag,
+                };
+              },
+            ),
+          }
+        : null,
       extracted_preview_result_id: extractedPreview?.result_id || null,
       extracted_preview_job_id: extractedPreview?.job_id || null,
       si_conversation_stage: siConversationStage,
@@ -197,13 +271,13 @@ export function IrisAssistant({
     if (!nextOpen) window.requestAnimationFrame(() => launcherRef.current?.focus());
   }, []);
 
-  const onDragStart = (event: PointerEvent<HTMLElement>) => {
+  const onDragStart = (event: ReactPointerEvent<HTMLElement>) => {
     if (event.pointerType === "touch" || (event.target as HTMLElement).closest("button")) return;
     event.currentTarget.setPointerCapture(event.pointerId);
     dragStart.current = { x: event.clientX, y: event.clientY, position };
   };
 
-  const onDragMove = (event: PointerEvent<HTMLElement>) => {
+  const onDragMove = (event: ReactPointerEvent<HTMLElement>) => {
     const start = dragStart.current;
     if (!start || window.innerWidth <= 680) return;
     setPosition(
@@ -271,11 +345,12 @@ export function IrisAssistant({
     }
   };
 
-  if (!hydrated || !finished) return null;
+  if (!hydrated || isSystemIntelligencePage) return null;
 
   return (
     <div
       className="iris-assistant"
+      ref={assistantRef}
       style={{
         right: `${tourOpen ? 8 : position.right}px`,
         bottom: `${tourOpen ? 8 : position.bottom}px`,
@@ -315,12 +390,12 @@ export function IrisAssistant({
                 <Icon name="trash" size={16} />
               </button>
               <button
-                aria-label="Close Iris Assistant"
+                aria-label="Minimize Iris Assistant"
                 onClick={() => setAssistantOpen(false)}
-                title="Close assistant"
+                title="Minimize assistant"
                 type="button"
               >
-                ×
+                <Icon name="minimize" size={17} />
               </button>
             </div>
           </header>
@@ -334,7 +409,11 @@ export function IrisAssistant({
             {messages.map((message) => (
               <article className={`iris-assistant-message ${message.role}`} key={message.id}>
                 <span>{message.role === "assistant" ? "Iris" : "You"}</span>
-                <p>{message.content}</p>
+                {message.role === "assistant" ? (
+                  <AssistantMarkdown content={message.content} />
+                ) : (
+                  <p>{message.content}</p>
+                )}
               </article>
             ))}
             {loading && <p className="iris-assistant-loading" role="status">Iris is thinking…</p>}

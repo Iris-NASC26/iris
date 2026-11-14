@@ -15,6 +15,7 @@ export type IconName =
   | "globe"
   | "info"
   | "layers"
+  | "minimize"
   | "moon"
   | "search"
   | "sparkles"
@@ -101,6 +102,11 @@ const iconPaths: Record<IconName, ReactNode> = {
     <>
       <path d="m12 2 9 5-9 5-9-5 9-5Z" />
       <path d="m3 12 9 5 9-5M3 17l9 5 9-5" />
+    </>
+  ),
+  minimize: (
+    <>
+      <path d="M5 12h14" />
     </>
   ),
   moon: (
