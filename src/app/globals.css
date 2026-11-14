@@ -12776,6 +12776,210 @@
   }
 }
 
+.iris-expand-btn {
+  margin-left: 6px;
+  gap: 5px;
+}
+
+.iris-expand-icon {
+  font-size: 13px;
+  line-height: 1;
+}
+
+.iris-fullscreen-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 49;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(4px);
+}
+
+.iris-map-fullscreen-container {
+  position: fixed;
+  inset: 16px;
+  z-index: 50;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.iris-map-fullscreen-container .iris-map-canvas {
+  width: 100%;
+  height: 100%;
+}
+
+.iris-hud-topleft {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--card);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.15);
+  flex-wrap: wrap;
+  max-width: calc(100% - 280px);
+}
+
+.iris-hud-tool-buttons {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.iris-hud-divider {
+  width: 1px;
+  height: 20px;
+  background: var(--border);
+}
+
+.iris-hud-search-form {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.iris-hud-search-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  height: 28px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--card-soft);
+}
+
+.iris-hud-search-input-wrap input {
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 11px;
+  width: 130px;
+}
+
+.iris-hud-preset-chips {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.iris-hud-preset-btn {
+  padding: 3px 7px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--card-soft);
+  color: var(--muted);
+  font: inherit;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.iris-hud-preset-btn:hover {
+  border-color: var(--green);
+  color: var(--green);
+}
+
+.iris-hud-bottomleft {
+  position: absolute;
+  bottom: 18px;
+  left: 14px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--card);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.15);
+  font-size: 11px;
+  flex-wrap: wrap;
+  max-width: calc(100% - 32px);
+}
+
+.iris-hud-coords-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.iris-hud-coords-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.iris-hud-coord-item {
+  color: var(--green);
+  font:
+    600 10.5px ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
+}
+
+.iris-hud-span-text {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.iris-hud-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 9px;
+}
+
+.iris-hud-warning-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 9px;
+  margin: 0;
+}
+
+.iris-hud-search-feedback {
+  color: var(--muted);
+  font-size: 10.5px;
+  font-style: italic;
+}
+
+.iris-hud-topright {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.iris-hud-apply-btn {
+  height: 36px;
+  box-shadow: 0 4px 14px rgba(5, 150, 105, 0.35);
+}
+
+.iris-hud-close-btn {
+  height: 36px;
+  width: 36px;
+  padding: 0;
+}
+
 .srs-validation-card dl {
   margin-top: 10px;
   display: flex;

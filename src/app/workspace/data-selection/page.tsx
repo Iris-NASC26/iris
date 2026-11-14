@@ -227,7 +227,7 @@ function DataSelectionWorkspaceInner() {
   };
 
   const handleRegionSelect = useCallback(
-    (bbox: [number, number, number, number]) => {
+    (bbox: [number, number, number, number], customRegionName?: string) => {
       const [minLon, minLat, maxLon, maxLat] = bbox;
       const centerLat = Number(((minLat + maxLat) / 2).toFixed(2));
       const centerLon = Number(((minLon + maxLon) / 2).toFixed(2));
@@ -238,7 +238,7 @@ function DataSelectionWorkspaceInner() {
         bbox,
         point_lat: centerLat,
         point_lon: centerLon,
-        region_name: `Selected area (${centerLat}°, ${centerLon}°)`,
+        region_name: customRegionName || `Selected area (${centerLat}°, ${centerLon}°)`,
       }));
       setError("");
     },
@@ -592,6 +592,7 @@ function DataSelectionWorkspaceInner() {
             height="min(42vh, 380px)"
             mode="selection"
             onRegionSelect={handleRegionSelect}
+            regionName={extractionConfig.region_name}
           />
           <div className="ds-bbox-fields">
             {[
