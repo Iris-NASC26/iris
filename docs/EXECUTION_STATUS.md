@@ -47,6 +47,13 @@ licence. This does not complete final release notice obligations or AC-34. Stati
 snapshot packaging and Node/Python final release supervision remain R01/R02/R07;
 scientific method/data admission gates are unchanged.
 
+**Ask the Detective (SI chat) added.** The chat missing from the integration is now a
+local rule-based flow at `/workspace/assistant` (VC-03/SI-01 catalog-only, no model, no
+network). See [the ledger](NAVIDA_INTEGRATION.md). Verification: `scripts/dev.py check`
+passed, including new unit tests (four example environments each return at least three
+approved suggestions; nothing is invented for unmatched topics; no fetch) and Next build;
+nine Chromium journeys passed against launcher-managed servers, including the chat journey.
+
 The following paragraphs describe the historical first Vite-based U01 port and
 are superseded where they conflict with this amendment.
 

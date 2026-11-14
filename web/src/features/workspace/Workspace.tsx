@@ -13,6 +13,7 @@ import { OnboardingTour } from './OnboardingTour';
 const navigation: { label: string; items: { to: string; text: string; icon: IconName }[] }[] = [
   { label: 'Investigate', items: [
     { to: '/workspace', text: 'Overview', icon: 'globe' },
+    { to: '/workspace/assistant', text: 'Ask the Detective', icon: 'sparkles' },
     { to: '/workspace/data-selection', text: 'Data selection', icon: 'box' },
     { to: '/workspace/data-preview', text: 'Data preview', icon: 'layers' },
     { to: '/workspace/visualize', text: 'Plot & visualize', icon: 'activity' },

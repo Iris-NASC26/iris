@@ -87,7 +87,27 @@ still requires its own dependencies, acceptance evidence, testing and human revi
 | D05 / D10 / D12 | CMR/AppEEARS catalog and Giovanni parsing code are candidates | Approved routes, secure redirect/auth handling, quota gates, durable jobs, genuine QA-aware outputs |
 | D02 / D03 | Request/result identity ideas can inform implementation | Approved SQLite/artifact design, complete keys, atomic writes, restart/corruption/cancel behavior; JSON store not imported |
 | S01–S10 / S13 | Isolated helper code and tests may be studied | Independent numerical comparisons, corrected gap/CI/OLS/FDR conventions, calibration and qualified scientific approval |
-| P1/P2 features | NOAA, SI chat, research/code-sandbox and other provider code preserved on source branch | Explicit scope/priority review; not part of this P0 UI integration |
+| P1/P2 features | NOAA, research/code-sandbox and other provider code preserved on source branch | Explicit scope/priority review; not part of this P0 UI integration. The SI chat is integrated as the rule-based flow below; its Gemini/provider backend is not |
+
+## Ask the Detective (SI chat) — rule-based port
+
+Added 14 November 2026 at the user's request after the chat was missing from the
+Next.js integration. Navida's `src/app/workspace/intelligence/page.tsx` conversation
+(topic, review/edit keywords, confirm, results with links) is ported as
+`web/src/features/discovery/` and the `/workspace/assistant` route. It implements
+SRS VC-03 and the catalog-only part of SI-01 without a model:
+
+- Keywords come from a curated vocabulary tied to V01–V13; suggestions are drawn
+  only from the approved planned list, with the matched terms shown as reasons.
+- The user confirms the keywords before anything is suggested. A place and period in
+  the question are echoed but not applied. Unmatched topics return no suggestion.
+- No fetch, provider, geocoder, credential or AI service is used. Navida's
+  `si_chat.py`, `llm_router.py`, Gemini calls, ten provider adapters, geocoder and
+  generated `ChatTurnResponse` shapes are not imported (see exclusions below).
+- Ordering reflects keyword matches only, not scientific importance.
+
+A model-backed version remains P114/P207: it needs a reviewed model choice and
+licence, allowlisted output validation and adversarial tests before it can ship.
 
 ## Scientific exclusions and evidence
 

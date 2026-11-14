@@ -66,4 +66,24 @@ test.describe('Navida workspace port', () => {
     await expect(page.locator('html')).toHaveAttribute('data-reduced-motion', 'true');
     await workspace.expectNoOverflow();
   });
+
+  test('Ask the Detective confirms before suggesting and links into data selection', async ({ page }) => {
+    const apiCalls: string[] = [];
+    page.on('request', request => { if (new URL(request.url()).pathname.startsWith('/api/')) apiCalls.push(new URL(request.url()).pathname); });
+    const workspace = new WorkspacePage(page);
+    await workspace.open();
+    await page.getByRole('link', { name: 'Ask the Detective' }).click();
+    await expect(page).toHaveURL(/\/workspace\/assistant$/);
+    await page.getByRole('textbox', { name: 'Describe a research topic' }).fill('Heatwave and rainfall in California since 2010');
+    await page.getByRole('button', { name: 'Send' }).click();
+    const review = page.getByRole('region', { name: 'Review search terms' });
+    await expect(review).toBeVisible();
+    await expect(page.getByRole('region', { name: 'Suggested variables' })).toHaveCount(0);
+    await review.getByRole('button', { name: 'Confirm and search' }).click();
+    await page.getByRole('link', { name: /Inspect V01/ }).click();
+    await expect(page).toHaveURL(/data-selection\?variable=V01$/);
+    await expect(page.getByRole('heading', { name: 'Air temperature near the ground' })).toBeVisible();
+    expect(apiCalls.every(path => path === '/api/v1/health')).toBe(true);
+    await workspace.expectNoOverflow();
+  });
 });
