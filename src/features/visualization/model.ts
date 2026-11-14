@@ -43,6 +43,32 @@ export interface FieldData {
         scientifically_validated: false;
     };
 }
+export interface OverviewData extends Omit<FieldData, "schema_version"> {
+    schema_version: "visualization.overview.v1";
+    extent: { lat_min: number; lat_max: number; lon_min: number; lon_max: number };
+    resolution: {
+        source_lat_step: number;
+        source_lon_step: number;
+        aggregation: "none" | "area_weighted_mean";
+        factor_lat: number;
+        factor_lon: number;
+        output_cells: number;
+    };
+    coverage?: (number | null)[];
+}
+export type SpatialField = FieldData | OverviewData;
+export const MAX_OVERVIEW_CELLS = 25000;
+/**
+ * Fixed labelled physical domains so temporal and regional comparisons keep one
+ * consistent colour meaning. Values outside the domain clamp at the ramp ends.
+ */
+export const FIELD_SCALE: Record<string, [number, number]> = {
+    V01: [-55, 45],
+    V12: [0, 450],
+};
+export function fieldScale(field: Pick<SpatialField, "variable_id" | "values">): [number, number] {
+    return FIELD_SCALE[field.variable_id] ?? scale(field.values);
+}
 export const numeric = (value: unknown): value is number => typeof value === "number" && Number.isFinite(value);
 export function timestamp(value: string): number {
     if (!/^\d{4}(-\d{2}(-\d{2})?)?([T ].*)?$/.test(value))
@@ -235,6 +261,34 @@ export function parseField(value: unknown): FieldData {
     if (f.cell_lats.some((v, i) => i > 0 && v <= f.cell_lats[i - 1]) || f.cell_lons.some((v, i) => i > 0 && v <= f.cell_lons[i - 1]))
         throw new Error("Spatial axes must be strictly increasing.");
     return f;
+}
+export function parseOverview(value: unknown): OverviewData {
+    const f = value as OverviewData;
+    if (f?.schema_version !== "visualization.overview.v1" || !["V01", "V12"].includes(f.variable_id) || !/^\d{4}-(0[1-9]|1[0-2])$/.test(f.month) ||
+        !Array.isArray(f.cell_lats) || !Array.isArray(f.cell_lons) || !Array.isArray(f.values) || !f.cell_lats.length || !f.cell_lons.length ||
+        f.values.length !== f.cell_lats.length * f.cell_lons.length || f.values.length > MAX_OVERVIEW_CELLS || !numeric(f.lat_step) || !numeric(f.lon_step) || f.lat_step <= 0 || f.lon_step <= 0 ||
+        !f.cell_lats.every(v => numeric(v) && Math.abs(v) <= 90) || !f.cell_lons.every(v => numeric(v) && Math.abs(v) <= 180) ||
+        !f.values.every(v => v === null || numeric(v)) || f.source?.scientifically_validated !== false || !f.units || !f.source.artifact_sha256 ||
+        Object.values(f.source.artifact_sha256).some(v => !/^[a-f0-9]{64}$/.test(v)))
+        throw new Error("The spatial service returned an incompatible overview grid.");
+    if (f.cell_lats.some((v, i) => i > 0 && v <= f.cell_lats[i - 1]) || f.cell_lons.some((v, i) => i > 0 && v <= f.cell_lons[i - 1]))
+        throw new Error("Spatial axes must be strictly increasing.");
+    const e = f.extent, r = f.resolution;
+    if (!e || !numeric(e.lat_min) || !numeric(e.lat_max) || !numeric(e.lon_min) || !numeric(e.lon_max) ||
+        !r || !numeric(r.source_lat_step) || !numeric(r.source_lon_step) || r.source_lat_step <= 0 || r.source_lon_step <= 0 ||
+        !["none", "area_weighted_mean"].includes(r.aggregation) || !Number.isInteger(r.factor_lat) || !Number.isInteger(r.factor_lon) ||
+        r.factor_lat < 1 || r.factor_lon < 1 || r.output_cells !== f.values.length)
+        throw new Error("The overview extent or resolution manifest is inconsistent.");
+    if (r.aggregation === "none" && (r.factor_lat !== 1 || r.factor_lon !== 1
+        || Math.abs(r.source_lat_step - f.lat_step) > 1e-9 || Math.abs(r.source_lon_step - f.lon_step) > 1e-9))
+        throw new Error("An unaggregated overview must keep the native source resolution.");
+    if (f.coverage !== undefined && (!Array.isArray(f.coverage) || f.coverage.length !== f.values.length ||
+        !f.coverage.every(v => v === null || (numeric(v) && v >= 0 && v <= 1))))
+        throw new Error("Overview coverage weights must match the output cells.");
+    return f;
+}
+export function isOverview(field: SpatialField): field is OverviewData {
+    return field.schema_version === "visualization.overview.v1";
 }
 export const format = (value: number | null, digits = 2) => value === null ? "Unavailable" : new Intl.NumberFormat('en', { maximumFractionDigits: digits }).format(value);
 export const csvCell = (value: unknown) => '"' + String(value ?? '').replaceAll('"', '""') + '"';
