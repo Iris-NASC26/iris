@@ -1,0 +1,27 @@
+{
+  "fixture_kind": "synthetic_contract",
+  "fixture_id": "invalid-request-problem",
+  "model": "Error",
+  "disclosure": "STRUCTURAL TEST ONLY. Invented values and IDs; no NASA observations, method validation or scientific findings. Never bundle as product data.",
+  "payload": {
+    "schema_version": "1.0",
+    "type": "urn:earth-trend:problem:invalid-parameters",
+    "title": "Invalid parameters",
+    "status": 422,
+    "detail": "The monthly window is reversed.",
+    "code": "INVALID_PARAMETERS",
+    "request_id": "synthetic-request",
+    "retryable": false,
+    "retry_after_seconds": null,
+    "field_errors": [
+      {
+        "location": [
+          "window",
+          "end"
+        ],
+        "code": "window_order",
+        "message": "End month must not precede start month."
+      }
+    ]
+  }
+}

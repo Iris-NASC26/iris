@@ -1,0 +1,16 @@
+{
+  "name": "earth-system-trend-detective",
+  "private": true,
+  "packageManager": "pnpm@12.18.0",
+  "engines": { "node": "24.19.0" },
+  "devDependencies": {
+    "openapi-typescript": "7.13.0",
+    "typescript": "5.9.3"
+  },
+  "scripts": {
+    "check": "pnpm --dir web check",
+    "test": "pnpm --dir web test",
+    "build": "pnpm --dir web build",
+    "test:browser": "pnpm --dir web test:browser"
+  }
+}

@@ -1,0 +1,236 @@
+{
+  "fixture_kind": "synthetic_contract",
+  "fixture_id": "layer-manifest",
+  "model": "LayerManifest",
+  "disclosure": "STRUCTURAL TEST ONLY. Invented values and IDs; no NASA observations, method validation or scientific findings. Never bundle as product data.",
+  "payload": {
+    "schema_version": "1.0",
+    "created_at": "2026-11-14T00:00:00Z",
+    "layer_id": "synthetic-layer",
+    "data_release_id": "synthetic-release",
+    "variable_id": "V01",
+    "binding_ids": [
+      "synthetic-binding"
+    ],
+    "dataset_identifiers": [
+      "synthetic-product-not-NASA"
+    ],
+    "grid": {
+      "grid_id": "synthetic-1-degree-grid",
+      "n_lat": 180,
+      "n_lon": 360,
+      "latitude_order": "north_to_south",
+      "longitude_origin": -180.0,
+      "longitude_wrap": true,
+      "cell_order": "row_major",
+      "cell_id_formula": "row * n_lon + column"
+    },
+    "window": {
+      "start": "2003-01",
+      "end": "2023-12"
+    },
+    "baseline": {
+      "kind": "analysis_window"
+    },
+    "method_profile": "srs-p0-v1",
+    "method_versions": {
+      "annual-mk": "fixture-not-a-method"
+    },
+    "slope": {
+      "artifact": {
+        "artifact_id": "synthetic-artifact",
+        "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "path": "/artifacts/synthetic-not-real.bin",
+        "media_type": "application/octet-stream",
+        "bytes": 4
+      },
+      "dtype": "float32",
+      "byte_order": "little",
+      "count": 64800,
+      "units": "°C/decade",
+      "scale": 1.0,
+      "offset": 0.0,
+      "missing_mask": {
+        "artifact_id": "synthetic-artifact",
+        "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "path": "/artifacts/synthetic-not-real.bin",
+        "media_type": "application/octet-stream",
+        "bytes": 4
+      },
+      "missing_mask_encoding": "uint8_0_valid_1_missing",
+      "branch_id": "annual_layer",
+      "value_transform": "anomaly"
+    },
+    "standardized_slope": {
+      "artifact": {
+        "artifact_id": "synthetic-artifact",
+        "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "path": "/artifacts/synthetic-not-real.bin",
+        "media_type": "application/octet-stream",
+        "bytes": 4
+      },
+      "dtype": "float32",
+      "byte_order": "little",
+      "count": 64800,
+      "units": "sigma/decade",
+      "scale": 1.0,
+      "offset": 0.0,
+      "missing_mask": {
+        "artifact_id": "synthetic-artifact",
+        "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "path": "/artifacts/synthetic-not-real.bin",
+        "media_type": "application/octet-stream",
+        "bytes": 4
+      },
+      "missing_mask_encoding": "uint8_0_valid_1_missing",
+      "branch_id": "annual_layer",
+      "value_transform": "anomaly"
+    },
+    "p": {
+      "artifact": {
+        "artifact_id": "synthetic-artifact",
+        "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "path": "/artifacts/synthetic-not-real.bin",
+        "media_type": "application/octet-stream",
+        "bytes": 4
+      },
+      "dtype": "float32",
+      "byte_order": "little",
+      "count": 64800,
+      "units": "dimensionless",
+      "scale": 1.0,
+      "offset": 0.0,
+      "missing_mask": {
+        "artifact_id": "synthetic-artifact",
+        "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "path": "/artifacts/synthetic-not-real.bin",
+        "media_type": "application/octet-stream",
+        "bytes": 4
+      },
+      "missing_mask_encoding": "uint8_0_valid_1_missing",
+      "branch_id": "annual_layer",
+      "value_transform": "anomaly"
+    },
+    "q": {
+      "artifact": {
+        "artifact_id": "synthetic-artifact",
+        "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "path": "/artifacts/synthetic-not-real.bin",
+        "media_type": "application/octet-stream",
+        "bytes": 4
+      },
+      "dtype": "float32",
+      "byte_order": "little",
+      "count": 64800,
+      "units": "dimensionless",
+      "scale": 1.0,
+      "offset": 0.0,
+      "missing_mask": {
+        "artifact_id": "synthetic-artifact",
+        "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "path": "/artifacts/synthetic-not-real.bin",
+        "media_type": "application/octet-stream",
+        "bytes": 4
+      },
+      "missing_mask_encoding": "uint8_0_valid_1_missing",
+      "branch_id": "annual_layer",
+      "value_transform": "anomaly"
+    },
+    "valid_counts": {
+      "artifact": {
+        "artifact_id": "synthetic-artifact",
+        "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "path": "/artifacts/synthetic-not-real.bin",
+        "media_type": "application/octet-stream",
+        "bytes": 4
+      },
+      "dtype": "uint16",
+      "byte_order": "little",
+      "count": 64800,
+      "units": "dimensionless",
+      "scale": 1.0,
+      "offset": 0.0,
+      "missing_mask": {
+        "artifact_id": "synthetic-artifact",
+        "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "path": "/artifacts/synthetic-not-real.bin",
+        "media_type": "application/octet-stream",
+        "bytes": 4
+      },
+      "missing_mask_encoding": "uint8_0_valid_1_missing",
+      "branch_id": "annual_layer",
+      "value_transform": "anomaly"
+    },
+    "method_flags": {
+      "artifact": {
+        "artifact_id": "synthetic-artifact",
+        "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "path": "/artifacts/synthetic-not-real.bin",
+        "media_type": "application/octet-stream",
+        "bytes": 4
+      },
+      "dtype": "uint8",
+      "byte_order": "little",
+      "count": 64800,
+      "units": "dimensionless",
+      "scale": 1.0,
+      "offset": 0.0,
+      "missing_mask": {
+        "artifact_id": "synthetic-artifact",
+        "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "path": "/artifacts/synthetic-not-real.bin",
+        "media_type": "application/octet-stream",
+        "bytes": 4
+      },
+      "missing_mask_encoding": "uint8_0_valid_1_missing",
+      "branch_id": "annual_layer",
+      "value_transform": "anomaly"
+    },
+    "flag_meanings": {
+      "ordinary_mk": "0",
+      "hamed_rao": "1"
+    },
+    "fdr": {
+      "family_kind": "global_layer",
+      "family_id": "1111111111111111111111111111111111111111111111111111111111111111",
+      "size": 1,
+      "context": {
+        "region_hash": "2222222222222222222222222222222222222222222222222222222222222222",
+        "window": {
+          "start": "2003-01",
+          "end": "2023-12"
+        },
+        "baseline": {
+          "kind": "analysis_window"
+        },
+        "data_release_id": "synthetic-release",
+        "method_profile": "srs-p0-v1",
+        "window_policy": "shared_intersection"
+      },
+      "membership": {
+        "kind": "artifact",
+        "members": {
+          "artifact_id": "synthetic-artifact",
+          "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "path": "/artifacts/synthetic-not-real.bin",
+          "media_type": "application/octet-stream",
+          "bytes": 4
+        },
+        "exclusions": {
+          "artifact_id": "synthetic-artifact",
+          "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "path": "/artifacts/synthetic-not-real.bin",
+          "media_type": "application/octet-stream",
+          "bytes": 4
+        }
+      }
+    },
+    "alpha_independent_p_q": true,
+    "frames": [],
+    "attribution": [
+      "SYNTHETIC CONTRACT: no NASA observations or imagery"
+    ],
+    "caveat_ids": [],
+    "provenance_id": "synthetic-provenance"
+  }
+}

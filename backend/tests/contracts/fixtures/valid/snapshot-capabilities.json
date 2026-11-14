@@ -1,0 +1,37 @@
+{
+  "fixture_kind": "synthetic_contract",
+  "fixture_id": "snapshot-capabilities",
+  "model": "Capabilities",
+  "disclosure": "STRUCTURAL TEST ONLY. Invented values and IDs; no NASA observations, method validation or scientific findings. Never bundle as product data.",
+  "payload": {
+    "schema_version": "1.0",
+    "mode": "snapshot",
+    "build_id": "synthetic-foundation",
+    "supported_schema_versions": [
+      "1.0"
+    ],
+    "data_release_id": "synthetic-release",
+    "available_products": [],
+    "prepared_cases": [
+      {
+        "result_id": "synthetic-analysis",
+        "request_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    ],
+    "enabled_operations": [
+      "read_prepared",
+      "export"
+    ],
+    "arbitrary_regions": false,
+    "analysis_ready": false,
+    "readiness": {
+      "schema_compatible": true,
+      "release_hashes_verified": false,
+      "cube_readable": false,
+      "sufficient_disk": false
+    },
+    "limitations": [
+      "snapshot_not_bundled"
+    ]
+  }
+}

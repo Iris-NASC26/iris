@@ -1,0 +1,21 @@
+{
+  "fixture_kind": "synthetic_contract",
+  "fixture_id": "transform",
+  "model": "Transform",
+  "disclosure": "STRUCTURAL TEST ONLY. Invented values and IDs; no NASA observations, method validation or scientific findings. Never bundle as product data.",
+  "payload": {
+    "transform_id": "synthetic-identity",
+    "version": "fixture-v1",
+    "kind": "identity",
+    "input_units": "C",
+    "output_units": "°C",
+    "scale": 1,
+    "offset": 0,
+    "order": [
+      "decode_fill",
+      "qa",
+      "scale_units",
+      "weighted_regional_mean"
+    ]
+  }
+}

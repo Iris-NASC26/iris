@@ -13,6 +13,12 @@
 ## Project Documents
 
 - [Software Requirements Specification (SRS)](docs/SRS.md)
+- [Technical Design Document](docs/TECHNICAL_DESIGN.md)
+- [Implementation Plan](docs/IMPLEMENTATION_PLAN.md)
+- [Execution status and task ownership](docs/EXECUTION_STATUS.md)
+- [Local development setup](docs/DEVELOPMENT.md)
+
+The current implementation is a practice build outside the official submission. To set up and start the F02 local foundation, follow the development guide. Scientific analysis is not available yet.
 
 ---
 

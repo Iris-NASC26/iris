@@ -1,0 +1,9 @@
+{
+  "fixture_kind": "synthetic_contract",
+  "fixture_id": "region-global",
+  "model": "RegionSpec",
+  "disclosure": "STRUCTURAL TEST ONLY. Invented values and IDs; no NASA observations, method validation or scientific findings. Never bundle as product data.",
+  "payload": {
+    "kind": "global"
+  }
+}

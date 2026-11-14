@@ -1,0 +1,46 @@
+{
+  "fixture_kind": "synthetic_contract",
+  "fixture_id": "fdr-family",
+  "model": "FdrResult",
+  "disclosure": "STRUCTURAL TEST ONLY. Invented values and IDs; no NASA observations, method validation or scientific findings. Never bundle as product data.",
+  "payload": {
+    "family_kind": "regional_scan",
+    "family_id": "1111111111111111111111111111111111111111111111111111111111111111",
+    "size": 1,
+    "context": {
+      "region_hash": "2222222222222222222222222222222222222222222222222222222222222222",
+      "window": {
+        "start": "2003-01",
+        "end": "2023-12"
+      },
+      "baseline": {
+        "kind": "analysis_window"
+      },
+      "data_release_id": "synthetic-release",
+      "method_profile": "srs-p0-v1",
+      "window_policy": "shared_intersection"
+    },
+    "membership": {
+      "kind": "inline",
+      "members": [
+        {
+          "member_id": "V01",
+          "branch_id": "monthly_anomaly",
+          "p": 0.02,
+          "q": 0.02,
+          "provenance_id": "synthetic-provenance",
+          "actual_window": {
+            "start": "2003-01",
+            "end": "2023-12"
+          }
+        }
+      ],
+      "exclusions": [
+        {
+          "member_id": "V08",
+          "reason": "outside_product_domain"
+        }
+      ]
+    }
+  }
+}

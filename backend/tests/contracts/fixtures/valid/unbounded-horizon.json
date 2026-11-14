@@ -1,0 +1,23 @@
+{
+  "fixture_kind": "synthetic_contract",
+  "fixture_id": "unbounded-horizon",
+  "model": "Estimate",
+  "disclosure": "STRUCTURAL TEST ONLY. Invented values and IDs; no NASA observations, method validation or scientific findings. Never bundle as product data.",
+  "payload": {
+    "quantity": "detectability_horizon_years",
+    "units": "years",
+    "branch_id": "monthly_anomaly",
+    "provenance_id": "synthetic-provenance",
+    "status": "unbounded",
+    "value": null,
+    "reason": "zero_or_unresolved_slope",
+    "ci_low": null,
+    "ci_high": null,
+    "confidence_level": null,
+    "ci_method": null,
+    "ci_method_version": null,
+    "ci_reason": "zero_or_unresolved_slope",
+    "estimator": "derived",
+    "estimator_version": "synthetic-estimator-not-science"
+  }
+}
