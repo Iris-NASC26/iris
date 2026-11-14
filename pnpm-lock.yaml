@@ -178,6 +178,9 @@ importers:
       '@radix-ui/react-dialog':
         specifier: 1.3.1
         version: 1.3.1(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      globe.gl:
+        specifier: 2.46.2
+        version: 2.46.2
       next:
         specifier: 16.4.6
         version: 16.4.6(@playwright/test@1.65.0)(@types/node@24.19.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
@@ -187,6 +190,9 @@ importers:
       react-dom:
         specifier: 19.3.1
         version: 19.3.1(react@19.3.1)
+      three:
+        specifier: 0.186.1
+        version: 0.186.1
     devDependencies:
       '@playwright/test':
         specifier: 1.65.0
@@ -209,6 +215,9 @@ importers:
       '@types/react-dom':
         specifier: 19.3.0
         version: 19.3.0(@types/react@19.3.0)
+      '@types/three':
+        specifier: 0.186.0
+        version: 0.186.0
       jsdom:
         specifier: 31.0.0
         version: 31.0.0
@@ -235,6 +244,9 @@ packages:
   '@babel/runtime@7.29.14':
     resolution: {integrity: sha512-Y5tqevQaUAZhhj82BpYMNC1ssvLQTVAfwKdm8iy8qwmhvC2/CpcAu8OC+QEtjM7pMk7knx83u1Qj8gzkicyelw==}
     engines: {node: '>=6.9.0'}
+
+  '@dimforge/rapier3d-compat@0.12.0':
+    resolution: {integrity: sha512-uekIGetywIgopfD97oDL5PfeezkFpNhwlzlaEYNOA0N6ghdsOvh/HYjSMek5Q2O1PYvRSDFcqFVJl4r4ZBwOow==}
 
   '@emnapi/core@2.0.0-beta.2':
     resolution: {integrity: sha512-MzCVoWtcg4Pm2B3je5mMvYMvj3MmBKw+fU7vbsJc9/iT8ip6/eYIHo/Dsm/mr+wsHB6SEyJDuxB09Yy6r/8+4A==}
@@ -807,6 +819,21 @@ packages:
       '@types/react-dom':
         optional: true
 
+  '@turf/boolean-point-in-polygon@7.4.0':
+    resolution: {integrity: sha512-GQrHc6WSDHhf32GB/b9AGyOeC05AQ3nGN7ooWTrlCYefKn7X9/2wG9BNexF47AuyDq5jPdOvITVR26BLFWV+mA==}
+
+  '@turf/helpers@7.4.0':
+    resolution: {integrity: sha512-7PAwLZqOdRzTI5g9bHvUwlloAXPDH/mlajtryk0tw4ZwGMtmXsAyF4QundsAMfy4u48Fyd3AUqMXY0SMxqJGWg==}
+
+  '@turf/invariant@7.4.0':
+    resolution: {integrity: sha512-OAsc3qdNx+tRqzWmMNFMnVlWWACIqnYqIejZKvb2oKkKPYJJrURPXZ6OdrGD58ljJMolLoqwIZGSx3VndaEjxg==}
+
+  '@tweenjs/tween.js@23.1.3':
+    resolution: {integrity: sha512-vJmvvwFxYuGnF2axRtPYocag6Clbb5YS7kLL+SO/TeVFzHqDIWrNKYtcsPMibjDx9O+bu+psAy9NKfWklassUA==}
+
+  '@tweenjs/tween.js@25.0.0':
+    resolution: {integrity: sha512-XKLA6syeBUaPzx4j3qwMqzzq+V4uo72BnlbOjmuljLrRqdsd3qnzvZZoxvMHZ23ndsRS4aufU6JOZYpCbU6T1A==}
+
   '@tybys/wasm-util@0.10.4':
     resolution: {integrity: sha512-W3c4gRigFS0T/Ma4qIYF3GDAc5AQdHb1yL5znJT1Zv1YaD9Kitx656wBjvr19qbiosmZT8lWDM5BEMynUqX65A==}
 
@@ -822,6 +849,9 @@ packages:
   '@types/estree@1.0.10':
     resolution: {integrity: sha512-lTyOMnOcmRBzdCv6/4zUZCrEhV0xrqQiUZBZtVcbmLHBXKLnN8q89v/wKRF/Q0HbwVsqbIG3o5HDoFl9sduM+g==}
 
+  '@types/geojson@7946.0.16':
+    resolution: {integrity: sha512-6C8nqWur3j98U6+lXDfTUWIfgvZU+EumvpHKcYjujKH7woYyLj2sUmff0tRhrqM7BohUw7Pz3ZB1jj2gW9Fvmg==}
+
   '@types/node@24.19.0':
     resolution: {integrity: sha512-zY+5tKxXdhGh1PYI0ac+7juvEu4OI6vWtVVoj5i2m42jxAY1U+zHGt6QCyOFwykdP62sM3MJ9stoYYUw5aCWew==}
 
@@ -832,6 +862,15 @@ packages:
 
   '@types/react@19.3.0':
     resolution: {integrity: sha512-N0rFCuH9YoxG9/m61l9MfpJKfmLOVU0em7ipIz6TRgSSkvReLB9vL85GB+yr8Bs5leqpvg96JSwF4ZS1s4viQg==}
+
+  '@types/stats.js@0.17.4':
+    resolution: {integrity: sha512-jIBvWWShCvlBqBNIZt0KAshWpvSjhkwkEu4ZUcASoAvhmrgAUI2t1dXrjSL4xXVLB4FznPrIsX3nKXFl/Dt4vA==}
+
+  '@types/three@0.186.0':
+    resolution: {integrity: sha512-mxYSBpDC+D0pLfSP6sW4WZTcT+nrtmZcimMqnVmy36Hte3XpeYSrvgg4TRdaM1GemGog1AWzI5qL2VoIfMXbJQ==}
+
+  '@types/webxr@0.5.24':
+    resolution: {integrity: sha512-h8fgEd/DpoS9CBrjEQXR+dIDraopAEfu4wYVNY2tEPwk60stPWhvZMf4Foo5FakuQ7HFZoa8WceaWFervK2Ovg==}
 
   '@typescript/typescript-aix-ppc64@7.0.2':
     resolution: {integrity: sha512-MTKKkWB7p/0E9xi1d1tHtZ5PiLkGEMIq88pK2CubZjOsLtYTLqhgIgi6zepFa+9GHZ6h05NMCkQxGKiPXMxXtQ==}
@@ -967,6 +1006,10 @@ packages:
   '@vitest/spy@5.1.0':
     resolution: {integrity: sha512-2DPO5OMHWKrBngC+fCmTQqemNF0gidRhp3lxbBmRhW+M1XJrfgPpqNqWVevXtn2f2ufD5ZaR1B6B641aAlcX5A==}
 
+  accessor-fn@1.5.3:
+    resolution: {integrity: sha512-rkAofCwe/FvYFUlMB0v0gWmhqtfAtV1IUkdPbfhTUyYniu5LrC0A0UJkTH0Jv3S8SvwkmfuAlY+mQIJATdocMA==}
+    engines: {node: '>=12'}
+
   agent-base@7.1.4:
     resolution: {integrity: sha512-MnA+YT8fwfJPgBx3m60MNqakm30XOkyIoH1y6huTQvC0PwZG7ki8NacLBcrPbNoo8vEZy7Jpuk7+jMO+CUovTQ==}
     engines: {node: '>= 14'}
@@ -1040,6 +1083,65 @@ packages:
   csstype@3.2.3:
     resolution: {integrity: sha512-z1HGKcYy2xA8AGQfwrn0PAy+PB7X/GSj3UVJW9qKyn43xWa+gl5nXmU4qqLMRzWVLFC8KusUX8T/0kCiOYpAIQ==}
 
+  d3-array@3.2.5:
+    resolution: {integrity: sha512-Th8qGXoBalmWsstpkuhmBuTsBQIFqYOJtjlBvNVvBfJ8E3uYusBUwUR8HU20U0qKKQkgCvKyR1YjiozWadk5QA==}
+    engines: {node: '>=12'}
+
+  d3-color@3.1.1:
+    resolution: {integrity: sha512-lfab8x0Bj0UO7SNsY8dZSbNIA6ipbkE3X0NG9nqjCu6CfCHZseuDnOSJY7hidKrjpP++i1M2qT+FlAdPKYRilA==}
+    engines: {node: '>=12'}
+
+  d3-delaunay@6.0.6:
+    resolution: {integrity: sha512-DMQIEvSJhZCB6pwedcXaAlQ+MeKU5LlM2XakKtc73b/VM+RBiI1SRXycOEOKg2jsKj4zZ9F0KGYG6nCGwwWu/g==}
+    engines: {node: '>=12'}
+
+  d3-format@3.1.3:
+    resolution: {integrity: sha512-+F+/49swqmGuQJmSKnVMIDH/QkEFV5li9QRj0xm/KhyAUBv099O5PrvpQFxBp24PYph17Mnvt9mjKQV0ii0nMA==}
+    engines: {node: '>=12'}
+
+  d3-geo-voronoi@2.1.0:
+    resolution: {integrity: sha512-kqE4yYuOjPbKdBXG0xztCacPwkVSK2REF1opSNrnqqtXJmNcM++UbwQ8SxvwP6IQTj9RvIjjK4qeiVsEfj0Z2Q==}
+    engines: {node: '>=12'}
+
+  d3-geo@3.1.2:
+    resolution: {integrity: sha512-5R8ZgDQorIxmauv7R6gpE/ndz+Z0qAZssigq0aXFdvPHdY41RqtW02jrRUQAL724NdPABYXo1+gQEGBBr7uKNg==}
+    engines: {node: '>=12'}
+
+  d3-interpolate@3.0.2:
+    resolution: {integrity: sha512-IRzGU62DtxhvsnSTWMQIdnoZ6gA+BCWwBon1EJI6SjoN595799b6z/QRBzXfFhE8iupUPp3042yBNo0STPqnzQ==}
+    engines: {node: '>=12'}
+
+  d3-octree@1.1.0:
+    resolution: {integrity: sha512-F8gPlqpP+HwRPMO/8uOu5wjH110+6q4cgJvgJT6vlpy3BEaDIKlTZrgHKZSp/i1InRpVfh4puY/kvL6MxK930A==}
+
+  d3-scale-chromatic@3.1.1:
+    resolution: {integrity: sha512-lA5gfN2yMvmChubmptnDiBfeGpHD7Yb1EbvCz0TZE0WHXhyR6W2allPuhKtzV5ILQRqeOdefF0qYtERReLUBDg==}
+    engines: {node: '>=12'}
+
+  d3-scale@4.0.3:
+    resolution: {integrity: sha512-66cWobCNzcMvlfoaDHCxuIv9TBUWG1BLOWdv9kHHFuCr1JdqAWPvTmsaEYDD5NRMyWZ5+7u0GqiCDfMXMqh3hg==}
+    engines: {node: '>=12'}
+
+  d3-selection@3.0.1:
+    resolution: {integrity: sha512-ODSf35vqCrlCfp7hrm0eZjvOosSXSYLjqvIlhMBV9q9VOx7EBJG6pc+uXBswEZNJgCGJ+qnKYcWutbZDIxe/Xg==}
+    engines: {node: '>=12'}
+
+  d3-time-format@4.1.1:
+    resolution: {integrity: sha512-22XaqjyCjpqgda20erhsOjGmC3vvYwTNYniKAd45W5UWLDF43moeOuV9qYpRqobIlsnK0UhnKZjUUJm3VgORUA==}
+    engines: {node: '>=12'}
+
+  d3-time@3.1.1:
+    resolution: {integrity: sha512-Ze7rjrhMzdeulh0/hjcfFj7XLAHOfowtEMfsoG6DU866HPynQNW7Wfen6hzXcqKTv8XzxvF6Hzr5XD6bMHr2ug==}
+    engines: {node: '>=12'}
+
+  d3-tricontour@1.1.0:
+    resolution: {integrity: sha512-G7gHKj89n2owmkGb6WX6ixcnQ0Kf/0wpa9VIh9DGdbHu8wdrlaHU4ir3/bFNERl8N8nn4G7e7qbtBG8N9caihQ==}
+    engines: {node: '>=12'}
+
+  data-bind-mapper@1.0.3:
+    resolution: {integrity: sha512-QmU3lyEnbENQPo0M1F9BMu4s6cqNNp8iJA+b/HP2sSb7pf3dxwF3+EP1eO69rwBfH9kFJ1apmzrtogAmVt2/Xw==}
+    engines: {node: '>=12'}
+
   data-urls@8.0.0:
     resolution: {integrity: sha512-JQUCCK+/CAGbGGx618PlFZMXH81Jtj7t73CHv9dd/zVWvxgGT2zLFRjnKb+Ng46GIwcy+f7f88qd4duqllK+WQ==}
     engines: {node: ^22.14.0 || >=24.0.0}
@@ -1055,6 +1157,9 @@ packages:
 
   decimal.js@10.6.0:
     resolution: {integrity: sha512-YpgQiITW3JXGntzdUmyUR1V812Hn8T1YVXhCu+wO3OpS4eU9l4YdD3qjyiKdV6mvV29zapkMeD390UVEf2lkUg==}
+
+  delaunator@5.1.0:
+    resolution: {integrity: sha512-AGrQ4QSgssa1NGmWmLPqN5NY2KajF5MqxetNEO+o0n3ZwZZeTmt7bBnvzHWrmkZFxGgr4HdyFgelzgi06otLuQ==}
 
   dequal@2.0.3:
     resolution: {integrity: sha512-0je+qPKHEMohvfRTCEo3CrPG6cAzAYgmzKyxRiYSSDkS6eGJdyVJm7WaYA5ECaAD9wLB2T4EEeymA5aFVcYXCA==}
@@ -1072,6 +1177,9 @@ packages:
 
   dom-accessibility-api@0.6.3:
     resolution: {integrity: sha512-7ZgogeTnjuHbo+ct10G9Ffp0mif17idi0IyWNVA/wcwcm7NPOD/WEHVP3n7n3MhXqxoIYm8d6MuZohYWIZ4T3w==}
+
+  earcut@3.2.4:
+    resolution: {integrity: sha512-FHc6yNpnTORB0tM5kmZ03iD2mDuNakDE2lvf4Hw1XkfxtEHIGVi01B/GqUSwx+NcC1WGjidAfpTXzeALtPtfpg==}
 
   entities@9.0.0:
     resolution: {integrity: sha512-oJFNDJg3kTPwAD1cNn2+WmUq4wFoo09npc3Ydf1D7ED4smRiWrsKnaLxykrTWgyGEcusc87P5dxlAleol9kpkg==}
@@ -1099,6 +1207,16 @@ packages:
       picomatch:
         optional: true
 
+  fflate@0.8.3:
+    resolution: {integrity: sha512-tbZNuJrLwGUp3zshBtdy4W+ORxZuIh8a5ilyIEQDC5rY1f3U20JMry0Ll3WBzU58EZKsEuJFXhb5gwv8CsPvgA==}
+
+  float-tooltip@1.8.0:
+    resolution: {integrity: sha512-9iixvzv6T0GQwXugQOdDBBzGCbMsPzpq2vnimyefcCnhDIjsKpPNqLiZ3WaeDBqjx6Uxt26I24ZW98H6SdYRnQ==}
+    engines: {node: '>=12'}
+
+  frame-ticker@1.0.3:
+    resolution: {integrity: sha512-E0X2u2JIvbEMrqEg5+4BpTqaD22OwojJI63K7MdKHdncjtAhGRbCR8nJCr2vwEt9NWBPCPcu70X9smPviEBy8Q==}
+
   fsevents@2.3.3:
     resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==}
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
@@ -1107,6 +1225,14 @@ packages:
   get-nonce@1.0.1:
     resolution: {integrity: sha512-FJhYRoDaiatfEkUK8HKlicmu/3SGFD51q3itKDGoSTysQJBnfOcxU5GxnhE1E6soB76MbT0MBtnKJuXyAx+96Q==}
     engines: {node: '>=6'}
+
+  globe.gl@2.46.2:
+    resolution: {integrity: sha512-oh5fx/sTVtFa06OrLXxgfZ5TV1xhDzLKw0muc0fxJfpHrvfDNRspGqrgURpEBBYWS7REzQA78vodUrjbpfYoqA==}
+    engines: {node: '>=12'}
+
+  h3-js@4.5.0:
+    resolution: {integrity: sha512-uKmdPc+DuarnR+XqZxEuWOMw7KzzKROrx3MLeJpFnMOs78S9M5eZ+X5RieS9UcSFQqbeXzbfWuX/W9Pyajinqw==}
+    engines: {node: '>=4', npm: '>=3', yarn: '>=1.3.0'}
 
   html-encoding-sniffer@7.0.0:
     resolution: {integrity: sha512-UikN5yr7xsCDAq87Or5or0PAlD3HJJOKVzM05az588WnpDJ4Ux7a2A53Qi6gofGg2/EtvF/H4hCi/TXfCW4Y6w==}
@@ -1120,9 +1246,17 @@ packages:
     resolution: {integrity: sha512-EdDDZu4A2OyIK7Lr/2zG+w5jmbuk1DVBnEwREQvBzspBJkCEbRa8GxU1lghYcaGJCnRWibjDXlq779X1/y5xwg==}
     engines: {node: '>=8'}
 
+  index-array-by@1.4.2:
+    resolution: {integrity: sha512-SP23P27OUKzXWEC/TOyWlwLviofQkCSCKONnc62eItjp69yCZZPqDQtr3Pw5gJDnPeUMqExmKydNZaJO0FU9pw==}
+    engines: {node: '>=12'}
+
   index-to-position@1.2.0:
     resolution: {integrity: sha512-Yg7+ztRkqslMAS2iFaU+Oa4KTSidr63OsFGlOrJoW981kIYO3CGCS3wA95P1mUi/IVSJkn0D479KTJpVpvFNuw==}
     engines: {node: '>=18'}
+
+  internmap@2.0.3:
+    resolution: {integrity: sha512-5Hh7Y1wQbvY5ooGgPbDaL5iYLAPzMTUrjMulskHLH6wnv/A+1q5rgEaiuqEjB+oxGXIVZs1FF+R/KPN3ZSQYYg==}
+    engines: {node: '>=12'}
 
   is-alphabetical@2.0.1:
     resolution: {integrity: sha512-FWyyY60MeTNyeSRpkM2Iry0G9hpr7/9kD40mD/cGQEuilcZYS4okz8SN2Q6rLCJ8gbCt6fN+rC+6tMGS99LaxQ==}
@@ -1158,6 +1292,10 @@ packages:
 
   json-schema-traverse@1.0.0:
     resolution: {integrity: sha512-NM8/P9n3XjXhIZn1lLhkFaACTOURQXjWhV4BA/RnOv8xvgqtqpAX9IO4mRQxSx1Rlo4tqzeqb0sOlruaOy3dug==}
+
+  kapsule@1.16.3:
+    resolution: {integrity: sha512-4+5mNNf4vZDSwPhKprKwz3330iisPrb08JyMgbsdFrimBCKNHecua/WBwvVg3n7vwx0C1ARjfhwIpbrbd9n5wg==}
+    engines: {node: '>=12'}
 
   lightningcss-android-arm64@1.33.0:
     resolution: {integrity: sha512-gEpRTalKdosp4Bb8qWtc2iOgE5SeIHlpS1up9bFq2wAyYhl1UdTObYiHe98zEM9SQvSoqQZ1IQD0JNpg3Ml5pg==}
@@ -1233,6 +1371,9 @@ packages:
     resolution: {integrity: sha512-WkUDrojuJs0xkgGf2udWxa3yGBRxPtxUkB79i6aCZLRgc7PM8fZe9TosfPDcvEpQZbuFASnHYmRLBLUbmLOIIA==}
     engines: {node: '>= 12.0.0'}
 
+  lodash-es@4.18.1:
+    resolution: {integrity: sha512-J8xewKD/Gk22OZbhpOVSwcs60zhd95ESDwezOFuA3/099925PdHJ7OFHNTGtajL3AlZkykD32HykiMo+BIBI8A==}
+
   lru-cache@11.5.3:
     resolution: {integrity: sha512-U4N8FgzmWxc8k1VH8Kr6lQg18U7Fjvby6wXHVRX/ZZ7IwWbRMgrRbP0Wrb5q5NVinryp4SQampHKdvtecItxUg==}
     engines: {node: 20 || >=22}
@@ -1243,6 +1384,9 @@ packages:
 
   magic-string@1.4.5:
     resolution: {integrity: sha512-oLLC2+YvQUfAa+vxoufE/yc1icb87M9iXIRqAoR/2EhE/8cb3SF/+Gi0c2By1B+5Vz2e2vQtUvHiu1+63Znh+w==}
+
+  meshoptimizer@1.1.1:
+    resolution: {integrity: sha512-oRFNWJRDA/WTrVj7NWvqa5HqE1t9MYDj2VaWirQCzCCrAd2GHrqR/sQezCxiWATPNlKTcRaPRHPJwIRoPBAp5g==}
 
   min-indent@1.0.1:
     resolution: {integrity: sha512-I9jwMn07Sy/IwOj3zVkVik2JTvgpaykDZEigL6Rx6N9LbMywwUSMtxET+7lVoDLLd3O3IXwJwvuuns8UB/HeAg==}
@@ -1322,6 +1466,13 @@ packages:
     resolution: {integrity: sha512-Nc3IT5yHzflTfbjgqWcCPpo7DaKy4FnpB0l/zCAW0Tc7jxAiuqSxHasntB3D7887LSrA93kDJ9IXovxJYxyLCA==}
     engines: {node: '>=4'}
 
+  point-in-polygon-hao@1.2.4:
+    resolution: {integrity: sha512-x2pcvXeqhRHlNRdhLs/tgFapAbSSe86wa/eqmj1G6pWftbEs5aVRJhRGM6FYSUERKu0PjekJzMq0gsI2XyiclQ==}
+
+  polished@4.3.1:
+    resolution: {integrity: sha512-OBatVyC/N7SCW/FaDHrSd+vn0o5cS855TOmYi4OkdWUMSJCET/xip//ch8xGUvtr3i44X9LVyWwQlRMTN3pwSA==}
+    engines: {node: '>=10'}
+
   postcss@8.5.23:
     resolution: {integrity: sha512-g50586zr4bZmwFiTlflMu8E0bDTb5I5gertgwAKmsdUlTQIhZtunzUlD1WSzwcVWPoAVpsrA6vlfCD7oXvRwgg==}
     engines: {node: ^10 || ^12 || >=14}
@@ -1329,6 +1480,14 @@ packages:
   postcss@8.5.32:
     resolution: {integrity: sha512-LJlKCCAUFKOuZxipUdYw1NzIITEsPcgyOG9LkvRJvuKj/bRzbuRY0ARXvL0pWGpsZvn8jku+LMep2eU0seHp8g==}
     engines: {node: ^10 || ^12 || >=14}
+
+  preact@11.2.0:
+    resolution: {integrity: sha512-/HfHI/7N84e6GrWBJ3J280z3mLaRJiDcSvj/A+y/4AbLnND/1UlGHe1sR6oYuTGwId0nP7dqDU9OnLxMPZ7xBg==}
+    peerDependencies:
+      preact-render-to-string: '>=6.7.0'
+    peerDependenciesMeta:
+      preact-render-to-string:
+        optional: true
 
   pretty-format@27.5.1:
     resolution: {integrity: sha512-Qb1gy5OrP5+zDf2Bvnzdl3jsTf1qXVMazbvCoKhtKqVs4/YK4ozX4gKQJJVyNe+cajNPn0KoC0MC3FUmaHWEmQ==}
@@ -1388,6 +1547,9 @@ packages:
     resolution: {integrity: sha512-Xf0nWe6RseziFMu+Ap9biiUbmplq6S9/p+7w7YXP/JBHhrUDDUhwa+vANyubuqfZWTveU//DYVGsDG7RKL/vEw==}
     engines: {node: '>=0.10.0'}
 
+  robust-predicates@3.0.3:
+    resolution: {integrity: sha512-NS3levdsRIUOmiJ8FZWCP7LG3QpJyrs/TE0Zpf1yvZu8cAJJ6QMW92H1c7kWpdIHo8RvmLxN/o2JXTKHp74lUA==}
+
   rolldown@1.2.19:
     resolution: {integrity: sha512-QIiV1J9d0pzN4jeeTH4sjPy0AZ6cAy2cG0ExeoE1+U8Rvj+hR3gYkokx0YbeUNGlZqiQJJ2utcETe0oKXwzsuA==}
     engines: {node: ^20.19.0 || >=22.12.0}
@@ -1413,6 +1575,9 @@ packages:
     peerDependenciesMeta:
       '@types/node':
         optional: true
+
+  simplesignal@2.1.7:
+    resolution: {integrity: sha512-PEo2qWpUke7IMhlqiBxrulIFvhJRLkl1ih52Rwa+bPjzhJepcd4GIjn2RiQmFSx3dQvsEAgF0/lXMwMN7vODaA==}
 
   source-map-js@1.2.2:
     resolution: {integrity: sha512-KGj/8Y43x35aZVDtt+J4mK1hoLGHULMYfSkODJNQjNDC3oW1PqPoxMwo0pLUsWM/UEGzON/NxeHywEfNXNP3Vw==}
@@ -1442,9 +1607,45 @@ packages:
     resolution: {integrity: sha512-SS+jx45GF1QjgEXQx4NJZV9ImqmO2NPz5FNsIHrsDjh2YsHnawpan7SNQ1o8NuhrbHZy9AZhIoCUiCeaW/C80g==}
     engines: {node: '>=18'}
 
+  three-conic-polygon-geometry@2.1.5:
+    resolution: {integrity: sha512-zCcJnjyqwOVD59Fcm2nSh/FRGSnGdge7AgoOAKCS63XRMSxcgNq75Tu9dLnlC6lM0jCeIFqzO5+zevP9xksxLA==}
+    engines: {node: '>=12'}
+    peerDependencies:
+      three: '>=0.72.0'
+
+  three-geojson-geometry@2.1.2:
+    resolution: {integrity: sha512-Nuz03dDVqo0ZggZS9XZJ648nEzqzlPwneEN6fa7EwKRwH69GwvPiPMBan/RxUhhEHOlj38tu5XVSovZdHsIZSw==}
+    engines: {node: '>=12'}
+    peerDependencies:
+      three: '>=0.72.0'
+
+  three-globe@2.45.6:
+    resolution: {integrity: sha512-pVaHWVo5vUiFlLxc6gbQxwTTVjrscbpBfiOzuZlx1SHDXiV/yErhfMnivJkEPMRuw0n+lujrMQe8LWr4a01anw==}
+    engines: {node: '>=12'}
+    peerDependencies:
+      three: '>=0.154'
+
+  three-render-objects@1.44.1:
+    resolution: {integrity: sha512-XsjD8yiYjL7p61KiNK2bCVHAzUQ2Jq38ifqZu+pEHkefcpsjzPSb5kN0W0+qmjnGKoqMKmzm+p6k1M3Z4VmINw==}
+    engines: {node: '>=12'}
+    peerDependencies:
+      three: '>=0.179'
+
+  three-slippy-map-globe@1.0.6:
+    resolution: {integrity: sha512-PCUR+X+1kYFYtQBf8+b/ct8xBHtnkeu7FItRYBeFxyIe3ksnGuLi0H9RAxAfVSSUsZVbKIKNz9q1atEjynrrkg==}
+    engines: {node: '>=12'}
+    peerDependencies:
+      three: '>=0.154'
+
+  three@0.186.1:
+    resolution: {integrity: sha512-blFeqb49wRCSGUGj7gtpfnSGHy2lwDk94RhUmS1c/hTby70kvChbWpkJ4Pm1390LqzzvTmzgXKHPEafJwCb8jA==}
+
   tinybench@6.2.3:
     resolution: {integrity: sha512-Al01C2JIBnO2CXCAPbpAl6sUiOZHeThGtHYNTa51JRw9PyWOCdr+9Ong05R4qg/Sk3+H645E8ov1h2c58ityNw==}
     engines: {node: '>=20.0.0'}
+
+  tinycolor2@1.6.0:
+    resolution: {integrity: sha512-XPaBkWQJdsf3pLKJV9p4qN/S+fm2Oj8AIPo1BTUhg5oxkvm9+SVEGFdhyOz7tTdUTfvxMiAs4sp6/eZO2Ew+pw==}
 
   tinyexec@1.3.1:
     resolution: {integrity: sha512-GCvB3aoys96IuDFBMcTB46JOR6mdMtAToqwiW8JlWhsoh1mhHi/xn9ss/Dg7N555GiJyEt2qzoG/NHCwM6h1EA==}
@@ -1648,6 +1849,8 @@ snapshots:
   '@babel/helper-validator-identifier@7.29.7': {}
 
   '@babel/runtime@7.29.14': {}
+
+  '@dimforge/rapier3d-compat@0.12.0': {}
 
   '@emnapi/core@2.0.0-beta.2':
     dependencies:
@@ -2079,6 +2282,29 @@ snapshots:
       '@types/react': 19.3.0
       '@types/react-dom': 19.3.0(@types/react@19.3.0)
 
+  '@turf/boolean-point-in-polygon@7.4.0':
+    dependencies:
+      '@turf/helpers': 7.4.0
+      '@turf/invariant': 7.4.0
+      '@types/geojson': 7946.0.16
+      point-in-polygon-hao: 1.2.4
+      tslib: 2.9.1
+
+  '@turf/helpers@7.4.0':
+    dependencies:
+      '@types/geojson': 7946.0.16
+      tslib: 2.9.1
+
+  '@turf/invariant@7.4.0':
+    dependencies:
+      '@turf/helpers': 7.4.0
+      '@types/geojson': 7946.0.16
+      tslib: 2.9.1
+
+  '@tweenjs/tween.js@23.1.3': {}
+
+  '@tweenjs/tween.js@25.0.0': {}
+
   '@tybys/wasm-util@0.10.4':
     dependencies:
       tslib: 2.9.1
@@ -2095,6 +2321,8 @@ snapshots:
 
   '@types/estree@1.0.10': {}
 
+  '@types/geojson@7946.0.16': {}
+
   '@types/node@24.19.0':
     dependencies:
       undici-types: 7.24.6
@@ -2106,6 +2334,19 @@ snapshots:
   '@types/react@19.3.0':
     dependencies:
       csstype: 3.2.3
+
+  '@types/stats.js@0.17.4': {}
+
+  '@types/three@0.186.0':
+    dependencies:
+      '@dimforge/rapier3d-compat': 0.12.0
+      '@tweenjs/tween.js': 23.1.3
+      '@types/stats.js': 0.17.4
+      '@types/webxr': 0.5.24
+      fflate: 0.8.3
+      meshoptimizer: 1.1.1
+
+  '@types/webxr@0.5.24': {}
 
   '@typescript/typescript-aix-ppc64@7.0.2':
     optional: true
@@ -2178,6 +2419,8 @@ snapshots:
 
   '@vitest/spy@5.1.0': {}
 
+  accessor-fn@1.5.3: {}
+
   agent-base@7.1.4: {}
 
   ansi-colors@4.1.3: {}
@@ -2230,6 +2473,68 @@ snapshots:
 
   csstype@3.2.3: {}
 
+  d3-array@3.2.5:
+    dependencies:
+      internmap: 2.0.3
+
+  d3-color@3.1.1: {}
+
+  d3-delaunay@6.0.6:
+    dependencies:
+      delaunator: 5.1.0
+
+  d3-format@3.1.3: {}
+
+  d3-geo-voronoi@2.1.0:
+    dependencies:
+      d3-array: 3.2.5
+      d3-delaunay: 6.0.6
+      d3-geo: 3.1.2
+      d3-tricontour: 1.1.0
+
+  d3-geo@3.1.2:
+    dependencies:
+      d3-array: 3.2.5
+
+  d3-interpolate@3.0.2:
+    dependencies:
+      d3-color: 3.1.1
+
+  d3-octree@1.1.0: {}
+
+  d3-scale-chromatic@3.1.1:
+    dependencies:
+      d3-color: 3.1.1
+      d3-interpolate: 3.0.2
+      d3-scale: 4.0.3
+
+  d3-scale@4.0.3:
+    dependencies:
+      d3-array: 3.2.5
+      d3-format: 3.1.3
+      d3-interpolate: 3.0.2
+      d3-time: 3.1.1
+      d3-time-format: 4.1.1
+
+  d3-selection@3.0.1: {}
+
+  d3-time-format@4.1.1:
+    dependencies:
+      d3-time: 3.1.1
+
+  d3-time@3.1.1:
+    dependencies:
+      d3-array: 3.2.5
+
+  d3-tricontour@1.1.0:
+    dependencies:
+      d3-delaunay: 6.0.6
+      d3-scale: 4.0.3
+
+  data-bind-mapper@1.0.3:
+    dependencies:
+      accessor-fn: 1.5.3
+
   data-urls@8.0.0:
     dependencies:
       whatwg-mimetype: 5.0.0
@@ -2245,6 +2550,10 @@ snapshots:
 
   decimal.js@10.6.0: {}
 
+  delaunator@5.1.0:
+    dependencies:
+      robust-predicates: 3.0.3
+
   dequal@2.0.3: {}
 
   detect-libc@2.1.2: {}
@@ -2254,6 +2563,8 @@ snapshots:
   dom-accessibility-api@0.5.16: {}
 
   dom-accessibility-api@0.6.3: {}
+
+  earcut@3.2.4: {}
 
   entities@9.0.0: {}
 
@@ -2271,10 +2582,37 @@ snapshots:
     optionalDependencies:
       picomatch: 4.0.7
 
+  fflate@0.8.3: {}
+
+  float-tooltip@1.8.0:
+    dependencies:
+      d3-selection: 3.0.1
+      kapsule: 1.16.3
+      preact: 11.2.0
+    transitivePeerDependencies:
+      - preact-render-to-string
+
+  frame-ticker@1.0.3:
+    dependencies:
+      simplesignal: 2.1.7
+
   fsevents@2.3.3:
     optional: true
 
   get-nonce@1.0.1: {}
+
+  globe.gl@2.46.2:
+    dependencies:
+      '@tweenjs/tween.js': 25.0.0
+      accessor-fn: 1.5.3
+      kapsule: 1.16.3
+      three: 0.186.1
+      three-globe: 2.45.6(three@0.186.1)
+      three-render-objects: 1.44.1(three@0.186.1)
+    transitivePeerDependencies:
+      - preact-render-to-string
+
+  h3-js@4.5.0: {}
 
   html-encoding-sniffer@7.0.0:
     dependencies:
@@ -2291,7 +2629,11 @@ snapshots:
 
   indent-string@4.0.0: {}
 
+  index-array-by@1.4.2: {}
+
   index-to-position@1.2.0: {}
+
+  internmap@2.0.3: {}
 
   is-alphabetical@2.0.1: {}
 
@@ -2336,6 +2678,10 @@ snapshots:
       - '@noble/hashes'
 
   json-schema-traverse@1.0.0: {}
+
+  kapsule@1.16.3:
+    dependencies:
+      lodash-es: 4.18.1
 
   lightningcss-android-arm64@1.33.0:
     optional: true
@@ -2386,6 +2732,8 @@ snapshots:
       lightningcss-win32-arm64-msvc: 1.33.0
       lightningcss-win32-x64-msvc: 1.33.0
 
+  lodash-es@4.18.1: {}
+
   lru-cache@11.5.3: {}
 
   lz-string@1.5.0: {}
@@ -2393,6 +2741,8 @@ snapshots:
   magic-string@1.4.5:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.6.0
+
+  meshoptimizer@1.1.1: {}
 
   min-indent@1.0.1: {}
 
@@ -2468,6 +2818,14 @@ snapshots:
 
   pluralize@8.0.0: {}
 
+  point-in-polygon-hao@1.2.4:
+    dependencies:
+      robust-predicates: 3.0.3
+
+  polished@4.3.1:
+    dependencies:
+      '@babel/runtime': 7.29.14
+
   postcss@8.5.23:
     dependencies:
       nanoid: 3.3.20
@@ -2479,6 +2837,8 @@ snapshots:
       nanoid: 3.3.20
       picocolors: 1.1.1
       source-map-js: 1.2.2
+
+  preact@11.2.0: {}
 
   pretty-format@27.5.1:
     dependencies:
@@ -2530,6 +2890,8 @@ snapshots:
       strip-indent: 3.0.0
 
   require-from-string@2.0.2: {}
+
+  robust-predicates@3.0.3: {}
 
   rolldown@1.2.19:
     dependencies:
@@ -2596,6 +2958,8 @@ snapshots:
       '@types/node': 24.19.0
     optional: true
 
+  simplesignal@2.1.7: {}
+
   source-map-js@1.2.2: {}
 
   std-env@4.3.0: {}
@@ -2611,7 +2975,68 @@ snapshots:
 
   supports-color@10.2.2: {}
 
+  three-conic-polygon-geometry@2.1.5(three@0.186.1):
+    dependencies:
+      '@turf/boolean-point-in-polygon': 7.4.0
+      d3-array: 3.2.5
+      d3-geo: 3.1.2
+      d3-geo-voronoi: 2.1.0
+      d3-scale: 4.0.3
+      delaunator: 5.1.0
+      earcut: 3.2.4
+      three: 0.186.1
+
+  three-geojson-geometry@2.1.2(three@0.186.1):
+    dependencies:
+      d3-geo: 3.1.2
+      d3-interpolate: 3.0.2
+      earcut: 3.2.4
+      three: 0.186.1
+
+  three-globe@2.45.6(three@0.186.1):
+    dependencies:
+      '@tweenjs/tween.js': 25.0.0
+      accessor-fn: 1.5.3
+      d3-array: 3.2.5
+      d3-color: 3.1.1
+      d3-geo: 3.1.2
+      d3-interpolate: 3.0.2
+      d3-scale: 4.0.3
+      d3-scale-chromatic: 3.1.1
+      data-bind-mapper: 1.0.3
+      frame-ticker: 1.0.3
+      h3-js: 4.5.0
+      index-array-by: 1.4.2
+      kapsule: 1.16.3
+      three: 0.186.1
+      three-conic-polygon-geometry: 2.1.5(three@0.186.1)
+      three-geojson-geometry: 2.1.2(three@0.186.1)
+      three-slippy-map-globe: 1.0.6(three@0.186.1)
+      tinycolor2: 1.6.0
+
+  three-render-objects@1.44.1(three@0.186.1):
+    dependencies:
+      '@tweenjs/tween.js': 25.0.0
+      accessor-fn: 1.5.3
+      float-tooltip: 1.8.0
+      kapsule: 1.16.3
+      polished: 4.3.1
+      three: 0.186.1
+    transitivePeerDependencies:
+      - preact-render-to-string
+
+  three-slippy-map-globe@1.0.6(three@0.186.1):
+    dependencies:
+      d3-geo: 3.1.2
+      d3-octree: 1.1.0
+      d3-scale: 4.0.3
+      three: 0.186.1
+
+  three@0.186.1: {}
+
   tinybench@6.2.3: {}
+
+  tinycolor2@1.6.0: {}
 
   tinyexec@1.3.1: {}
 

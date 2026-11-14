@@ -47,6 +47,25 @@ licence. This does not complete final release notice obligations or AC-34. Stati
 snapshot packaging and Node/Python final release supervision remain R01/R02/R07;
 scientific method/data admission gates are unchanged.
 
+**U03 globe engine spike (REVIEW, not DONE).** `/workspace/globe` now runs globe.gl 2.46.2 /
+Three.js 0.186.1 with a bundled NASA GIBS `BlueMarble_ShadedRelief_Bathymetry` texture
+(WMS 1.3.0, EPSG:4326, latitude-first BBOX, 2048x1024, retrieved 14 November 2026; SHA-256
+and request recorded in `web/public/globe/basemap.manifest.json`), camera reset, keyboard
+camera controls, GIBS acknowledgment shown offline too, a no-WebGL2 fallback message and a
+cell-picking readout. The 64,800 one-degree cells are one batched indexed mesh (one draw
+call, exact cell corners; TDD §2.2 permits batched or instanced) painted from a typed array.
+The only values are an abstract, deterministic **test-only synthetic pattern**, off by
+default, labelled on screen and never a variable. No scientific layer, trend, significance
+or relief is shown (U08). Unit tests cover grid indexing/wrapping/round trips and axis
+convention; Chromium journeys cover local-only requests, picking near the camera centre,
+GPU-object counts stable across cell toggles and three page revisits, reduced motion and
+the WebGL fallback. **Open for U03 acceptance:** the >=30 fps ten-second benchmark on the
+reference laptop (AS-05, integrated GPU, Chrome). Headless Chromium on SwiftShader (software
+GL) measured a median of about 15 fps at 616x490; that is not a hardware reading and does
+not pass or fail the requirement. Run the in-page benchmark button on the reference device
+and record the result. Idle render-on-demand, the approved diverging scale, q channel,
+relief, no-data hatching and the offline fallback texture variant remain later work.
+
 **Ask the Detective (SI chat) added.** The chat missing from the integration is now a
 local rule-based flow at `/workspace/assistant` (VC-03/SI-01 catalog-only, no model, no
 network). See [the ledger](NAVIDA_INTEGRATION.md). Verification: `scripts/dev.py check`

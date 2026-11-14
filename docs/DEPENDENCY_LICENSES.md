@@ -262,3 +262,67 @@ The Windows Sharp package licence includes LGPL-3.0-or-later as well as Apache-2
 retain its bundled notices and review redistribution obligations in R06. This is
 not an all-MIT claim or completion of final AC-34. The previous missing full notice
 for react-remove-scroll-bar remains an explicit release item.
+
+## U03 globe engine additions
+
+Inspected on 14 November 2026 against installed metadata and the pnpm lockfile. Direct additions are
+`globe.gl` 2.46.2 and `three` 0.186.1 (exact), plus `@types/three` 0.186.0 for development. All
+51 newly installed package versions below are OSI-approved (MIT, ISC, Apache-2.0, 0BSD, Unlicense). Per-package
+licence text/notice retention for the release remains an F06/R06 item. The bundled basemap
+`web/public/globe/basemap-2048x1024.jpg` is NASA GIBS imagery (Blue Marble, retrieved
+14 November 2026; details and SHA-256 in `basemap.manifest.json`) and is displayed with the GIBS
+acknowledgment. It is decorative and not analytical provenance.
+
+| Package | Version | Licence |
+| --- | --- | --- |
+| @dimforge/rapier3d-compat | 0.12.0 | Apache-2.0 |
+| @turf/boolean-point-in-polygon | 7.4.0 | MIT |
+| @turf/helpers | 7.4.0 | MIT |
+| @turf/invariant | 7.4.0 | MIT |
+| @tweenjs/tween.js | 23.1.3 | MIT |
+| @tweenjs/tween.js | 25.0.0 | MIT |
+| @types/geojson | 7946.0.16 | MIT |
+| @types/stats.js | 0.17.4 | MIT |
+| @types/three | 0.186.0 | MIT |
+| @types/webxr | 0.5.24 | MIT |
+| accessor-fn | 1.5.3 | MIT |
+| d3-array | 3.2.5 | ISC |
+| d3-color | 3.1.1 | ISC |
+| d3-delaunay | 6.0.6 | ISC |
+| d3-format | 3.1.3 | ISC |
+| d3-geo | 3.1.2 | ISC |
+| d3-geo-voronoi | 2.1.0 | ISC |
+| d3-interpolate | 3.0.2 | ISC |
+| d3-octree | 1.1.0 | MIT |
+| d3-scale | 4.0.3 | ISC |
+| d3-scale-chromatic | 3.1.1 | ISC |
+| d3-selection | 3.0.1 | ISC |
+| d3-time | 3.1.1 | ISC |
+| d3-time-format | 4.1.1 | ISC |
+| d3-tricontour | 1.1.0 | ISC |
+| data-bind-mapper | 1.0.3 | MIT |
+| delaunator | 5.1.0 | ISC |
+| earcut | 3.2.4 | ISC |
+| fflate | 0.8.3 | MIT |
+| float-tooltip | 1.8.0 | MIT |
+| frame-ticker | 1.0.3 | MIT |
+| globe.gl | 2.46.2 | MIT |
+| h3-js | 4.5.0 | Apache-2.0 |
+| index-array-by | 1.4.2 | MIT |
+| internmap | 2.0.3 | ISC |
+| kapsule | 1.16.3 | MIT |
+| lodash-es | 4.18.1 | MIT |
+| meshoptimizer | 1.1.1 | MIT |
+| point-in-polygon-hao | 1.2.4 | MIT |
+| polished | 4.3.1 | MIT |
+| preact | 11.2.0 | MIT |
+| robust-predicates | 3.0.3 | Unlicense |
+| simplesignal | 2.1.7 | MIT |
+| three | 0.186.1 | MIT |
+| three-conic-polygon-geometry | 2.1.5 | MIT |
+| three-geojson-geometry | 2.1.2 | MIT |
+| three-globe | 2.45.6 | MIT |
+| three-render-objects | 1.44.1 | MIT |
+| three-slippy-map-globe | 1.0.6 | MIT |
+| tinycolor2 | 1.6.0 | MIT |
+| tslib | 2.9.1 | 0BSD |

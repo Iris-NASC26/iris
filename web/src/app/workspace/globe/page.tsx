@@ -1,2 +1,3 @@
-import { UnavailablePage } from '../../../features/workspace/UnavailablePage';
-export default function GlobePage() { return <UnavailablePage kind="globe" />; }
+import { GlobePage } from '../../../features/globe/GlobePage';
+
+export default function Page() { return <GlobePage />; }
