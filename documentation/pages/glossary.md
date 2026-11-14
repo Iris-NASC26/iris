@@ -79,7 +79,7 @@ The expected proportion of significant test results that are actually false posi
 ## G
 
 **Global Trend Cube**
-Iris's pre-computed database of trend statistics for every 0.5° × 0.5° grid cell on Earth across six core climate variables, covering 1981–2025. Powers the Living Globe and Regional Case Board.
+Iris's pre-computed database of trend statistics for every 0.5° × 0.5° grid cell on Earth across six core climate variables, covering 1981–2025. Powers the Living Globe.
 
 **GCMD keywords**
 Global Change Master Directory keywords — a hierarchical vocabulary maintained by NASA for standardizing the naming of Earth science variables, instruments, platforms, and locations. Used internally by Iris to match plain-language queries to dataset metadata.
@@ -135,7 +135,7 @@ A complete chain of documentation tracing a result back to its original source d
 ## Q
 
 **q-value**
-The Benjamini-Hochberg FDR-adjusted version of a p-value. Accounts for the fact that many tests are being run simultaneously. Use q-values when interpreting significance from the Living Globe or Case Board (which test all variables simultaneously).
+The Benjamini-Hochberg FDR-adjusted version of a p-value. Accounts for the fact that many tests are being run simultaneously. Use q-values when interpreting significance on the Living Globe.
 
 ---
 
@@ -164,7 +164,7 @@ A statistical relationship between climate anomalies at geographically distant l
 The process of combining observations at a fine time resolution into a coarser one (e.g., daily → monthly). The appropriate aggregation method depends on the variable: sum for precipitation, mean for temperature.
 
 **Track A / Track B**
-Iris's two investigation workflows. Track A is live ad-hoc discovery (System Intelligence → Data Selection → Data Preview → Visualize). Track B uses the pre-computed Global Trend Cube (Living Globe → Case Board → Visualize).
+Iris's two investigation workflows. Track A is live ad-hoc discovery (System Intelligence → Data Selection → Data Preview → Visualize). Track B uses the pre-computed Global Trend Cube (Living Globe → Visualize).
 
 **Trend**
 A consistent, directional change in a time series over a sustained period. In Iris, trends are defined as monotonic (consistently increasing or decreasing) and are tested using the Mann-Kendall method.

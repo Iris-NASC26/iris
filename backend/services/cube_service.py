@@ -1,5 +1,5 @@
 """
-SRS v1.0 Global Trend Cube, Regional Case Board, Two-Region Comparison & Evidence Registry Service
+SRS v1.0 Global Trend Cube & Evidence Registry Service
 Provides read-only serving of the versioned Global Trend Cube (`v1.0.2-2026.11`) built from verified
 NASA POWER / MERRA-2, GPM IMERG, MODIS, and GLDAS reference series, plus pinned real snapshots for
 offline demonstrations.
@@ -13,13 +13,9 @@ import math
 from typing import Dict, List, Optional
 
 from schemas import (
-    CaseBoardRequest,
-    CaseBoardResponse,
     CubeCellRecord,
     CubeLayerManifest,
     GlobeCubeResponse,
-    RegionalVariableScanRow,
-    TwoRegionComparisonResult,
 )
 
 CUBE_VERSION = "v1.0.2-SRS-2026.11"
@@ -410,195 +406,6 @@ def get_globe_cube_data(layer_id: str = "cube_t2m", window: str = "1981-2025") -
     )
 
 
-def scan_regional_case_board(req: CaseBoardRequest) -> CaseBoardResponse:
-    min_lon, min_lat, max_lon, max_lat = (
-        req.bbox if len(req.bbox) == 4 else [-122.6, 35.0, -118.5, 40.8]
-    )
-    mid_lat = (min_lat + max_lat) / 2.0
-    mid_lon = (min_lon + max_lon) / 2.0
-    lat_span = max(0.5, abs(max_lat - min_lat))
-    lon_span = max(0.5, abs(max_lon - min_lon))
-
-    # Area in km^2 on spherical Earth
-    area_km2 = round(
-        lat_span * 111.32 * lon_span * 111.32 * max(0.15, math.cos(math.radians(mid_lat))),
-        0,
-    )
-    cells_count = max(1, int(round((lat_span / 0.5) * (lon_span / 0.5))))
-
-    is_ocean_region = "ocean" in req.region_name.lower() or "pacific" in req.region_name.lower() or "atlantic" in req.region_name.lower()
-    is_coastal = "colombo" in req.region_name.lower() or "los angeles" in req.region_name.lower() or "california" in req.region_name.lower() or "mediterranean" in req.region_name.lower()
-    land_frac = 12.0 if is_ocean_region else 74.5 if is_coastal else 96.2
-    ocean_frac = round(100.0 - land_frac, 1)
-
-    is_cryo_eligible = abs(mid_lat) >= 26.0 or "himalaya" in req.region_name.lower() or "nepal" in req.region_name.lower() or "alps" in req.region_name.lower()
-
-    scanned: List[RegionalVariableScanRow] = []
-    unavailable: List[RegionalVariableScanRow] = []
-
-    for idx, layer in enumerate(CUBE_LAYERS):
-        vid = layer.variable_id
-
-        # Check variable applicability for region
-        if vid == "SST_MUR" and land_frac > 85.0:
-            unavailable.append(
-                RegionalVariableScanRow(
-                    layer_id=layer.layer_id,
-                    variable_id=vid,
-                    variable_name=layer.variable_name,
-                    category=layer.category,
-                    unit=layer.unit,
-                    source_product=layer.source_product,
-                    citation_doi=layer.citation_doi,
-                    analyzable=False,
-                    unavailable_reason=f"Ocean-only SST product masked over terrestrial region ({land_frac:.1f}% land fraction).",
-                    grade_reason="Excluded by land-sea mask",
-                    valid_coverage_pct=0.0,
-                    caveats=layer.caveats,
-                )
-            )
-            continue
-
-        if vid == "NDSI_SNOW_COVER" and not is_cryo_eligible:
-            unavailable.append(
-                RegionalVariableScanRow(
-                    layer_id=layer.layer_id,
-                    variable_id=vid,
-                    variable_name=layer.variable_name,
-                    category=layer.category,
-                    unit=layer.unit,
-                    source_product=layer.source_product,
-                    citation_doi=layer.citation_doi,
-                    analyzable=False,
-                    unavailable_reason=f"Low-latitude / warm-climate region (centroid {mid_lat:.1f}°): perennial zero snow-cover baseline (<2% valid snow months).",
-                    grade_reason="Insufficient non-zero cryosphere observations",
-                    valid_coverage_pct=4.2,
-                    caveats=layer.caveats,
-                )
-            )
-            continue
-
-        if layer.status == "catalog_pending":
-            unavailable.append(
-                RegionalVariableScanRow(
-                    layer_id=layer.layer_id,
-                    variable_id=vid,
-                    variable_name=layer.variable_name,
-                    category=layer.category,
-                    unit=layer.unit,
-                    source_product=layer.source_product,
-                    citation_doi=layer.citation_doi,
-                    analyzable=False,
-                    unavailable_reason="Layer scheduled for Global Cube Release v1.1 after granule QA & inter-mission gap verification.",
-                    grade_reason="Pending scientific release verification",
-                    valid_coverage_pct=78.5,
-                    caveats=layer.caveats,
-                )
-            )
-            continue
-
-        m = _compute_cell_metrics_for_layer(layer, idx, mid_lat, mid_lon, land_frac >= 50.0)
-        scanned.append(
-            RegionalVariableScanRow(
-                layer_id=layer.layer_id,
-                variable_id=vid,
-                variable_name=layer.variable_name,
-                category=layer.category,
-                unit=layer.unit,
-                source_product=layer.source_product,
-                citation_doi=layer.citation_doi,
-                analyzable=True,
-                decadal_slope=m["decadal_slope"],
-                ci_low=m["ci_low"],
-                ci_high=m["ci_high"],
-                mk_p_value=m["mk_p_value"],
-                fdr_q_value=m["fdr_q_value"],
-                significant_fdr=m["significant_fdr"],
-                evidence_grade=m["evidence_grade"],
-                grade_reason=(
-                    f"Hamed-Rao MK p={m['mk_p_value']:.4f} (BH-FDR q={m['fdr_q_value']:.4f}), "
-                    f"{m['valid_coverage_pct']:.1f}% monthly completeness across {req.start_year}–{req.end_year}."
-                ),
-                valid_coverage_pct=m["valid_coverage_pct"],
-                caveats=layer.caveats,
-                sparkline=m["sparkline"],
-            )
-        )
-
-    # Optional Two-Region Comparison
-    comparison: Optional[TwoRegionComparisonResult] = None
-    if req.compare_region_name:
-        comp_bbox = req.compare_bbox if req.compare_bbox and len(req.compare_bbox) == 4 else [-123.5, 45.0, -120.0, 48.5]
-        comp_lat = (comp_bbox[1] + comp_bbox[3]) / 2.0
-        comp_lon = (comp_bbox[0] + comp_bbox[2]) / 2.0
-        target_layer = next(
-            (l for l in CUBE_LAYERS if l.variable_id == req.compare_variable_id),
-            CUBE_LAYERS[0],
-        )
-        m_a = _compute_cell_metrics_for_layer(target_layer, 0, mid_lat, mid_lon, True)
-        m_b = _compute_cell_metrics_for_layer(target_layer, 2, comp_lat, comp_lon, True)
-        diff = round(m_a["decadal_slope"] - m_b["decadal_slope"], 3)
-        diff_ci_half = round(
-            math.sqrt((m_a["ci_high"] - m_a["decadal_slope"]) ** 2 + (m_b["ci_high"] - m_b["decadal_slope"]) ** 2),
-            3,
-        )
-        same_dir = (m_a["decadal_slope"] >= 0) == (m_b["decadal_slope"] >= 0)
-        concordance = (
-            "Co-directional trend (varying magnitude)"
-            if same_dir
-            else "Opposing trend dipole (divergent regional trajectories)"
-        )
-        comparison = TwoRegionComparisonResult(
-            variable_id=target_layer.variable_id,
-            variable_name=target_layer.variable_name,
-            unit=target_layer.unit,
-            window=f"{req.start_year}–{req.end_year}",
-            region_a_name=req.region_name,
-            region_a_bbox=[min_lon, min_lat, max_lon, max_lat],
-            region_a_slope=m_a["decadal_slope"],
-            region_a_ci=[m_a["ci_low"], m_a["ci_high"]],
-            region_a_p=m_a["mk_p_value"],
-            region_a_grade=m_a["evidence_grade"],
-            region_a_series=m_a["sparkline"],
-            region_b_name=req.compare_region_name,
-            region_b_bbox=comp_bbox,
-            region_b_slope=m_b["decadal_slope"],
-            region_b_ci=[m_b["ci_low"], m_b["ci_high"]],
-            region_b_p=m_b["mk_p_value"],
-            region_b_grade=m_b["evidence_grade"],
-            region_b_series=m_b["sparkline"],
-            slope_difference=diff,
-            difference_ci=[round(diff - diff_ci_half, 3), round(diff + diff_ci_half, 3)],
-            concordance_label=concordance,
-            non_causal_disclosure=(
-                "Scientific Note: Side-by-side comparison of two regions uses identical variable definitions, baseline window, "
-                "and Hamed-Rao Mann-Kendall estimators. Statistical divergence or dipole opposition does not imply direct causal forcing between the two regions."
-            ),
-        )
-
-    mean_cov = round(
-        sum(r.valid_coverage_pct for r in scanned) / max(1, len(scanned)),
-        1,
-    )
-
-    return CaseBoardResponse(
-        cube_version=CUBE_VERSION,
-        region_name=req.region_name,
-        bbox=[min_lon, min_lat, max_lon, max_lat],
-        start_year=req.start_year,
-        end_year=req.end_year,
-        area_km2=area_km2,
-        grid_cells_count=cells_count,
-        land_fraction_pct=land_frac,
-        ocean_fraction_pct=ocean_frac,
-        mean_coverage_pct=mean_cov,
-        fdr_alpha=0.05,
-        scanned_variables=scanned,
-        unavailable_variables=unavailable,
-        two_region_comparison=comparison,
-    )
-
-
 def get_evidence_methods_registry() -> dict:
     return {
         "cube_version": CUBE_VERSION,
@@ -653,7 +460,7 @@ def get_evidence_methods_registry() -> dict:
             {
                 "id": "VAL-04",
                 "name": "Benjamini-Hochberg False Discovery Rate (BH-FDR) Multi-Test Control",
-                "target": "Regional Case Board simultaneous scan across 10+ environmental variables",
+                "target": "Global Trend Cube grid-cell false discovery control",
                 "expected": "Exact monotonic q-value rank adjustment at alpha = 0.05",
                 "measured": "100% agreement with reference statsmodels multipletests(method='fdr_bh')",
                 "status": "PASSED",

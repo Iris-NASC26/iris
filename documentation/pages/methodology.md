@@ -152,7 +152,7 @@ If a change point is detected, the Case File reports its estimated date and p-va
 
 ### Benjamini-Hochberg False Discovery Rate (BH-FDR)
 
-When many statistical tests are run simultaneously (e.g., testing every grid cell in the Global Trend Cube, or every variable in a Case Board scan), some will appear significant by chance alone. The **Benjamini-Hochberg procedure** controls the expected proportion of false discoveries among all significant results.
+When many statistical tests are run simultaneously (e.g., testing every grid cell in the Global Trend Cube), some will appear significant by chance alone. The **Benjamini-Hochberg procedure** controls the expected proportion of false discoveries among all significant results.
 
 Iris reports both the raw p-value and the FDR-adjusted **q-value**. The significance filter on the Living Globe uses q ≤ 0.05.
 

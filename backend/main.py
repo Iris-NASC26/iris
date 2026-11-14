@@ -57,8 +57,6 @@ from providers.noaa_onestop import search_noaa_onestop_catalog
 from providers.opendap import search_opendap_catalog
 from providers.research_literature import execute_research_search
 from schemas import (
-    CaseBoardRequest,
-    CaseBoardResponse,
     CaseFileAnalysisRequest,
     CaseFileAnalysisResponse,
     AssistantChatRequest,
@@ -82,7 +80,6 @@ from services.cube_service import (
     SNAPSHOT_UTC,
     get_evidence_methods_registry,
     get_globe_cube_data,
-    scan_regional_case_board,
 )
 from services.llm_router import extract_scientific_intent, rank_and_explain_products
 from services.science_pipeline import execute_case_file_analysis, load_series_from_job_id
@@ -519,12 +516,6 @@ async def get_living_globe_cube(
     return get_globe_cube_data(layer_id=layer_id, window=window)
 
 
-@app.post("/api/v1/cube/case-board", response_model=CaseBoardResponse)
-async def post_regional_case_board(req: CaseBoardRequest) -> CaseBoardResponse:
-    """Scans all Global Trend Cube variables for a region and optionally performs Two-Region comparison."""
-    return scan_regional_case_board(req)
-
-
 @app.post("/api/v1/analyze/case-file", response_model=CaseFileAnalysisResponse)
 async def analyze_scientific_case_file(req: CaseFileAnalysisRequest) -> CaseFileAnalysisResponse:
     """
@@ -543,7 +534,7 @@ async def analyze_scientific_case_file(req: CaseFileAnalysisRequest) -> CaseFile
         if preview.extraction_config.target_frequency != "Monthly":
             raise HTTPException(
                 status_code=422,
-                detail="Plot & Visualize currently requires a monthly time series. Re-extract or resample this product to Monthly before analysis.",
+                detail="Data Analysis currently requires a monthly time series. Re-extract or resample this product to Monthly before analysis.",
             )
         s_yr = int(preview.extraction_config.start_date[:4])
         e_yr = int(preview.extraction_config.end_date[:4])

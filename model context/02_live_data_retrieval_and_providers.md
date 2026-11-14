@@ -145,7 +145,7 @@ stateDiagram-v2
     Subsetting --> Resampling: Frequency Binning & QA Masking
     Resampling --> Completed: Summary Statistics & Preview Generated
     Running --> Failed: Upstream Timeout or Credential Error
-    Completed --> [*]: Handoff to /workspace/visualize
+    Completed --> [*]: Handoff to /workspace/data-analysis
     Failed --> [*]: User Notified with Recovery Action
 ```
 
@@ -175,4 +175,4 @@ Before any time series is passed to statistical trend analysis, it must pass ins
    - Paginated, searchable tabular grid with UTC Timestamps, Numerical Values, Units, and Quality Reason Codes (`VALID`, `MISSING_SOURCE`, `OUT_OF_BOUNDS`, `QA_FLAGGED`).
 5. **Immutable Export & Handoff:**
    - **Download CSV / JSON:** Exports full tabular data with ISO 19115 compliant metadata headers (source agency, product ID, bounding coordinates, license, retrieval timestamp).
-   - **Proceed to Analysis:** Routes directly to `/workspace/visualize?jobId={job_id}` carrying the verified immutable result into the scientific Case File.
+   - **Proceed to Analysis:** Routes directly to `/workspace/data-analysis?jobId={job_id}` carrying the verified immutable result into the scientific Case File.

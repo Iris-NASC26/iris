@@ -90,7 +90,7 @@ export default function DashboardCasesPage() {
               <button
                 onClick={() => {
                   loadCase(item, true);
-                  router.push("/workspace/visualize");
+                  router.push("/workspace/data-analysis");
                 }}
                 type="button"
               >
@@ -219,22 +219,11 @@ export default function DashboardCasesPage() {
                   const matched =
                     caseStudies.find((c) => c.id === activeInv.caseId) ?? caseStudies[0];
                   loadCase(matched, true);
-                  router.push("/workspace/visualize");
+                  router.push("/workspace/data-analysis");
                 }}
                 type="button"
               >
                 Try It Yourself in Dynamic Case File <Icon name="arrow" size={14} />
-              </button>
-              <button
-                className="dp-secondary-btn"
-                onClick={() =>
-                  router.push(
-                    `/workspace/case-board?region=${encodeURIComponent(activeInv.regionName)}`,
-                  )
-                }
-                type="button"
-              >
-                Inspect Region on Case Board
               </button>
               <a
                 className="dp-doi-link"
@@ -256,7 +245,7 @@ export default function DashboardCasesPage() {
           <span>03</span> Scientific & Statistical Glossary
         </span>
         <h3 style={{ marginTop: "6px", marginBottom: "14px" }}>
-          Core Definitions Used Across Globe, Case Board & Case File
+          Core Definitions Used Across Globe & Case File
         </h3>
         <div className="srs-glossary-grid">
           {GLOSSARY_TERMS.map((item) => (

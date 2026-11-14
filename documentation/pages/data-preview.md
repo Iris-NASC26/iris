@@ -82,7 +82,7 @@ The export includes all QA flags and provenance metadata, not just the numeric v
 
 ## Proceeding to analysis
 
-When you are satisfied with the data quality, click **"Proceed to analysis"**. This passes the extraction job ID to the **Plot & Visualize** page, which runs the full statistical pipeline.
+When you are satisfied with the data quality, click **"Proceed to analysis"**. This passes the extraction job ID to **Data Analysis**, which runs the full statistical pipeline.
 
 The extraction result is **immutable** — it is stored with a unique ID and will produce identical analysis results every time. The job ID shown in the top bar is a reference to this specific result.
 

@@ -40,7 +40,7 @@ Data Selection
        ↓
 Data Preview
        ↓
-Plot & Visualize (Case File)
+Data Analysis (Case File)
 ```
 
 Use this track when you want to investigate a specific region, variable, or time window that may not be in the pre-computed Global Trend Cube.
@@ -52,14 +52,12 @@ Use this track when you want to investigate a specific region, variable, or time
 For instant exploration of pre-computed global trend maps covering 1981–2025.
 
 ```
-Living Globe ──────┐
-                   ↓
-            Regional Case Board
-                   ↓
-            Plot & Visualize (Case File)
+Living Globe
+     ↓
+Data Analysis (Case File)
 ```
 
-Use this track when you want to explore which regions of the planet are experiencing significant change, compare multiple regions, or quickly scan all available variables for a specific area.
+Use this track to explore pre-computed global trends and open selected locations in detailed case files.
 
 ---
 
@@ -92,7 +90,7 @@ Inspect the extracted time-series before analysis. Shows a gap-aware chart, qual
 
 ---
 
-### 📈 Plot & Visualize (Case File)
+### 📈 Data Analysis (Case File)
 *The shared scientific analysis engine for both tracks.*
 
 Runs the full statistical pipeline: STL seasonal decomposition, Mann-Kendall trend test, Sen's slope, change-point detection, and anomaly identification. Produces a complete, exportable Case File.
@@ -110,15 +108,6 @@ A 3D interactive globe showing pre-computed trend direction and significance for
 
 ---
 
-### 🗂️ Regional Case Board
-*Step 2 of Track B.*
-
-An instant multi-variable health scan for any geographic region. Shows all six core variables simultaneously, ranked by evidence grade. Supports side-by-side comparison of two regions.
-
-[Learn more →](#case-board)
-
----
-
 ### 📋 Case Studies
 Pre-built, guided investigations that demonstrate how Iris works. Each case study is based on real data and walks through the full evidence trail for a known environmental event or trend.
 
@@ -128,11 +117,6 @@ Pre-built, guided investigations that demonstrate how Iris works. Each case stud
 
 ### 📄 Existing Research
 Connects the active dataset to published peer-reviewed literature, NASA technical reports, and IPCC references relevant to the variable and region under investigation.
-
----
-
-### 🔧 Custom Code (Advanced)
-An experimental code editor for users who want to prototype custom data transformations, run alternative statistical methods, or extend the standard analysis pipeline.
 
 ---
 

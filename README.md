@@ -17,10 +17,10 @@ Project Iris is an interactive, AI-guided geospatial investigation platform buil
 ### Investigative Workspace (`/workspace/*`)
 - `/workspace/intelligence` — **System Intelligence**: Natural-language query and AI Headline Clue Matcher routing questions to GCMD datasets.
 - `/workspace/data-preview` — **Data Preview**: Variable Flashcard, spatial bounding-box slice, quality summary, and filterable monthly observation table.
-- `/workspace/visualize` — **Plot & Visualize**: Detective Wizard, Region Selector map, 3-way One-Click Seasonal Cycle Stripper (*Raw signal*, *Seasonal cycle*, *Deseasonalized anomaly*), Mann–Kendall & Sen's slope metrics, Seesaw Dipole Finder, Significance Horizon Predictor, and CSV/PNG/Report exports.
+- `/workspace/data-analysis` — **Data Analysis**: Scientific Case File, seasonal adjustment, trend and anomaly methods, evidence diagnostics, provenance, and data exports.
+- `/workspace/visualize` — **Plot & Visualize**: Placeholder that links to Data Analysis.
 - `/workspace/case-studies` — **Curated Solved Case Files**: Instant-loading benchmark investigations (`IR–042`, `IR–038`, `IR–031`, `IR–024`).
 - `/workspace/research` — **Existing Research**: Dataset-matched peer-reviewed literature with search, topic filtering, and citation copying.
-- `/workspace/advanced` — **Custom Code Sandbox**: Interactive Python/Pandas transformation preview environment.
 
 ## Getting Started
 

@@ -18,7 +18,7 @@ Synthetic data fixtures exist only in internal test harnesses and are blocked fr
 
 ## Core variables (Global Trend Cube)
 
-These six variables are pre-computed in the Global Trend Cube, available on the Living Globe and Regional Case Board, and covering 1981–2025:
+These six variables are pre-computed in the Global Trend Cube, available on the Living Globe, and covering 1981–2025:
 
 | Variable | Short name | Units | Primary source | Resolution |
 |---|---|---|---|---|

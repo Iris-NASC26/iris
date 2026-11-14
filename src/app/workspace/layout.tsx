@@ -21,6 +21,7 @@ const navigation: Array<{
       { to: "/workspace/intelligence", text: "System Intelligence", icon: "sparkles" },
       { to: "/workspace/data-selection", text: "Data Selection", icon: "box" },
       { to: "/workspace/data-preview", text: "Data Preview", icon: "layers" },
+      { to: "/workspace/data-analysis", text: "Data Analysis", icon: "activity" },
       { to: "/workspace/visualize", text: "Plot & Visualize", icon: "activity" },
     ],
   },
@@ -28,7 +29,6 @@ const navigation: Array<{
     label: "Global Evidence Cube",
     items: [
       { to: "/workspace/globe", text: "Living Globe", icon: "globe" },
-      { to: "/workspace/case-board", text: "Regional Case Board", icon: "layers" },
     ],
   },
   {
@@ -38,22 +38,17 @@ const navigation: Array<{
       { to: "/workspace/research", text: "Existing Research", icon: "file" },
     ],
   },
-  {
-    label: "Advanced",
-    items: [{ to: "/workspace/advanced", text: "Custom Code", icon: "box" }],
-  },
 ];
 
 const pageTitles: Record<string, [string, string]> = {
   "/workspace/intelligence": ["System Intelligence", "Identify domain keywords & discover live time-series datasets"],
   "/workspace/data-selection": ["Data Selection", "Select time-series products & configure date range, region, and frequency"],
   "/workspace/data-preview": ["Data Preview", "Inspect retrieved time-series observations & quality metrics before analysis"],
+  "/workspace/data-analysis": ["Data Analysis · Case File", "Analyze extracted series using scientific Case File methods"],
   "/workspace/visualize": ["Plot & Visualize · Case File", "Explore retrieved data, compare locations and inspect temporal patterns"],
   "/workspace/globe": ["Living Globe", "Inspect real NASA spatial fields and linked observations"],
-  "/workspace/case-board": ["Regional Case Board", "Scan all Global Trend Cube variables for a region & compare two regions side-by-side"],
   "/workspace/case-studies": ["Case Studies & Guided Investigations", "Load a solved investigation or step through checkpointed NASA case files"],
   "/workspace/research": ["Existing Research", "Connect the active dataset to published work"],
-  "/workspace/advanced": ["Advanced Code", "Prototype a custom transformation"],
 };
 
 function DashboardFrame({ children }: { children: ReactNode }) {
