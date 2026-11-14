@@ -25,11 +25,14 @@ export function parsePrefs(raw: string | null): { prefs: StudioPrefs; recovered:
         const value = JSON.parse(raw) as Partial<StudioPrefs>;
         if (!value || typeof value !== 'object') return { prefs: defaultPrefs(), recovered: 'corrupt' };
         if (value.version !== LAYOUT_VERSION) return { prefs: { ...defaultPrefs(), preset: typeof value.preset === 'string' && PRESETS.some(p => p.id === value.preset) ? value.preset : DEFAULT_PRESET }, recovered: 'version' };
+        const candidate = value.layout as { grid?: unknown; panels?: Record<string, { id?: unknown; contentComponent?: unknown }> } | null;
+        const knownLayout = candidate && typeof candidate === 'object' && candidate.grid && candidate.panels
+            && Object.entries(candidate.panels).every(([id, panel]) => validPanel(id) && panel?.id === id && panel.contentComponent === id);
         return {
             prefs: {
                 version: LAYOUT_VERSION,
                 preset: typeof value.preset === 'string' && PRESETS.some(p => p.id === value.preset) ? value.preset : DEFAULT_PRESET,
-                layout: value.layout && typeof value.layout === 'object' && (value.layout as { grid?: unknown }).grid ? value.layout : null,
+                layout: knownLayout ? value.layout : null,
                 hidden: Array.isArray(value.hidden) ? value.hidden.filter(validPanel) : [],
                 focus: value.focus === true,
                 savedAt: typeof value.savedAt === 'string' ? value.savedAt : '',

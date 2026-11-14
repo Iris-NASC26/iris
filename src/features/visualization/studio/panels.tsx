@@ -6,8 +6,6 @@ import type { IDockviewPanelProps } from "dockview-react";
 import { DataChart, ChartCanvas, type ChartKind, type SelectEvent } from "../Charts";
 import { calendar, deviation, format, MONTHS, monthlyCells, paired, scale, summary, type VisualSeries } from "../model";
 import { useTheme } from "@/context/ThemeContext";
-import { ANALYSIS_METHODS, type AnalysisMethod, type SeasonalAdjustment } from "../hooks/useScientificAnalysis";
-import { outlookCapabilities } from "../adapters/analysisResult";
 import { useStudio, type StudioState } from "./state";
 
 type P = IDockviewPanelProps;
@@ -166,38 +164,6 @@ export function ComparisonPanel(_p: P) {
         {trendOk ? <div className="viz-control-section"><span className="viz-step">SUBMITTED TREND ESTIMATE</span>
             <dl className="viz-kv"><dt>Sen slope</dt><dd>{format(trendBinding.result.sens_slope_decadal)} {trendBinding.result.unit}/decade · 95% CI {format(trendBinding.result.sens_ci_low)} to {format(trendBinding.result.sens_ci_high)}</dd><dt>OLS slope</dt><dd>{format(trendBinding.result.ols_slope_decadal)} {trendBinding.result.unit}/decade · 95% CI {format(trendBinding.result.ols_ci_low_decadal)} to {format(trendBinding.result.ols_ci_high_decadal)}</dd><dt>Bound to</dt><dd>{trendBinding.result.dataset_name} · {trendBinding.result.start_year}–{trendBinding.result.end_year} · methods {trendBinding.submission.methods.join(', ')}</dd></dl>
             <p className="viz-muted">Intervals are this submission’s estimates only; no cross-dataset trend comparison is implied.</p></div>
-            : <p className="viz-muted">Trend estimates appear here only for a matching submitted analysis on the primary series — open the Outlook panel to run one. Endpoint differences above are descriptive, not trend estimates.</p>}
-    </div>;
-}
-
-export function OutlookPanel(_p: P) {
-    const s = useStudio();
-    const [seasonal, setSeasonal] = useState<SeasonalAdjustment>('auto');
-    const [methods, setMethods] = useState<AnalysisMethod[]>(['sen_slope', 'hamed_rao_mk', 'ols']);
-    const a = s.analysis;
-    const binding = a.binding;
-    const outlook = binding?.result.outlook;
-    const caps = outlook ? outlookCapabilities(outlook) : null;
-    const toggle = (m: AnalysisMethod) => setMethods(c => c.includes(m) ? c.filter(x => x !== m) : [...c, m]);
-    return <div className="viz-panel viz-panel-scroll">
-        <section className="viz-control-section"><span className="viz-step">SUBMITTED ANALYSIS</span>
-            {!s.primary ? <p className="viz-muted">Load observations first — analysis runs on the primary series.</p> : <>
-            <label>Seasonal treatment<select value={seasonal} onChange={e => { setSeasonal(e.target.value as SeasonalAdjustment); a.invalidate(); }}><option value="auto">Auto (STL if eligible, else climatology)</option><option value="stl">STL</option><option value="calendar_climatology">Calendar climatology</option><option value="none">None</option></select></label>
-            <div className="viz-method-grid">{ANALYSIS_METHODS.map(m => <label key={m.id} className="viz-check"><input type="checkbox" checked={methods.includes(m.id)} onChange={() => { toggle(m.id); a.invalidate(); }}/>{m.label}</label>)}</div>
-            <button className="viz-button viz-primary" disabled={!methods.length || a.status === 'loading'} onClick={() => a.run({ seasonal, methods })}>{a.status === 'loading' ? 'Running selected methods…' : 'Run selected analysis'}</button>
-            {a.status === 'error' && <p className="viz-error" role="alert">{a.error}</p>}
-            {binding && <p className="viz-muted" role="status">Result bound to {binding.result.dataset_name} · {binding.result.start_year}–{binding.result.end_year} · grade {binding.result.evidence_grade}. Display filters never change this inference.</p>}
-            </>}
-        </section>
-        {!binding && s.primary && a.status !== 'loading' && <p className="viz-muted">No analysis has been submitted for this series and configuration — nothing below is implied. For the full Case File use <strong>Scientific analysis</strong> in the toolbar.</p>}
-        {a.status === 'loading' && <p className="viz-muted" role="status">Analysis running — previous results are not shown while superseded.</p>}
-        {outlook && caps && <section className="viz-control-section"><span className="viz-step">OUTLOOK</span>
-            <p><strong>{outlook.not_a_prediction_label}</strong></p>
-            {caps.continuation ? <table className="viz-compare"><caption>Conditional trend-continuation points — returned bounds are the submitted method’s envelope, not calibrated prediction intervals.</caption><thead><tr><th>Year</th><th>Central</th><th>Returned bounds</th></tr></thead><tbody>{outlook.continuation_points.map(p => <tr key={p.year}><td>{p.year}</td><td>{format(p.central_value)} {binding!.result.unit}</td><td>{format(p.ci_low)} to {format(p.ci_high)}</td></tr>)}</tbody></table> : <p className="viz-muted">No continuation points were returned for this submission.</p>}
-            {caps.shortTerm ? <><p className="viz-muted">Short-term statistical outlook (skill-gated; RMSE {format(outlook.backtest_rmse)} vs climatology {format(outlook.climatology_baseline_rmse)}):</p>
-                <table className="viz-compare"><thead><tr><th>Year</th><th>Central</th><th>Returned bounds</th></tr></thead><tbody>{outlook.short_term_forecast_points.map((p, i) => <tr key={`${p.year}-${i}`}><td>{p.year}</td><td>{format(p.central_value)} {binding!.result.unit}</td><td>{format(p.ci_low)} to {format(p.ci_high)}</td></tr>)}</tbody></table></>
-                : <p className="viz-muted" role="status">Short-term outlook suppressed: {outlook.skill_gate_reason || 'the skill gate did not pass for this submission.'} A passed gate indicates backtest skill against climatology — not independent scientific validation.</p>}
-            <p className="viz-muted">{outlook.cmip6_Reference_note}</p>
-        </section>}
+            : <p className="viz-muted">Trend estimates appear here only for a matching submitted analysis on the primary series — run the selected methods on Data Analysis. Endpoint differences above are descriptive, not trend estimates.</p>}
     </div>;
 }

@@ -326,7 +326,7 @@ export function VisualizationWorkspace({ initialView = 'charts' }: {
         setTimeout(() => URL.revokeObjectURL(url), 1000);
     }
     function analyze() { if (!primary)
-        return; dashboard.setExtractedPreview(primary.preview); dashboard.setAutoRunCase(false); router.push(`/workspace/visualize?view=analysis&jobId=${encodeURIComponent(primary.preview.job_id)}`); }
+        return; dashboard.setExtractedPreview(primary.preview); dashboard.setAutoRunCase(false); router.push(`/workspace/data-analysis?jobId=${encodeURIComponent(primary.preview.job_id)}`); }
     const pick = (latitude: number, longitude: number) => { setLat(latitude.toFixed(4)); setLon(longitude.toFixed(4)); setPlace(`Picked location ${latitude.toFixed(2)}, ${longitude.toFixed(2)}`); };
     const map: MapState = {
         field, applied, busy: fieldBusy, error: fieldError,

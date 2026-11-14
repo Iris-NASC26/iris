@@ -19,6 +19,8 @@ test("preset trees keep curated panels in their primary position", () => {
     assert.equal(explore.grid.root.data[0].data.activeView, "timeseries");
     assert.ok(!PRESETS.some(p => p.id === "earth-time"));
     assert.ok(!(PANEL_IDS as string[]).includes("map"));
+    assert.ok(!(PANEL_IDS as string[]).includes("outlook"));
+    assert.ok(!PRESETS.some(p => p.id === 'outlook'));
 });
 
 test("corrupt JSON falls back to defaults without throwing", () => {
@@ -52,6 +54,17 @@ test("layoutPanels reports only known panels from a saved layout", () => {
     assert.deepEqual(layoutPanels(layout).sort(), [...PANEL_IDS].sort());
     assert.deepEqual(layoutPanels({ panels: { a: { id: "timeseries" }, b: { id: "removed-panel" } } }), ["timeseries"]);
     assert.deepEqual(layoutPanels(null), []);
+});
+
+test("saved Outlook arrangements cannot restore the removed studio panel", () => {
+    const { prefs } = parsePrefs(JSON.stringify({ version: LAYOUT_VERSION, preset: 'outlook',
+        hidden: ['outlook'], layout: { grid: {}, panels: {
+            timeseries: { id: 'timeseries', contentComponent: 'timeseries' },
+            outlook: { id: 'outlook', contentComponent: 'outlook' },
+        } } }));
+    assert.equal(prefs.preset, 'explore');
+    assert.equal(prefs.layout, null);
+    assert.deepEqual(prefs.hidden, []);
 });
 
 const outlook = (over: object = {}) => ({

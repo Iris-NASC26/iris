@@ -9,7 +9,7 @@ import { Icon } from "@/components/ui/Icon";
 import { useTheme } from "@/context/ThemeContext";
 import { DEFAULT_PRESET, PANEL_DEFS, PRESETS, presetLayout, type PanelId } from "./presets";
 import { clearPrefs, layoutPanels, loadPrefs, savePrefs, LAYOUT_VERSION, type StudioPrefs } from "./layoutPersistence";
-import { ComparisonPanel, ObservationTablePanel, OutlookPanel, RelationshipPanel, SeasonalPanel, SourceInspectorPanel, TimeSeriesPanel } from "./panels";
+import { ComparisonPanel, ObservationTablePanel, RelationshipPanel, SeasonalPanel, SourceInspectorPanel, TimeSeriesPanel } from "./panels";
 import { useStudio } from "./state";
 
 export const PANEL_COMPONENTS: Record<PanelId, React.FC<IDockviewPanelProps>> = {
@@ -19,10 +19,9 @@ export const PANEL_COMPONENTS: Record<PanelId, React.FC<IDockviewPanelProps>> = 
     table: ObservationTablePanel,
     source: SourceInspectorPanel,
     comparison: ComparisonPanel,
-    outlook: OutlookPanel,
 };
 
-const MOBILE_ORDER: PanelId[] = ['timeseries', 'seasonal', 'relationship', 'table', 'comparison', 'source', 'outlook'];
+const MOBILE_ORDER: PanelId[] = ['timeseries', 'seasonal', 'relationship', 'table', 'comparison', 'source'];
 const narrow = () => typeof window !== 'undefined' && window.matchMedia('(max-width: 900px)').matches;
 
 export function StudioShell({ children }: { children?: React.ReactNode }) {

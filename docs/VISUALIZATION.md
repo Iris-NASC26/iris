@@ -183,22 +183,22 @@ Remote coordination note: `origin/viz_2d_maps` also modifies `src/app/workspace/
 ## Iris Visualization Studio (docked panels)
 
 `/workspace/visualize` hosts the studio: a `dockview-react@8.8.3` (MIT) desktop
-dock with five curated presets (Explore, Earth + Time, Compare, Seasonal,
-Outlook). Panels are thin views over `StudioContext` (`studio/state.tsx`), the
+dock with three curated presets (Explore, Compare and Seasonal).
+Outlook remains on Data Analysis. Panels are thin views over `StudioContext` (`studio/state.tsx`), the
 shared investigation state built by `Workspace.tsx` — panel lifecycles never own
 loaded data, so preset switches, closes and reopens are lossless.
 
 - `studio/presets.ts` — preset trees serialized to dockview layouts; unplaced
   panels become tabs on the first group so every panel stays reachable.
-- `studio/layoutPersistence.ts` — versioned `iris.studio.layout.v1` record
+- `studio/layoutPersistence.ts` — versioned `iris.studio.layout.v2` record
   (preset, grid, closed panels, focus). Corrupt JSON, unsupported versions and
   removed panel ids fall back to a preset with an on-screen note. Only
   presentation state is stored — never observations or analysis payloads.
 - `studio/panels.tsx` — TimeSeries, Seasonal (year-by-month heatmap + yearly
   profile), Relationship (explicit X/Y pickers, exact-timestamp pairing),
-  Observations table, Source & selection inspector, Living Earth (the full
-  `MapWorkspace`), Compare (descriptive stats + submitted-trend block), and
-  Outlook (explicit, submitted analysis only).
+  Observations table, Source & selection inspector and Compare (descriptive
+  stats + matching submitted-trend block). Neither Globe nor Outlook is a
+  studio panel. Stored layouts referencing removed panels recover to a preset.
 - `hooks/useScientificAnalysis.ts` — extracted Case File controller: user-run
   submissions bound to `job|variable|region|dates` identity; superseded
   requests abort; late results are dropped; changing the source invalidates

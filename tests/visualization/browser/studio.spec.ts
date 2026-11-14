@@ -18,6 +18,8 @@ test('presets rearrange without losing loaded series and panels close and reopen
  await expect(page.getByRole('img',{name:/Monthly heatmap for Test air temperature/})).toBeVisible(); // loaded data survived the layout switch
  await expect(page.locator('.viz-studio-toolbar select').first().getByRole('option', { name: 'Earth + Time' })).toHaveCount(0);
  await expect(page.getByRole('tab', { name: 'Living Earth', exact: true })).toHaveCount(0);
+ await expect(page.getByRole('tab', { name: 'Outlook', exact: true })).toHaveCount(0);
+ await expect(page.locator('.viz-studio-toolbar select').first().getByRole('option', { name: 'Outlook', exact: true })).toHaveCount(0);
  await expect(page.locator('.viz-three-mount')).toHaveCount(0);
  await page.locator('.viz-studio-toolbar select').first().selectOption('explore');
  await expect(page.getByRole('img',{name:/Time series for Test air temperature/})).toBeVisible();
@@ -56,4 +58,16 @@ test('focus mode hides the data drawer reversibly within the route',async({page}
  await expect(page.getByLabel('Visualization controls')).toHaveCount(0);
  await page.getByRole('button',{name:'Exit focus',exact:true}).click();
  await expect(page.getByLabel('Visualization controls')).toBeVisible();
+});
+
+test('saved Outlook panels are removed while the Data Analysis navigation remains',async({page})=>{
+ await page.addInitScript(()=>{
+  localStorage.setItem('iris-onboarding-complete','true');
+  localStorage.setItem('iris.studio.layout.v2',JSON.stringify({version:2,preset:'outlook',hidden:['outlook'],layout:{grid:{},panels:{outlook:{id:'outlook',contentComponent:'outlook'}}}}));
+ });
+ const ui=new VisualizationPage(page);await ui.open();
+ await expect(page.getByRole('tab',{name:'Time series',exact:true})).toBeVisible();
+ await expect(page.getByRole('tab',{name:'Outlook',exact:true})).toHaveCount(0);
+ await expect(page.getByRole('option',{name:'Outlook',exact:true})).toHaveCount(0);
+ await expect(page.getByRole('link',{name:'Data Analysis',exact:true})).toBeVisible();
 });

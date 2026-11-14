@@ -1,6 +1,6 @@
 // Curated studio arrangements. Layouts are plain serialized-dockview trees so
 // they can be persisted, validated, and restored without a live DockviewApi.
-export type PanelId = 'timeseries' | 'seasonal' | 'relationship' | 'table' | 'source' | 'comparison' | 'outlook';
+export type PanelId = 'timeseries' | 'seasonal' | 'relationship' | 'table' | 'source' | 'comparison';
 export interface PanelDef {
     id: PanelId;
     title: string;
@@ -12,7 +12,6 @@ export const PANEL_DEFS: PanelDef[] = [
     { id: 'table', title: 'Observations' },
     { id: 'source', title: 'Source & selection' },
     { id: 'comparison', title: 'Compare' },
-    { id: 'outlook', title: 'Outlook' },
 ];
 export const PANEL_IDS = PANEL_DEFS.map(p => p.id);
 
@@ -31,7 +30,6 @@ export const PRESETS: Preset[] = [
     { id: 'explore', label: 'Explore', hint: 'Time series with a supporting seasonal heatmap and a compact source inspector.', root: row(leaf(68, 'timeseries'), col(leaf(58, 'seasonal'), leaf(42, 'source'))) },
     { id: 'compare', label: 'Compare', hint: 'Coordinated series, an aligned-pair relationship view, and a comparison summary.', root: row(col(leaf(62, 'timeseries'), leaf(38, 'comparison')), col(leaf(60, 'relationship'), leaf(40, 'source'))) },
     { id: 'seasonal', label: 'Seasonal', hint: 'Year-by-month heatmap with the seasonal profile and the full record alongside.', root: row(leaf(62, 'seasonal'), col(leaf(55, 'timeseries'), leaf(45, 'source'))) },
-    { id: 'outlook', label: 'Outlook', hint: 'Historical observations next to the submitted scientific outlook.', root: row(leaf(58, 'timeseries'), col(leaf(58, 'outlook'), leaf(42, 'source'))) },
 ];
 export const DEFAULT_PRESET = PRESETS[0].id;
 

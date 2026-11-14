@@ -37,6 +37,7 @@ test('direct job links restore the real source and scientific analysis remains o
  await expect(page.getByRole('button',{name:'Export CSV',exact:true})).toBeVisible();expect(analysis).toBe(0);
  await page.reload();await expect(page.getByRole('button',{name:'Export CSV',exact:true})).toBeVisible();
  await page.getByRole('button',{name:'Scientific analysis',exact:true}).click();
+ await expect(page).toHaveURL(/\/workspace\/data-analysis\?jobId=job-test/);
  await expect(page.getByRole('heading',{name:'Scientific Case File',exact:true})).toBeVisible();expect(analysis).toBe(0);
 });
 
