@@ -1,5 +1,6 @@
 /** Pure mapping from a numeric field contract to raster pixels. No renderer imports. */
 import { color, fieldScale, numeric, type SpatialField } from "./model";
+import { ramp, rampColor, styleRange, type FieldStyle } from "./styles";
 
 type Grid = Pick<SpatialField, "cell_lats" | "cell_lons" | "lat_step" | "lon_step" | "values" | "variable_id">;
 
@@ -25,17 +26,18 @@ function hexRgb(hex: string): [number, number, number] {
  * north-up equirectangular texture registers exactly on the cell edges.
  * Missing/invalid cells are fully transparent — never painted as zero.
  */
-export function fieldToRgba(field: Grid, alpha = 0.93): { width: number; height: number; data: Uint8ClampedArray<ArrayBuffer> } {
+export function fieldToRgba(field: Grid, alpha = 0.93, style?: FieldStyle): { width: number; height: number; data: Uint8ClampedArray<ArrayBuffer> } {
     const width = field.cell_lons.length, height = field.cell_lats.length;
     const data = new Uint8ClampedArray(width * height * 4);
-    const range = fieldScale(field);
+    const range = style ? styleRange(field, style) : fieldScale(field);
+    const selected = style ? ramp(style.rampId) : null;
     const a = Math.round(Math.max(0, Math.min(1, alpha)) * 255);
     for (let r = 0; r < height; r++) {
         const row = height - 1 - r; // cell_lats ascend; image rows descend from north
         for (let c = 0; c < width; c++) {
             const v = field.values[row * width + c];
             if (!numeric(v)) continue; // transparent
-            const [red, green, blue] = hexRgb(color(v, range));
+            const [red, green, blue] = hexRgb(selected ? rampColor(v, range, selected) : color(v, range));
             const i = (r * width + c) * 4;
             data[i] = red; data[i + 1] = green; data[i + 2] = blue; data[i + 3] = a;
         }

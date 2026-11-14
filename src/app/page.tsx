@@ -2,9 +2,15 @@
 
 import type { CSSProperties } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { Icon, type IconName } from "@/components/ui/Icon";
 import { PublicNavbar } from "@/components/layout/PublicNavbar";
 import { useTheme } from "@/context/ThemeContext";
+
+const CobeGlobe = dynamic(
+  () => import("@/features/landing/CobeGlobe").then(m => m.CobeGlobe),
+  { ssr: false, loading: () => <div className="landing-cobe landing-cobe-loading" aria-hidden="true" /> }
+);
 
 const satelliteImage =
   "https://images.unsplash.com/photo-1574786199452-c7a5f69fb6e9?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=85&w=1600";
@@ -89,6 +95,22 @@ export default function LandingPage() {
             <div>
               <strong>Global evidence, local answers</strong>
               <span>Built on NASA and MODIS observations</span>
+            </div>
+          </div>
+
+          <div className="landing-globe-band">
+            <CobeGlobe dark={dark} />
+            <div className="landing-globe-copy">
+              <div className="landing-kicker">Start from a place you know</div>
+              <h2>Six study regions. One honest workflow.</h2>
+              <p>
+                Each marker is a supported study location — pick one to open the workspace with its
+                coordinates prefilled. Nothing loads until you confirm; the globe itself is
+                illustrative, not a data feed.
+              </p>
+              <Link href="/workspace/globe">
+                Open the scientific globe <Icon name="arrow" size={15} />
+              </Link>
             </div>
           </div>
 
