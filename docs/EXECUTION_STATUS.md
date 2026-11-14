@@ -9,6 +9,47 @@ This ledger records execution without rewriting the approved documents. The user
 
 ## Latest update — U01 selective workspace integration
 
+### Superseding update — Next.js and additional Navida UI integration
+
+The user explicitly replaced Vite with Next.js, then approved a named ancillary
+browser-data licence exception with attribution. See [ADR-001](decisions/0001-nextjs.md).
+The current amendment is SRS v0.4 / TDD v0.4 / Plan v1.1; scientific requirements
+and the 95-task backlog are retained. Branch `feat/U01-nextjs-navida-integration`
+extends the earlier U01 commit `1fbdab0` and still pins Navida's source to `cabc793`.
+
+**State: REVIEW.** Next.js 16.4.6 App Router replaces the Vite runtime and React Router.
+FastAPI and generated scientific contracts remain authoritative. Public PageShell,
+PublicNavbar, InfoCard and About composition are additionally ported/adapted from
+Navida; landing/platform/methodology/data pages reuse the reviewed content patterns.
+Unsupported data/analysis claims remain excluded. Browser preferences now hydrate
+from deterministic defaults before reading localStorage.
+
+Verification: full `scripts/dev.py check` passed (156 backend tests, 15 Vitest,
+six Node generator tests, drift/lint/format/strict backend types, frontend types and
+Next production build). All eight Chromium journeys passed against both a fresh
+launcher-managed dev run and the production build. The managed run released both
+ports afterward. Checks cover public/native navigation, reloads, mobile dialogs,
+stored theme/level, hydration errors, data selection, unavailable science, remote
+Host/Origin rejection, private env 404 and unimplemented cube-route 404. Script tests
+pass 37/37 including owned Windows process-tree cleanup; strict mypy of the launcher
+and cleanup tests passes. A transient test-header typing error and formatter config
+mismatch were corrected, then the required checks rerun; no failing check was waived.
+
+The private root `.env` is unchanged and ignored. Next runs from `web/` and does not
+read the parent dotenv file. No new provider jobs, credentials or scientific results
+are introduced. The prior preflight token-file move remains intact. Runtime is
+local only, with production frontend on 5173 and FastAPI on 8000. The existing
+Starlette/httpx deprecation warning remains visible.
+
+The licence inventory adds 13 installed dependency entries, including attributed
+caniuse-lite data under the user's approved exception and the full copied data
+licence. This does not complete final release notice obligations or AC-34. Static
+snapshot packaging and Node/Python final release supervision remain R01/R02/R07;
+scientific method/data admission gates are unchanged.
+
+The following paragraphs describe the historical first Vite-based U01 port and
+are superseded where they conflict with this amendment.
+
 The user authorized the recommended selective port from `initial-navida`, retaining
 our Vite/FastAPI/Three.js architecture and prioritizing a visible, truthful workspace.
 Branch `feat/U01-navida-workspace` starts at main `553680e`; source snapshot is

@@ -1,4 +1,6 @@
-import { Link } from 'react-router-dom';
+'use client';
+
+import Link from 'next/link';
 import { Icon } from '../../components/ui/Icon';
 
 const pages = {
@@ -12,6 +14,6 @@ export function UnavailablePage({ kind }: { kind: keyof typeof pages }) {
   const page = pages[kind];
   return <section className="empty-page"><p className="eyebrow">{kind === 'not-found' ? 'UNKNOWN ROUTE' : 'AWAITING VALIDATED DATA & METHODS'}</p>
     <h1>{page.title}</h1><div className="empty-panel"><span className="large-icon"><Icon name={page.icon} size={42} /></span>
-      <h2>{page.message}</h2><p>{page.detail}</p><Link className="primary-button" to="/workspace/data-selection">Browse variables <Icon name="arrow" size={16} /></Link>
+      <h2>{page.message}</h2><p>{page.detail}</p><Link className="primary-button" href="/workspace/data-selection">Browse variables <Icon name="arrow" size={16} /></Link>
     </div></section>;
 }

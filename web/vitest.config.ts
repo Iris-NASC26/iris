@@ -1,14 +1,9 @@
 import { defineConfig } from 'vitest/config';
 
+// Vitest uses Vite internally for isolated tests; Next.js runs/builds the application.
 export default defineConfig({
-  // Credentials live in the project-root .env. This UI has no env-file inputs.
   envDir: false,
-  server: {
-    host: '127.0.0.1',
-    port: 5173,
-    strictPort: true,
-    proxy: { '/api': 'http://127.0.0.1:8000' },
-  },
+  oxc: { jsx: { runtime: 'automatic' } },
   test: {
     environment: 'jsdom',
     setupFiles: ['./tests/setup.ts'],

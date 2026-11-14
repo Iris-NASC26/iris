@@ -254,3 +254,48 @@ td { color: var(--muted); }
   *, *::before, *::after { scroll-behavior: auto !important; animation: none !important; transition: none !important; }
 }
 :root[data-reduced-motion="true"] *, :root[data-reduced-motion="true"] *::before, :root[data-reduced-motion="true"] *::after { scroll-behavior: auto !important; animation: none !important; transition: none !important; }
+
+/* Public site composition ported from Iris PageShell / About / Platform patterns. */
+.public-site { min-height: 100vh; display: flex; flex-direction: column; }
+.public-navbar { display: flex; align-items: center; gap: 32px; padding: 22px max(24px, calc((100vw - 1180px) / 2)); border-bottom: 1px solid var(--border); }
+.public-brand { display: flex; align-items: center; gap: 12px; }
+.public-brand strong { font-size: 1.9rem; letter-spacing: -.07em; }
+.public-links { display: flex; gap: 25px; margin-left: auto; font-size: .8rem; color: var(--muted); }
+.public-links a[aria-current="page"] { color: var(--green); }
+.public-actions { display: flex; align-items: center; gap: 15px; }
+.theme-toggle { display: inline-flex; padding: 10px; background: var(--card); border: 1px solid var(--border); border-radius: 6px; }
+.public-content { width: min(1180px, calc(100% - 48px)); margin: 35px auto 60px; flex: 1; }
+.public-page-hero { display: flex; align-items: center; justify-content: space-between; gap: 30px; padding: 45px 0; }
+.public-page-hero > div { max-width: 750px; }
+.public-page-hero > .primary-button { flex-shrink: 0; }
+.public-page-hero p:last-child { color: var(--muted); font-size: .9rem; }
+.public-footer { padding: 30px max(24px, calc((100vw - 1180px) / 2)); border-top: 1px solid var(--border); display: flex; gap: 30px; align-items: center; justify-content: space-between; color: var(--muted); font-size: .75rem; }
+.public-footer strong { color: var(--text); font-weight: 500; }
+.public-footer p { margin: 6px 0 0; }
+.public-footer nav { display: flex; gap: 18px; }
+.public-section { margin: 28px 0; }
+.values-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; }
+.values-grid h3 { font-size: 1rem; }
+.about-manifesto { display: grid; grid-template-columns: minmax(240px, .8fr) 1fr; gap: 55px; padding: 45px; border: 1px solid var(--border); border-radius: 12px; background: var(--panel); }
+.manifesto-art { display: grid; place-items: center; min-height: 250px; position: relative; overflow: hidden; }
+.planet-core { width: 190px; height: 190px; border-radius: 50%; display: grid; place-items: center; color: var(--green); background: radial-gradient(circle at 30% 20%, var(--green-soft), var(--panel)); border: 1px solid var(--border); }
+.manifesto-copy p, .audience-copy p { color: var(--muted); font-size: .85rem; }
+.section-kicker { color: var(--green); font-size: .64rem; text-transform: uppercase; letter-spacing: .12em; margin-bottom: 20px; }
+.section-kicker span { margin-right: 10px; }
+.values-section { margin: 60px 0; }
+.values-heading { margin-bottom: 25px; }
+.audience-section { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; padding: 35px 0; }
+.audience-list > div { border-bottom: 1px solid var(--border); padding: 12px 0; }
+.audience-list span { color: var(--green); font-size: .7rem; margin-right: 15px; }
+.audience-list p { color: var(--muted); font-size: .8rem; margin: 10px 0; }
+.about-cta { display: flex; gap: 20px; align-items: center; justify-content: space-between; padding: 30px; background: var(--green-soft); border-radius: 10px; }
+.about-cta span { font-size: .75rem; color: var(--muted); }
+.about-cta h2 { margin: 10px 0 0; }
+.primary-page-button, .light-page-button { display: inline-flex; align-items: center; gap: 10px; background: var(--green); color: var(--green-ink); border-radius: 6px; padding: 12px 18px; font-size: .8rem; white-space: nowrap; }
+.public-variable-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.public-variable-grid h2 { margin: 18px 0 10px; font-size: 1.1rem; }
+.public-menu { display: none; }
+.public-menu-dialog { position: fixed; top: 20px; right: 20px; z-index: 21; padding: 35px; background: var(--panel); border: 1px solid var(--border); border-radius: 10px; min-width: 250px; }
+.public-menu-dialog nav { display: flex; flex-direction: column; gap: 20px; }
+@media (max-width: 950px) { .public-links { display: none; } .public-actions { margin-left: auto; } .public-menu { display: inline-flex; } .values-grid, .public-variable-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .public-page-hero { flex-wrap: wrap; } }
+@media (max-width: 650px) { .public-navbar { padding: 15px; gap: 10px; } .public-actions { gap: 10px; } .public-actions .primary-button { font-size: .65rem; padding: 10px; } .public-content { width: calc(100% - 36px); margin-top: 20px; } .public-footer { flex-wrap: wrap; padding: 25px 18px; } .values-grid, .public-variable-grid, .audience-section, .about-manifesto { grid-template-columns: 1fr; } .about-manifesto { padding: 25px; gap: 25px; } .about-cta { flex-wrap: wrap; } .public-page-hero { padding: 20px 0; } }

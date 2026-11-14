@@ -72,7 +72,18 @@ def require_free_ports() -> None:
 
 def stop(process: subprocess.Popen[bytes]) -> None:
     if process.poll() is None:
-        process.terminate()
+        if sys.platform == "win32":
+            # Next.js starts a server child. Terminating only its parent leaks the port.
+            # This PID is owned by this launcher; never terminate processes by image name.
+            subprocess.run(
+                [executable("taskkill"), "/PID", str(process.pid), "/T", "/F"],
+                check=False,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                timeout=5,
+            )
+        else:
+            process.terminate()
         try:
             process.wait(timeout=5)
         except subprocess.TimeoutExpired:
@@ -81,8 +92,8 @@ def stop(process: subprocess.Popen[bytes]) -> None:
 
 
 def start() -> None:
-    vite = ROOT / "web" / "node_modules" / "vite" / "bin" / "vite.js"
-    if not vite.is_file():
+    next_cli = ROOT / "web" / "node_modules" / "next" / "dist" / "bin" / "next"
+    if not next_cli.is_file():
         raise RuntimeError("Frontend dependencies are missing; run python scripts/dev.py setup.")
     python = backend_python()
     require_free_ports()
@@ -102,7 +113,12 @@ def start() -> None:
             if time.monotonic() >= deadline:
                 raise RuntimeError("Backend did not become healthy within 15 seconds.")
             time.sleep(0.1)
-        processes.append(subprocess.Popen([executable("node"), str(vite)], cwd=ROOT / "web"))
+        processes.append(
+            subprocess.Popen(
+                [executable("node"), str(ROOT / "web" / "scripts" / "next.mjs"), "dev"],
+                cwd=ROOT / "web",
+            )
+        )
         logger.info("Open http://127.0.0.1:5173 — Ctrl+C stops both servers")
         while all(process.poll() is None for process in processes):
             time.sleep(0.2)
@@ -116,7 +132,8 @@ def main() -> int:
     logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "command", choices=("setup", "start", "check", "browser", "contracts", "contracts-check")
+        "command",
+        choices=("setup", "start", "check", "browser", "contracts", "contracts-check"),
     )
     args = parser.parse_args()
     try:

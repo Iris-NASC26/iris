@@ -1,10 +1,10 @@
 # Implementation Plan: Earth Trend Detective
 
-**Version:** 1.0 — 14 November 2026, Asia/Colombo.  
-**Status:** Planning deliverable; implementation requires explicit approval.  
-**Baseline:** Complete [README](../README.md), [SRS v0.3](SRS.md), and [TDD v0.3](TECHNICAL_DESIGN.md).  
+**Version:** 1.1 — architecture amendment, 14 November 2026, Asia/Colombo.
+**Status:** Approved task plan; user-authorized Next.js amendment recorded in [ADR-001](decisions/0001-nextjs.md). Original task IDs, dependencies, feature scope and scientific gates remain.
+**Baseline:** Complete [README](../README.md), [SRS v0.4](SRS.md), and [TDD v0.4](TECHNICAL_DESIGN.md).
 **Team:** Six humans; at most two active Devin tasks.  
-**Deployment:** Full local application, with offline snapshot and second local copy. Public hosting is deferred.
+**Deployment:** Local Next.js/Node frontend with loopback FastAPI scientific backend, with offline snapshot and second local copy. Public hosting is deferred.
 
 This plan creates no application files, scaffolding, dependencies, provider jobs or infrastructure. Paths below are expected future deliverables. The team explicitly authorized targeted SRS/TDD reconciliation before planning; their scientific scope and validation gates remain authoritative. No additional product features are proposed here. Process artifacts, test fixtures and release checks support those requirements.
 
@@ -74,7 +74,7 @@ Owner abbreviations refer to §5: H1 integration/backend, H2 NASA/GIS, H3 scienc
 
 - **Priority / effort / owner:** P0 / M / Devin→H1. **Dependencies:** F01.
 - **Trace / files:** MNT-1, CMP-1, DEP-01; TDD §2/§10.1; future `web/`, `backend/`, lockfiles and `scripts/`.
-- **Work / I→O:** Selected stack → pinned compatible runtimes, minimal React/FastAPI health path, package boundaries and one-command setup/start instructions. Only this owner changes lockfiles.
+- **Work / I→O:** Selected stack → pinned compatible runtimes, minimal Next.js/React + FastAPI health path, package boundaries and one-command setup/start instructions. Only this owner changes lockfiles.
 - **Acceptance / tests:** Clean setup on reference machine; frontend reaches health route; basic backend/frontend tests run; no NASA download during install and no secrets in generated assets.
 - **Done:** D0 plus clean-install log and dependency/license inventory seed.
 
@@ -555,7 +555,7 @@ Owner abbreviations refer to §5: H1 integration/backend, H2 NASA/GIS, H3 scienc
 - **Priority / effort / owner:** P0 / M / Devin→H1/H6. **Dependencies:** U05/F02; expand package as features arrive.
 - **Trace / files:** DEP-01, MNT-1, REL-3; TDD §2.4/§8.4; `scripts/` local launch/package entries and release instructions.
 - **Work / I→O:** Built frontend/backend and first validated artifact → same-origin loopback app with separate artifact/secret paths and readiness checks.
-- **Acceptance / tests:** Production frontend served by FastAPI; clean launch/restart; no dev-server dependency or network-bound package fetch at demo time; interrupted release keeps old pointer.
+- **Acceptance / tests:** Production Next.js frontend and loopback FastAPI backend supervised together; clean launch/restart; no dev-server dependency or network-bound package fetch at demo time; interrupted release keeps old pointer.
 - **Done:** D0 plus first local package/start/restore record; R07 certifies the full final release.
 
 #### R02 — Build and verify the offline snapshot

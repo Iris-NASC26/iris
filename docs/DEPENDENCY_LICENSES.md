@@ -223,3 +223,42 @@ AC-34 certification. No Next.js, MapLibre, AI SDK or scientific dependency is ad
 | set-cookie-parser | 2.7.3 | MIT | Metadata + licence file |
 | use-callback-ref | 1.3.3 | MIT | Metadata + licence file |
 | use-sidecar | 1.1.3 | MIT | Metadata + licence file |
+
+## Next.js architecture amendment ? current graph additions
+
+Inspected on 14 November 2026 against installed metadata/notices and pnpm lockfile.
+Previous sections describe historical seeds; React Router is no longer in the
+application dependency graph, and Vite remains only under Vitest test tooling.
+Next.js 16.4.6 replaces the application dev/build/runtime. No scientific dependency
+or provider SDK is added. Optional packages for other OS/CPU targets require the
+normal F06/R06 cross-platform notice audit before a release on those platforms.
+
+| Package | Version | Licence |
+| --- | --- | --- |
+| @img/colour | 1.1.0 | MIT |
+| @img/sharp-win32-x64 | 0.35.5 | Apache-2.0 AND LGPL-3.0-or-later |
+| @next/env | 16.4.6 | MIT |
+| @next/swc-win32-x64-msvc | 16.4.6 | MIT |
+| @swc/helpers | 0.5.23 | Apache-2.0 |
+| baseline-browser-mapping | 2.11.37 | Apache-2.0 |
+| caniuse-lite | 1.0.30001826 | CC-BY-4.0 |
+| client-only | 0.0.1 | MIT |
+| next | 16.4.6 | MIT |
+| postcss | 8.5.23 | MIT |
+| semver | 7.8.6 | ISC |
+| sharp | 0.35.5 | Apache-2.0 |
+| styled-jsx | 5.1.6 | MIT |
+
+**Approved ancillary-data exception:** caniuse-lite is browser-compatibility data,
+package author Ben Briggs, upstream [browserslist/caniuse-lite](https://github.com/browserslist/caniuse-lite)
+and [Can I Use](https://caniuse.com/). Its installed licence is
+[CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/); the complete installed
+[licence copy](third-party/caniuse-lite-LICENSE.txt) is preserved. This project does
+not modify the compatibility dataset. The user approved this named exception on
+14 November; SRS CMP-1/AC-34 retain OSI-only software libraries and require this
+explicit data attribution. Public methods/credits repeat the attribution.
+
+The Windows Sharp package licence includes LGPL-3.0-or-later as well as Apache-2.0;
+retain its bundled notices and review redistribution obligations in R06. This is
+not an all-MIT claim or completion of final AC-34. The previous missing full notice
+for react-remove-scroll-bar remains an explicit release item.

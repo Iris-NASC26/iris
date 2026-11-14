@@ -1,3 +1,5 @@
+'use client';
+
 import { Icon } from '../../components/ui/Icon';
 import { usePreferences } from '../../state/preferences';
 
@@ -18,6 +20,7 @@ export function EvidencePage() {
       <h2>Sources and interpretation</h2><p>NASA products are observations or model outputs with specific versions, units and sampling conventions. A region’s trend must be calculated from its area-weighted series, not by averaging cell trends or p-values.</p>
       <h2>AI disclosure</h2><p>AI coding assistance was used in development. Product SI is off. Browsing and selecting a planned variable sends no query to an AI service. Statistical computation remains a separately validated backend responsibility.</p>
       <h2>Contribution credit</h2><p>Workspace navigation, icon components, onboarding, theme and data-inspection patterns were adapted from Navida Jayaweera’s Project Iris contribution. Scientific data and method claims from that prototype have not been adopted.</p>
+      <h2>Browser-compatibility data credit</h2><p>Next.js includes unmodified <a href="https://github.com/browserslist/caniuse-lite">caniuse-lite browser-compatibility data</a> (package author Ben Briggs; upstream <a href="https://caniuse.com/">Can I Use</a> contributors), licensed under <a href="https://creativecommons.org/licenses/by/4.0/">CC-BY-4.0</a>. The team approved this named ancillary-data exception; software libraries still require OSI-approved licences. A full licence copy is retained in the repository inventory.</p>
     </section>
   </>;
 }

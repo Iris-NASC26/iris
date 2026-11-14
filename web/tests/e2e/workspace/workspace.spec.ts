@@ -2,6 +2,9 @@ import { expect, test } from '@playwright/test';
 import { WorkspacePage } from '../../pages/WorkspacePage';
 
 test.describe('Navida workspace port', () => {
+  test.beforeEach(async ({ page }) => {
+    page.on('pageerror', error => { throw error; });
+  });
   test('browses the approved variable list without any scientific or external requests', async ({ page }) => {
     const requests: string[] = [];
     page.on('request', request => { if (request.resourceType() === 'fetch' || request.resourceType() === 'xhr') requests.push(request.url()); });
@@ -18,7 +21,8 @@ test.describe('Navida workspace port', () => {
     await expect(page.getByRole('table')).toHaveCount(0);
     await workspace.expectUnavailable();
     expect(requests.length).toBeGreaterThan(0);
-    expect(requests.every(url => new URL(url).pathname === '/api/v1/health')).toBe(true);
+    expect(requests.every(url => new URL(url).origin === 'http://127.0.0.1:5173')).toBe(true);
+    expect(requests.filter(url => new URL(url).pathname.startsWith('/api/')).every(url => new URL(url).pathname === '/api/v1/health')).toBe(true);
     await page.reload();
     await expect(page.getByRole('combobox', { name: 'Explanation level' })).toHaveValue('scientist');
     await expect(page.getByRole('heading', { name: 'Vegetation greenness' })).toBeVisible();

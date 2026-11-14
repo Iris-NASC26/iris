@@ -1,13 +1,17 @@
+'use client';
+
 /** Variable cards and selection flow adapted from Navida's data-selection workbench. */
 import { useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Icon } from '../../components/ui/Icon';
 import { usePreferences } from '../../state/preferences';
 import { findPlannedVariable, plannedCatalog } from './plannedCatalog';
 
 export function Catalog() {
   const { level } = usePreferences();
-  const [params, setParams] = useSearchParams();
+  const params = useSearchParams();
+  const router = useRouter();
   const [query, setQuery] = useState('');
   const [theme, setTheme] = useState('All themes');
   const selected = findPlannedVariable(params.get('variable'));
@@ -26,7 +30,7 @@ export function Catalog() {
       {filtered.length === 0 && <div className="empty-panel"><h2>No matching variables</h2><p>Try another theme or search term.</p>
         <button className="secondary-button" onClick={() => { setQuery(''); setTheme('All themes'); }}>Clear filters</button></div>}
       <div className="variable-grid">{filtered.map(item => <button className={`variable-card${selected?.id === item.id ? ' selected' : ''}`}
-        key={item.id} aria-pressed={selected?.id === item.id} onClick={() => setParams({ variable: item.id })}>
+        key={item.id} aria-pressed={selected?.id === item.id} onClick={() => router.replace(`/workspace/data-selection?variable=${item.id}`, { scroll: false })}>
         <span className="card-top"><span className="variable-id">{item.id} / {item.theme}</span><Icon name="arrow" size={17} /></span>
         <strong>{item.name}</strong><span className="variable-summary">{level === 'explorer' ? item.summary : item.definition}</span>
         <span className="variable-meta">{item.units} <span>· {item.regionalOnly ? 'Regional only' : 'Global cube planned'}</span></span>
@@ -38,7 +42,7 @@ export function Catalog() {
           <dt>Scope</dt><dd>{selected.regionalOnly ? 'Regional presets; no globe layer' : 'Global cube and regional analysis'}</dd>
           {level === 'scientist' && <><dt>Target field</dt><dd><code>{selected.field}</code></dd></>}</dl>
         {level !== 'explorer' && <div className="caution-note"><Icon name="info" size={17} /><p>{selected.caution}</p></div>}
-        <Link className="primary-button" to={`/workspace/data-preview?variable=${selected.id}`}>Open data preview <Icon name="arrow" size={16} /></Link>
+        <Link className="primary-button" href={`/workspace/data-preview?variable=${selected.id}`}>Open data preview <Icon name="arrow" size={16} /></Link>
         <p className="small-label">Opening preview makes no provider request.</p>
       </> : <><span className="large-icon"><Icon name="layers" size={35} /></span><h2>{params.has('variable') ? 'Unknown variable' : 'Pick a clue to inspect'}</h2>
         <p>{params.has('variable') ? 'The requested variable is outside the approved list. Choose a listed variable.' : 'Select a variable to inspect its intended source, units and scope.'}</p></>}

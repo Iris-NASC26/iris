@@ -1,13 +1,13 @@
 # Technical Design: Earth Trend Detective
 
 **Project:** NASA Space Apps Challenge 2026 — Be An Earth System Trend Detective!  
-**Version:** 0.3 — reviewed design reconciled with SRS v0.3; local hosting restored by team decision on 14 November 2026. Implementation approval remains pending.  
+**Version:** 0.4 — user-approved Next.js architecture amendment on 14 November 2026; aligned with SRS v0.4. Local hosting and scientific gates remain. See [ADR-001](decisions/0001-nextjs.md).
 **Prepared:** 13 November 2026, Asia/Colombo.  
 **Scope authority:** [approved SRS](SRS.md), read in full, and [README](../README.md), including the challenge transcript. At the team's explicit request, the SRS was reconciled with the decisions below before implementation planning. This is a targeted document revision, not application implementation.
 
 ## Design basis and approval boundary
 
-Build a modular Python application with a React interface, a visually distinctive Three.js globe, and reproducible NASA data artifacts. Run the full application locally, with FastAPI serving the built frontend and a bounded worker using persistent SQLite/cube/artifact storage. NASA acquisition is a trusted team workflow; installed-cube analysis needs no live provider call. Keep the static snapshot and a second local copy for recovery. Public hosting is deferred by the team's latest decision; no cloud account or infrastructure is needed now.
+Build a modular Python application with a React interface, a visually distinctive Three.js globe, and reproducible NASA data artifacts. Run the full application locally, with a Next.js/Node frontend forwarding approved API requests to the loopback FastAPI backend, and a bounded worker using persistent SQLite/cube/artifact storage. NASA acquisition is a trusted team workflow; installed-cube analysis needs no live provider call. Keep the static snapshot and a second local copy for recovery. Public hosting is deferred by the team's latest decision; no cloud account or infrastructure is needed now.
 
 The SRS defines a large P0: V01–V12 cube variables, V13 regional vegetation, at least ten global layers, regional analysis, three significance methods, seasonal analysis, forecasts, three stories, provenance, and scientific validation. This design preserves that scope. A two-day delivery is **high risk until data access, transfer volume, and processing speed pass the first milestone**. A fallback demonstration is not evidence that every P0 requirement passed.
 
@@ -30,7 +30,7 @@ Use one repository and one Python package shared by a batch CLI and a FastAPI se
 
 | Mode | Runtime | Capabilities and limits | SRS mapping |
 | --- | --- | --- | --- |
-| Full local application | Built React assets and FastAPI on localhost; local cube, SQLite, artifacts; optional internet | Arbitrary cells, boxes, polygons, global regions, recomputation, comparisons, exports; NASA jobs when connected | DEP-01, AC-35, RG-01–05, SC-01–04, AN-01–10, FC-01–02, DA-01–08 |
+| Full local application | Next.js/Node frontend and FastAPI on loopback; local cube, SQLite, artifacts; optional internet | Arbitrary cells, boxes, polygons, global regions, recomputation, comparisons, exports; NASA jobs when connected | DEP-01, AC-35, RG-01–05, SC-01–04, AN-01–10, FC-01–02, DA-01–08 |
 | Offline local application | Same application with validated cube and cached artifacts | All analyses supported by installed data, plus globe and stories; uncached provider requests explicitly unavailable | DA-09, REL-1 |
 | Public snapshot (deferred) | Possible later static publication of the same snapshot | Not part of the current deployment commitment; no cloud resources provisioned | DA-09, future OD-02 review |
 | Downloaded demo snapshot | Static build and snapshot served locally, or verified browser cache | Guaranteed demonstration package after download; no credentials required | AC-28, REL-1 |
@@ -58,11 +58,12 @@ P1 modules attach to these boundaries: native-polygon AppEEARS, station/hydrolog
 
 ```mermaid
 flowchart TB
-    U[Browser user] --> UI[React and TypeScript interface]
+    U[Browser user] --> UI[Next.js React and TypeScript interface]
     UI --> G[globe.gl and Three.js]
     UI --> C[ECharts and accessible tables]
     UI --> D{Data provider adapter}
-    D -->|Full local mode| API[FastAPI application]
+    D -->|Full local mode| WEB[Next.js local Node server]
+    WEB --> API[FastAPI application]
     D -->|Snapshot mode| SNAP[Immutable snapshot assets]
     API --> APP[Analysis and region services]
     APP --> SCI[Pure Python science engine]
@@ -120,7 +121,7 @@ Exact patch versions will be pinned together after the installation smoke test. 
 
 | Area | Selection [D] | Why it fits the SRS |
 | --- | --- | --- |
-| Frontend | React + TypeScript + Vite; React Router | Interactive client-heavy app; static output works on Vercel and offline. SSR adds little to GL/AN workflows. [Vite documentation](https://vite.dev/guide/) |
+| Frontend | Next.js App Router + React + TypeScript | User-approved replacement for Vite/React Router; reuses Navida's native page/layout components and routing. Run a local Node server; no SSR scientific computation or automatic provider acquisition. Separate snapshot packaging remains R02. [Next.js documentation](https://nextjs.org/docs/app) |
 | UI system | Tailwind CSS + shadcn/ui components built on Radix primitives; Lucide icons; system font stack | Modern, restrained space-themed panels with accessible dialogs, tabs, controls and keyboard behavior; customize owned components rather than introduce a large theme. USE-4, ACC-1–3. [shadcn/ui](https://ui.shadcn.com/docs) |
 | State and data requests | Zustand for compact view state; TanStack Query for asynchronous requests and cancellation | Keep GPU objects and large arrays outside React state; distinguish a selected request from the last completed result. PERF-2–4 |
 | Globe | globe.gl with Three.js; direct lifecycle wrapper in React | Strong visual customization for GL-03–07 with one rendering engine. MIT. [globe.gl](https://github.com/vasturiano/globe.gl) |
@@ -133,7 +134,7 @@ Exact patch versions will be pinned together after the installation smoke test. 
 | Database | Python sqlite3 in WAL mode for jobs, cache and artifact metadata | No accounts or collaborative writes; a single machine is sufficient. Numeric arrays remain in files. DA-08, REL-3 |
 | Caching | Local content-addressed files + SQLite; browser HTTP cache/Cache Storage and IndexedDB | Avoid network dependence and duplicate processing. Separate immutable releases from mutable job status. DA-08–09 |
 | Hosted storage | Deferred; local content-addressed files and SQLite suffice | No cloud database/account dependency for this release |
-| Deployment | Local FastAPI serves built React assets; verified snapshot and second local copy | Full arbitrary-region workflow over installed data, reproducible offline recovery. DEP-01, OD-02, REL-1 |
+| Deployment | Local Next.js production server forwards approved API requests to loopback FastAPI; verified snapshot and second local copy | Full arbitrary-region workflow over installed data, reproducible offline recovery. DEP-01, OD-02, REL-1 |
 | Verification | pytest, coverage, fixed reference fixtures; Vitest, Testing Library, Playwright, axe-core; licence/secret scanners | Statistical tests, contracts, visual and interaction acceptance, offline verification. VL-01–02, MNT-2, AC-01–34 |
 | Packaging | pnpm lockfile and uv lockfile; documented one-command local setup | Fast repeatable setup; do not require Docker Desktop or a paid account. MNT-1 |
 
@@ -170,7 +171,7 @@ The baseline is 16 GB RAM and 50 GB free disk (AS-04), subject to measured data 
 
 ### 2.4 Local release topology and operating boundary
 
-Serve the built React application and `/api/v1` from the same loopback origin. One Python runtime supervises bounded work outside the HTTP event loop; numeric artifacts and SQLite survive process restarts. Separate the configured artifact directory from application source and secrets. Keep the TDD §8 limits, Host/Origin checks and acquisition nonce protection; do not expose the server on a LAN by default.
+Serve the Next.js frontend and approved `/api/v1` proxy routes from one loopback browser origin. Next.js/Node and FastAPI are separate local processes supervised by the launcher; FastAPI retains scientific/business processing and bounded work outside the HTTP event loop; numeric artifacts and SQLite survive process restarts. Separate the configured artifact directory from application source and secrets. Keep the TDD §8 limits, Host/Origin checks and acquisition nonce protection; do not expose the server on a LAN by default.
 
 Readiness requires a compatible schema, verified release hashes, readable cube and sufficient disk. Liveness checks the process only. Publish validated builds atomically and keep a last-known-good release. Verify that the documented start command, restart, a non-preset polygon, changed controls, comparison and export all work on the reference laptop. Repeat installed-cube analysis with the network disconnected. A 202 response is progress, not completed analysis. Copy the release and checksums to a second device; the static snapshot remains explicitly limited to bundled results.
 
@@ -824,7 +825,7 @@ Large artifacts stay outside Git; install validated cubes/manifests and snapshot
 | ID / topic | Decision or blocker | Approval/verification consequence |
 | --- | --- | --- |
 | OD-01 globe | globe.gl + Three.js, instanced scientific layer | Selected; frame-rate result pending |
-| OD-02 hosting | Local FastAPI serves built React assets; persistent cube/SQLite; snapshot recovery | Restored by team on 14 November; validate reference laptop and second-copy restore. Public hosting deferred |
+| OD-02 hosting | Local Next.js/Node frontend + FastAPI science backend; persistent cube/SQLite; snapshot recovery | Updated by user on 14 November (ADR-001); validate production Node launch, stop/restart, reference laptop and second-copy restore. Public hosting deferred |
 | OD-03 forecasting | Trend + month seasonality + AR(1), compared against both approved baselines | Validate rolling-origin behavior and scientific transformation limits |
 | OD-04 SI | None in P0; deterministic discovery and explanations | P1 SI remains optional; disclosure still mandatory |
 | OD-05 resolution | 1° display, 0.5° analysis where native support allows; native MERRA-2 | Reconciled in SRS DR-C1; validate area-overlap weights |

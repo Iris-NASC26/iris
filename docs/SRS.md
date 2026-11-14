@@ -1,9 +1,9 @@
 # Software Requirements Specification: Earth Trend Detective
 
 **Project:** Earth Trend Detective (working name). 2026 NASA Space Apps Challenge, *Be An Earth System Trend Detective!*
-**Document:** SRS v0.3, a short version written for a two-day hackathon. **Status:** Approved baseline reconciled with reviewed TDD decisions; local hosting restored at the team's request on 14 November 2026. Implementation remains subject to explicit approval. **Date:** November 2026.
+**Document:** SRS v0.4, a short version written for a two-day hackathon. **Status:** Approved baseline reconciled with reviewed TDD decisions; local hosting restored at the team's request on 14 November 2026. Implementation remains subject to explicit approval. **Date:** November 2026.
 
-**Revision history:** v0.2 reconciled lens preview versus regional inference, native MERRA-2 grids, eligible-region variable counts, core versus background Outlook updates, basic P0 fallback, chlorophyll branch labels, linked alpha/FDR thresholds and confirmed product bindings at the team's request. v0.3 replaces the intervening public-hosting choice with **local hosting for now**, as requested on 14 November. DEP-01 and AC-35 now specify local release acceptance; Oracle, Vercel and Supabase are not required. Scientific validation and source-file checks remain gates, not assumed results. See [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md).
+**Revision history:** v0.4 records the user-approved switch to Next.js App Router on 14 November 2026: local Node/Next.js serves the frontend and proxies approved API routes to the loopback FastAPI scientific backend. Dataset, statistical and feature requirements are unchanged. The user also approved the named caniuse-lite ancillary browser-data attribution exception in CMP-1/AC-34; software libraries must still use OSI-approved licences.  v0.2 reconciled lens preview versus regional inference, native MERRA-2 grids, eligible-region variable counts, core versus background Outlook updates, basic P0 fallback, chlorophyll branch labels, linked alpha/FDR thresholds and confirmed product bindings at the team's request. v0.3 replaces the intervening public-hosting choice with **local hosting for now**, as requested on 14 November. DEP-01 and AC-35 now specify local release acceptance; Oracle, Vercel and Supabase are not required. Scientific validation and source-file checks remain gates, not assumed results. See [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md).
 **Inputs:** [README.md](../README.md) (challenge Details and Resources tabs, video transcript), the pre-hackathon research report, and the team decisions in §1.6.
 
 ## Conventions
@@ -316,7 +316,7 @@ Two things make this hard [S1]:
 | DA-07 | P0 | Earthdata Cloud access (earthaccess and Harmony subsetting) for GLDAS, GPCP, IMERG, OB.DAAC chlorophyll and MERRA-2 aerosols. |
 | DA-08 | P0 | A cache keyed by source, dataset version, variable, region, window and method, with provenance attached. |
 | DA-09 | P0 | Snapshot mode: precomputed globe layers and demo regions that work with no network and no credentials. |
-| DEP-01 | P0 | Run the full application locally on the reference team laptop: FastAPI serves the built frontend on loopback, with persistent cube, SQLite and artifacts. Support arbitrary-region analyses, scans, comparisons, controls and exports over installed validated P0 data. Preserve a verified offline snapshot and a second local copy. Public hosting is deferred; no cloud account, hostname or paid service is required. |
+| DEP-01 | P0 | Run the full application locally on the reference team laptop: Next.js serves the production frontend on loopback and forwards approved API requests to the local FastAPI scientific backend, with persistent cube, SQLite and artifacts. Support arbitrary-region analyses, scans, comparisons, controls and exports over installed validated P0 data. Preserve a verified offline snapshot and a second local copy. Public hosting is deferred; no cloud account, hostname or paid service is required. |
 | DA-10 | P2 | Optional connectors for NEX-GDDP-CMIP6 regional subsets, GRACE/GRACE-FO mascons and SWOT. |
 | DA-11 | P1 | AppEEARS requests for user-drawn polygons, with a queue indicator and cached results. |
 
@@ -363,7 +363,7 @@ Two things make this hard [S1]:
 | SEC-1 | Security & privacy | No user accounts, no personal data collected, no tracking. |
 | SEC-2 | Security & privacy | Credentials (Earthdata Login, AppEEARS token, CDO token) stay on the server only, in environment variables or a `.netrc` file outside the repo. They never appear in the client bundle or in git. A secret scan runs before every commit. |
 | SEC-3 | Security & privacy | Respect provider limits: the Giovanni quota, CDO's 5 requests per second and 10,000 per day [V S12], POWER's usage guidance, and AppEEARS etiquette. |
-| CMP-1 | Compliance | Only free services. Only libraries with OSI-approved licences, listed in a licence inventory in the repo. |
+| CMP-1 | Compliance | Only free services. Only software libraries with OSI-approved licences, listed in a licence inventory in the repo. Named exception approved on 14 November 2026: ancillary caniuse-lite browser-compatibility data may use CC-BY-4.0 with upstream attribution and a licence copy; this is not a general exception for software. |
 | CMP-2 | Compliance | A credits page lists every dataset (with DOI), Resource, service and library (with licence). It includes the GIBS acknowledgment and follows NASA data citation guidance [S25]. |
 | CMP-3 | Compliance | SI disclosure, watermarks on SI-generated media, and no NASA branding (CON-2). |
 | CMP-4 | Compliance | UI and documentation in English (CON-4). |
@@ -739,7 +739,7 @@ This is the team's own rule of thumb, published on the Methods page; it is not a
 | AC-31 | VL-02 | For the 10 boxes, a reproduction table shows our slope sign, p-value and classification next to the outcomes the paper states (Amazon, Congo and Orinoco decreasing, not significant; Pearl increasing, p = 0.068). Any differences are explained. |
 | AC-32 | SEC-2 | A secret scan of the repository and the client bundle passes. |
 | AC-33 | ACC-2 | Main flows work by keyboard alone. Reduced motion turns off auto-rotation and animations. |
-| AC-34 | CMP-1, CMP-2 | The credits page lists every dataset (with DOI), Resource, service and library (with licence). The licence inventory contains no non-OSI licence. |
+| AC-34 | CMP-1, CMP-2 | The credits page lists every dataset (with DOI), Resource, service and library (with licence). The licence inventory contains no non-OSI software-library licence; explicitly identify the approved caniuse-lite browser-data CC-BY-4.0 exception with attribution and licence copy. |
 | AC-35 | DEP-01, RG-02, SEC-1–3, REL-1 | Start the packaged local application using its documented command. Complete a new non-preset polygon analysis, change its window, compare two regions and export provenance. Restart preserves validated artifacts and completed results. With the network disabled, installed-cube analysis and the snapshot work; uncached acquisitions show unavailable status. The server binds to loopback and secrets remain outside the bundle. |
 
 ---
@@ -781,7 +781,7 @@ This is the team's own rule of thumb, published on the Methods page; it is not a
 ### 9.3 Open decisions (to settle in the architecture phase)
 
 - **OD-01 Globe engine — resolved:** globe.gl + Three.js with instanced cells; performance validation remains mandatory.
-- **OD-02 Hosting — resolved:** local full application with FastAPI serving built React assets, bounded worker, SQLite and persistent cube/artifacts. Offline snapshot and a second local copy provide recovery. Public deployment is deferred; any later cloud deployment requires a separate decision and security/capacity review.
+- **OD-02 Hosting — resolved:** local full application with a Next.js/Node frontend and loopback FastAPI scientific backend, bounded worker, SQLite and persistent cube/artifacts (v0.4 user decision; see docs/decisions/0001-nextjs.md). Offline snapshot and a second local copy provide recovery. Public deployment is deferred; any later cloud deployment requires a separate decision and security/capacity review.
 - **OD-03 Forecasting — resolved:** one trend + month seasonality + AR(1) candidate; seasonal-naive and climatology are independent baselines, with SM-10 release gates.
 - **OD-04 SI model — resolved:** none in P0; deterministic discovery/explanations. Optional P1 SI retains its original scope and disclosure rules.
 - **OD-05 Cube resolution — resolved:** 0.5° where supported, native MERRA-2 and coarser grids retained, 1° globe display with area-overlap aggregation (DR-C1).

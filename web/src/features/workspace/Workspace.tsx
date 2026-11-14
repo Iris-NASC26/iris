@@ -1,7 +1,10 @@
-/** Port of Navida's workspace frame/navigation; no Next.js or scientific state retained. */
+'use client';
+
+/** Port of Navida's workspace frame/navigation; Next.js navigation with no scientific state retained. */
 import * as Dialog from '@radix-ui/react-dialog';
-import { useEffect, useRef, useState } from 'react';
-import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Icon, type IconName } from '../../components/ui/Icon';
 import { readPreference, usePreferences, writePreference } from '../../state/preferences';
 import { ConnectionStatus } from './ConnectionStatus';
@@ -18,21 +21,25 @@ const navigation: { label: string; items: { to: string; text: string; icon: Icon
     { to: '/workspace/globe', text: 'Living Globe', icon: 'globe' },
     { to: '/workspace/case-board', text: 'Regional Case Board', icon: 'layers' },
   ] },
-  { label: 'Understand', items: [{ to: '/workspace/evidence', text: 'Evidence & methods', icon: 'book' }] },
+  { label: 'Understand', items: [
+    { to: '/workspace/evidence', text: 'Evidence & methods', icon: 'book' },
+    { to: '/about', text: 'About Iris', icon: 'info' },
+  ] },
 ];
 
 function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const { theme, toggleTheme } = usePreferences();
+  const pathname = usePathname();
   return <>
-    <Link to="/workspace" className="dashboard-brand" onClick={onNavigate}>
+    <Link href="/workspace" className="dashboard-brand" onClick={onNavigate}>
       <span className="brand-mark"><Icon name="globe" size={25} /><i /></span>
       <span><strong>Iris<span className="brand-period">.</span></strong><small>Earth Trend Detective</small></span>
     </Link>
     <nav aria-label="Workspace navigation" className="dashboard-nav">{navigation.map(group =>
       <div className="dashboard-nav-group" key={group.label}><p>{group.label}</p>{group.items.map(item =>
-        <NavLink end={item.to === '/workspace'} to={item.to} key={item.to} onClick={onNavigate} title={item.text}>
+        <Link className={pathname === item.to ? 'active' : ''} aria-current={pathname === item.to ? 'page' : undefined} href={item.to} key={item.to} onClick={onNavigate} title={item.text}>
           <Icon name={item.icon} size={19} /><span>{item.text}</span>
-        </NavLink>)}
+        </Link>)}
       </div>)}
     </nav>
     <div className="sidebar-bottom"><p className="sidebar-caption">Curiosity, grounded in evidence.</p>
@@ -45,20 +52,24 @@ function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   </>;
 }
 
-export function Workspace() {
+export function Workspace({ children }: { children: ReactNode }) {
   const { level, setLevel, reducedMotion, setReducedMotion } = usePreferences();
-  const [collapsed, setCollapsed] = useState(() => readPreference('sidebar-collapsed') === 'true');
+  const [collapsed, setCollapsed] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const location = useLocation();
+  const pathname = usePathname();
+  const [hydrated, setHydrated] = useState(false);
   const content = useRef<HTMLElement>(null);
-  const previousPath = useRef(location.pathname);
-  useEffect(() => { writePreference('sidebar-collapsed', String(collapsed)); }, [collapsed]);
+  const previousPath = useRef(pathname);
   useEffect(() => {
-    if (previousPath.current !== location.pathname) {
+    setCollapsed(readPreference('sidebar-collapsed') === 'true'); setHydrated(true);
+  }, []);
+  useEffect(() => { if (hydrated) writePreference('sidebar-collapsed', String(collapsed)); }, [collapsed, hydrated]);
+  useEffect(() => {
+    if (previousPath.current !== pathname) {
       content.current?.focus();
-      previousPath.current = location.pathname;
+      previousPath.current = pathname;
     }
-  }, [location.pathname]);
+  }, [pathname]);
   return <div className={`app-shell dashboard-shell${collapsed ? ' sidebar-collapsed' : ''}`}>
     <a className="skip-link" href="#workspace-content">Skip to content</a>
     <aside className="dashboard-sidebar"><Sidebar />
@@ -84,7 +95,7 @@ export function Workspace() {
           onChange={event => setReducedMotion(event.target.checked)} />Reduce motion</label></div>
       </header>
       <div className="capability-banner"><span><Icon name="info" size={16} />Analysis unavailable · No observations loaded</span><ConnectionStatus /></div>
-      <main id="workspace-content" ref={content} tabIndex={-1} className="dashboard-page"><Outlet /></main>
+      <main id="workspace-content" ref={content} tabIndex={-1} className="dashboard-page">{children}</main>
       <footer className="workspace-footer"><span>Statistics decide. Every result needs a source.</span><span>Local · SI off</span></footer>
     </div>
   </div>;

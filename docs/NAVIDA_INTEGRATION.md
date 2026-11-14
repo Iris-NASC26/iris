@@ -2,7 +2,29 @@
 
 Reviewed and implemented 14 November 2026, Asia/Colombo. Practice build only.
 
-## Decision and source snapshots
+## Latest amendment ? native Next.js integration
+
+The user superseded the earlier Vite decision with Next.js on 14 November 2026.
+[ADR-001](decisions/0001-nextjs.md) records that explicit authorization and the
+local Node/FastAPI topology. Branch `feat/U01-nextjs-navida-integration` extends
+`1fbdab0` with native App Router pages/layouts/navigation plus further source reuse:
+
+| Navida source | Integrated work |
+| --- | --- |
+| `src/components/layout/PublicNavbar.tsx` | Public navigation, actual routes, theme toggle and Radix mobile dialog |
+| `src/components/layout/PageShell.tsx` | Shared public header, hero, footer and capability/liveness display |
+| `src/components/layout/InfoCard.tsx` | Attributed direct information-card port |
+| `src/app/about/page.tsx` | About/mission/principles/audience composition with truthful current-scope copy |
+| `src/app/platform/page.tsx` | Workflow-card pattern, excluding invented numeric product demonstrations |
+| Public data/methodology patterns | Planned sources and evidence pages reuse our approved metadata/explanations |
+
+The workspace, contracts, preflight tools and source/science exclusions below are
+preserved. UI reuse is broader; it does not make D01/S01?S14, the global cube,
+forecasts, scientific stories or release packaging complete. No original marketing
+statistics or unsupported validation badges are imported. Historical sections below
+describe the first port; references to Vite/React Router there are superseded.
+
+## Original decision and source snapshots
 
 The user approved porting useful UI into the existing Vite/FastAPI/Three.js design,
 prioritizing a visible workspace with truthful availability. No architecture change,

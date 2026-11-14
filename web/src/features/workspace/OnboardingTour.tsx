@@ -1,3 +1,5 @@
+'use client';
+
 /** Adapted from Navida's OnboardingTour. Radix owns focus trapping and restoration. */
 import * as Dialog from '@radix-ui/react-dialog';
 import { useState } from 'react';

@@ -1,3 +1,5 @@
+'use client';
+
 /** Adapted from Navida Jayaweera's ThemeContext at cabc793. View preferences only. */
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 
@@ -23,21 +25,29 @@ export function writePreference(key: string, value: string): void {
 }
 
 export function PreferencesProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<Theme>(() => readPreference('theme') === 'light' ? 'light' : 'dark');
-  const [level, setLevel] = useState<ExplanationLevel>(() => {
-    const stored = readPreference('level');
-    return stored === 'student' || stored === 'scientist' ? stored : 'explorer';
-  });
-  const [reducedMotion, setReducedMotion] = useState(() => readPreference('reduced-motion') === 'true');
+  // Server and first client render must agree; read browser state only after mount.
+  const [theme, setTheme] = useState<Theme>('dark');
+  const [level, setLevel] = useState<ExplanationLevel>('explorer');
+  const [reducedMotion, setReducedMotion] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
   useEffect(() => {
+    setTheme(readPreference('theme') === 'light' ? 'light' : 'dark');
+    const stored = readPreference('level');
+    setLevel(stored === 'student' || stored === 'scientist' ? stored : 'explorer');
+    setReducedMotion(readPreference('reduced-motion') === 'true');
+    setHydrated(true);
+  }, []);
+  useEffect(() => {
+    if (!hydrated) return;
     document.documentElement.dataset.theme = theme;
     writePreference('theme', theme);
-  }, [theme]);
-  useEffect(() => { writePreference('level', level); }, [level]);
+  }, [theme, hydrated]);
+  useEffect(() => { if (hydrated) writePreference('level', level); }, [level, hydrated]);
   useEffect(() => {
+    if (!hydrated) return;
     document.documentElement.dataset.reducedMotion = String(reducedMotion);
     writePreference('reduced-motion', String(reducedMotion));
-  }, [reducedMotion]);
+  }, [reducedMotion, hydrated]);
   const value = useMemo(() => ({ theme, toggleTheme: () => setTheme(t => t === 'dark' ? 'light' : 'dark'),
     level, setLevel, reducedMotion, setReducedMotion }), [theme, level, reducedMotion]);
   return <Context.Provider value={value}>{children}</Context.Provider>;

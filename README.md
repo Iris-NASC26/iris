@@ -18,7 +18,7 @@
 - [Execution status and task ownership](docs/EXECUTION_STATUS.md)
 - [Local development setup](docs/DEVELOPMENT.md)
 
-The current implementation is a practice build outside the official submission. The local Iris workspace selectively integrates Navida Jayaweera's UI contribution: navigation, onboarding, planned variable browsing and data-inspection states. Follow the development guide and open `/workspace`. Scientific analysis is not available yet. See the [integration and reuse ledger](docs/NAVIDA_INTEGRATION.md).
+The current implementation is a practice build outside the official submission. The local Next.js Iris application selectively integrates Navida Jayaweera's UI contribution: public pages, navigation, onboarding, planned variable browsing and data-inspection states. FastAPI retains scientific/backend responsibilities. Follow the development guide and open `/workspace`. Scientific analysis is not available yet. See the [integration and reuse ledger](docs/NAVIDA_INTEGRATION.md).
 
 ---
 
