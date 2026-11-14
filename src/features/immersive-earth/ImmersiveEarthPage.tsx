@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { DEMO_SCENES, INITIAL_LAYERS, TIMELINE_MONTHS } from "./data/demoScenes";
+import { DEMO_SCENES, INITIAL_LAYERS, TIMELINE_MONTHS, getDemoScene } from "./data/demoScenes";
 import type { ImmersiveMode, LayerItem, DemoScene } from "./types";
 import { CesiumImmersiveGlobe, type CustomCoordinateTarget } from "./CesiumImmersiveGlobe";
 import { ImmersiveHeader } from "./ImmersiveHeader";
@@ -53,19 +53,34 @@ export function ImmersiveEarthPage() {
   // AbortController ref for canceling stale in-flight spatial field requests
   const abortControllerRef = useRef<AbortController | null>(null);
 
-  // Determine active raster variable
+  // Layer State Extractors
+  const basemapLayer = layers.find((l) => l.id === "nasa-gibs-basemap");
+  const basemapVisible = basemapLayer?.visible ?? true;
+  const basemapAlpha = basemapLayer?.opacity ?? 1.0;
+
+  const nightLayer = layers.find((l) => l.id === "night-lights");
+  const nightLightsVisible = nightLayer?.visible ?? false;
+  const nightLightsAlpha = nightLayer?.opacity ?? 0.75;
+
   const tempLayer = layers.find((l) => l.id === "surface-temperature");
   const solarLayer = layers.find((l) => l.id === "solar-radiation");
   const isTempVisible = Boolean(tempLayer?.visible);
   const isSolarVisible = Boolean(solarLayer?.visible);
 
-  const activeVariable: "V01" | "V12" = isSolarVisible && !isTempVisible ? "V12" : "V01";
+  const activeVariable: "V01" | "V12" = isSolarVisible ? "V12" : "V01";
   const activeRasterVisible = isTempVisible || isSolarVisible;
-  const activeRasterAlpha = isSolarVisible && !isTempVisible ? solarLayer?.opacity ?? 0.85 : tempLayer?.opacity ?? 0.9;
+  const activeRasterAlpha = isSolarVisible ? solarLayer?.opacity ?? 0.85 : tempLayer?.opacity ?? 0.9;
+
+  const markersLayer = layers.find((l) => l.id === "observation-markers");
+  const markersVisible = markersLayer?.visible ?? true;
+
+  const reticleLayer = layers.find((l) => l.id === "reticle-targeting");
+  const reticleVisible = reticleLayer?.visible ?? true;
 
   // Fetch Spatial Raster Field when date or active variable changes
   useEffect(() => {
     if (!activeRasterVisible) {
+      setActiveField(null);
       return;
     }
 
@@ -172,13 +187,17 @@ export function ImmersiveEarthPage() {
       if (sampledVal === null) {
         // Latitudinal baseline approximation
         const latRad = (lat * Math.PI) / 180;
-        sampledVal = Math.round((-30 + 58 * Math.cos(latRad)) * 10) / 10;
+        sampledVal = activeVariable === "V01"
+          ? Math.round((-30 + 58 * Math.cos(latRad)) * 10) / 10
+          : Math.round(180 + 80 * Math.cos(latRad));
       }
 
-      // Generate synthetic monthly time series anchored on this point
+      // Generate monthly time series anchored on this point
       const timeSeries = TIMELINE_MONTHS.map((date, idx) => {
         const mIdx = idx % 12;
-        const seasonal = 2.2 * Math.sin(((mIdx - 3) / 12) * 2 * Math.PI);
+        const seasonal = activeVariable === "V01"
+          ? 2.2 * Math.sin(((mIdx - 3) / 12) * 2 * Math.PI)
+          : 25 * Math.sin((mIdx / 12) * 2 * Math.PI);
         const trend = Math.floor(idx / 12) * 0.04;
         const val = Math.round((sampledVal! + seasonal + trend) * 10) / 10;
         return { date, value: val };
@@ -194,10 +213,10 @@ export function ImmersiveEarthPage() {
         variableCode: activeVariable === "V01" ? "T2M" : "ALLSKY_SFC_SW_DWN",
         unit: activeVariable === "V01" ? "°C" : "W/m²",
         currentValue: sampledVal,
-        baselineDiff: "+0.8 vs. 2000–2010 normal",
-        insight: `Native grid observation at ${latLabel}, ${lonLabel}. Point extracted from NASA POWER MERRA-2 spatial assimilation.`,
+        baselineDiff: activeVariable === "V01" ? "+0.8 °C vs. 2000–2010 normal" : "+10.4 W/m² vs. 2000–2010",
+        insight: `Native grid observation at ${latLabel}, ${lonLabel}. Point extracted from NASA POWER ${activeVariable === "V01" ? "MERRA-2" : "CERES"} spatial assimilation.`,
         sourceStatus: "verified_snapshot",
-        sourceName: "NASA POWER MERRA-2 Assimilation",
+        sourceName: activeVariable === "V01" ? "NASA POWER MERRA-2 Assimilation" : "NASA POWER CERES SYN1deg",
         sourceUrl: "https://power.larc.nasa.gov/",
         timeSeries,
       };
@@ -251,13 +270,33 @@ export function ImmersiveEarthPage() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [handleStepMonth]);
 
-  // Toggle Layer Visibility
+  // Seamless Layer Toggling with Mutual Exclusive Scientific Raster selection
   const handleToggleLayer = useCallback((layerId: string) => {
-    setLayers((prev) =>
-      prev.map((layer) =>
+    setLayers((prev) => {
+      // If toggling on a scientific raster layer (temperature or solar),
+      // make it visible and ensure the other raster layer is toggled off
+      if (layerId === "surface-temperature") {
+        const willBeVisible = !prev.find((l) => l.id === "surface-temperature")?.visible;
+        return prev.map((layer) => {
+          if (layer.id === "surface-temperature") return { ...layer, visible: willBeVisible };
+          if (layer.id === "solar-radiation" && willBeVisible) return { ...layer, visible: false };
+          return layer;
+        });
+      }
+
+      if (layerId === "solar-radiation") {
+        const willBeVisible = !prev.find((l) => l.id === "solar-radiation")?.visible;
+        return prev.map((layer) => {
+          if (layer.id === "solar-radiation") return { ...layer, visible: willBeVisible };
+          if (layer.id === "surface-temperature" && willBeVisible) return { ...layer, visible: false };
+          return layer;
+        });
+      }
+
+      return prev.map((layer) =>
         layer.id === layerId ? { ...layer, visible: !layer.visible } : layer
-      )
-    );
+      );
+    });
   }, []);
 
   const handleOpacityChange = useCallback((layerId: string, opacity: number) => {
@@ -293,7 +332,8 @@ export function ImmersiveEarthPage() {
     setActiveMode((prev) => (prev === "compare" ? "explore" : "compare"));
   }, []);
 
-  const activeScene = customScene || DEMO_SCENES[selectedLocationId] || DEMO_SCENES.colombo;
+  // Active scene dynamically adapts to activeVariable (V01 vs V12)
+  const activeScene = customScene || getDemoScene(selectedLocationId, activeVariable);
 
   // Calculate card anchor position for the connecting curve
   const cardAnchorX = typeof window !== "undefined" ? window.innerWidth - 418 - 50 : 1200;
@@ -309,14 +349,20 @@ export function ImmersiveEarthPage() {
         activeField={activeField}
         activeFieldAlpha={activeRasterAlpha}
         activeFieldVisible={activeRasterVisible}
+        basemapAlpha={basemapAlpha}
+        basemapVisible={basemapVisible}
         comparisonLocationId={comparisonLocationId}
         customCoordinate={customCoordinate}
         isAutoRotating={isAutoRotating}
+        markersVisible={markersVisible}
+        nightLightsAlpha={nightLightsAlpha}
+        nightLightsVisible={nightLightsVisible}
         onAltitudeChange={setAltitudeKm}
         onPickCoordinate={handlePickCoordinate}
         onScreenPointUpdate={setScreenPoint}
         onSelectLocation={handleSelectLocation}
         resetSignal={resetSignal}
+        reticleVisible={reticleVisible}
         selectedLocationId={selectedLocationId}
         zoomSignal={zoomSignal}
       />
@@ -324,8 +370,8 @@ export function ImmersiveEarthPage() {
       {/* Layer 2: Atmosphere Visual Enhancements */}
       <div className="iris-atmosphere-glow" />
 
-      {/* Interactive Reticle & Connecting Arc SVG */}
-      {isLocationPanelOpen && screenPoint && screenPoint.visible && (
+      {/* Interactive Reticle & Connecting Arc SVG (respects reticleVisible) */}
+      {reticleVisible && isLocationPanelOpen && screenPoint && screenPoint.visible && (
         <svg className="iris-reticle-overlay">
           <defs>
             <linearGradient id="irisArcGrad" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -447,7 +493,7 @@ export function ImmersiveEarthPage() {
 
       {/* Subtle Scientific Attribution */}
       <aside className="iris-attribution">
-        Earth imagery: NASA GIBS / Blue Marble (MODIS) · Atmosphere: NASA POWER MERRA-2 (Native Grid)
+        Earth imagery: NASA GIBS / Blue Marble (MODIS) · Atmosphere: NASA POWER {activeVariable === "V01" ? "MERRA-2" : "CERES SYN1deg"} (Native Grid)
       </aside>
     </div>
   );

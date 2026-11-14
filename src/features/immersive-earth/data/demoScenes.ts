@@ -30,6 +30,20 @@ function generateMonthlySeries(
   });
 }
 
+function generateSolarSeries(
+  baseFlux: number,
+  amplitude: number,
+  phaseShift = 0
+): Array<{ date: string; value: number }> {
+  return TIMELINE_MONTHS.map((date, index) => {
+    const monthIndex = index % 12;
+    const seasonal = amplitude * Math.sin(((monthIndex + phaseShift) / 12) * 2 * Math.PI);
+    const noise = Math.sin(index * 1.7) * 3.5;
+    const value = Math.max(0, Math.round((baseFlux + seasonal + noise) * 10) / 10);
+    return { date, value };
+  });
+}
+
 export const DEMO_SCENES: Record<string, DemoScene> = {
   colombo: {
     id: "colombo",
@@ -141,6 +155,124 @@ export const DEMO_SCENES: Record<string, DemoScene> = {
   },
 };
 
+export const DEMO_SCENES_SOLAR: Record<string, DemoScene> = {
+  colombo: {
+    id: "colombo",
+    locationName: "Colombo",
+    country: "Sri Lanka",
+    latitude: 6.9355,
+    longitude: 79.8487,
+    variable: "Solar Downwelling Flux",
+    variableCode: "ALLSKY_SFC_SW_DWN",
+    unit: "W/m²",
+    currentValue: 228.4,
+    baselineDiff: "+12.6 W/m² vs. 2000–2010",
+    insight:
+      "High tropical solar insolation in Colombo (Jan 2024), driving surface convective activity across the northern Indian Ocean.",
+    sourceStatus: "verified_snapshot",
+    sourceName: "NASA POWER CERES SYN1deg",
+    sourceUrl: "https://power.larc.nasa.gov/",
+    timeSeries: generateSolarSeries(225, 28, 1),
+  },
+  "los-angeles": {
+    id: "los-angeles",
+    locationName: "Los Angeles County",
+    country: "United States",
+    latitude: 34.05,
+    longitude: -118.24,
+    variable: "Solar Downwelling Flux",
+    variableCode: "ALLSKY_SFC_SW_DWN",
+    unit: "W/m²",
+    currentValue: 138.2,
+    baselineDiff: "+8.4 W/m² vs. 2000–2010",
+    insight:
+      "Clear-sky winter solar insolation across Southern California, consistent with dry offshore Santa Ana wind patterns.",
+    sourceStatus: "verified_snapshot",
+    sourceName: "NASA POWER CERES SYN1deg",
+    sourceUrl: "https://power.larc.nasa.gov/",
+    timeSeries: generateSolarSeries(210, 85, -3),
+  },
+  amazon: {
+    id: "amazon",
+    locationName: "Central Amazon Basin",
+    country: "Brazil",
+    latitude: -3.75,
+    longitude: -60.0,
+    variable: "Solar Downwelling Flux",
+    variableCode: "ALLSKY_SFC_SW_DWN",
+    unit: "W/m²",
+    currentValue: 194.5,
+    baselineDiff: "-6.2 W/m² vs. 2000–2010",
+    insight:
+      "Heavy equatorial convective cloud cover dampens incoming shortwave solar flux across the central Amazon basin.",
+    sourceStatus: "verified_snapshot",
+    sourceName: "NASA POWER CERES SYN1deg",
+    sourceUrl: "https://power.larc.nasa.gov/",
+    timeSeries: generateSolarSeries(190, 22, 3),
+  },
+  mediterranean: {
+    id: "mediterranean",
+    locationName: "Mediterranean Europe",
+    country: "Italy / Greece",
+    latitude: 41.25,
+    longitude: 9.25,
+    variable: "Solar Downwelling Flux",
+    variableCode: "ALLSKY_SFC_SW_DWN",
+    unit: "W/m²",
+    currentValue: 108.6,
+    baselineDiff: "+5.1 W/m² vs. 2000–2010",
+    insight:
+      "Winter solar irradiance minimum over Southern Europe, transitioning toward intense summer insolation.",
+    sourceStatus: "verified_snapshot",
+    sourceName: "NASA POWER CERES SYN1deg",
+    sourceUrl: "https://power.larc.nasa.gov/",
+    timeSeries: generateSolarSeries(185, 95, -3),
+  },
+  himalaya: {
+    id: "himalaya",
+    locationName: "Central Himalaya",
+    country: "Nepal",
+    latitude: 27.95,
+    longitude: 87.1,
+    variable: "Solar Downwelling Flux",
+    variableCode: "ALLSKY_SFC_SW_DWN",
+    unit: "W/m²",
+    currentValue: 165.2,
+    baselineDiff: "+14.0 W/m² vs. 2000–2010",
+    insight:
+      "High atmospheric transmittance at high altitudes generates strong incident shortwave flux on unshielded ridges.",
+    sourceStatus: "verified_snapshot",
+    sourceName: "NASA POWER CERES SYN1deg",
+    sourceUrl: "https://power.larc.nasa.gov/",
+    timeSeries: generateSolarSeries(195, 55, -2),
+  },
+  california: {
+    id: "california",
+    locationName: "California Central Valley",
+    country: "United States",
+    latitude: 36.77,
+    longitude: -119.41,
+    variable: "Solar Downwelling Flux",
+    variableCode: "ALLSKY_SFC_SW_DWN",
+    unit: "W/m²",
+    currentValue: 124.8,
+    baselineDiff: "+7.2 W/m² vs. 2000–2010",
+    insight:
+      "Winter tule fog patterns modulate incoming solar radiation in the low-elevation Central Valley basin.",
+    sourceStatus: "verified_snapshot",
+    sourceName: "NASA POWER CERES SYN1deg",
+    sourceUrl: "https://power.larc.nasa.gov/",
+    timeSeries: generateSolarSeries(205, 88, -3),
+  },
+};
+
+export function getDemoScene(id: string, variable: "V01" | "V12" = "V01"): DemoScene {
+  if (variable === "V12") {
+    return DEMO_SCENES_SOLAR[id] || DEMO_SCENES_SOLAR.colombo;
+  }
+  return DEMO_SCENES[id] || DEMO_SCENES.colombo;
+}
+
 export const INITIAL_LAYERS: LayerItem[] = [
   {
     id: "nasa-gibs-basemap",
@@ -156,7 +288,7 @@ export const INITIAL_LAYERS: LayerItem[] = [
     id: "surface-temperature",
     name: "Surface Air Temperature (2m)",
     category: "raster",
-    description: "NASA POWER MERRA-2 2-meter air temperature global fields.",
+    description: "NASA POWER MERRA-2 2-meter air temperature global thermal fields.",
     visible: true,
     opacity: 0.9,
     available: true,
@@ -166,11 +298,21 @@ export const INITIAL_LAYERS: LayerItem[] = [
     id: "solar-radiation",
     name: "Solar Downwelling Flux",
     category: "raster",
-    description: "All-sky surface shortwave flux from NASA POWER radiation budget.",
+    description: "All-sky surface shortwave radiation from NASA POWER CERES SYN1deg.",
     visible: false,
     opacity: 0.85,
     available: true,
     badge: "W/m²",
+  },
+  {
+    id: "night-lights",
+    name: "NASA Earth at Night (Black Marble)",
+    category: "raster",
+    description: "Suomi NPP VIIRS Day/Night Band global nighttime anthropogenic radiance.",
+    visible: false,
+    opacity: 0.75,
+    available: true,
+    badge: "VIIRS",
   },
   {
     id: "observation-markers",
@@ -185,7 +327,7 @@ export const INITIAL_LAYERS: LayerItem[] = [
     id: "reticle-targeting",
     name: "Selection Reticle & Highlights",
     category: "vector",
-    description: "Regional targeting reticle, boundary outlines, and connecting arcs.",
+    description: "Regional targeting reticle, boundary brackets, and connecting arcs.",
     visible: true,
     opacity: 1.0,
     available: true,

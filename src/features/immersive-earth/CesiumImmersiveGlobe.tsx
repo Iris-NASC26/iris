@@ -28,9 +28,20 @@ interface CesiumImmersiveGlobeProps {
   customCoordinate: CustomCoordinateTarget | null;
   comparisonLocationId: string | null;
   isAutoRotating: boolean;
+  // Basemap controls
+  basemapVisible: boolean;
+  basemapAlpha: number;
+  // Scientific Field controls
   activeField: SpatialField | null;
   activeFieldAlpha: number;
   activeFieldVisible: boolean;
+  // Night lights layer
+  nightLightsVisible: boolean;
+  nightLightsAlpha: number;
+  // Vector & Overlay controls
+  markersVisible: boolean;
+  reticleVisible: boolean;
+  // Callbacks & Signals
   onSelectLocation: (id: string) => void;
   onPickCoordinate?: (coord: { lat: number; lon: number }) => void;
   onScreenPointUpdate?: (point: { x: number; y: number; visible: boolean } | null) => void;
@@ -45,9 +56,15 @@ export function CesiumImmersiveGlobe({
   customCoordinate,
   comparisonLocationId,
   isAutoRotating,
+  basemapVisible,
+  basemapAlpha,
   activeField,
   activeFieldAlpha,
   activeFieldVisible,
+  nightLightsVisible,
+  nightLightsAlpha,
+  markersVisible,
+  reticleVisible,
   onSelectLocation,
   onPickCoordinate,
   onScreenPointUpdate,
@@ -58,6 +75,8 @@ export function CesiumImmersiveGlobe({
 }: CesiumImmersiveGlobeProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<CesiumTypes.Viewer | null>(null);
+  const baseLayerRef = useRef<CesiumTypes.ImageryLayer | null>(null);
+  const nightLightsLayerRef = useRef<CesiumTypes.ImageryLayer | null>(null);
   const pointsCollectionRef = useRef<CesiumTypes.PointPrimitiveCollection | null>(null);
   const arcEntityRef = useRef<CesiumTypes.Entity | null>(null);
   const fieldLayerRef = useRef<CesiumTypes.ImageryLayer | null>(null);
@@ -130,7 +149,8 @@ export function CesiumImmersiveGlobe({
           });
         }
 
-        const baseLayer = new Cesium.ImageryLayer(provider, { alpha: 1.0 });
+        const baseLayer = new Cesium.ImageryLayer(provider, { alpha: basemapAlpha });
+        baseLayerRef.current = baseLayer;
 
         const viewer = new Cesium.Viewer(container, {
           baseLayer,
@@ -302,6 +322,8 @@ export function CesiumImmersiveGlobe({
           handler.destroy();
           viewer.destroy();
           viewerRef.current = null;
+          baseLayerRef.current = null;
+          nightLightsLayerRef.current = null;
         };
       } catch (err) {
         console.error("Cesium initialization error:", err);
@@ -318,12 +340,54 @@ export function CesiumImmersiveGlobe({
     };
   }, []); // Run once on mount!
 
-  // Update Points / Markers whenever selection or custom coordinate changes
+  // Update Basemap Layer Visibility and Opacity in real time
+  useEffect(() => {
+    if (baseLayerRef.current) {
+      baseLayerRef.current.show = basemapVisible;
+      baseLayerRef.current.alpha = basemapAlpha;
+    }
+  }, [basemapVisible, basemapAlpha]);
+
+  // Update Night Lights Layer Visibility and Opacity in real time
+  useEffect(() => {
+    if (!engineReady || !CesiumInstance || !viewerRef.current) return;
+    const Cesium = CesiumInstance;
+    const viewer = viewerRef.current;
+
+    if (nightLightsVisible && !nightLightsLayerRef.current) {
+      try {
+        const provider = new Cesium.WebMapTileServiceImageryProvider({
+          url: "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/VIIRS_Black_Marble/default/{TileMatrixSet}/{TileMatrix}/{TileRow}/{TileCol}.png",
+          layer: "VIIRS_Black_Marble",
+          style: "default",
+          tileMatrixSetID: "GoogleMapsCompatible_Level8",
+          tileMatrixLabels: Array.from({ length: 9 }, (_, i) => String(i)),
+          format: "image/png",
+          tilingScheme: new Cesium.WebMercatorTilingScheme(),
+          credit: "NASA EOSDIS GIBS / VIIRS Black Marble (Night Lights)",
+          enablePickFeatures: false,
+        });
+        nightLightsLayerRef.current = viewer.imageryLayers.addImageryProvider(provider);
+      } catch (err) {
+        console.warn("Night lights tile provider error:", err);
+      }
+    }
+
+    if (nightLightsLayerRef.current) {
+      nightLightsLayerRef.current.show = nightLightsVisible;
+      nightLightsLayerRef.current.alpha = nightLightsAlpha;
+    }
+  }, [engineReady, nightLightsVisible, nightLightsAlpha]);
+
+  // Update Points / Markers whenever selection, custom coordinate, or markersVisible changes
   useEffect(() => {
     if (!engineReady || !CesiumInstance || !viewerRef.current || !pointsCollectionRef.current) return;
     const Cesium = CesiumInstance;
     const points = pointsCollectionRef.current;
     points.removeAll();
+    points.show = markersVisible;
+
+    if (!markersVisible) return;
 
     // 1. Add preset markers
     Object.values(DEMO_SCENES).forEach((sceneItem) => {
@@ -357,9 +421,9 @@ export function CesiumImmersiveGlobe({
         outlineWidth: 2.5,
       });
     }
-  }, [engineReady, selectedLocationId, comparisonLocationId, customCoordinate]);
+  }, [engineReady, selectedLocationId, comparisonLocationId, customCoordinate, markersVisible]);
 
-  // Comparison Arc rendering
+  // Comparison Arc rendering with reticleVisible binding
   useEffect(() => {
     if (!engineReady || !CesiumInstance || !viewerRef.current) return;
     const Cesium = CesiumInstance;
@@ -370,7 +434,7 @@ export function CesiumImmersiveGlobe({
       arcEntityRef.current = null;
     }
 
-    if (comparisonLocationId && comparisonLocationId !== selectedLocationId) {
+    if (reticleVisible && comparisonLocationId && comparisonLocationId !== selectedLocationId) {
       const loc1 = customCoordinate
         ? { longitude: customCoordinate.lon, latitude: customCoordinate.lat }
         : DEMO_SCENES[selectedLocationId];
@@ -395,7 +459,7 @@ export function CesiumImmersiveGlobe({
         });
       }
     }
-  }, [engineReady, selectedLocationId, comparisonLocationId, customCoordinate]);
+  }, [engineReady, selectedLocationId, comparisonLocationId, customCoordinate, reticleVisible]);
 
   // NASA Spatial Raster Grid Overlay Management
   useEffect(() => {
@@ -432,7 +496,7 @@ export function CesiumImmersiveGlobe({
         credit: `NASA POWER ${activeField.variable_id} — ${activeField.month}`,
       });
 
-      const layer = viewer.imageryLayers.addImageryProvider(provider, 1);
+      const layer = viewer.imageryLayers.addImageryProvider(provider);
       layer.alpha = activeFieldAlpha;
       layer.show = activeFieldVisible;
       layer.magnificationFilter = Cesium.TextureMagnificationFilter.NEAREST;
