@@ -69,7 +69,7 @@ Click any grid cell to open the **Cell Inspector** tooltip showing:
 - Mann-Kendall p-value and BH FDR q-value
 - Evidence grade (A–D)
 - 45-year baseline mean and standard deviation
-- A direct action to open the selected location in Plot & Visualize
+- A direct action to open the selected location in Data Analysis
 
 ---
 
@@ -78,4 +78,4 @@ Click any grid cell to open the **Cell Inspector** tooltip showing:
 The Living Globe is a discovery tool. When you find a region of interest:
 
 1. Click the cell to open the Cell Inspector
-2. Open the selected location in Plot & Visualize to inspect its Case File analysis
+2. Open the selected location in Data Analysis to inspect its Case File analysis

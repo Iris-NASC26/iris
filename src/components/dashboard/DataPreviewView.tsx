@@ -225,7 +225,7 @@ export function DataPreviewView({ routeJobId }: { routeJobId?: string }) {
 
   const handleProceedToAnalysis = () => {
     setAutoRunCase(true);
-    router.push(`/workspace/visualize?jobId=${encodeURIComponent(preview.job_id)}`);
+    router.push(`/workspace/data-analysis?jobId=${encodeURIComponent(preview.job_id)}`);
   };
 
   return (

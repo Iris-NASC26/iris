@@ -18,7 +18,7 @@ No account or login is required during the current development phase.
 
 From the Iris home page, click **"Open workspace"** in the top-right corner of the navigation bar.
 
-You will land in the **Plot & Visualize** view by default. The workspace has a sidebar on the left with all available tools. For a fresh investigation, start at the top: **System Intelligence**.
+You will land in **Data Analysis** by default. The workspace has a sidebar on the left with all available tools. For a fresh investigation, start at the top: **System Intelligence**.
 
 ---
 
@@ -96,7 +96,7 @@ When satisfied, click **"Proceed to analysis"**.
 
 ## Step 6 — Read the Case File verdict
 
-**Plot & Visualize** runs the full statistical pipeline and produces a **Case File** — a complete, reproducible evidence record.
+**Data Analysis** runs the full statistical pipeline and produces a **Case File** — a complete, reproducible evidence record.
 
 The top of the Case File shows the **detective verdict**:
 

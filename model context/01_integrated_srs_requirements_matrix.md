@@ -58,7 +58,7 @@
 | **DP-02** | P0 | Summary KPI cards shall display total observations, valid count, missing count, completeness percentage, mean, standard deviation, and min/max values with timestamps. | Implemented in `DataPreviewView.tsx` with >15% missingness warning alert. |
 | **DP-03** | P0 | The interactive time-series preview chart shall be gap-aware (not connecting missing intervals with deceptive continuous lines), with hover tooltips displaying date, value, unit, and QA flag. | Implemented using responsive canvas/SVG charting with missing band overlays. |
 | **DP-04** | P0 | The preview screen shall provide an interactive geospatial footprint map confirming spatial extent and a paginated, sortable tabular data grid. | Implemented in `DataPreviewView.tsx`. |
-| **DP-05** | P0 | Export affordances shall generate downloadable CSV and JSON files including full ISO 19115 provenance headers. "Proceed to Analysis" shall pass the immutable job/result ID to the science workspace. | Implemented via client-side blob export and route transition to `/workspace/visualize`. |
+| **DP-05** | P0 | Export affordances shall generate downloadable CSV and JSON files including full ISO 19115 provenance headers. "Proceed to Analysis" shall pass the immutable job/result ID to the science workspace. | Implemented via client-side blob export and route transition to `/workspace/data-analysis`. |
 
 ---
 
@@ -85,9 +85,9 @@
 | **AN-04** | P0 | The system shall compute the **Pettitt Non-Parametric Change-Point Test** to locate the exact year/month of abrupt regime shifts in the historical series. | Implemented in `science_pipeline.py` and `statistics.ts`. |
 | **AN-05** | P0 | The system shall evaluate **Signal Emergence (Time of Emergence)**: calculating the signal-to-noise ratio ($S/N = |\text{Trend}| / \sigma_{\text{residual}}$) and the year when $S/N > 2.0$. | Implemented in `science_pipeline.py`. |
 | **AN-06** | P0 | The system shall assign an objective **Evidence Grade (A, B, C, D)** based on data completeness, sample length, autocorrelation-corrected p-value, and sensor stability. | Implemented in `_evaluate_evidence_grade()`. |
-| **AN-07** | P0 | Three Progressive Disclosure levels shall be supported: **Explorer**, **Student**, and **Scientist**, dynamically revealing mathematical depth and test statistics. | Implemented in `/workspace/visualize`. |
-| **VZ-01** | P0 | The interface shall provide a **Seasonal Fingerprint** heatmap displaying year-by-month temperature/anomaly shifts. | Implemented in `/workspace/visualize`. |
-| **VZ-02** | P0 | The interface shall provide an **Anomaly Strip Barcode** color-coded by normalized z-score departures. | Implemented in `/workspace/visualize`. |
+| **AN-07** | P0 | Three Progressive Disclosure levels shall be supported: **Explorer**, **Student**, and **Scientist**, dynamically revealing mathematical depth and test statistics. | Implemented in `/workspace/data-analysis`. |
+| **VZ-01** | P0 | The interface shall provide a **Seasonal Fingerprint** heatmap displaying year-by-month temperature/anomaly shifts. | Implemented in `/workspace/data-analysis`. |
+| **VZ-02** | P0 | The interface shall provide an **Anomaly Strip Barcode** color-coded by normalized z-score departures. | Implemented in `/workspace/data-analysis`. |
 
 ---
 

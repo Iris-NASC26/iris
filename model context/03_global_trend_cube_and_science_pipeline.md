@@ -4,7 +4,7 @@
 **Parent Document:** [00_master_architecture_and_merge_guide.md](file:///c:/Users/navid/Desktop/Iris/model%20context/00_master_architecture_and_merge_guide.md)  
 **Implementation Modules:**  
 - Backend: `backend/services/cube_service.py`, `backend/services/science_pipeline.py`  
-- Frontend: `src/app/workspace/globe/`, `src/app/workspace/visualize/`, `src/lib/srsCubeAndScienceEngine.ts`, `src/lib/statistics.ts`
+- Frontend: `src/app/workspace/globe/`, `src/app/workspace/data-analysis/`, `src/lib/srsCubeAndScienceEngine.ts`, `src/lib/statistics.ts`
 
 ---
 

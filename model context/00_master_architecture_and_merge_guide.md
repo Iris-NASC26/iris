@@ -56,7 +56,7 @@ flowchart TD
         UI_GL["Living Globe (/workspace/globe)\n- 3D Interactive WebGL / Globe Visualization\n- Trend Direction & Significance Overlays\n- Opposite-Trends Dipole & Time-Lapse Mode"]
     end
 
-    subgraph CoreScience["Shared Scientific & Evidence Analysis Engine (/workspace/visualize)"]
+    subgraph CoreScience["Shared Scientific & Evidence Analysis Engine (/workspace/data-analysis)"]
         SCI_DEC["STL Seasonal Decomposition & Fingerprint"]
         SCI_MK["Hamed-Rao Autocorrelation-Corrected Mann-Kendall Test"]
         SCI_SLOPE["Sen's Slope Estimator (Decadal Rate ± 95% CI)"]

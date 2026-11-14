@@ -90,7 +90,7 @@ export default function DashboardCasesPage() {
               <button
                 onClick={() => {
                   loadCase(item, true);
-                  router.push("/workspace/visualize");
+                  router.push("/workspace/data-analysis");
                 }}
                 type="button"
               >
@@ -219,7 +219,7 @@ export default function DashboardCasesPage() {
                   const matched =
                     caseStudies.find((c) => c.id === activeInv.caseId) ?? caseStudies[0];
                   loadCase(matched, true);
-                  router.push("/workspace/visualize");
+                  router.push("/workspace/data-analysis");
                 }}
                 type="button"
               >

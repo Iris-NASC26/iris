@@ -40,7 +40,7 @@ Data Selection
        ↓
 Data Preview
        ↓
-Plot & Visualize (Case File)
+Data Analysis (Case File)
 ```
 
 Use this track when you want to investigate a specific region, variable, or time window that may not be in the pre-computed Global Trend Cube.
@@ -54,7 +54,7 @@ For instant exploration of pre-computed global trend maps covering 1981–2025.
 ```
 Living Globe
      ↓
-Plot & Visualize (Case File)
+Data Analysis (Case File)
 ```
 
 Use this track to explore pre-computed global trends and open selected locations in detailed case files.
@@ -90,7 +90,7 @@ Inspect the extracted time-series before analysis. Shows a gap-aware chart, qual
 
 ---
 
-### 📈 Plot & Visualize (Case File)
+### 📈 Data Analysis (Case File)
 *The shared scientific analysis engine for both tracks.*
 
 Runs the full statistical pipeline: STL seasonal decomposition, Mann-Kendall trend test, Sen's slope, change-point detection, and anomaly identification. Produces a complete, exportable Case File.

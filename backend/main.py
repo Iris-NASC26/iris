@@ -517,7 +517,7 @@ async def analyze_scientific_case_file(req: CaseFileAnalysisRequest) -> CaseFile
         if preview.extraction_config.target_frequency != "Monthly":
             raise HTTPException(
                 status_code=422,
-                detail="Plot & Visualize currently requires a monthly time series. Re-extract or resample this product to Monthly before analysis.",
+                detail="Data Analysis currently requires a monthly time series. Re-extract or resample this product to Monthly before analysis.",
             )
         s_yr = int(preview.extraction_config.start_date[:4])
         e_yr = int(preview.extraction_config.end_date[:4])

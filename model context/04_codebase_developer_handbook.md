@@ -88,7 +88,7 @@ The frontend coordinates state through two complementary mechanisms:
    - `extractedPreview`: Immutable preview payload displayed on `/workspace/data-preview/[jobId]`.
 2. **URL Search Parameters (Deep-Linking):**
    - `/workspace/data-preview/[jobId]`: Directly loads any saved or shared extraction result.
-   - `/workspace/visualize?jobId=...`: Loads an extracted time series into the deep Case File.
+   - `/workspace/data-analysis?jobId=...`: Loads an extracted time series into the deep Case File.
    - `/workspace/globe?layer=cube_t2m`: Directs the 3D globe to a specific climate variable.
 
 ---

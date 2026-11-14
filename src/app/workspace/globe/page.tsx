@@ -107,7 +107,7 @@ export default function LivingGlobePage() {
     setEndYear(2025);
     setAutoRunCase(true);
     router.push(
-      `/workspace/visualize?region=${encodeURIComponent(cell.region_label)}&variable=${encodeURIComponent(cubeData.active_layer.variable_id)}`,
+      `/workspace/data-analysis?region=${encodeURIComponent(cell.region_label)}&variable=${encodeURIComponent(cubeData.active_layer.variable_id)}`,
     );
   };
 
@@ -591,7 +591,7 @@ export default function LivingGlobePage() {
                   onClick={() => handleOpenCaseFile(activeCell)}
                   type="button"
                 >
-                  Open Dynamic Case File (/visualize)
+                  Open Dynamic Case File in Data Analysis
                 </button>
               </div>
             </>

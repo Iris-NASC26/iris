@@ -15,7 +15,8 @@ const NAV = [
       { id: "system-intelligence",   title: "System Intelligence",     icon: "🤖" },
       { id: "data-selection",        title: "Data Selection",          icon: "📊" },
       { id: "data-preview",          title: "Data Preview",            icon: "👁️" },
-      { id: "visualize",             title: "Plot & Visualize",        icon: "📈" },
+      { id: "data-analysis",         title: "Data Analysis",            icon: "📈" },
+      { id: "visualize",             title: "Plot & Visualize",         icon: "↗️" },
     ],
   },
   {
