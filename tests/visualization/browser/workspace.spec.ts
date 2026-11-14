@@ -55,8 +55,8 @@ test('real WebGL globe accepts only a loaded native field and clears stale selec
  expect(requests).toBe(0);await page.getByRole('button',{name:'Load spatial field',exact:true}).click();
  await expect(page.getByText('3 of 4 native cells contain values',{exact:false})).toBeVisible();
  await expect(page.getByText(/Raw monthly model data/)).toBeVisible();
- await page.getByRole('button',{name:'2D map',exact:true}).click();await expect(page.locator('.viz-flat-map rect')).toHaveCount(3);
- await page.getByLabel('Spatial month').fill('2024-02');await expect(page.locator('.viz-flat-map rect')).toHaveCount(0);expect(requests).toBe(1);
+ await page.getByRole('button',{name:'2D map',exact:true}).click();await expect(page.locator('.viz-flat-map rect:not(.viz-extent-outline)')).toHaveCount(3);
+ await page.getByLabel('Spatial month').fill('2024-02');await expect(page.locator('.viz-flat-map rect:not(.viz-extent-outline)')).toHaveCount(0);expect(requests).toBe(1);
  await page.getByRole('button',{name:'3D globe',exact:true}).click();await expect(page.locator('.viz-three-mount canvas')).toBeVisible();
 });
 

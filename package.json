@@ -16,6 +16,7 @@
     "@mapbox/mapbox-gl-draw": "^1.5.2",
     "@turf/turf": "^7.4.0",
     "cesium": "1.147.0",
+    "cobe": "2.0.1",
     "echarts": "6.0.0",
     "lucide-react": "^0.475.0",
     "maplibre-gl": "^6.18.0",
