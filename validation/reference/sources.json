@@ -1,0 +1,16 @@
+{
+  "checked_on": "2026-11-14",
+  "inspection_note": "Paper PDFs/images are temporary inspection aids outside Git; no bulk observations or copyrighted full papers are bundled. Visual inspection used existing system PyMuPDF 1.28.2, not an added application dependency.",
+  "sources": [
+    {"id":"ACKER-2009","url":"https://ntrs.nasa.gov/api/citations/20090042747/downloads/20090042747.pdf","sha256":"5209cee13b536f0b4df59b6e4fac9f631fafd1458f1e4d936d2cfab5edda0ab3","pages":27,"visually_inspected_pdf_pages":[4,17,22],"anchors":["Table 1: boxes","Table 5: monthly summary","discussion: explicit window"],"note":"NTRS manuscript has placeholder journal header. Source fact verification is not modern-data reproduction."},
+    {"id":"SANTER-2000","url":"https://www.arl.noaa.gov/wp_arl/wp-content/uploads/documents/JournalPDFs/SanterEtal.JGR2000.pdf","sha256":"32236286c58b1fbd560d0f198cf1eb8f1a6d9d66fb8f818754f7e6543b79234f","visually_inspected_pdf_pages":[7,8],"printed_pages":[7343,7344],"anchors":["equations 3-6","adjusted variance and adjusted degrees of freedom text"]},
+    {"id":"WEATHERHEAD-1998","doi":"10.1029/98JD00995","url":"https://statistics.fas.harvard.edu/sites/g/files/omnuum10116/files/statistics-2/files/xlm_jgeophysres103-d14atmo_17149-17161_1998.pdf","text_inspected_pdf_pages":[2,3,4],"visually_inspected_pdf_pages":[],"note":"Monthly X_t=t/12 and annual slope described in accessible primary text. Equation visual verification blocked by download/screenshot access. Hamburg alternate https://arts.mi.uni-hamburg.de/publications/externalpapers/weatherhead98_factors_jgr.pdf returned unauthorized."},
+    {"id":"HAMED-RAO-1998","doi":"10.1016/S0022-1694(97)00125-X","url":"https://www.sciencedirect.com/science/article/pii/S002216949700125X","note":"Publisher full text returned 403. No claim that original-paper equations were visually verified."},
+    {"id":"PYMK-1.4.3","url":"https://github.com/mmhs013/pyMannKendall/blob/v1.4.3/pymannkendall/pymannkendall.py","paper":"https://doi.org/10.21105/joss.01556","note":"Installed pinned 1.4.3 source inspected. Missing values are skipped before rank ACF and the alpha argument also controls lag selection; complete-series comparator only."},
+    {"id":"SCIPY-THEIL","url":"https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.theilslopes.html","version":"1.18.1","note":"Explicit x and confidence-level parameter. Reference interval is an independent-errors slope interval, not a fitted-mean or prediction band."},
+    {"id":"SCIPY-ROBUST-SOURCE","url":"https://github.com/scipy/scipy/blob/v1.18.1/scipy/stats/_correlation.py","note":"Installed _robust_slopes implementation inspected for tie variance, rounding and zero-based bound offsets; function hash is recorded in the reproducible report."},
+    {"id":"SCIPY-LINREGRESS","url":"https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.linregress.html"},
+    {"id":"SCIPY-BH","url":"https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.false_discovery_control.html"},
+    {"id":"NUMPY-ROUND","url":"https://numpy.org/doc/stable/reference/generated/numpy.round.html","note":"Nearest-even rounding documented; versioned SciPy source supplies rank index offsets."}
+  ]
+}

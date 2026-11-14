@@ -1,0 +1,14 @@
+[project]
+name = "earth-trend-provider-preflight"
+version = "0.1.0"
+description = "F05 source inspection tools; never application dependencies"
+requires-python = ">=3.13,<3.14"
+dependencies = [
+  "h5py==3.15.1",
+  "numcodecs==0.16.3",
+  "numpy==2.5.4",
+  "pillow==13.0.0",
+]
+
+[tool.uv]
+package = false

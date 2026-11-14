@@ -1,4 +1,4 @@
-# Local development — F02/F03
+# Local development — foundation and F05 preflight
 
 This is a practice build. F02 provides React/TypeScript/Vite and FastAPI/Pydantic/Uvicorn with a browser-to-backend health check. Analysis is explicitly unavailable. See [execution ownership and gates](EXECUTION_STATUS.md). Full local release packaging is R01/R07, not this development launcher.
 
@@ -67,3 +67,43 @@ Create future science/providers/geometry/storage modules only when their approve
 H1 owns shared root configuration, Python dependencies and both lockfiles for F02. Coordinate future lockfile updates through one owner. Dependencies are exact at direct declarations and resolved in `pnpm-lock.yaml` / `backend/uv.lock`; the [licence inventory](DEPENDENCY_LICENSES.md) records installed transitive packages. Comprehensive CI, automated secret/license checks and branch protection remain F06. Human approval and post-merge checks are required before marking tasks DONE.
 
 The frontend uses Vite's built-in TSX transform; React fast-refresh and the full UI stack are deferred to U01. This avoids adding unused libraries to the foundation. Current technical references: [Vite setup](https://vite.dev/guide/), [uv project management](https://docs.astral.sh/uv/guides/projects/), [FastAPI testing](https://fastapi.tiangolo.com/tutorial/testing/).
+
+## Independent scientific references — F04
+
+The separately approved environment under `validation/` owns its own dependency pins/lockfile and imports no application code. Application setup, dependencies, contracts and scientific readiness are unchanged. See the [F04 reference guide](../validation/README.md), [method gates](../validation/fixtures/method-gates.json) and [validation-only licence inventory](../validation/DEPENDENCY_LICENSES.md).
+
+From the repository root:
+
+```powershell
+uv --directory validation sync --locked
+uv --directory validation run --locked pytest
+uv --directory validation run --locked python -m reference.build_fixtures --check
+uv --directory validation run --locked python -m reference.run_checks --check
+```
+
+H3 owns these references, with independent human scientific review required. Shared application lockfiles stay with H1. Synthetic fixtures and reference reports must not be exposed as NASA observations, prepared product results or proof that SM-12/VL-01/VL-02 passed. Scientific gates remain open even when deterministic tests pass. F04 checks are separate commands; adding full CI enforcement belongs to F06.
+
+## NASA provider preflight — F05
+
+F05 adds opt-in inspection tools and [actual provider evidence](../validation/reports/provider-preflight.md),
+not application adapters or scientific readiness. POWER chunks/coordinates, seven HDF5 source
+headers, the approved AIRS map, a Giovanni CSV, a supported HOSS subset and two AppEEARS
+NDVI/QA probes were checked. Raw artifacts stay in ignored `artifacts/f05/`; sanitized metadata,
+hashes, failures and estimates are committed. Full build feasibility and scientific admission
+remain explicit gates.
+
+The [isolated preflight guide](../validation/preflight/README.md) documents setup, live opt-ins,
+the external token file, reproducibility and offline tests. It has its own pinned environment
+and lockfile, separate from both the application and F04. The public probe uses only stdlib;
+no NASA call or credential read is added to application setup or ordinary checks.
+
+```powershell
+backend/.venv/Scripts/python.exe -m unittest discover -s scripts/tests -v
+uv run --project validation/preflight --locked python -m unittest discover -s validation/preflight/tests -v
+```
+
+F05 tools may read `%LOCALAPPDATA%\EarthTrendDetective\secrets\.env` (`EARTHDATA_TOKEN=`),
+an environment token or the external `.netrc`, with explicit authenticated opt-in. Verify private
+file permissions first. React and the health server do not read these files. Never commit
+credentials/signed URLs or label synthetic format fixtures as NASA observations. F06 owns
+future automated CI enforcement; H2/H3 review source/QA findings before release admission.

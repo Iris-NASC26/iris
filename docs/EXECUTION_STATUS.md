@@ -1,11 +1,11 @@
-# Execution status — F01/F02/F03
+# Execution status — F01/F02/F03/F04/F05
 
 **Updated:** 14 November 2026, Asia/Colombo.  
 **Context:** Practice build outside the official submission, explicitly confirmed by the user. Do not represent this work as eligible event-period development.  
 **Approved baseline:** SRS v0.3, TDD v0.3, Implementation Plan v1.0; commit `4b6046a`.  
-**Current branch:** `feat/F03-analysis-contracts`, based on F02 commit `c5aba5d`. Baseline PR: [#1](https://github.com/Iris-NASC26/earth-system-trend-detective/pull/1); foundation PR: [#7](https://github.com/Iris-NASC26/earth-system-trend-detective/pull/7).
+**Current branch:** `feat/F05-provider-preflight`, based on F04 commit `a35672e`. Baseline PR: [#1](https://github.com/Iris-NASC26/earth-system-trend-detective/pull/1); foundation PR: [#7](https://github.com/Iris-NASC26/earth-system-trend-detective/pull/7); F04 PR: [#8](https://github.com/Iris-NASC26/earth-system-trend-detective/pull/8). Remote merges were observed during F05; scientific review/sign-off is not inferred from a merge.
 
-This ledger records execution without rewriting the approved documents. The user authorized F01/F02 and provisional H1–H6 roles, then explicitly authorized F03 in the follow-up attached request. Local hosting remains the target. The current change is F03 only; no additional product feature or architectural change is proposed.
+This ledger records execution without rewriting the approved documents. The user authorized F01/F02, provisional H1–H6 roles, F03, and then F04 in the latest attached request. For F04 the user separately approved a pinned isolated validation environment and retained H3 as the provisional owner with no named GitHub reviewer. Local hosting remains the target. The current change is F04 only; no additional product feature or application architecture change is proposed.
 
 ## Ownership and first assignment board
 
@@ -25,10 +25,16 @@ These are role assignments, not assertions about six people's actual qualificati
 | F01 — Freeze scope, assignments and acceptance ledger | P0 / REVIEW | H1 + leads / H6 | User implementation approval, received | This ledger, five initial assignments, all AC owners; pending team walkthrough and current guide check |
 | F02 — Minimal local runtime and isolated tests | P0 / REVIEW | H1 / H6 setup rerun + H5 frontend review | F01's baseline/ownership record | Clean setup, browser-to-health path, checks and licence seed verified locally; human rerun/review pending |
 | F03 — Versioned scientific/API contracts | P0 / REVIEW | H1 + H2/H3/H5 / consuming leads; H6 rerun | F01; F02 for generation; follow-up authorization received | Authoritative Pydantic schemas, OpenAPI/TS export, disclosed fixtures, drift checks and consumer compilation passed locally; human review pending |
-| F04 — Independent scientific oracles and gates | P0 / TODO | H3 / independently qualified H2 or other human | F01 | Independent derivations, fixed fixtures/tolerances, primary-paper checks; not started |
-| F05 — NASA access and transfer preflight | P0 / TODO | H2 / H1 + H3 | F01, user-local Earthdata configuration | Genuine bounded source samples, quotas and storage/time estimates; not started |
+| F04 — Independent scientific oracles and gates | P0 / REVIEW | H3 / independently qualified H2 or other human; H6 rerun | F01; explicit F04/environment approval received | Reference foundation and tests verified; method/source/calibration gates remain open or BLOCKED; no scientific sign-off |
+| F05 — NASA access and transfer preflight | P0 / REVIEW | H2 / H1 + H3 | F01, user-local Earthdata configuration, received | Technical preflight and focused checks complete; genuine source/service outputs, QA/scaling findings and estimates recorded; human domain acceptance pending |
 
-F01/F02 retain REVIEW; F03 may reach REVIEW after its actual verification. None can become DONE before human approval, dependency-ordered merge and post-merge smoke checks (plan D0). The previous execution's F03 stop restriction is superseded by the explicit follow-up authorization. F04/F05 are not started in this execution.
+F01–F04 retain REVIEW. None can become DONE before human approval, dependency-ordered merge and post-merge smoke checks (plan D0). Follow-up authorizations supersede previous turn-specific stop restrictions for F03/F04. F05, F06 and S01 are not started in the F04 execution.
+
+**F05 follow-up authorization:** the user requested the local app run, then the next task;
+configured external Earthdata credentials, authorized the B01/B02 January 2005 probes, requested
+an external token file, and explicitly directed merge after completion. This authorizes the
+verified F05 code/evidence merge. It does not establish qualified scientific sign-off, accept
+all P0 criteria or waive remaining release gates. F06/S01 and production adapters remain unstarted.
 
 The first five task cards are tracked as GitHub issues: [F01 #2](https://github.com/Iris-NASC26/earth-system-trend-detective/issues/2), [F02 #3](https://github.com/Iris-NASC26/earth-system-trend-detective/issues/3), [F03 #4](https://github.com/Iris-NASC26/earth-system-trend-detective/issues/4), [F04 #5](https://github.com/Iris-NASC26/earth-system-trend-detective/issues/5), [F05 #6](https://github.com/Iris-NASC26/earth-system-trend-detective/issues/6). This table is the status board; no GitHub account assignments are invented for provisional roles.
 
@@ -113,6 +119,8 @@ Codex read the approved documents, inspected Git/runtime metadata, researched of
 
 For the separately authorized F03 task, Codex reread the relevant documents/code, authored the Pydantic contracts, export/generation scripts, synthetic structural fixtures, verification and decision notes. One implementation agent was used. Generated fixture numbers are disclosed test-shape values, not calculated environmental or statistical results. No NASA request or statistical algorithm was executed.
 
+For F04, Codex authored validation-only mathematical fixtures, independent references, focused tests and method/source registers. Existing system PyMuPDF rendered retrieved public papers for visual inspection. Synthetic reference statistics were calculated and labelled; no NASA observations or production science algorithms were created. Human scientific acceptance remains pending. This task used one implementation agent.
+
 ## F02 verification evidence
 
 Verified on 14 November 2026 on the reference development machine with Node 24.19.0, pnpm 12.18.0, Python 3.13.15 and uv 0.12.9. A fresh directory exported from the Git index had no virtual environment or node_modules; it successfully ran the documented setup and checks. Shared download caches were retained. This demonstrates a clean environment recreation on this Windows machine, not cross-platform acceptance.
@@ -160,3 +168,104 @@ Verified on 14 November 2026 with the existing pinned Windows environment:
 Existing upstream Starlette/httpx TestClient and terminal colour-variable warnings remain visible; checks pass without suppressing them. Generated artifacts are approximately 180 KB OpenAPI and 91 KB TypeScript on this tree. The runtime production bundle remains approximately 221.68 KB JavaScript / 69.53 KB gzip: generated contracts and fixture data add no product payload.
 
 **Limitations and review gates:** model validation proves structure/internal consistency, not authentic metadata, matching artifact/family hashes, geometry topology, scientific eligibility, numerical accuracy or valid uncertainty. F04 still owns gap-aware Hamed–Rao, Sen CI/rank conventions, OLS calibration, Weatherhead sampling and paper details; F05 still owns genuine source/header/auth/quota evidence. H1/H2/H3/H5 must jointly review contracts/examples, including estimator/branch identity, different-window FDR context and explicit reasons; H6 independently reruns checks. F03 is REVIEW, not DONE or scientific acceptance. No credentials are required for this task. Next recommended task: human-led F04; F05 source preflight and F06 quality automation can be assigned separately according to their dependencies, after review/authorization.
+
+## F04 reference foundation and actual evidence
+
+The user explicitly authorized F04 only and approved an isolated `validation/` environment: NumPy 2.5.4, SciPy 1.18.1, pyMannKendall 1.4.3, pytest 9.2.0, Python 3.13.15 and its own `uv.lock`. Shared application dependencies/lockfiles and F03 contracts remain unchanged. Issue [#5](https://github.com/Iris-NASC26/earth-system-trend-detective/issues/5) is the task record. The user confirmed H3 remains provisional and the formal GitHub reviewer should stay unassigned for now; no direct reviewer notification is claimed.
+
+The [reference guide](../validation/README.md) describes independent exact/analytic examples and matrix/library comparisons, fixed inputs/seeds/tolerances, explicit unavailable methods and rerun commands. There are **13 synthetic series fixtures**, exact BH/weight families and **6 dimensional unit cases**. Every case discloses generation and limitations. Reference functions import no application algorithms or schemas; tests verify that independence and that the isolated environment has no installed `earth_trend` package. They must never become production imports.
+
+Implemented references support calendar midpoints/gaps, baseline climatology/monthly/annual anomalies, actual-time Sen point slopes, matrix OLS/R²/F/p and iid slope intervals, ordinary MK/ties, a restricted HR library comparator, supplied-rho effective-df algebra, exact BH and area-weighted support. The fixed OLS/rank/weight/FDR expectations are independent mathematical constants, not copied production output. The HR library uses index-based detrending, so its correction is explicitly **not** declared equivalent to the TDD's actual-time detrending.
+
+Primary-source evidence:
+
+- Acker NTRS PDF SHA-256 `5209cee13b536f0b4df59b6e4fac9f631fafd1458f1e4d936d2cfab5edda0ab3`: visual checks of pages 4/17/22 confirmed boxes, Table 5 source p/signs and the candidate date interval. Discrepancies/footnotes remain recorded; this is not SeaWiFS reproduction.
+- Santer PDF SHA-256 `32236286c58b1fbd560d0f198cf1eb8f1a6d9d66fb8f818754f7e6543b79234f`: visually inspected printed pages 7343–7344 for the effective-n/adjusted variance/df conventions. Calibration and residual-ACF normalization remain provisional.
+- Hamed–Rao publisher full text returned 403. Weatherhead primary text was available, but equation rendering/download failed; no unverified horizon formula is implemented. Exact anchors and access limits are in `validation/reference/sources.json`.
+
+The [method register](../validation/fixtures/method-gates.json) uses VERIFIED for established facts/arithmetic only; PROVISIONAL for approximations/applicability; BLOCKED for unsupported methods/evidence. It does not confer human approval or set F03 methods to validated. Gap-aware HR and autocorrelation-adjusted Sen CI explicitly remain unavailable. Weatherhead, complete calibration and authentic paper reproduction also remain blocked. The reference year ruler (explicit 365.2425 days/year) requires H3 agreement before production.
+
+| Exact verification command / evidence | Actual result |
+| --- | --- |
+| `uv --directory validation sync --locked` | PASS: approved isolated pins installed; neither application lockfile changed |
+| `uv --directory validation run --locked pytest` | PASS: **71 reference tests**; no production imports, deterministic fixtures, finite/invalid/missing input checks, hand/library agreement, explicit blocked methods |
+| `uv --directory validation run --locked python -m reference.build_fixtures --check` | PASS: deterministic fixture generation, no write |
+| `uv --directory validation run --locked python -m reference.run_checks --check` | PASS: **28 recorded numerical/reference invariants** and identical report for this pinned environment; no write |
+| Existing Ruff / mypy commands in reference README | PASS: lint/format and strict mypy for 5 reference/test source files |
+| `python scripts/dev.py check` | PASS: unchanged contract drift check, lint/format/type checks, **156 backend, 7 Vitest, 6 generator tests**, and Vite production build |
+| `python scripts/dev.py browser` | PASS: **2 Chromium tests**, existing real health behavior and keyboard recovery |
+| Scope preservation | Approved SRS/TDD/Implementation Plan, application code/contracts, and both shared lockfiles unchanged |
+| Precommit hygiene | PASS: whitespace and selected credential-pattern scan across 116 indexed/build paths, zero findings; limited check rather than final AC-32 certification |
+
+The committed report binds fixture/reference/test/source/lockfile hashes and tool versions. Its flags explicitly say full SM-12 and NASA reproduction **NOT_RUN**, human sign-off **PENDING**. Existing application TestClient/terminal-colour warnings remain visible; no warning was suppressed to declare scientific validity.
+
+Remaining acceptance: H3 and an independently qualified human must review conventions, references and source transcriptions; H6 reruns decisive checks; H1 integrates in dependency order. NumPy's declared bundled CC0 component and SciPy wheel notices are recorded in the validation-only licence inventory: review them against CMP-1 before any runtime/release reuse, without claiming AC-34 passed. No Earthdata credentials were accessed/requested and no observation downloads occurred.
+
+**F04 is REVIEW with blocked scientific gates, not DONE.** Next action is human scientific review and resolving the F04 gate register before affected production methods. Do not automatically begin F05, F06 or S01.
+
+## F05 provider preflight and local preview
+
+The subsequent user request authorized running the current app and starting F05,
+then explicitly requested merge after completion. The existing Vite instance was
+reused and the FastAPI backend started on loopback. Real Chromium checks confirmed
+React→Vite proxy→FastAPI, the explicit analysis-unavailable message, keyboard
+failure/retry recovery and a 390 px layout with no overflow or JavaScript errors.
+The app remains a foundation preview at `http://127.0.0.1:5173/`, not a working globe
+or scientific analysis UI. Both servers are deliberately left running for the user.
+
+The user configured external `.netrc` credentials, completed service authorization,
+and approved B01/B02 January 2005 AppEEARS probes. An optional empty token file was
+created under `%LOCALAPPDATA%\EarthTrendDetective\secrets\.env` with private ACLs.
+No credential is in this ledger, Git, browser code or source/data manifests.
+
+The [F05 report](../validation/reports/provider-preflight.md) and JSON evidence
+record authentic POWER chunk/coordinate/point reads, eight protected source-range
+checks, seven HDF5 header inspections, a real Giovanni CSV/map, a successful HOSS
+subset and two completed AppEEARS NDVI/QA tasks. Exact source identities, actual
+units/fill/calendars, job IDs, request parameters, elapsed times and hashes are
+preserved. Source/field mismatches and failed probes remain visible. No production
+adapter, cube, scientific engine, job runner, endpoint, chart or release was added.
+
+Technical findings: POWER C/solar units and source filters confirmed; no future
+time-axis value becomes an observation; GPCP's actual field is `sat_gauge_precip`;
+OMI attributes are case-sensitive; IMERG source calendar is Julian; AIRS raw HDF4
+is distinct from its verified Giovanni GeoTIFF. Raw-provider and HOSS GLDAS subsets
+match by decoded hash, and the independently weighted mean matches Giovanni within
+0.0000014 kg/m². These are sample-specific checks, not full product validation.
+
+Both AppEEARS tasks returned raw integer TIFFs with scale 0.0001, while CSV means
+are already scaled and include cloud/snow/marginal pixels. This confirms the
+approved QA-raster/local-calculation path is needed. B01/B02 remain engineering
+benchmarks, not silently selected product presets; no monthly eligibility is
+inferred from a successful request.
+
+| Verification | Actual result |
+| --- | --- |
+| Offline transport/redirect/range/path/budget checks | PASS: 32 unittest cases, no NASA requests |
+| Isolated codec/calendar/NDVI format checks | PASS: 7 cases with disclosed synthetic fixtures |
+| Ruff lint/format and strict mypy | PASS: focused F05 checks; strict mypy on 7 tool/test source files |
+| Existing `python scripts/dev.py check` | PASS: contract drift, types/lint, 156 backend, 7 Vitest, 6 generator tests and Vite build |
+| Real local browser | PASS: health connectivity, unavailable-science label, keyboard recovery and narrow layout |
+| Genuine provider probes | Outputs retrieved, checksummed and inspected; exact evidence in F05 report |
+| Existing F04 references | PASS: 71 tests and both deterministic fixture/report checks; no writes or scientific sign-off |
+| Limited precommit secret check | PASS: 130 indexed/untracked/client-build paths; selected token/key patterns and exact configured private values had zero findings; not final AC-32 |
+| Scope | Approved documents, application code/contracts and shared locks unchanged; F04 environment untouched |
+
+F05 tools have a separately locked environment and [licence inventory](../validation/preflight/DEPENDENCY_LICENSES.md).
+Pillow is used only for read-only format inspection; runtime GIS selection remains
+rasterio. NumPy/bundled-notice review remains a release gate, as already recorded
+for F04. No CMP-1/AC-34 certification or scientific sign-off is implied.
+
+The access preflight is technically complete. **F05 remains REVIEW pending human
+domain acceptance**, independently of the user's explicit code-merge direction.
+The observed cold AIRS-map latency would give about 20.2 hours for the 287-month
+sizing scenario if serial; PERF-5/bulk-build feasibility has not passed. Complete
+windows, source citations, QA/support/masks and safe batch capacity remain
+downstream admission/feasibility gates. AC-25–27 and all inference/calibration
+acceptance remain unpassed. F06/S01 and other implementation tasks were not started.
+
+Codex authored the F05 tools, tests and sanitized evidence and performed the
+explicitly authorized probes as one implementation agent. No delegated agent or
+Devin task was started. Synthetic test-format bytes are disclosed; environmental
+sample values come from NASA source/service outputs. No scientific sign-off,
+full acceptance, eligible-event development or completed product feature is claimed.
