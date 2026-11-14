@@ -1,3 +1,10 @@
 import { Suspense } from "react";
-import { VisualizationWorkspace } from "@/features/visualization/Workspace";
-export default function Page() { return <Suspense fallback={<p>Loading Earth workspace...</p>}><VisualizationWorkspace initialView="globe"/></Suspense>; }
+import { ImmersiveEarthPage } from "@/features/immersive-earth/ImmersiveEarthPage";
+
+export default function GlobePage() {
+  return (
+    <Suspense fallback={<div style={{ background: "#030a12", width: "100vw", height: "100vh" }} />}>
+      <ImmersiveEarthPage />
+    </Suspense>
+  );
+}

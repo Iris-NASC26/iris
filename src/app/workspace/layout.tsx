@@ -111,6 +111,10 @@ function DashboardFrame({ children }: { children: ReactNode }) {
     !activeProduct &&
     selectedProducts.length === 0;
 
+  if (pathname === "/workspace/globe") {
+    return <>{children}</>;
+  }
+
   return (
     <div
       className={`${dark ? "dark " : ""}app-shell dashboard-shell${

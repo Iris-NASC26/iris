@@ -1,0 +1,932 @@
+/* ==========================================================================
+   Project Iris — Immersive Earth Master Stylesheet
+   Pixel-precision visual implementation for the 3D planetary observatory.
+   ========================================================================== */
+
+:root {
+  --iris-space: #030a12;
+  --iris-space-deep: #02070e;
+  --iris-panel: rgba(6, 23, 33, 0.83);
+  --iris-panel-hover: rgba(11, 35, 45, 0.91);
+  --iris-header: rgba(3, 12, 20, 0.78);
+  --iris-surface-secondary: rgba(12, 34, 45, 0.72);
+
+  --iris-accent: #13e0c0;
+  --iris-accent-bright: #2fffe0;
+  --iris-accent-muted: #0f8d84;
+  --iris-blue-glow: #35bfff;
+
+  --iris-text-primary: #f6fbff;
+  --iris-text-secondary: #b0c3ce;
+  --iris-text-muted: #76909e;
+  --iris-text-disabled: #536b78;
+
+  --iris-border: rgba(153, 221, 231, 0.17);
+  --iris-border-hover: rgba(47, 255, 224, 0.32);
+  --iris-border-active: rgba(47, 255, 224, 0.55);
+
+  --iris-glass-shadow: 0 18px 60px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --iris-glow-active: 0 0 24px rgba(19, 224, 192, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+/* Master Root Container — fixed full viewport, zero document scrollbars */
+.iris-immersive-root {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100dvh;
+  overflow: hidden;
+  background-color: var(--iris-space);
+  color: var(--iris-text-primary);
+  font-family: var(--font-sans, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
+  user-select: none;
+  isolation: isolate;
+  z-index: 50;
+}
+
+/* Deep Space & Atmospheric Nebula Background */
+.iris-space-background {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background: 
+    radial-gradient(circle at 85% 15%, rgba(53, 191, 255, 0.07) 0%, transparent 45%),
+    radial-gradient(circle at 15% 85%, rgba(19, 224, 192, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(2, 7, 14, 0.4) 0%, var(--iris-space) 100%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 400 400'%3E%3Cg fill='%23ffffff' fill-opacity='0.16'%3E%3Ccircle cx='32' cy='48' r='0.8'/%3E%3Ccircle cx='180' cy='90' r='0.6'/%3E%3Ccircle cx='340' cy='150' r='1.1'/%3E%3Ccircle cx='95' cy='240' r='0.7'/%3E%3Ccircle cx='280' cy='310' r='0.9'/%3E%3Ccircle cx='370' cy='70' r='0.5'/%3E%3Ccircle cx='50' cy='360' r='0.8'/%3E%3Ccircle cx='210' cy='200' r='0.5'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* Cesium Globe Stage */
+.iris-globe-stage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.iris-globe-stage .cesium-viewer {
+  width: 100% !important;
+  height: 100% !important;
+  background: transparent !important;
+}
+
+.iris-globe-stage .cesium-viewer-cesiumWidgetContainer,
+.iris-globe-stage .cesium-widget,
+.iris-globe-stage canvas {
+  width: 100% !important;
+  height: 100% !important;
+  outline: none;
+}
+
+/* Hide default Cesium credit bar if replaced by our scientific attribution */
+.iris-globe-stage .cesium-viewer-bottom {
+  display: none !important;
+}
+
+/* Layer 2: Atmosphere Visual Enhancements (Rim glow) */
+.iris-atmosphere-glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  background: radial-gradient(circle at 46% 44%, transparent 38%, rgba(53, 191, 255, 0.04) 52%, transparent 68%);
+}
+
+/* Interactive SVG Overlay (Connecting Arc & Reticle to card) */
+.iris-reticle-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 15;
+}
+
+/* ==========================================================================
+   TOP HEADER (66px)
+   ========================================================================== */
+.iris-immersive-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 66px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 48px;
+  background: var(--iris-header);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(120, 180, 195, 0.12);
+  z-index: 30;
+}
+
+.iris-brand-group {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.iris-brand-mark {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--iris-accent);
+  position: relative;
+}
+
+.iris-brand-text {
+  font-size: 20px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  color: var(--iris-text-primary);
+}
+
+.iris-header-divider {
+  width: 1px;
+  height: 18px;
+  background: rgba(176, 195, 206, 0.22);
+}
+
+.iris-title-text {
+  font-size: 20px;
+  font-weight: 400;
+  color: var(--iris-text-secondary);
+  letter-spacing: -0.01em;
+}
+
+.iris-header-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.iris-nasa-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 38px;
+  padding: 0 16px;
+  border-radius: 22px;
+  background: rgba(8, 28, 38, 0.7);
+  border: 1px solid var(--iris-border);
+  color: var(--iris-text-primary);
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.iris-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.7);
+}
+
+.iris-overflow-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(8, 28, 38, 0.7);
+  border: 1px solid var(--iris-border);
+  color: var(--iris-text-secondary);
+  cursor: pointer;
+  transition: all 160ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.iris-overflow-btn:hover {
+  background: var(--iris-panel-hover);
+  color: var(--iris-text-primary);
+  border-color: var(--iris-border-hover);
+}
+
+/* ==========================================================================
+   FLOATING MODE DOCK (Top Center: 746px × 65px)
+   ========================================================================== */
+.iris-mode-dock {
+  position: absolute;
+  top: 73px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(746px, 92vw);
+  height: 65px;
+  background: var(--iris-panel);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--iris-border);
+  border-radius: 34px;
+  box-shadow: var(--iris-glass-shadow);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  z-index: 30;
+}
+
+.iris-mode-item {
+  flex: 1;
+  height: 49px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  border-radius: 28px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--iris-text-secondary);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 200ms cubic-bezier(0.22, 1, 0.36, 1);
+  position: relative;
+}
+
+.iris-mode-item:hover:not(.active) {
+  color: var(--iris-text-primary);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.iris-mode-item.active {
+  color: #ffffff;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.85) 0%, rgba(5, 150, 105, 0.95) 100%);
+  border: 1px solid rgba(47, 255, 224, 0.4);
+  box-shadow: 0 0 24px rgba(16, 185, 129, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* ==========================================================================
+   MINIMAL LEFT NAVIGATION RAIL (46px × 160px)
+   ========================================================================== */
+.iris-nav-rail {
+  position: absolute;
+  left: 22px;
+  top: 124px;
+  width: 46px;
+  height: 164px;
+  background: var(--iris-panel);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  border: 1px solid var(--iris-border);
+  border-radius: 25px;
+  box-shadow: var(--iris-glass-shadow);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  padding: 10px 0;
+  z-index: 30;
+}
+
+.iris-rail-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--iris-text-muted);
+  cursor: pointer;
+  transition: all 180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.iris-rail-btn:hover {
+  color: var(--iris-text-primary);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.iris-rail-btn.active {
+  color: var(--iris-accent-bright);
+  background: rgba(19, 224, 192, 0.12);
+  box-shadow: 0 0 14px rgba(19, 224, 192, 0.25);
+}
+
+/* ==========================================================================
+   LOCATION INFORMATION PANEL (Right Side: 418px)
+   ========================================================================== */
+.iris-location-panel {
+  position: absolute;
+  right: 50px;
+  top: 26.5vh;
+  width: clamp(330px, 25vw, 418px);
+  max-height: 480px;
+  background: var(--iris-panel);
+  backdrop-filter: blur(26px);
+  -webkit-backdrop-filter: blur(26px);
+  border: 1px solid var(--iris-border);
+  border-radius: 26px;
+  box-shadow: 
+    0 24px 70px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  z-index: 25;
+  animation: irisFadeSlideUp 280ms cubic-bezier(0.22, 1, 0.36, 1);
+  overflow: hidden;
+}
+
+/* Subtle decorative wave illumination at panel bottom */
+.iris-location-panel::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 70px;
+  background: radial-gradient(ellipse 100% 80% at 50% 100%, rgba(19, 224, 192, 0.12), transparent 75%);
+  pointer-events: none;
+}
+
+.iris-location-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.iris-location-title-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.iris-location-pin {
+  color: var(--iris-accent);
+  margin-top: 4px;
+}
+
+.iris-location-titles h2 {
+  font-size: 29px;
+  font-weight: 650;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin: 0;
+  color: var(--iris-text-primary);
+}
+
+.iris-location-titles p {
+  font-size: 16px;
+  color: var(--iris-text-secondary);
+  margin: 2px 0 0 0;
+}
+
+.iris-card-link-btn {
+  background: transparent;
+  border: none;
+  color: var(--iris-text-muted);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+  transition: all 160ms;
+}
+
+.iris-card-link-btn:hover {
+  color: var(--iris-text-primary);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.iris-panel-separator {
+  height: 1px;
+  width: 100%;
+  background: rgba(153, 221, 231, 0.12);
+}
+
+/* Metadata Row: 2 columns */
+.iris-meta-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.iris-meta-col {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.iris-meta-icon {
+  color: var(--iris-accent-muted);
+}
+
+.iris-meta-labels small {
+  display: block;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--iris-text-muted);
+  text-transform: uppercase;
+}
+
+.iris-meta-labels strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 550;
+  color: var(--iris-text-primary);
+  margin-top: 1px;
+}
+
+/* Metric Row */
+.iris-metric-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 4px 0;
+}
+
+.iris-main-metric {
+  font-size: 36px;
+  font-weight: 650;
+  letter-spacing: -0.03em;
+  color: var(--iris-text-primary);
+  font-variant-numeric: tabular-nums;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.iris-diff-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 550;
+  color: #34d399;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(52, 211, 153, 0.28);
+}
+
+/* Insight Row */
+.iris-insight-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 6px 0 2px 0;
+}
+
+.iris-insight-icon {
+  color: var(--iris-accent);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.iris-insight-text {
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--iris-text-secondary);
+  font-style: italic;
+  margin: 0;
+}
+
+/* ==========================================================================
+   GLOBE QUICK CONTROLS (Bottom: 132px)
+   ========================================================================== */
+.iris-quick-controls {
+  position: absolute;
+  bottom: 132px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 30;
+}
+
+.iris-quick-pill {
+  height: 50px;
+  padding: 0 20px;
+  border-radius: 25px;
+  background: var(--iris-panel);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--iris-border);
+  color: var(--iris-text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  transition: all 180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.iris-quick-pill:hover:not(.active) {
+  background: var(--iris-panel-hover);
+  color: var(--iris-text-primary);
+  border-color: var(--iris-border-hover);
+}
+
+.iris-quick-pill.active {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.85) 0%, rgba(5, 150, 105, 0.95) 100%);
+  color: #ffffff;
+  border-color: rgba(47, 255, 224, 0.45);
+  box-shadow: 0 0 22px rgba(16, 185, 129, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* ==========================================================================
+   FLOATING HISTORICAL TIMELINE (Bottom: 35px)
+   ========================================================================== */
+.iris-timeline-dock {
+  position: absolute;
+  bottom: 35px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(1385px, 83vw);
+  height: 80px;
+  background: var(--iris-panel);
+  backdrop-filter: blur(26px);
+  -webkit-backdrop-filter: blur(26px);
+  border: 1px solid var(--iris-border);
+  border-radius: 40px;
+  box-shadow: var(--iris-glass-shadow);
+  display: flex;
+  align-items: center;
+  padding: 0 24px 0 16px;
+  gap: 20px;
+  z-index: 30;
+}
+
+.iris-play-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(16, 185, 129, 0.2);
+  border: 1px solid rgba(52, 211, 153, 0.5);
+  color: #34d399;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 160ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.iris-play-btn:hover {
+  background: rgba(16, 185, 129, 0.35);
+  color: #ffffff;
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.4);
+}
+
+.iris-date-selector {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 16px;
+  font-weight: 550;
+  color: var(--iris-text-primary);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 6px 8px;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.iris-date-selector:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.iris-date-start-label,
+.iris-date-end-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--iris-text-muted);
+  flex-shrink: 0;
+}
+
+/* Timeline Track Slider */
+.iris-timeline-track-wrap {
+  flex: 1;
+  position: relative;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.iris-timeline-track {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: 2px;
+}
+
+.iris-timeline-progress {
+  position: absolute;
+  left: 0;
+  height: 3px;
+  background: var(--iris-accent);
+  border-radius: 2px;
+  box-shadow: 0 0 10px rgba(19, 224, 192, 0.5);
+}
+
+.iris-timeline-thumb {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2px solid var(--iris-accent);
+  box-shadow: 0 0 12px rgba(19, 224, 192, 0.8), 0 0 24px rgba(19, 224, 192, 0.4);
+  cursor: grab;
+  transition: transform 120ms ease;
+}
+
+.iris-timeline-thumb:active {
+  transform: translate(-50%, -50%) scale(1.2);
+  cursor: grabbing;
+}
+
+/* Milestone Dots along track */
+.iris-track-ticks {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  pointer-events: none;
+}
+
+.iris-track-tick {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.iris-track-tick.active {
+  background: var(--iris-accent);
+  box-shadow: 0 0 6px rgba(19, 224, 192, 0.6);
+}
+
+/* ==========================================================================
+   FLYOUT & CONTEXT DRAWERS (Layers, Time, Compare, Evidence, Nav)
+   ========================================================================== */
+.iris-flyout-panel {
+  position: absolute;
+  background: var(--iris-panel);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border: 1px solid var(--iris-border);
+  border-radius: 24px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.5);
+  padding: 22px;
+  z-index: 35;
+  animation: irisFadeSlideUp 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.iris-layers-drawer {
+  top: 150px;
+  right: 50px;
+  width: 350px;
+}
+
+.iris-evidence-drawer {
+  top: 150px;
+  right: 50px;
+  width: 420px;
+}
+
+.iris-compare-drawer {
+  top: 150px;
+  right: 50px;
+  width: 420px;
+}
+
+.iris-time-drawer {
+  bottom: 125px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 480px;
+}
+
+.iris-nav-flyout {
+  top: 124px;
+  left: 78px;
+  width: 250px;
+}
+
+.iris-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.iris-drawer-header h3 {
+  font-size: 15px;
+  font-weight: 650;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--iris-text-primary);
+  margin: 0;
+}
+
+.iris-drawer-close {
+  background: transparent;
+  border: none;
+  color: var(--iris-text-muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+}
+
+.iris-drawer-close:hover {
+  color: var(--iris-text-primary);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Layer row styling */
+.iris-layer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.iris-layer-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.iris-layer-title {
+  font-size: 14px;
+  font-weight: 550;
+  color: var(--iris-text-primary);
+}
+
+.iris-layer-desc {
+  font-size: 11.5px;
+  color: var(--iris-text-muted);
+}
+
+/* Toggle Switch */
+.iris-toggle {
+  position: relative;
+  display: inline-block;
+  width: 38px;
+  height: 20px;
+}
+
+.iris-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.iris-toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background-color: rgba(255, 255, 255, 0.15);
+  transition: 200ms;
+  border-radius: 20px;
+}
+
+.iris-toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 14px;
+  width: 14px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 200ms;
+  border-radius: 50%;
+}
+
+.iris-toggle input:checked + .iris-toggle-slider {
+  background-color: #10b981;
+}
+
+.iris-toggle input:checked + .iris-toggle-slider:before {
+  transform: translateX(18px);
+}
+
+/* Attribution Footer (subtle bottom-left) */
+.iris-attribution {
+  position: absolute;
+  bottom: 12px;
+  left: 24px;
+  font-size: 11px;
+  color: rgba(176, 195, 206, 0.45);
+  z-index: 20;
+  pointer-events: none;
+}
+
+/* Keyframe Animations */
+@keyframes irisFadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes irisPulseReticle {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.95);
+    opacity: 0.6;
+  }
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN ADAPTATIONS
+   ========================================================================== */
+@media (max-width: 1439px) {
+  .iris-location-panel {
+    right: 28px;
+    width: 360px;
+  }
+  .iris-mode-dock {
+    width: 680px;
+  }
+}
+
+@media (max-width: 1023px) {
+  .iris-location-panel {
+    right: 20px;
+    top: auto;
+    bottom: 125px;
+    width: 340px;
+    max-height: 380px;
+  }
+  .iris-mode-dock {
+    width: 90vw;
+    font-size: 13px;
+  }
+  .iris-timeline-dock {
+    width: 92vw;
+  }
+}
+
+@media (max-width: 767px) {
+  .iris-immersive-header {
+    padding: 0 18px;
+  }
+  .iris-title-text {
+    display: none;
+  }
+  .iris-header-divider {
+    display: none;
+  }
+  .iris-mode-dock {
+    top: 70px;
+    height: 52px;
+    padding: 4px;
+  }
+  .iris-mode-item {
+    font-size: 12px;
+    height: 40px;
+    gap: 4px;
+  }
+  .iris-location-panel {
+    right: 12px;
+    left: 12px;
+    width: auto;
+    bottom: 120px;
+  }
+  .iris-quick-controls {
+    bottom: 100px;
+    gap: 6px;
+  }
+  .iris-quick-pill {
+    height: 42px;
+    padding: 0 12px;
+    font-size: 12px;
+  }
+  .iris-timeline-dock {
+    bottom: 16px;
+    height: 64px;
+    padding: 0 14px;
+  }
+}
