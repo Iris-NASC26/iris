@@ -1,5 +1,6 @@
 /** Pure visualization transforms. No inferential statistics or generated observations. */
 import type { ObservationRow, PreviewResponse } from "@/lib/dataRetrievalEngine";
+import { isSpatialVariableId, SPATIAL_VARIABLES, spatialVariable, type SpatialVariableId } from "./spatialVariables";
 export const COLORS = ["#00a981", "#5089ed", "#d78837", "#b57ade", "#de6b86", "#49a5b6"];
 export const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 export const MAX_SERIES = 6;
@@ -19,7 +20,7 @@ export interface Datum {
 }
 export interface FieldData {
     schema_version: "visualization.field.v1";
-    variable_id: "V01" | "V12";
+    variable_id: SpatialVariableId;
     month: string;
     field: string;
     units: string;
@@ -62,10 +63,9 @@ export const MAX_OVERVIEW_CELLS = 25000;
  * Fixed labelled physical domains so temporal and regional comparisons keep one
  * consistent colour meaning. Values outside the domain clamp at the ramp ends.
  */
-export const FIELD_SCALE: Record<string, [number, number]> = {
-    V01: [-55, 45],
-    V12: [0, 450],
-};
+export const FIELD_SCALE: Record<string, [number, number]> = Object.fromEntries(
+    SPATIAL_VARIABLES.map(variable => [variable.id, variable.range as [number, number]])
+);
 export function fieldScale(field: Pick<SpatialField, "variable_id" | "values">): [number, number] {
     return FIELD_SCALE[field.variable_id] ?? scale(field.values);
 }
@@ -258,9 +258,16 @@ export function color(value: number, range: [
     const a = t <= 0.5 ? stops[0] : stops[1], b = t <= 0.5 ? stops[1] : stops[2], u = t <= 0.5 ? t * 2 : (t - 0.5) * 2;
     return '#' + a.map((v, i) => Math.round(v + (b[i] - v) * u).toString(16).padStart(2, '0')).join('');
 }
+function validateSpatialBinding(field: FieldData | OverviewData): void {
+    const expected = spatialVariable(field.variable_id);
+    if (field.field !== expected.field || field.source_units !== expected.source_units
+        || ![expected.units, expected.source_units].includes(field.units)
+        || field.time_standard !== (expected.family === 'syn1deg' ? 'LST' : 'UTC'))
+        throw new Error("Spatial variable, units or time standard do not match the NASA source binding.");
+}
 export function parseField(value: unknown): FieldData {
     const f = value as FieldData;
-    if (f?.schema_version !== "visualization.field.v1" || !["V01", "V12"].includes(f.variable_id) || !/^\d{4}-(0[1-9]|1[0-2])$/.test(f.month) ||
+    if (f?.schema_version !== "visualization.field.v1" || !isSpatialVariableId(f.variable_id) || !/^\d{4}-(0[1-9]|1[0-2])$/.test(f.month) ||
         !Array.isArray(f.cell_lats) || !Array.isArray(f.cell_lons) || !Array.isArray(f.values) || !f.cell_lats.length || !f.cell_lons.length ||
         f.values.length !== f.cell_lats.length * f.cell_lons.length || f.values.length > 4000 || !numeric(f.lat_step) || !numeric(f.lon_step) || f.lat_step <= 0 || f.lon_step <= 0 ||
         !f.cell_lats.every(v => numeric(v) && Math.abs(v) <= 90) || !f.cell_lons.every(v => numeric(v) && Math.abs(v) <= 180) ||
@@ -269,11 +276,12 @@ export function parseField(value: unknown): FieldData {
         throw new Error("The spatial service returned an incompatible native grid.");
     if (f.cell_lats.some((v, i) => i > 0 && v <= f.cell_lats[i - 1]) || f.cell_lons.some((v, i) => i > 0 && v <= f.cell_lons[i - 1]))
         throw new Error("Spatial axes must be strictly increasing.");
+    validateSpatialBinding(f);
     return f;
 }
 export function parseOverview(value: unknown): OverviewData {
     const f = value as OverviewData;
-    if (f?.schema_version !== "visualization.overview.v1" || !["V01", "V12"].includes(f.variable_id) || !/^\d{4}-(0[1-9]|1[0-2])$/.test(f.month) ||
+    if (f?.schema_version !== "visualization.overview.v1" || !isSpatialVariableId(f.variable_id) || !/^\d{4}-(0[1-9]|1[0-2])$/.test(f.month) ||
         !Array.isArray(f.cell_lats) || !Array.isArray(f.cell_lons) || !Array.isArray(f.values) || !f.cell_lats.length || !f.cell_lons.length ||
         f.values.length !== f.cell_lats.length * f.cell_lons.length || f.values.length > MAX_OVERVIEW_CELLS || !numeric(f.lat_step) || !numeric(f.lon_step) || f.lat_step <= 0 || f.lon_step <= 0 ||
         !f.cell_lats.every(v => numeric(v) && Math.abs(v) <= 90) || !f.cell_lons.every(v => numeric(v) && Math.abs(v) <= 180) ||
@@ -294,6 +302,7 @@ export function parseOverview(value: unknown): OverviewData {
     if (f.coverage !== undefined && (!Array.isArray(f.coverage) || f.coverage.length !== f.values.length ||
         !f.coverage.every(v => v === null || (numeric(v) && v >= 0 && v <= 1))))
         throw new Error("Overview coverage weights must match the output cells.");
+    validateSpatialBinding(f);
     return f;
 }
 export function isOverview(field: SpatialField): field is OverviewData {

@@ -10,17 +10,18 @@ import { coordinates, csvCell, format, MAX_SERIES, numeric, parseField, parseOve
 import { EXTENT_PRESETS, fieldRoute, parseBox, type ExtentBox } from "./extents";
 import { DEFAULT_ORDER, type LayerId } from "./layers";
 import { DEFAULT_STYLE, type FieldStyle } from "./styles";
-import { MapWorkspace } from "./MapWorkspace";
+import dynamic from "next/dynamic";
 import { useScientificAnalysis } from "./hooks/useScientificAnalysis";
 import { StudioContext, type MapState, type StudioSelection, type StudioState } from "./studio/state";
 import { StudioShell } from "./studio/StudioShell";
 import type { CellInspection, MapPoint } from "./Globe";
 import './visualization.css';
+import { spatialVariable, type SpatialVariableId } from "./spatialVariables";
+const MapWorkspace = dynamic(() => import('./MapWorkspace').then(module => module.MapWorkspace), { ssr: false });
 export function VisualizationWorkspace({ initialView = 'charts' }: {
     initialView?: 'charts' | 'globe';
 }) {
     const dashboard = useDashboard(), store = useVisualizations(), params = useSearchParams(), router = useRouter();
-    const [view, setView] = useState<'charts' | 'globe' | 'table'>(initialView);
     const [prompt, setPrompt] = useState(''), [catalog, setCatalog] = useState<DataProduct[]>([]), [selected, setSelected] = useState<string[] | null>(null);
     const [searching, setSearching] = useState(false), [loading, setLoading] = useState(false), [error, setError] = useState(''), [notice, setNotice] = useState('');
     const [place, setPlace] = useState(dashboard.extractionConfig.region_name), [lat, setLat] = useState(String(dashboard.extractionConfig.point_lat ?? 6.9355)), [lon, setLon] = useState(String(dashboard.extractionConfig.point_lon ?? 79.8487));
@@ -28,7 +29,7 @@ export function VisualizationWorkspace({ initialView = 'charts' }: {
     const [primaryId, setPrimaryId] = useState(''), [hidden, setHidden] = useState<string[]>([]), [filterStart, setFilterStart] = useState(''), [filterEnd, setFilterEnd] = useState('');
     const [includeFlagged, setIncludeFlagged] = useState(false), [normalized, setNormalized] = useState(false), [timeIndex, setTimeIndex] = useState(0), [playing, setPlaying] = useState(false), [tablePage, setTablePage] = useState(0);
     const [selection, setSelection] = useState<StudioSelection | null>(null);
-    const [fieldVariable, setFieldVariable] = useState<'V01' | 'V12'>('V01'), [fieldMonth, setFieldMonth] = useState('2024-01'), [fieldBox, setFieldBox] = useState(['4', '16', '76', '86']);
+    const [fieldVariable, setFieldVariable] = useState<SpatialVariableId>('V01'), [fieldMonth, setFieldMonth] = useState('2024-01'), [fieldBox, setFieldBox] = useState(['4', '16', '76', '86']);
     const [field, setField] = useState<SpatialField | null>(null), [fieldBusy, setFieldBusy] = useState(false), [fieldError, setFieldError] = useState('');
     const [extentId, setExtentId] = useState('custom'), [basemapAlpha, setBasemapAlpha] = useState(1), [fieldAlpha, setFieldAlpha] = useState(0.93), [frameSignal, setFrameSignal] = useState(0);
     const [engineBasemap, setEngineBasemap] = useState('tiles-ready');
@@ -95,8 +96,8 @@ export function VisualizationWorkspace({ initialView = 'charts' }: {
             setNotice('Study location prefilled. Review coordinates, then load observations explicitly.');
         } else if (presetPlace?.trim())
             setPlace(presetPlace.trim());
-        if (params.get('view') === 'globe')
-            setView('globe');
+        if (params.get('view') === 'globe' && initialView !== 'globe')
+            router.replace(`/workspace/globe?${params.toString()}`);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
     useEffect(() => { setTimeIndex(0); setTablePage(0); setPlaying(false); setSelection(null); }, [primary?.id, filterStart, filterEnd, includeFlagged]);
@@ -329,7 +330,14 @@ export function VisualizationWorkspace({ initialView = 'charts' }: {
     const pick = (latitude: number, longitude: number) => { setLat(latitude.toFixed(4)); setLon(longitude.toFixed(4)); setPlace(`Picked location ${latitude.toFixed(2)}, ${longitude.toFixed(2)}`); };
     const map: MapState = {
         field, applied, busy: fieldBusy, error: fieldError,
-        variable: fieldVariable, setVariable: setFieldVariable,
+        variable: fieldVariable, setVariable: variable => {
+            setFieldVariable(variable);
+            setFieldStyle({ ...DEFAULT_STYLE, rampId: spatialVariable(variable).ramp });
+            setCustomRange(['', '']);
+            setSpatialPlaying(false);
+            setSyncLinked(false);
+            spatialSession.current = false;
+        },
         month: fieldMonth, setMonth: setFieldMonth,
         box: fieldBox, setBox: setFieldBox,
         extentId, setExtentId,
@@ -366,7 +374,7 @@ export function VisualizationWorkspace({ initialView = 'charts' }: {
         playing, setPlaying,
         tablePage, setTablePage,
         focus, setFocus,
-        map, analysis, exportData, openAnalysis: analyze,
+        analysis, exportData, openAnalysis: analyze,
     };
     const controls = <aside className="viz-controls" aria-label="Visualization controls">
     <section className="viz-control-section"><span className="viz-step">01 / CHOOSE YOUR DATA</span>
@@ -393,15 +401,14 @@ export function VisualizationWorkspace({ initialView = 'charts' }: {
     </section>
     {store.series.length > 0 && <section className="viz-control-section"><span className="viz-step">LOADED SERIES / {store.series.length} OF {MAX_SERIES}</span><div className="viz-loaded-list">{store.series.map(s => <article key={s.id}><label><input type="checkbox" checked={!hidden.includes(s.id)} onChange={e => setHidden(current => e.target.checked ? current.filter(id => id !== s.id) : [...current, s.id])}/><i style={{ background: s.color }}/><span>{s.label}</span></label><button aria-label={`Remove ${s.label}`} onClick={() => store.remove(s.id)}>Remove</button></article>)}</div></section>}
    </aside>;
-    const timeStrip = primary && primaryRows.length > 0 && <section className="viz-time-control"><button className="viz-button" onClick={() => setPlaying(p => !p)}>{playing ? 'Pause' : 'Play observations'}</button><label>Selected observation<input aria-label="Observation time" type="range" min={0} max={Math.max(0, times.length - 1)} value={primaryIndex} onChange={e => { setPlaying(false); setTimeIndex(Number(e.target.value)); const r = primaryRows[Number(e.target.value)]; if (r) setSelection({ seriesId: primary.id, time: r.time, timestamp: r.timestamp }); }}/></label><strong>{primaryRows[primaryIndex]?.timestamp} / {format(primaryRows[primaryIndex]?.value ?? null)} {primary.preview.summary_stats.unit}</strong><button className="viz-button" onClick={() => { const month = primaryRows[primaryIndex]?.timestamp.slice(0, 7); if (month) { setFieldMonth(month); void loadField(month); } }}>Load spatial field for the selected month</button><p>Playback selects retrieved observations only. Spatial fields retain their separately labelled month and change only on an explicit load.</p></section>;
-    if (initialView === 'globe' || view === 'globe')
+    const timeStrip = primary && primaryRows.length > 0 && <section className="viz-time-control"><button className="viz-button" onClick={() => setPlaying(p => !p)}>{playing ? 'Pause' : 'Play observations'}</button><label>Selected observation<input aria-label="Observation time" type="range" min={0} max={Math.max(0, times.length - 1)} value={primaryIndex} onChange={e => { setPlaying(false); setTimeIndex(Number(e.target.value)); const r = primaryRows[Number(e.target.value)]; if (r) setSelection({ seriesId: primary.id, time: r.time, timestamp: r.timestamp }); }}/></label><strong>{primaryRows[primaryIndex]?.timestamp} / {format(primaryRows[primaryIndex]?.value ?? null)} {primary.preview.summary_stats.unit}</strong><p>Playback selects retrieved observations only.</p></section>;
+    if (initialView === 'globe')
         return <div className="viz-workbench dashboard-page-inner">
-  <header className="viz-heading"><div><span className="viz-eyebrow">YOUR EARTH OBSERVATION STUDIO</span><h2>Make the change visible.</h2><p>Choose the evidence. Explore the patterns. Keep the source in view.</p></div><Link className="viz-button" href="/workspace/intelligence"><Icon name="sparkles" size={16}/> Open SI discovery</Link></header>
-  <div className="viz-layout">{controls}
-   <section className="viz-results" aria-label="Visualization results" aria-busy={loading}>
-    {error && <div className="viz-error" role="alert"><strong>Could not complete this request</strong><p>{error}</p></div>}{notice && <p className="viz-notice" role="status">{notice}</p>}
-    <MapWorkspace map={map} selectedTimestamp={primaryRows[primaryIndex]?.timestamp} onInspectTimeSeries={() => setView('charts')}/>
-    {timeStrip}
+  <header className="viz-heading"><div><span className="viz-eyebrow">LIVING GLOBE / NASA SPATIAL LAYERS</span><h2>Make the change visible.</h2><p>Choose a spatial variable, region and month to paint real NASA grid values across the globe.</p></div><Link className="viz-button" href="/workspace/visualize"><Icon name="activity" size={16}/> Open visualization studio</Link></header>
+  <div className="viz-layout viz-spatial-layout">
+   <section className="viz-results" aria-label="Visualization results" aria-busy={fieldBusy}>
+    {notice && <p className="viz-notice" role="status">{notice}</p>}
+    <MapWorkspace map={{ ...map, points: [] }} spatialOnly onInspectTimeSeries={() => router.push(`/workspace/visualize?${new URLSearchParams({ lat, lon, place })}`)}/>
    </section>
   </div>
  </div>;

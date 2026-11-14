@@ -2,8 +2,9 @@
 // observations, analysis payloads, or renderer instances.
 import { DEFAULT_PRESET, PANEL_IDS, PRESETS, type PanelId } from './presets';
 
-export const STORAGE_KEY = 'iris.studio.layout.v1';
-export const LAYOUT_VERSION = 1;
+export const STORAGE_KEY = 'iris.studio.layout.v2';
+const LEGACY_STORAGE_KEY = 'iris.studio.layout.v1';
+export const LAYOUT_VERSION = 2;
 
 export interface StudioPrefs {
     version: number;
@@ -42,7 +43,7 @@ export function parsePrefs(raw: string | null): { prefs: StudioPrefs; recovered:
 
 export function loadPrefs(storage: Pick<Storage, 'getItem'> = window.localStorage): { prefs: StudioPrefs; recovered: string; denied: boolean } {
     try {
-        const result = parsePrefs(storage.getItem(STORAGE_KEY));
+        const result = parsePrefs(storage.getItem(STORAGE_KEY) ?? storage.getItem(LEGACY_STORAGE_KEY));
         return { ...result, denied: false };
     } catch {
         return { prefs: defaultPrefs(), recovered: 'denied', denied: true };
@@ -59,7 +60,7 @@ export function savePrefs(prefs: StudioPrefs, storage: Pick<Storage, 'setItem'> 
 }
 
 export function clearPrefs(storage: Pick<Storage, 'removeItem'> = window.localStorage): void {
-    try { storage.removeItem(STORAGE_KEY); } catch { /* storage denied */ }
+    try { storage.removeItem(STORAGE_KEY); storage.removeItem(LEGACY_STORAGE_KEY); } catch { /* storage denied */ }
 }
 
 // Panels present in a restored layout — used to drop references to removed ids.

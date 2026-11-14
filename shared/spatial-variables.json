@@ -1,0 +1,156 @@
+{
+  "V01": {
+    "field": "T2M",
+    "label": "Air temperature at 2 m",
+    "group": "Temperature",
+    "family": "merra2",
+    "source_units": "C",
+    "units": "°C",
+    "range": [
+      -55,
+      45
+    ],
+    "ramp": "thermal",
+    "note": "Monthly mean air temperature. MERRA-2 reanalysis; this is not a direct satellite temperature observation."
+  },
+  "TS": {
+    "field": "TS",
+    "label": "Earth skin temperature",
+    "group": "Temperature",
+    "family": "merra2",
+    "source_units": "C",
+    "units": "°C",
+    "range": [
+      -60,
+      60
+    ],
+    "ramp": "thermal",
+    "note": "Monthly mean model surface skin temperature; distinct from air temperature at 2 m."
+  },
+  "T2MDEW": {
+    "field": "T2MDEW",
+    "label": "Dew / frost point at 2 m",
+    "group": "Temperature",
+    "family": "merra2",
+    "source_units": "C",
+    "units": "°C",
+    "range": [
+      -60,
+      30
+    ],
+    "ramp": "thermal",
+    "note": "Monthly mean dew/frost point, not observed precipitation."
+  },
+  "PRECTOTCORR": {
+    "field": "PRECTOTCORR",
+    "label": "Corrected precipitation rate",
+    "group": "Water and snow",
+    "family": "merra2",
+    "source_units": "mm/day",
+    "units": "mm/day",
+    "range": [
+      0,
+      15
+    ],
+    "ramp": "viridis",
+    "note": "Monthly mean daily precipitation rate; not a monthly accumulation or a snowfall-only product."
+  },
+  "SNODP": {
+    "field": "SNODP",
+    "label": "Snow depth",
+    "group": "Water and snow",
+    "family": "merra2",
+    "source_units": "cm",
+    "units": "cm",
+    "range": [
+      0,
+      100
+    ],
+    "ramp": "snow",
+    "note": "Monthly mean model snow depth in centimetres; not snowfall rate, snow-cover fraction or snow water equivalent. Missing source cells stay transparent."
+  },
+  "GWETTOP": {
+    "field": "GWETTOP",
+    "label": "Surface soil wetness",
+    "group": "Land",
+    "family": "merra2",
+    "source_units": "1",
+    "units": "1",
+    "range": [
+      0,
+      1
+    ],
+    "ramp": "viridis",
+    "note": "Dimensionless model soil-wetness index (0–1), not volumetric water content. Undefined source cells, including masked ocean cells, stay transparent."
+  },
+  "GWETROOT": {
+    "field": "GWETROOT",
+    "label": "Root-zone soil wetness",
+    "group": "Land",
+    "family": "merra2",
+    "source_units": "1",
+    "units": "1",
+    "range": [
+      0,
+      1
+    ],
+    "ramp": "viridis",
+    "note": "Dimensionless model root-zone wetness index (0–1), not a water depth. Undefined source cells stay transparent."
+  },
+  "RH2M": {
+    "field": "RH2M",
+    "label": "Relative humidity at 2 m",
+    "group": "Atmosphere",
+    "family": "merra2",
+    "source_units": "%",
+    "units": "%",
+    "range": [
+      0,
+      100
+    ],
+    "ramp": "viridis",
+    "note": "Monthly mean relative humidity in percent, not specific humidity."
+  },
+  "WS10M": {
+    "field": "WS10M",
+    "label": "Wind speed at 10 m",
+    "group": "Atmosphere",
+    "family": "merra2",
+    "source_units": "m/s",
+    "units": "m/s",
+    "range": [
+      0,
+      15
+    ],
+    "ramp": "magma",
+    "note": "Monthly mean scalar wind speed; this layer contains no wind-direction vectors."
+  },
+  "PS": {
+    "field": "PS",
+    "label": "Surface pressure",
+    "group": "Atmosphere",
+    "family": "merra2",
+    "source_units": "hPa",
+    "units": "hPa",
+    "range": [
+      600,
+      1050
+    ],
+    "ramp": "thermal",
+    "note": "Monthly mean surface pressure in hPa, not sea-level pressure. Elevation affects this field."
+  },
+  "V12": {
+    "field": "ALLSKY_SFC_SW_DWN",
+    "label": "Surface sunlight",
+    "group": "Radiation",
+    "family": "syn1deg",
+    "source_units": "W m-2",
+    "units": "W/m²",
+    "range": [
+      0,
+      450
+    ],
+    "ramp": "magma",
+    "note": "Monthly mean downward shortwave irradiance from CERES SYN1deg, labelled in local solar time (LST); not daily energy in kWh/m²."
+  }
+}

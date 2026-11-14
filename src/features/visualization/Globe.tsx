@@ -46,8 +46,14 @@ interface GlobeProps {
 }
 export function Globe({ field, points, onPick, extentBox = null, frameSignal = 0, basemapAlpha = 1, basemapVisible = true, fieldAlpha = 0.93, fieldVisible = true, fieldStyle, pointsVisible = true, extentVisible = true, fieldUnderBasemap = false, drawMode = false, cellClearSignal = 0, onDrawBox, onCellInspect, onEngineState }: GlobeProps) {
     const mount = useRef<HTMLDivElement>(null), engine = useRef<GlobeEngine | null>(null);
-    const latest = useRef({ field, points, onPick });
-    latest.current = { field, points, onPick };
+    // Async engine creation can finish after the user changes the variable,
+    // palette, extent or visibility. Initialize from the current render state,
+    // never the props captured when initialization began.
+    const renderState = { field, points, onPick, extentBox, frameSignal, basemapAlpha,
+        basemapVisible, fieldAlpha, fieldVisible, fieldStyle, pointsVisible,
+        extentVisible, fieldUnderBasemap };
+    const latest = useRef(renderState);
+    latest.current = renderState;
     const [mode, setMode] = useState<'3d' | '2d'>('3d'), [state, setState] = useState('Loading 3D engine'), [engineState, setEngineState] = useState<EngineState | null>(null);
     const [basemap, setBasemap] = useState<BasemapMode>('tiled');
     const [readout, setReadout] = useState<{
@@ -111,14 +117,18 @@ export function Globe({ field, points, onPick, extentBox = null, frameSignal = 0
                 });
                 if (cancelled) { created.dispose(); return; }
                 engine.current = created;
-                created.setField(latest.current.field, { alpha: fieldAlpha, visible: fieldVisible, style: fieldStyle });
-                created.setPoints(latest.current.points);
-                created.setBasemapAlpha(basemapAlpha);
-                created.setPointsVisible(pointsVisible);
-                created.setExtentVisible(extentVisible);
-                created.setFieldUnderBasemap(fieldUnderBasemap);
-                if (extentBox)
-                    created.setExtentOutline(extentBox);
+                const current = latest.current;
+                created.setField(current.field, { alpha: current.fieldAlpha, visible: current.fieldVisible, style: current.fieldStyle });
+                created.setPoints(current.points);
+                created.setBasemapAlpha(current.basemapAlpha);
+                created.setBasemapVisible(current.basemapVisible);
+                created.setPointsVisible(current.pointsVisible);
+                created.setFieldUnderBasemap(current.fieldUnderBasemap);
+                if (current.extentBox) {
+                    created.setExtentOutline(current.extentBox);
+                    if (current.frameSignal > 0) created.frame(current.extentBox);
+                }
+                created.setExtentVisible(current.extentVisible);
             }
             catch {
                 if (!cancelled) {

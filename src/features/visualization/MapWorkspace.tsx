@@ -1,8 +1,7 @@
 "use client";
 // The map-centred investigation workspace: selection bar, layer/styling panel,
 // Cesium stage with 2D fallback, cell inspector and the month timeline. Used
-// by /workspace/globe directly and by the studio Earth panel — one owner, one
-// Cesium lifecycle.
+// by the dedicated /workspace/globe route — one owner, one Cesium lifecycle.
 import dynamic from "next/dynamic";
 import { useState } from "react";
 import { estimateNativeCells, EXTENT_PRESETS, fieldRoute, parseBox } from "./extents";
@@ -10,20 +9,22 @@ import { imageryIndex, LAYER_DEFS, moveLayer } from "./layers";
 import { format, isOverview, numeric } from "./model";
 import { DEFAULT_STYLE, RAMPS, rangeLabel, styleRange, type RangeMode } from "./styles";
 import type { MapState } from "./studio/state";
+import { isSpatialVariableId, SPATIAL_GROUPS, SPATIAL_VARIABLES, spatialVariable } from "./spatialVariables";
 
 const Globe = dynamic(() => import('./Globe').then(m => m.Globe), { ssr: false, loading: () => <p className="viz-empty">Loading Earth renderer...</p> });
 
-export function MapWorkspace({ map, selectedTimestamp, onInspectTimeSeries }: {
+export function MapWorkspace({ map, selectedTimestamp, onInspectTimeSeries, spatialOnly = false }: {
     map: MapState;
     selectedTimestamp?: string;
     onInspectTimeSeries?: () => void;
+    spatialOnly?: boolean;
 }) {
     const [inspectorOpen, setInspectorOpen] = useState(false);
     const [layersOpen, setLayersOpen] = useState(true);
     const { field, applied } = map;
     return <section className="viz-map-workspace" aria-label="Map-centred investigation workspace">
      <div className="viz-map-topbar">
-      <label>Spatial variable<select value={map.variable} onChange={e => map.setVariable(e.target.value as 'V01' | 'V12')}><option value="V01">Air temperature / T2M</option><option value="V12">Surface sunlight / ALLSKY_SFC_SW_DWN</option></select></label>
+      <label>Spatial variable<select value={map.variable} onChange={e => { if (isSpatialVariableId(e.target.value)) map.setVariable(e.target.value); }}>{SPATIAL_GROUPS.map(group => <optgroup key={group} label={group}>{SPATIAL_VARIABLES.filter(variable => variable.group === group).map(variable => <option key={variable.id} value={variable.id}>{variable.label} / {variable.field} ({variable.units})</option>)}</optgroup>)}</select></label>
       <label>Spatial extent<select value={map.extentId} onChange={e => { const preset = EXTENT_PRESETS.find(p => p.id === e.target.value); if (!preset) return; map.setExtentId(preset.id); if (preset.id !== 'custom') { map.setBox(preset.box.map(String)); map.frame(); } }}>{EXTENT_PRESETS.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</select></label>
       <div className="viz-month-row"><label>Spatial month<input type="month" value={map.month} onChange={e => map.setMonth(e.target.value)}/></label><div className="viz-month-steps"><button className="viz-button" aria-label="Previous month" onClick={() => map.shiftMonth(-1)}>◀</button><button className="viz-button" aria-label="Next month" onClick={() => map.shiftMonth(1)}>▶</button></div></div>
       <button className="viz-button viz-primary" disabled={map.busy} onClick={() => map.load()}>{map.busy ? 'Loading cells...' : 'Load spatial field'}</button>
@@ -31,6 +32,7 @@ export function MapWorkspace({ map, selectedTimestamp, onInspectTimeSeries }: {
       <span className="viz-map-applied" role="status">{field && applied ? `Loaded: ${applied.variable} / ${applied.month} / ${applied.box[0]}°–${applied.box[1]}°N, ${applied.box[2]}°–${applied.box[3]}°E` : map.busy ? 'Loading the requested field…' : 'No field loaded for this selection'}</span>
       <span className="viz-map-panel-toggles"><button className="viz-button" aria-pressed={layersOpen} onClick={() => setLayersOpen(o => !o)}>{layersOpen ? 'Hide layers' : 'Layers'}</button><button className="viz-button" aria-pressed={inspectorOpen} onClick={() => setInspectorOpen(o => !o)}>{inspectorOpen ? 'Hide inspector' : 'Inspector'}</button></span>
      </div>
+     <p className="viz-spatial-description" role="note">{spatialVariable(map.variable).note} Choose an extent and month, then load the spatial field. Colours represent grid-cell values.</p>
      <div className="viz-map-body">
       {layersOpen && <aside className="viz-map-layers" aria-label="Selection and layer controls">
        <section><span className="viz-step">SELECTION</span>
@@ -42,7 +44,7 @@ export function MapWorkspace({ map, selectedTimestamp, onInspectTimeSeries }: {
         {map.drawMode && <p className="viz-muted" role="status">Drawing armed — switch to the 2D map and drag a rectangle to set the requested extent.</p>}
        </section>
        <section className="viz-layer-controls"><span className="viz-step">LAYERS</span>
-        {map.layerOrder.map((id, index) => { const def = LAYER_DEFS.find(d => d.id === id)!; const status = id === 'field' ? (field ? 'loaded' : map.busy ? 'loading…' : 'not loaded') : id === 'points' ? `${map.points.length} marker${map.points.length === 1 ? '' : 's'}` : id === 'extent' ? 'requested box' : map.engineBasemap; return <article key={id} className="viz-layer"><div className="viz-layer-head"><label className="viz-check"><input type="checkbox" checked={map.layerVisible[id]} onChange={e => map.setLayerVisible(v => ({ ...v, [id]: e.target.checked }))}/> {def.name}</label><span className="viz-layer-order"><button aria-label={`Move ${def.name} up`} disabled={index === 0} onClick={() => map.setLayerOrder(o => moveLayer(o, id, -1))}>↑</button><button aria-label={`Move ${def.name} down`} disabled={index === map.layerOrder.length - 1} onClick={() => map.setLayerOrder(o => moveLayer(o, id, 1))}>↓</button></span></div><small>{def.group} / {status}</small>
+        {map.layerOrder.map((id, index) => { if (spatialOnly && id === 'points') return null; const def = LAYER_DEFS.find(d => d.id === id)!; const status = id === 'field' ? (field ? 'loaded' : map.busy ? 'loading…' : 'not loaded') : id === 'points' ? `${map.points.length} marker${map.points.length === 1 ? '' : 's'}` : id === 'extent' ? 'requested box' : map.engineBasemap; return <article key={id} className="viz-layer"><div className="viz-layer-head"><label className="viz-check"><input type="checkbox" checked={map.layerVisible[id]} onChange={e => map.setLayerVisible(v => ({ ...v, [id]: e.target.checked }))}/> {def.name}</label><span className="viz-layer-order"><button aria-label={`Move ${def.name} up`} disabled={index === 0} onClick={() => map.setLayerOrder(o => moveLayer(o, id, -1))}>↑</button><button aria-label={`Move ${def.name} down`} disabled={index === map.layerOrder.length - 1} onClick={() => map.setLayerOrder(o => moveLayer(o, id, 1))}>↓</button></span></div><small>{def.group} / {status}</small>
          {id === 'field' && <label>Field opacity<input aria-label="Field opacity" type="range" min={0.2} max={1} step={0.05} value={map.fieldAlpha} onChange={e => map.setFieldAlpha(Number(e.target.value))}/></label>}
          {id === 'basemap' && <label>Basemap opacity<input aria-label="Basemap opacity" type="range" min={0.2} max={1} step={0.05} value={map.basemapAlpha} onChange={e => map.setBasemapAlpha(Number(e.target.value))}/></label>}
         </article>; })}
@@ -54,7 +56,7 @@ export function MapWorkspace({ map, selectedTimestamp, onInspectTimeSeries }: {
         <label>Colour range<select value={map.style.rangeMode} onChange={e => map.setStyle(s => ({ ...s, rangeMode: e.target.value as RangeMode }))}><option value="fixed">Fixed physical scale</option><option value="auto">Automatic — loaded field</option><option value="custom">Custom bounds</option></select><small className="viz-muted">{field ? rangeLabel(map.style, field.variable_id) : 'Applies to the next loaded field.'}</small></label>
         {map.style.rangeMode === 'custom' && <div className="viz-two-cols"><label>Range min<input type="number" step="any" value={map.customRange[0]} onChange={e => { const next: [string, string] = [e.target.value, map.customRange[1]]; map.setCustomRange(next); const lo = Number(next[0]), hi = Number(next[1]); map.setStyle(s => ({ ...s, custom: numeric(lo) && numeric(hi) && lo < hi ? [lo, hi] : s.custom })); }}/></label><label>Range max<input type="number" step="any" value={map.customRange[1]} onChange={e => { const next: [string, string] = [map.customRange[0], e.target.value]; map.setCustomRange(next); const lo = Number(next[0]), hi = Number(next[1]); map.setStyle(s => ({ ...s, custom: numeric(lo) && numeric(hi) && lo < hi ? [lo, hi] : s.custom })); }}/></label></div>}
         {field && <p className="viz-muted">Displayed range: {format(styleRange(field, map.style)[0])} to {format(styleRange(field, map.style)[1])} {field.units}.</p>}
-        <button className="viz-button" onClick={() => { map.setStyle(DEFAULT_STYLE); map.setCustomRange(['', '']); }}>Restore default styling</button>
+        <button className="viz-button" onClick={() => { map.setStyle({ ...DEFAULT_STYLE, rampId: spatialVariable(map.variable).ramp }); map.setCustomRange(['', '']); }}>Restore default styling</button>
        </section>
        {field && <section><span className="viz-step">FIELD SOURCE</span><div className="viz-field-source"><strong>{field.values.filter(numeric).length} of {field.values.length} {isOverview(field) ? 'output cells' : 'native cells'} contain values / {field.month} / {field.units} / {field.time_standard}</strong>{isOverview(field) && <p>Extent {field.extent.lat_min}° to {field.extent.lat_max}° N, {field.extent.lon_min}° to {field.extent.lon_max}° E — {field.resolution.output_cells.toLocaleString()} output cells at {format(field.lat_step)}° × {format(field.lon_step)}°{field.resolution.aggregation === 'none' ? ' (native source resolution)' : `, ${field.resolution.factor_lat} × ${field.resolution.factor_lon} cells combined by cos(lat)-area-weighted mean from ${format(field.resolution.source_lat_step)}° × ${format(field.resolution.source_lon_step)}°`}.</p>}<p>{field.source.title} / {field.source.version}{field.source.stale_cache ? ' / STALE CACHED SOURCE' : field.source.from_cache ? ' / Cached source' : ' / Retrieved source'}</p><p>Raw monthly model data. No slope, significance, forecast or scientific validation is implied.</p><details><summary>Spatial source and provenance</summary><a href={field.source.url} target="_blank" rel="noreferrer">NASA source store</a><p>Retrieved {field.source.retrieved_at}</p><ul>{field.source.caveats.map(c => <li key={c}>{c}</li>)}</ul><pre>{JSON.stringify(field.source.artifact_sha256, null, 2)}</pre></details></div></section>}
       </aside>}
@@ -77,7 +79,7 @@ export function MapWorkspace({ map, selectedTimestamp, onInspectTimeSeries }: {
         {onInspectTimeSeries && <button className="viz-button" onClick={onInspectTimeSeries}>Inspect time series at this point</button>}
         <button className="viz-button" onClick={() => { map.setInspection(null); map.clearCell(); }}>Clear selection</button>
        </div>
-       <p className="viz-muted">Coordinates were copied to the location form — loading a point series remains an explicit action. Picked values come from the numerical payload, never from imagery colours.</p></> : <p className="viz-muted">Click a cell on the map to inspect its actual value, footprint and provenance. Camera moves never inspect data.</p>}
+       <p className="viz-muted">{spatialOnly ? 'Inspect the grid value here, or open the visualization studio to explicitly request a point time series. ' : 'Coordinates were copied to the location form — loading a point series remains an explicit action. '}Picked values come from the numerical payload, never from imagery colours.</p></> : <p className="viz-muted">Click a cell on the map to inspect its actual value, footprint and provenance. Camera moves never inspect data.</p>}
       </aside>}
      </div>
      <div className="viz-map-timeline">
@@ -85,7 +87,7 @@ export function MapWorkspace({ map, selectedTimestamp, onInspectTimeSeries }: {
       <div className="viz-month-steps"><button className="viz-button" aria-label="Previous month" onClick={() => map.shiftMonth(-1)}>◀</button><button className="viz-button" aria-label="Next month" onClick={() => map.shiftMonth(1)}>▶</button></div>
       <span>Loaded month: <strong>{field?.month ?? 'none'}</strong></span>
       {selectedTimestamp && <span>Selected observation: <strong>{selectedTimestamp}</strong></span>}
-      {field && <label className="viz-check"><input type="checkbox" checked={map.syncLinked} onChange={e => map.setSyncLinked(e.target.checked)}/> Sync spatial field to observation month</label>}
+      {field && selectedTimestamp && !spatialOnly && <label className="viz-check"><input type="checkbox" checked={map.syncLinked} onChange={e => map.setSyncLinked(e.target.checked)}/> Sync spatial field to observation month</label>}
       <p className="viz-muted">Playback issues a real request per month — unsupported months report failure instead of repeating another month’s values.</p>
      </div>
     </section>;

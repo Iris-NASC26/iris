@@ -48,8 +48,8 @@ test('keeps two locations and pairs comparisons without asking SI to generate ob
  await page.route('**/api/v1/timeseries/extract',route=>route.fulfill({json:fixture('job-second',-1.29,36.82)}));
  await ui.load();await expect(page.getByLabel('Primary series').getByRole('option')).toHaveCount(2);
  await page.getByRole('tab',{name:'Relationship',exact:true}).click();await expect(page.getByRole('img',{name:/Aligned pairs/})).toBeVisible();
- await page.getByRole('tab',{name:'Living Earth',exact:true}).click();
- await page.getByRole('button',{name:'2D map',exact:true}).click();await expect(page.getByRole('list',{name:'Mapped observations'}).getByRole('listitem')).toHaveCount(2);
+ await expect(page.getByRole('tab',{name:'Living Earth',exact:true})).toHaveCount(0);
+ await expect(page.locator('.viz-three-mount')).toHaveCount(0);
 });
 
 test('real WebGL globe accepts only a loaded native field and clears stale selection',async({page})=>{

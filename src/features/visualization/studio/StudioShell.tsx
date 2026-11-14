@@ -8,8 +8,8 @@ import "dockview-react/dist/styles/dockview.css";
 import { Icon } from "@/components/ui/Icon";
 import { useTheme } from "@/context/ThemeContext";
 import { DEFAULT_PRESET, PANEL_DEFS, PRESETS, presetLayout, type PanelId } from "./presets";
-import { clearPrefs, layoutPanels, loadPrefs, savePrefs, type StudioPrefs } from "./layoutPersistence";
-import { ComparisonPanel, MapPanel, ObservationTablePanel, OutlookPanel, RelationshipPanel, SeasonalPanel, SourceInspectorPanel, TimeSeriesPanel } from "./panels";
+import { clearPrefs, layoutPanels, loadPrefs, savePrefs, LAYOUT_VERSION, type StudioPrefs } from "./layoutPersistence";
+import { ComparisonPanel, ObservationTablePanel, OutlookPanel, RelationshipPanel, SeasonalPanel, SourceInspectorPanel, TimeSeriesPanel } from "./panels";
 import { useStudio } from "./state";
 
 export const PANEL_COMPONENTS: Record<PanelId, React.FC<IDockviewPanelProps>> = {
@@ -18,12 +18,11 @@ export const PANEL_COMPONENTS: Record<PanelId, React.FC<IDockviewPanelProps>> = 
     relationship: RelationshipPanel,
     table: ObservationTablePanel,
     source: SourceInspectorPanel,
-    map: MapPanel,
     comparison: ComparisonPanel,
     outlook: OutlookPanel,
 };
 
-const MOBILE_ORDER: PanelId[] = ['timeseries', 'map', 'seasonal', 'relationship', 'table', 'comparison', 'source', 'outlook'];
+const MOBILE_ORDER: PanelId[] = ['timeseries', 'seasonal', 'relationship', 'table', 'comparison', 'source', 'outlook'];
 const narrow = () => typeof window !== 'undefined' && window.matchMedia('(max-width: 900px)').matches;
 
 export function StudioShell({ children }: { children?: React.ReactNode }) {
@@ -105,7 +104,7 @@ export function StudioShell({ children }: { children?: React.ReactNode }) {
         const def = PANEL_DEFS.find(d => d.id === id)!;
         api.current.addPanel({ id, component: id, title: def.title });
     };
-    const resetWorkspace = () => { clearPrefs(); applyPreset(DEFAULT_PRESET); setFocus(false); setPrefs({ version: 1, preset: DEFAULT_PRESET, layout: null, hidden: [], focus: false, savedAt: '' }); };
+    const resetWorkspace = () => { clearPrefs(); applyPreset(DEFAULT_PRESET); setFocus(false); setPrefs({ version: LAYOUT_VERSION, preset: DEFAULT_PRESET, layout: null, hidden: [], focus: false, savedAt: '' }); };
     const maximize = () => { const panel = api.current?.activePanel; if (panel) panel.api.maximize(); };
 
     const ActiveMobile = PANEL_COMPONENTS[mobilePanel];

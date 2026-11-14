@@ -16,8 +16,9 @@ test('presets rearrange without losing loaded series and panels close and reopen
  await page.locator('.viz-studio-toolbar select').first().selectOption('seasonal');
  await expect(page.getByRole('tab',{name:'Seasonal cycles'}).first()).toBeVisible();
  await expect(page.getByRole('img',{name:/Monthly heatmap for Test air temperature/})).toBeVisible(); // loaded data survived the layout switch
- await page.locator('.viz-studio-toolbar select').first().selectOption('earth-time');
- await expect(page.getByLabel('Map-centred investigation workspace')).toBeVisible();
+ await expect(page.locator('.viz-studio-toolbar select').first().getByRole('option', { name: 'Earth + Time' })).toHaveCount(0);
+ await expect(page.getByRole('tab', { name: 'Living Earth', exact: true })).toHaveCount(0);
+ await expect(page.locator('.viz-three-mount')).toHaveCount(0);
  await page.locator('.viz-studio-toolbar select').first().selectOption('explore');
  await expect(page.getByRole('img',{name:/Time series for Test air temperature/})).toBeVisible();
  // close a tab and reopen it via the toolbar control
@@ -29,7 +30,7 @@ test('presets rearrange without losing loaded series and panels close and reopen
 });
 
 test('corrupt persisted layout recovers to a preset and reset clears preferences',async({page})=>{
- await page.addInitScript(()=>{localStorage.setItem('iris-onboarding-complete','true');localStorage.setItem('iris.studio.layout.v1','{broken');});
+ await page.addInitScript(()=>{localStorage.setItem('iris-onboarding-complete','true');localStorage.setItem('iris.studio.layout.v2','{broken');});
  const ui=new VisualizationPage(page);await page.goto('/workspace/visualize');
  await expect(page.getByText(/unreadable|restored/i)).toBeVisible();
  await expect(page.getByRole('tab',{name:'Time series'})).toBeVisible();
@@ -42,8 +43,9 @@ test('narrow screens use the deliberate tabbed layout, not the dock',async({page
  const ui=new VisualizationPage(page);await ui.open();
  await expect(page.locator('.viz-studio-mobile')).toBeVisible();
  await expect(page.locator('.dv-dockview')).toHaveCount(0);
- await page.locator('.viz-studio-mobile select').selectOption('map');
- await expect(page.getByLabel('Map-centred investigation workspace')).toBeVisible();
+ await expect(page.locator('.viz-studio-mobile select').getByRole('option', { name: 'Living Earth' })).toHaveCount(0);
+ await page.locator('.viz-studio-mobile select').selectOption('table');
+ await expect(page.getByLabel('Map-centred investigation workspace')).toHaveCount(0);
  await ui.noOverflow();
 });
 
