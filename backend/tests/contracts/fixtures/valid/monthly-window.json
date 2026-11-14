@@ -1,0 +1,10 @@
+{
+  "fixture_kind": "synthetic_contract",
+  "fixture_id": "monthly-window",
+  "model": "MonthlyWindow",
+  "disclosure": "STRUCTURAL TEST ONLY. Invented values and IDs; no NASA observations, method validation or scientific findings. Never bundle as product data.",
+  "payload": {
+    "start": "2003-01",
+    "end": "2023-12"
+  }
+}

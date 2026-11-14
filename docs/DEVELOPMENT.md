@@ -1,4 +1,4 @@
-# Local foundation development — F02
+# Local development — F02/F03
 
 This is a practice build. F02 provides React/TypeScript/Vite and FastAPI/Pydantic/Uvicorn with a browser-to-backend health check. Analysis is explicitly unavailable. See [execution ownership and gates](EXECUTION_STATUS.md). Full local release packaging is R01/R07, not this development launcher.
 
@@ -27,17 +27,38 @@ python scripts/dev.py browser
 
 `check` runs Ruff lint/format, strict mypy, pytest, TypeScript, Vitest/Testing Library and a Vite build. The browser installation is a one-time test-tool download; `browser` starts real servers, renders React in Chromium and checks the real FastAPI response through the proxy. Stop any existing development servers first. A browser smoke test proves connectivity, not scientific correctness. Ordinary tests use no external APIs. Test output is captured in the PR and [execution record](EXECUTION_STATUS.md).
 
+F03 adds contract drift checking before the normal checks, synthetic contract tests in pytest, compile-only frontend consumers and six Node generator/drift tests. Scientific algorithms and NASA data acquisition remain unimplemented. The health route and `analysis_ready: false` behavior are preserved.
+
+## Contract generation and ownership
+
+```powershell
+python scripts/dev.py contracts
+python scripts/dev.py contracts-check
+```
+
+`contracts` regenerates `contracts/openapi.json` and `web/src/contracts/generated.ts` from the authoritative Python models. Commit/review both artifacts with model changes. `contracts-check` generates expected content in memory and compares without writing; stale or missing outputs cause a nonzero exit. `python scripts/dev.py check` runs this drift check automatically. Standalone exporter inspection: run `uv run --locked python -m earth_trend.api.schemas.export` from `backend/`.
+
+H1 owns `backend/src/earth_trend/api/schemas/`, the export registry and generation tooling. H2/H3/H5 review source/scientific/consumer semantics jointly, and H6 independently reruns checks. Never hand-edit scientific TypeScript interfaces or generated artifacts. Import types from `web/src/contracts/generated.ts`; generated compile-time types do not replace runtime wire validation. No fake endpoints expose the definitions: `paths` contains the existing health route only.
+
+The pinned generator is `openapi-typescript` 7.13.0 with a TypeScript 5.9.3 tooling peer at the workspace root; the frontend continues to compile using its own TypeScript 7.0.2. See [contract decisions and remaining review gates](CONTRACTS.md), the [synthetic fixture disclosure](../backend/tests/contracts/fixtures/README.md) and the [dependency inventory](DEPENDENCY_LICENSES.md).
+
 ## Boundaries and maintenance
 
 ```text
 backend/src/earth_trend/api/    HTTP models, local Host/Origin protection, app factory
 backend/src/earth_trend/cli.py  loopback server entry point
 backend/tests/unit/            isolated HTTP behavior checks
+backend/src/earth_trend/api/schemas/ authoritative Pydantic wire contracts/export
+backend/tests/contracts/       disclosed synthetic round trips and rejection checks
+contracts/openapi.json        generated components plus existing operational paths
 web/src/app/                  React entry and foundation connection states
 web/src/data/                 validated health fetch with timeout/cancellation
 web/src/styles/               responsive foundation styling
 web/tests/unit/               response validation and loading/error/retry checks
 web/tests/browser/            one real browser-to-backend smoke
+web/src/contracts/            generated TypeScript; no handwritten scientific interfaces
+web/tests/contracts/          compile-only consumers and negative type assertions
+web/scripts/contracts*.mjs    generation, non-mutating check and isolated drift tests
 scripts/dev.py                setup, supervised start and check entry points
 ```
 

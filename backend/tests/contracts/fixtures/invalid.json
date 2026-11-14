@@ -1,0 +1,22 @@
+{
+  "fixture_kind": "synthetic_contract",
+  "disclosure": "Invalid structural specimens only; no scientific observations.",
+  "cases": [
+    {"id":"reversed-window","base":"monthly-window","path":["end"],"value":"2002-12","error_type":"value_error","message":"inclusive monthly"},
+    {"id":"malformed-month","base":"monthly-window","path":["start"],"value":"2003-13","error_type":"string_pattern_mismatch","message":"pattern"},
+    {"id":"unknown-version","base":"analysis-request","path":["schema_version"],"value":"2.0","error_type":"literal_error","message":"1.0"},
+    {"id":"unknown-variable","base":"analysis-request","path":["variable_id"],"value":"V99","error_type":"literal_error","message":"V01"},
+    {"id":"alpha-outside-design-range","base":"analysis-request","path":["alpha"],"value":0.5,"error_type":"less_than_equal","message":"0.1"},
+    {"id":"unknown-request-field","base":"analysis-request","path":["provider_url"],"value":"https://invalid.example","error_type":"extra_forbidden","message":"Extra inputs"},
+    {"id":"unclosed-polygon","base":"region-polygon","path":["geometry","coordinates",0,4],"value":[-98,36],"error_type":"value_error","message":"closed"},
+    {"id":"ambiguous-dateline","base":"region-dateline-bbox","path":["dateline"],"value":"not_crossing","error_type":"value_error","message":"dateline"},
+    {"id":"contradictory-estimate","base":"available-estimate","path":["reason"],"value":"insufficient_record","error_type":"none_required","message":"null"},
+    {"id":"reversed-confidence-interval","base":"available-estimate","path":["ci_low"],"value":9.0,"error_type":"value_error","message":"lower bound"},
+    {"id":"invalid-probability","base":"available-test","path":["p"],"value":1.1,"error_type":"less_than_equal","message":"1"},
+    {"id":"unvalidated-inference","base":"available-test","path":["method","validation_status"],"value":"pending","error_type":"value_error","message":"unvalidated"},
+    {"id":"wrong-fdr-size","base":"fdr-family","path":["size"],"value":2,"error_type":"value_error","message":"count included"},
+    {"id":"snapshot-advertises-computation","base":"snapshot-capabilities","path":["enabled_operations"],"value":["analyse"],"error_type":"value_error","message":"snapshot"},
+    {"id":"job-url-mismatch","base":"job-accepted","path":["status_url"],"value":"/api/v1/jobs/other","error_type":"value_error","message":"this job"},
+    {"id":"blind-retry-of-invalid-input","base":"invalid-request-problem","path":["retryable"],"value":true,"error_type":"value_error","message":"blindly retried"}
+  ]
+}

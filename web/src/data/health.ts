@@ -1,10 +1,7 @@
-/** F02 liveness contract only; F03 owns the future scientific API contracts. */
-export interface Health {
-  schema_version: 'health.v1';
-  status: 'ok';
-  mode: 'local';
-  analysis_ready: false;
-}
+import type { HealthResponse } from '../contracts/generated';
+
+/** The existing health wire shape, now sourced from Python alongside F03 types. */
+export type Health = HealthResponse;
 
 export async function fetchHealth(signal: AbortSignal): Promise<Health> {
   const response = await fetch('/api/v1/health', {

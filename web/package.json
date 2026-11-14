@@ -6,9 +6,11 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1 --port 5173 --strictPort",
     "check": "tsc --noEmit",
-    "test": "vitest run",
+    "test": "vitest run && node --test scripts/contracts.test.mjs",
     "build": "tsc --noEmit && vite build",
-    "test:browser": "playwright test"
+    "test:browser": "playwright test",
+    "contracts:generate": "node scripts/contracts.mjs",
+    "contracts:check": "node scripts/contracts.mjs --check"
   },
   "dependencies": { "react": "19.3.1", "react-dom": "19.3.1" },
   "devDependencies": {

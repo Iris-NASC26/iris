@@ -1,0 +1,12 @@
+{
+  "fixture_kind": "synthetic_contract",
+  "fixture_id": "outlook-request",
+  "model": "OutlookRequest",
+  "disclosure": "STRUCTURAL TEST ONLY. Invented values and IDs; no NASA observations, method validation or scientific findings. Never bundle as product data.",
+  "payload": {
+    "schema_version": "1.0",
+    "analysis_result_id": "synthetic-analysis",
+    "projection_horizon_years": 1.0,
+    "forecast_horizon_months": 12
+  }
+}

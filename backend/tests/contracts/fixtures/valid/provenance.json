@@ -1,0 +1,30 @@
+{
+  "fixture_kind": "synthetic_contract",
+  "fixture_id": "provenance",
+  "model": "Provenance",
+  "disclosure": "STRUCTURAL TEST ONLY. Invented values and IDs; no NASA observations, method validation or scientific findings. Never bundle as product data.",
+  "payload": {
+    "schema_version": "1.0",
+    "created_at": "2026-11-14T00:00:00Z",
+    "provenance_id": "synthetic-provenance",
+    "data_kind": "synthetic_contract",
+    "binding_ids": [
+      "synthetic-binding"
+    ],
+    "source_artifact_hashes": [],
+    "granule_or_job_ids": [],
+    "parent_ids": [],
+    "code_version": "0000000",
+    "software_versions": {
+      "fixture": "v1"
+    },
+    "processing_steps": [
+      "synthetic-shape-only"
+    ],
+    "mask_id": null,
+    "qa_policy_id": "synthetic-qa",
+    "request_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "result_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "random_seed": null
+  }
+}

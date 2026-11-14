@@ -1,0 +1,64 @@
+{
+  "fixture_kind": "synthetic_contract",
+  "fixture_id": "region-multipolygon",
+  "model": "RegionSpec",
+  "disclosure": "STRUCTURAL TEST ONLY. Invented values and IDs; no NASA observations, method validation or scientific findings. Never bundle as product data.",
+  "payload": {
+    "kind": "polygon",
+    "geometry": {
+      "type": "MultiPolygon",
+      "coordinates": [
+        [
+          [
+            [
+              170,
+              -10
+            ],
+            [
+              180,
+              -10
+            ],
+            [
+              180,
+              10
+            ],
+            [
+              170,
+              10
+            ],
+            [
+              170,
+              -10
+            ]
+          ]
+        ],
+        [
+          [
+            [
+              -180,
+              -10
+            ],
+            [
+              -170,
+              -10
+            ],
+            [
+              -170,
+              10
+            ],
+            [
+              -180,
+              10
+            ],
+            [
+              -180,
+              -10
+            ]
+          ]
+        ]
+      ]
+    },
+    "dateline": "split",
+    "interior": "bounded"
+  }
+}

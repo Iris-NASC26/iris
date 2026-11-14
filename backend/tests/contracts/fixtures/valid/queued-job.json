@@ -1,0 +1,20 @@
+{
+  "fixture_kind": "synthetic_contract",
+  "fixture_id": "queued-job",
+  "model": "Job",
+  "disclosure": "STRUCTURAL TEST ONLY. Invented values and IDs; no NASA observations, method validation or scientific findings. Never bundle as product data.",
+  "payload": {
+    "schema_version": "1.0",
+    "job_id": "synthetic-job",
+    "request_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "status_url": "/api/v1/jobs/synthetic-job",
+    "created_at": "2026-11-14T00:00:00Z",
+    "state": "queued",
+    "stage": "queued",
+    "attempt": 0,
+    "provider_job_ids": [],
+    "progress": 0.0,
+    "progress_reason": null,
+    "updated_at": "2026-11-14T00:00:00Z"
+  }
+}

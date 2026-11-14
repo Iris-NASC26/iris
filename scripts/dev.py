@@ -115,7 +115,9 @@ def start() -> None:
 def main() -> int:
     logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=("setup", "start", "check", "browser"))
+    parser.add_argument(
+        "command", choices=("setup", "start", "check", "browser", "contracts", "contracts-check")
+    )
     args = parser.parse_args()
     try:
         check_tools()
@@ -128,6 +130,7 @@ def main() -> int:
                 start()
             case "check":
                 python = str(backend_python())
+                run(pnpm("--dir", "web", "contracts:check"))
                 for command in (
                     [
                         python,
@@ -157,6 +160,10 @@ def main() -> int:
                 run(pnpm("build"))
             case "browser":
                 run(pnpm("test:browser"))
+            case "contracts":
+                run(pnpm("--dir", "web", "contracts:generate"))
+            case "contracts-check":
+                run(pnpm("--dir", "web", "contracts:check"))
         return 0
     except KeyboardInterrupt:
         logger.info("Local development stopped")

@@ -1,0 +1,57 @@
+{
+  "fixture_kind": "synthetic_contract",
+  "fixture_id": "series-with-missing-month",
+  "model": "Series",
+  "disclosure": "STRUCTURAL TEST ONLY. Invented values and IDs; no NASA observations, method validation or scientific findings. Never bundle as product data.",
+  "payload": {
+    "schema_version": "1.0",
+    "series_id": "synthetic-series-shape-only",
+    "variable_id": "V01",
+    "binding_id": "synthetic-binding",
+    "branch_id": "raw_monthly",
+    "frequency": "monthly",
+    "time": [
+      "2003-01",
+      "2003-02",
+      "2003-03"
+    ],
+    "value": [
+      1.0,
+      null,
+      0.0
+    ],
+    "coverage": [
+      1.0,
+      null,
+      0.8
+    ],
+    "valid": [
+      true,
+      false,
+      true
+    ],
+    "reason": [
+      null,
+      "missing_observation",
+      null
+    ],
+    "units": "°C",
+    "transform": {
+      "transform_id": "synthetic-identity",
+      "version": "fixture-v1",
+      "kind": "identity",
+      "input_units": "C",
+      "output_units": "°C",
+      "scale": 1,
+      "offset": 0,
+      "order": [
+        "decode_fill",
+        "qa",
+        "scale_units",
+        "weighted_regional_mean"
+      ]
+    },
+    "grid_id": "synthetic-grid",
+    "provenance_id": "synthetic-provenance"
+  }
+}

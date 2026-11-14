@@ -1,11 +1,11 @@
-# Execution status — F01/F02
+# Execution status — F01/F02/F03
 
 **Updated:** 14 November 2026, Asia/Colombo.  
 **Context:** Practice build outside the official submission, explicitly confirmed by the user. Do not represent this work as eligible event-period development.  
 **Approved baseline:** SRS v0.3, TDD v0.3, Implementation Plan v1.0; commit `4b6046a`.  
-**Branch:** `feat/F02-local-foundation`. Baseline PR: [#1](https://github.com/Iris-NASC26/earth-system-trend-detective/pull/1).
+**Current branch:** `feat/F03-analysis-contracts`, based on F02 commit `c5aba5d`. Baseline PR: [#1](https://github.com/Iris-NASC26/earth-system-trend-detective/pull/1); foundation PR: [#7](https://github.com/Iris-NASC26/earth-system-trend-detective/pull/7).
 
-This ledger records execution without rewriting the approved documents. The user has authorized implementation and provisional H1–H6 roles. Local hosting remains the target. Only F01 and F02 are selected in this change. No additional product feature or architectural change is proposed.
+This ledger records execution without rewriting the approved documents. The user authorized F01/F02 and provisional H1–H6 roles, then explicitly authorized F03 in the follow-up attached request. Local hosting remains the target. The current change is F03 only; no additional product feature or architectural change is proposed.
 
 ## Ownership and first assignment board
 
@@ -24,11 +24,11 @@ These are role assignments, not assertions about six people's actual qualificati
 | --- | --- | --- | --- | --- |
 | F01 — Freeze scope, assignments and acceptance ledger | P0 / REVIEW | H1 + leads / H6 | User implementation approval, received | This ledger, five initial assignments, all AC owners; pending team walkthrough and current guide check |
 | F02 — Minimal local runtime and isolated tests | P0 / REVIEW | H1 / H6 setup rerun + H5 frontend review | F01's baseline/ownership record | Clean setup, browser-to-health path, checks and licence seed verified locally; human rerun/review pending |
-| F03 — Versioned scientific/API contracts | P0 / TODO | H1 + H2/H3/H5 / consuming leads | F01; F02 for generation | Pydantic/OpenAPI, generated TypeScript and labelled state fixtures; not started |
+| F03 — Versioned scientific/API contracts | P0 / REVIEW | H1 + H2/H3/H5 / consuming leads; H6 rerun | F01; F02 for generation; follow-up authorization received | Authoritative Pydantic schemas, OpenAPI/TS export, disclosed fixtures, drift checks and consumer compilation passed locally; human review pending |
 | F04 — Independent scientific oracles and gates | P0 / TODO | H3 / independently qualified H2 or other human | F01 | Independent derivations, fixed fixtures/tolerances, primary-paper checks; not started |
 | F05 — NASA access and transfer preflight | P0 / TODO | H2 / H1 + H3 | F01, user-local Earthdata configuration | Genuine bounded source samples, quotas and storage/time estimates; not started |
 
-F01/F02 can become REVIEW after local verification, but cannot become DONE before human approval, dependency-ordered merge and post-merge smoke checks (plan D0). Do not start F03–F05 in this execution.
+F01/F02 retain REVIEW; F03 may reach REVIEW after its actual verification. None can become DONE before human approval, dependency-ordered merge and post-merge smoke checks (plan D0). The previous execution's F03 stop restriction is superseded by the explicit follow-up authorization. F04/F05 are not started in this execution.
 
 The first five task cards are tracked as GitHub issues: [F01 #2](https://github.com/Iris-NASC26/earth-system-trend-detective/issues/2), [F02 #3](https://github.com/Iris-NASC26/earth-system-trend-detective/issues/3), [F03 #4](https://github.com/Iris-NASC26/earth-system-trend-detective/issues/4), [F04 #5](https://github.com/Iris-NASC26/earth-system-trend-detective/issues/5), [F05 #6](https://github.com/Iris-NASC26/earth-system-trend-detective/issues/6). This table is the status board; no GitHub account assignments are invented for provisional roles.
 
@@ -111,6 +111,8 @@ Every row is **NOT RUN** at ledger creation. F02 health/unit/browser checks do n
 
 Codex read the approved documents, inspected Git/runtime metadata, researched official sources, prepared the F01 ledger and authored the selected F02 foundation/tests. No AI-generated imagery, scientific observations, statistical results or NASA data have been created. Human review is pending. This development record is an input to the future CMP-3/AC-22 disclosure page, not evidence that the page exists.
 
+For the separately authorized F03 task, Codex reread the relevant documents/code, authored the Pydantic contracts, export/generation scripts, synthetic structural fixtures, verification and decision notes. One implementation agent was used. Generated fixture numbers are disclosed test-shape values, not calculated environmental or statistical results. No NASA request or statistical algorithm was executed.
+
 ## F02 verification evidence
 
 Verified on 14 November 2026 on the reference development machine with Node 24.19.0, pnpm 12.18.0, Python 3.13.15 and uv 0.12.9. A fresh directory exported from the Git index had no virtual environment or node_modules; it successfully ran the documented setup and checks. Shared download caches were retained. This demonstrates a clean environment recreation on this Windows machine, not cross-platform acceptance.
@@ -130,3 +132,31 @@ Verified on 14 November 2026 on the reference development machine with Node 24.1
 The current Starlette TestClient emits one upstream deprecation warning for its `httpx` compatibility path. The HTTP tests pass; migration to its preferred test transport can be assessed in F06. Playwright also reports inherited terminal colour-variable warnings, with both browser tests passing. No warning is suppressed to claim a clean run.
 
 **Scientific validation:** NOT STARTED. No NASA data were retrieved, no statistical calculations implemented and no AC-01–35 criterion passed by these foundation checks. Remaining F01 acceptance includes the human walkthrough and the unresolved decisions above. Next proposed implementation task after review: F03, with F04/F05 available as separate human-led workstreams once their gates are met.
+
+## F03 changes and verification evidence
+
+The attached follow-up explicitly authorized implementation of F03 and superseded the previous turn's task stop restriction. The dedicated branch starts from the verified F02 commit; outstanding F01/F02 human-review/merge gates are preserved. Scope is contracts and verification only. No additional operational endpoint, statistical algorithm, NASA acquisition, spatial computation, storage, job execution or visualization was implemented. Runtime health behavior remains `analysis_ready: false`.
+
+Implemented `RegionSpec`, dataset identity/units/transforms, monthly/annual `Series`, versioned requests, estimates/tests/grades/FDR context, analysis/scan/Outlook/comparison results, layer manifests, provenance, job/accepted-job records, capabilities and structured problems. **22 public contracts plus supporting definitions and existing health produce 77 exported OpenAPI components.** `paths` contains only `/api/v1/health`. Detailed field decisions and owner review points are in [CONTRACTS.md](CONTRACTS.md).
+
+The generated artifacts are `contracts/openapi.json` and `web/src/contracts/generated.ts`. `python scripts/dev.py contracts` regenerates them; `python scripts/dev.py contracts-check` compares in memory without writes, and is part of `check`. The generator's TypeScript 5.9.3 peer is isolated at the workspace root; the application keeps TypeScript 7.0.2 and strict peer validation. No Python dependency changes were needed. The refreshed licence seed records 29 installed Python dependencies and 129 Node package/version entries, selecting MIT for the dual MIT/CC0 type-fest dependency.
+
+Verified on 14 November 2026 with the existing pinned Windows environment:
+
+| Exact check / evidence | Actual result |
+| --- | --- |
+| `npx --yes pnpm@12.18.0 install --lockfile-only`, then `install --frozen-lockfile` | PASS: new generation-tool dependencies resolved and installed; lockfile updated |
+| `python scripts/dev.py contracts` | PASS: both artifacts generated from the authoritative Python models |
+| `python scripts/dev.py contracts-check` | PASS: current schema/types match fresh expected content; no output written |
+| `python scripts/dev.py check` | PASS: drift check, Ruff lint/format, strict mypy on 17 source/test files, TypeScript consumer compilation, 156 pytest tests, 7 Vitest tests, 6 real Node generator/drift tests, and production build |
+| `python scripts/dev.py browser` | PASS: 2 Chromium tests exercising unchanged real health connectivity and keyboard retry on a narrow layout |
+| Synthetic specimens | 44 disclosed valid JSON specimens covering all public contracts and states; 16 invalid delta specimens with expected validation errors; additional parametrized invariants/boundaries |
+| Deliberate drift | Enum, unit, nullability, generated TypeScript and missing outputs all failed as expected in isolated temporary output directories, with no repair/mutation in check mode |
+| Determinism | Two real generations produced identical OpenAPI/TypeScript content; subsequent check preserved output modification times |
+| Source preservation | Approved SRS, TDD and Implementation Plan unchanged |
+| Precommit checks | PASS: whitespace check and selected credential-pattern scan across 101 indexed/build paths with zero findings; limited check, not final AC-32 certification |
+| Runtime boundary | Health test remains false for analysis readiness; export added no operational paths; no listeners remained on 8000/5173 after browser verification |
+
+Existing upstream Starlette/httpx TestClient and terminal colour-variable warnings remain visible; checks pass without suppressing them. Generated artifacts are approximately 180 KB OpenAPI and 91 KB TypeScript on this tree. The runtime production bundle remains approximately 221.68 KB JavaScript / 69.53 KB gzip: generated contracts and fixture data add no product payload.
+
+**Limitations and review gates:** model validation proves structure/internal consistency, not authentic metadata, matching artifact/family hashes, geometry topology, scientific eligibility, numerical accuracy or valid uncertainty. F04 still owns gap-aware Hamed–Rao, Sen CI/rank conventions, OLS calibration, Weatherhead sampling and paper details; F05 still owns genuine source/header/auth/quota evidence. H1/H2/H3/H5 must jointly review contracts/examples, including estimator/branch identity, different-window FDR context and explicit reasons; H6 independently reruns checks. F03 is REVIEW, not DONE or scientific acceptance. No credentials are required for this task. Next recommended task: human-led F04; F05 source preflight and F06 quality automation can be assigned separately according to their dependencies, after review/authorization.
