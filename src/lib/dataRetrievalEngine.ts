@@ -278,71 +278,6 @@ export interface GlobeCubeResponse {
   }>;
 }
 
-export interface RegionalVariableScanRow {
-  layer_id: string;
-  variable_id: string;
-  variable_name: string;
-  category: string;
-  unit: string;
-  source_product: string;
-  citation_doi: string;
-  analyzable: boolean;
-  unavailable_reason?: string | null;
-  decadal_slope?: number | null;
-  ci_low?: number | null;
-  ci_high?: number | null;
-  mk_p_value?: number | null;
-  fdr_q_value?: number | null;
-  significant_fdr: boolean;
-  evidence_grade?: "A" | "B" | "C" | "D" | null;
-  grade_reason: string;
-  valid_coverage_pct: number;
-  caveats: string[];
-  sparkline: number[];
-}
-
-export interface TwoRegionComparisonResult {
-  variable_id: string;
-  variable_name: string;
-  unit: string;
-  window: string;
-  region_a_name: string;
-  region_a_bbox: [number, number, number, number];
-  region_a_slope: number;
-  region_a_ci: [number, number];
-  region_a_p: number;
-  region_a_grade: "A" | "B" | "C" | "D";
-  region_a_series: number[];
-  region_b_name: string;
-  region_b_bbox: [number, number, number, number];
-  region_b_slope: number;
-  region_b_ci: [number, number];
-  region_b_p: number;
-  region_b_grade: "A" | "B" | "C" | "D";
-  region_b_series: number[];
-  slope_difference: number;
-  difference_ci: [number, number];
-  concordance_label: string;
-  non_causal_disclosure: string;
-}
-
-export interface CaseBoardResponse {
-  cube_version: string;
-  region_name: string;
-  bbox: [number, number, number, number];
-  start_year: number;
-  end_year: number;
-  area_km2: number;
-  grid_cells_count: number;
-  land_fraction_pct: number;
-  ocean_fraction_pct: number;
-  mean_coverage_pct: number;
-  fdr_alpha: number;
-  scanned_variables: RegionalVariableScanRow[];
-  unavailable_variables: RegionalVariableScanRow[];
-  two_region_comparison?: TwoRegionComparisonResult | null;
-}
-
 export interface MonthlyFingerprintItem {
   month_index: number;
   month_name: string;
@@ -574,3 +509,66 @@ export const EMPTY_DISCOVERY_STATE: DiscoveryResponse = {
   cache_hit: false,
   total_candidates_evaluated: 0,
 };
+
+export type ResearchSourceProvider = "openalex" | "datacite";
+export type ResearchSortOrder = "relevance" | "citations" | "year";
+
+export interface ResearchDatasetContext {
+  product_id: string;
+  variable_id: string;
+  variable_name: string;
+  title?: string;
+  category?: string;
+  source_api: string;
+  provider_agency?: string;
+  mission_or_instrument?: string;
+  citation_doi?: string;
+  gcmd_keywords?: string[];
+  region_name?: string;
+  start_date?: string;
+  end_date?: string;
+}
+
+export interface ResearchSearchRequest {
+  mode: "manual" | "dataset";
+  query?: string;
+  dataset_context?: ResearchDatasetContext | null;
+  sources?: ResearchSourceProvider[];
+  sort?: ResearchSortOrder;
+  per_source_limit?: number;
+}
+
+export interface ResearchWorkItem {
+  id: string;
+  source_provider: "OpenAlex" | "DataCite";
+  title: string;
+  authors: string;
+  year: number | null;
+  publication: string;
+  work_type: string;
+  topic: string;
+  abstract_snippet: string;
+  doi: string | null;
+  doi_url: string | null;
+  primary_url: string;
+  paper_url: string | null;
+  abstract_url: string | null;
+  dataset_url: string | null;
+  record_url: string;
+  is_open_access: boolean;
+  cited_by_count: number;
+  match_context: string | null;
+}
+
+export interface ResearchSearchResponse {
+  mode: "manual" | "dataset";
+  query_executed: string;
+  dataset_label?: string | null;
+  total_results: number;
+  openalex_count: number;
+  datacite_count: number;
+  open_access_count: number;
+  provider_status: Record<string, string>;
+  results: ResearchWorkItem[];
+  retrieved_at: string;
+}

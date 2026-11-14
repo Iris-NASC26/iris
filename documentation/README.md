@@ -61,7 +61,6 @@ documentation/
     ├── data-preview.md
     ├── visualize.md
     ├── globe.md
-    ├── case-board.md
     ├── case-studies.md
     ├── methodology.md
     ├── data-sources.md

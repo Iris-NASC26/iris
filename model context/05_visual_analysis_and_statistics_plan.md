@@ -1,7 +1,7 @@
-# Plot & Visualize: Analysis and Visualization Plan
+# Data Analysis: Analysis and Visualization Plan
 
-**Status:** Implementation plan for the Plot & Visualize scientific Case File  
-**Scope:** `/workspace/visualize`, its shared statistical response contract, and the analysis route it consumes  
+**Status:** Implementation plan for the Data Analysis scientific Case File
+**Scope:** `/workspace/data-analysis`, its shared statistical response contract, and the analysis route it consumes
 **Controlling references:** Integrated SRS v1.0, especially AN-01–AN-07, VZ-01–VZ-02, EX-03–EX-06, DP-03, and the zero-synthetic-data principle; `03_global_trend_cube_and_science_pipeline.md`; `04_codebase_developer_handbook.md`.
 
 ## 1. Goals and scientific constraints

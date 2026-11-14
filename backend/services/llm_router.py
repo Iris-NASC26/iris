@@ -38,35 +38,35 @@ NASA_LIVE_APIS = [
 
 DOMAIN_ONTOLOGY = [
     {
-        "triggers": ["drought", "soil moisture", "aridity", "water stress", "groundwater", "evapotranspiration", "runoff", "hydrology", "gldas"],
+        "triggers": ["drought", "soil", "soil moisture", "aridity", "water", "water stress", "groundwater", "evapotranspiration", "runoff", "hydrology", "gldas", "smap", "grace", "gwettop", "water quality", "landslide", "erosion"],
         "subject_domain": "Terrestrial Hydrology & Agricultural Drought",
         "scientific_category": "Land",
         "keywords": ["soil moisture", "evapotranspiration", "drought", "precipitation", "GLDAS", "wetness"],
         "target_variables": ["GWETTOP", "GWETROOT", "GLDAS_NOAH025_3H_2_1_SoilMoi0_10cm_inst", "PRECTOTCORR"],
     },
     {
-        "triggers": ["vegetation", "ndvi", "forest", "greenness", "agriculture", "crop", "deforestation", "canopy", "lai", "biomass", "evi"],
+        "triggers": ["vegetation", "ndvi", "forest", "greenness", "agriculture", "crop", "deforestation", "canopy", "lai", "biomass", "evi", "modis", "landsat", "sentinel", "biodiversity", "ecosystem", "land cover", "land use"],
         "subject_domain": "Terrestrial Biosphere & Vegetation Dynamics",
         "scientific_category": "Biosphere",
         "keywords": ["NDVI", "vegetation", "EVI", "leaf area", "MODIS", "photosynthesis"],
         "target_variables": ["NDVI", "EVI", "PRECTOTCORR", "T2M"],
     },
     {
-        "triggers": ["snow", "ice", "glacier", "cryosphere", "permafrost", "albedo", "freeze", "himalaya", "arctic", "sea ice"],
+        "triggers": ["snow", "ice", "glacier", "glacial", "cryosphere", "permafrost", "albedo", "freeze", "himalaya", "arctic", "sea ice"],
         "subject_domain": "Cryospheric Science & Snow/Ice Retreat",
         "scientific_category": "Cryosphere",
         "keywords": ["snow cover", "NDSI", "cryosphere", "albedo", "glacier", "temperature"],
         "target_variables": ["NDSI_Snow_Cover", "T2M", "TS"],
     },
     {
-        "triggers": ["rain", "precipitation", "monsoon", "flood", "storm", "extreme weather", "river", "discharge", "water level", "imerg"],
+        "triggers": ["rain", "rainfall", "precipitation", "monsoon", "flood", "storm", "extreme weather", "river", "discharge", "water level", "imerg", "gpm"],
         "subject_domain": "Hydrometeorology & Precipitation Extremes",
         "scientific_category": "Water",
         "keywords": ["precipitation", "rainfall", "monsoon", "IMERG", "flood", "humidity"],
         "target_variables": ["PRECTOTCORR", "GLDAS_NOAH025_3H_2_1_Rainf_f_tavg", "RH2M"],
     },
     {
-        "triggers": ["air quality", "aerosol", "pollution", "pm2.5", "carbon", "co2", "methane", "no2", "ozone", "smoke", "wildfire"],
+        "triggers": ["air quality", "aerosol", "pollution", "pm2.5", "carbon", "carbon cycle", "emissions", "co2", "methane", "no2", "ozone", "smoke", "wildfire", "era5", "merra-2"],
         "subject_domain": "Atmospheric Composition & Aerosols",
         "scientific_category": "Atmosphere",
         "keywords": ["aerosol", "optical depth", "air quality", "smoke", "dust", "wind"],
@@ -86,13 +86,50 @@ DOMAIN_ONTOLOGY = [
         "keywords": ["temperature", "land surface temperature", "thermal", "MERRA-2", "heat"],
         "target_variables": ["T2M", "T2M_MAX", "T2M_MIN", "GLDAS_NOAH025_3H_2_1_Tair_f_inst"],
     },
+    {
+        "triggers": ["ocean", "marine", "salinity", "sea level", "sea surface temperature", "coral", "coastal", "ocean current", "acidification"],
+        "subject_domain": "Ocean & Coastal Systems",
+        "scientific_category": "Oceans",
+        "keywords": ["sea surface temperature", "ocean salinity", "sea level", "ocean color", "marine heatwave", "coral reef"],
+        "target_variables": ["SST", "SSS", "CHL", "sea surface temperature"],
+    },
+    {
+        "triggers": ["earth science", "earth observation", "environment", "environmental"],
+        "subject_domain": "Earth Systems & Environmental Change",
+        "scientific_category": "Land",
+        "keywords": ["Earth observation", "environmental change", "land cover", "precipitation", "surface temperature"],
+        "target_variables": ["T2M", "PRECTOTCORR", "NDVI"],
+    },
 ]
+
+
+def has_research_domain(prompt: str) -> bool:
+    normalized_prompt = re.sub(r"[^a-z0-9]+", " ", prompt.lower()).strip()
+    padded_prompt = f" {normalized_prompt} "
+    terms = tuple(trigger for entry in DOMAIN_ONTOLOGY for trigger in entry["triggers"])
+    return any(
+        f" {re.sub(r'[^a-z0-9]+', ' ', term.lower()).strip()} " in padded_prompt
+        for term in terms
+    )
+
+
+def is_explanatory_inquiry(prompt: str) -> bool:
+    normalized = prompt.strip().lower()
+    normalized = re.sub(r"^(?:(?:hi|hello|hey)[\s,!.]*)+", "", normalized)
+    if re.search(
+        r"\b(?:what is|what are|tell me about|explain|define|describe|how does|how do|why is|why are|why does|who is)\b",
+        normalized,
+    ):
+        return True
+    return bool(
+        re.match(r"^(?:(?:can|could) you|please)\s+(?:explain|describe|define|tell me about)\b", normalized)
+    )
 
 
 def _normalize_cache_key(prompt: str, preferred_providers: Optional[List[str]]) -> str:
     clean = re.sub(r"\s+", " ", prompt.strip().lower())
     prov = ",".join(sorted(preferred_providers or []))
-    return hashlib.sha256(f"{clean}||{prov}".encode("utf-8")).hexdigest()
+    return hashlib.sha256(f"{clean}||{prov}||intent-v2".encode("utf-8")).hexdigest()
 
 
 def _extract_dates_and_frequency(prompt: str) -> Tuple[str, str, str]:
@@ -178,11 +215,14 @@ async def extract_scientific_intent(
     prompt: str,
     preferred_providers: Optional[List[str]] = None,
     user_api_key: Optional[str] = None,
-) -> Tuple[ExtractedIntent, bool]:
+) -> Tuple[Optional[ExtractedIntent], bool]:
     """
     Extracts scientific intent using `gemini-3.5-flash-lite` (when project billing/quota is active)
     and live Open-Meteo geocoding, routing to the 5 NASA providers.
     """
+    if not has_research_domain(prompt) or is_explanatory_inquiry(prompt):
+        return None, False
+
     cache_key = _normalize_cache_key(prompt, preferred_providers)
     now = time.time()
     if cache_key in _INTENT_CACHE:
@@ -205,7 +245,12 @@ async def extract_scientific_intent(
         if api_key:
             system_instruction = (
                 "You are an expert NASA Earth Observation & Climate Science catalog router. "
-                "Given a user's research topic, return a strict JSON object with keys: "
+                "First classify the user's latest message. A greeting, help or role question, unrelated request, "
+                "or a question asking for a general explanation of a science topic is NOT a dataset-discovery request. "
+                "For those messages, return exactly {\"is_dataset_search_request\": false}; do not infer a domain, "
+                "location, keywords, or variables. A clear research/data topic by itself is a dataset-discovery request, "
+                "as is an explicit request to find or analyze datasets. For those messages, return a strict JSON object "
+                "with is_dataset_search_request set to true and keys: "
                 "subject_domain (string), scientific_category (one of Atmosphere, Water, Land, Biosphere, Cryosphere, Oceans), "
                 "keywords (array of 4-7 concise Earth science search terms for NASA CMR/POWER/AppEEARS), "
                 "target_variables (array of 2-4 variable codes such as T2M, PRECTOTCORR, GWETTOP, NDVI, GLDAS_NOAH025_3H_2_1_SoilMoi0_10cm_inst), "
@@ -233,6 +278,9 @@ async def extract_scientific_intent(
                     )
                     if raw_text:
                         parsed = json.loads(raw_text)
+                        if parsed.get("is_dataset_search_request") is not True:
+                            return None, False
+                        parsed.pop("is_dataset_search_request", None)
                         parsed["target_apis"] = active_apis
                         parsed["llm_model_used"] = f"{GEMINI_MODEL} (Live Gemini API)"
                         intent = ExtractedIntent(**parsed)

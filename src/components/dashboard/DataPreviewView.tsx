@@ -21,8 +21,9 @@ export function DataPreviewView({ routeJobId }: { routeJobId?: string }) {
   const searchParams = useSearchParams();
   const chartGradId = useId();
   const {
-    extractionConfig,
     extractedPreview,
+    activeProduct,
+    selectedProducts,
     setExtractedPreview,
     setAutoRunCase,
   } = useDashboard();
@@ -45,14 +46,13 @@ export function DataPreviewView({ routeJobId }: { routeJobId?: string }) {
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 24;
 
-  // Fetch real time-series preview from backend (never synthesize dummy series)
+  // Only load an existing job when the URL identifies one; extraction is user-initiated
+  // from Data Selection, never triggered by visiting this page.
   useEffect(() => {
     let cancelled = false;
 
     const loadJobData = async () => {
-      if (extractedPreview && (!effectiveJobId || extractedPreview.job_id === effectiveJobId)) {
-        return;
-      }
+      if (!effectiveJobId || extractedPreview?.job_id === effectiveJobId) return;
 
       setLoadingPreview(true);
       setPreviewError("");
@@ -72,21 +72,12 @@ export function DataPreviewView({ routeJobId }: { routeJobId?: string }) {
             return;
           }
         }
-
-        const res = await fetch("/api/v1/timeseries/extract", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(extractionConfig),
-        });
-        const data = await res.json();
-        if (res.ok && !cancelled) {
-          setExtractedPreview(data as PreviewResponse);
-        } else if (!cancelled) {
-          setPreviewError(data?.error || data?.detail || "Upstream NASA time-series extraction failed.");
+        if (!cancelled) {
+          setPreviewError("Could not load the requested data preview. Return to Data Selection and retrieve the dataset again.");
         }
       } catch (err) {
         if (!cancelled) {
-          setPreviewError(`Could not reach backend for live time-series extraction: ${String(err)}`);
+          setPreviewError(`Could not load the requested data preview: ${String(err)}`);
         }
       } finally {
         if (!cancelled) setLoadingPreview(false);
@@ -97,20 +88,34 @@ export function DataPreviewView({ routeJobId }: { routeJobId?: string }) {
     return () => {
       cancelled = true;
     };
-  }, [effectiveJobId, extractedPreview, extractionConfig, setExtractedPreview]);
+  }, [effectiveJobId, extractedPreview, setExtractedPreview]);
 
   if (!extractedPreview) {
+    const hasSelectedDataset = Boolean(activeProduct || selectedProducts.length);
+
     return (
       <div className="data-preview-page dashboard-page-inner">
-        <section className="dashboard-card" style={{ padding: "2rem" }}>
+        <section className="dashboard-card ds-empty-state" style={{ padding: "2rem" }}>
           <span className="section-kicker">
-            <span>01</span> Live NASA Time-Series Extraction
+            <span>01</span> Data Preview
           </span>
-          <h2 style={{ marginTop: "0.5rem" }}>
+          <h2>
             {loadingPreview
-              ? `Fetching live time-series observations from ${extractionConfig.source_api}…`
-              : "Live Time-Series Preview Unavailable"}
+              ? "Loading saved data preview…"
+              : hasSelectedDataset
+                ? "A dataset is selected, but no data has been retrieved yet."
+                : "No dataset has been selected, and no data has been retrieved yet."}
           </h2>
+          {!loadingPreview && (
+            <>
+              <p>To create a data preview:</p>
+              <ol style={{ margin: 0, paddingLeft: "1.25rem", lineHeight: 1.7 }}>
+                <li>Go to System Intelligence and describe the research topic or dataset you need.</li>
+                <li>Continue to Data Selection, choose a dataset, and retrieve its data.</li>
+                <li>After retrieval, you will return here to inspect the preview.</li>
+              </ol>
+            </>
+          )}
           {previewError && (
             <p className="si-error-msg" role="alert" style={{ marginTop: "0.75rem" }}>
               <Icon name="alert" size={15} /> {previewError}
@@ -122,14 +127,14 @@ export function DataPreviewView({ routeJobId }: { routeJobId?: string }) {
               onClick={() => router.push("/workspace/intelligence")}
               type="button"
             >
-              Return to SI Chat Assistant
+              Go to System Intelligence
             </button>
             <button
               className="dp-proceed-btn"
               onClick={() => router.push("/workspace/data-selection")}
               type="button"
             >
-              Adjust Dataset & Parameters <Icon name="arrow" size={14} />
+              Go to Data Selection <Icon name="arrow" size={14} />
             </button>
           </div>
         </section>
@@ -225,7 +230,7 @@ export function DataPreviewView({ routeJobId }: { routeJobId?: string }) {
 
   const handleProceedToAnalysis = () => {
     setAutoRunCase(true);
-    router.push(`/workspace/visualize?jobId=${encodeURIComponent(preview.job_id)}`);
+    router.push(`/workspace/data-analysis?jobId=${encodeURIComponent(preview.job_id)}`);
   };
 
   return (

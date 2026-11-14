@@ -168,6 +168,102 @@ class ChatTurnResponse(BaseModel):
     trigger_extraction: bool = False
 
 
+class AssistantHistoryTurn(BaseModel):
+    role: Literal["user", "assistant"]
+    content: str = Field(..., max_length=1200)
+
+
+class AssistantSelectedProduct(BaseModel):
+    id: str = Field(..., max_length=200)
+    title: str = Field(..., max_length=240)
+    variable_id: str = Field(default="", max_length=200)
+    variable_name: str = Field(default="", max_length=240)
+    source_api: str = Field(default="", max_length=160)
+    what_it_measures: str = Field(default="", max_length=320)
+    description: str = Field(default="", max_length=320)
+    unit: str = Field(default="", max_length=80)
+    native_frequency: str = Field(default="", max_length=80)
+
+
+class AssistantProcessedObservation(BaseModel):
+    timestamp: str = Field(..., max_length=40)
+    value: Optional[float] = None
+    secondary_value: Optional[float] = None
+    rolling_avg: Optional[float] = None
+    anomaly_z: Optional[float] = None
+    unit: str = Field(default="", max_length=80)
+    qa_flag: Literal["Valid", "Flagged", "Interpolated", "Missing"] = "Valid"
+
+
+class AssistantProcessedSummary(BaseModel):
+    count: int
+    valid_count: int
+    flagged_count: int
+    missing_count: int
+    completeness_pct: float
+    missing_pct: float
+    mean: Optional[float] = None
+    median: Optional[float] = None
+    std_dev: Optional[float] = None
+    min_val: Optional[float] = None
+    min_date: str = Field(default="", max_length=40)
+    max_val: Optional[float] = None
+    max_date: str = Field(default="", max_length=40)
+    decadal_slope: Optional[float] = None
+    unit: str = Field(default="", max_length=80)
+
+
+class AssistantProcessedData(BaseModel):
+    result_id: Optional[str] = Field(default=None, max_length=200)
+    product_name: str = Field(default="", max_length=240)
+    total_rows: int
+    summary_stats: AssistantProcessedSummary
+    sampled_observations: List[AssistantProcessedObservation] = Field(default_factory=list, max_length=16)
+
+
+class AssistantSIContextTurn(BaseModel):
+    role: Literal["user", "assistant"]
+    summary: str = Field(..., max_length=300)
+
+
+class AssistantPageContext(BaseModel):
+    pathname: str = Field(..., max_length=160)
+    page_title: str = Field(..., max_length=160)
+    active_dataset_id: str = Field(default="", max_length=200)
+    active_variable: str = Field(default="", max_length=200)
+    source_api: str = Field(default="", max_length=160)
+    region_name: str = Field(default="", max_length=300)
+    bbox: List[float] = Field(default_factory=list, max_length=4)
+    start_date: str = Field(default="", max_length=30)
+    end_date: str = Field(default="", max_length=30)
+    target_frequency: str = Field(default="", max_length=40)
+    temporal_aggregation: str = Field(default="", max_length=20)
+    spatial_level: str = Field(default="", max_length=20)
+    spatial_mode: str = Field(default="", max_length=20)
+    spatial_reduction: str = Field(default="", max_length=40)
+    point_lat: Optional[float] = None
+    point_lon: Optional[float] = None
+    selected_products: List[AssistantSelectedProduct] = Field(default_factory=list, max_length=5)
+    processed_data: Optional[AssistantProcessedData] = None
+    extracted_preview_result_id: Optional[str] = Field(default=None, max_length=200)
+    extracted_preview_job_id: Optional[str] = Field(default=None, max_length=200)
+    si_conversation_stage: Optional[
+        Literal["topic_discovery", "keyword_confirmation", "parameter_definition", "ready_to_extract"]
+    ] = None
+    recent_si_turns: List[AssistantSIContextTurn] = Field(default_factory=list, max_length=6)
+
+
+class AssistantChatRequest(BaseModel):
+    message: str = Field(..., min_length=1, max_length=2000)
+    page_context: AssistantPageContext
+    history: List[AssistantHistoryTurn] = Field(default_factory=list, max_length=8)
+
+
+class AssistantChatResponse(BaseModel):
+    assistant_reply: str
+    llm_model_used: str
+
+
 class ProductDetailsResponse(BaseModel):
     product: DataProduct
     recommended_date_start: str
@@ -352,81 +448,6 @@ class GlobeCubeResponse(BaseModel):
     time_lapse_decades: List[Dict[str, object]]
 
 
-class RegionalVariableScanRow(BaseModel):
-    layer_id: str
-    variable_id: str
-    variable_name: str
-    category: str
-    unit: str
-    source_product: str
-    citation_doi: str
-    analyzable: bool
-    unavailable_reason: Optional[str] = None
-    decadal_slope: Optional[float] = None
-    ci_low: Optional[float] = None
-    ci_high: Optional[float] = None
-    mk_p_value: Optional[float] = None
-    fdr_q_value: Optional[float] = None
-    significant_fdr: bool = False
-    evidence_grade: Optional[Literal["A", "B", "C", "D"]] = None
-    grade_reason: str
-    valid_coverage_pct: float
-    caveats: List[str]
-    sparkline: List[float] = Field(default_factory=list)
-
-
-class TwoRegionComparisonResult(BaseModel):
-    variable_id: str
-    variable_name: str
-    unit: str
-    window: str
-    region_a_name: str
-    region_a_bbox: List[float]
-    region_a_slope: float
-    region_a_ci: List[float]
-    region_a_p: float
-    region_a_grade: Literal["A", "B", "C", "D"]
-    region_a_series: List[float]
-    region_b_name: str
-    region_b_bbox: List[float]
-    region_b_slope: float
-    region_b_ci: List[float]
-    region_b_p: float
-    region_b_grade: Literal["A", "B", "C", "D"]
-    region_b_series: List[float]
-    slope_difference: float
-    difference_ci: List[float]
-    concordance_label: str
-    non_causal_disclosure: str
-
-
-class CaseBoardRequest(BaseModel):
-    region_name: str = "California Central Valley, USA"
-    bbox: List[float] = Field(default=[-122.6, 35.0, -118.5, 40.8])
-    start_year: int = 2001
-    end_year: int = 2024
-    compare_region_name: Optional[str] = None
-    compare_bbox: Optional[List[float]] = None
-    compare_variable_id: str = "T2M"
-
-
-class CaseBoardResponse(BaseModel):
-    cube_version: str
-    region_name: str
-    bbox: List[float]
-    start_year: int
-    end_year: int
-    area_km2: float
-    grid_cells_count: int
-    land_fraction_pct: float
-    ocean_fraction_pct: float
-    mean_coverage_pct: float
-    fdr_alpha: float = 0.05
-    scanned_variables: List[RegionalVariableScanRow]
-    unavailable_variables: List[RegionalVariableScanRow]
-    two_region_comparison: Optional[TwoRegionComparisonResult] = None
-
-
 class MonthlyFingerprintItem(BaseModel):
     month_index: int
     month_name: str
@@ -582,3 +603,70 @@ class CaseFileAnalysisResponse(BaseModel):
     outlook: OutlookSectionData
     citation_doi: str
     source_agency: str
+
+
+# ============================================================================
+# EXISTING RESEARCH LITERATURE & DATASET CITATION DISCOVERY (OPENALEX & DATACITE)
+# ============================================================================
+
+
+class ResearchDatasetContext(BaseModel):
+    product_id: str
+    variable_id: str
+    variable_name: str
+    title: Optional[str] = None
+    category: Optional[str] = None
+    source_api: str
+    provider_agency: Optional[str] = None
+    mission_or_instrument: Optional[str] = None
+    citation_doi: Optional[str] = None
+    gcmd_keywords: List[str] = Field(default_factory=list)
+    region_name: Optional[str] = None
+    start_date: Optional[str] = None
+    end_date: Optional[str] = None
+
+
+class ResearchSearchRequest(BaseModel):
+    mode: Literal["manual", "dataset"] = "manual"
+    query: Optional[str] = None
+    dataset_context: Optional[ResearchDatasetContext] = None
+    sources: List[Literal["openalex", "datacite"]] = Field(
+        default_factory=lambda: ["openalex", "datacite"]
+    )
+    sort: Literal["relevance", "citations", "year"] = "relevance"
+    per_source_limit: int = Field(default=15, ge=1, le=50)
+
+
+class ResearchWorkItem(BaseModel):
+    id: str
+    source_provider: Literal["OpenAlex", "DataCite"]
+    title: str
+    authors: str
+    year: Optional[int] = None
+    publication: str
+    work_type: str
+    topic: str
+    abstract_snippet: str
+    doi: Optional[str] = None
+    doi_url: Optional[str] = None
+    primary_url: str
+    paper_url: Optional[str] = None
+    abstract_url: Optional[str] = None
+    dataset_url: Optional[str] = None
+    record_url: str
+    is_open_access: bool = False
+    cited_by_count: int = 0
+    match_context: Optional[str] = None
+
+
+class ResearchSearchResponse(BaseModel):
+    mode: Literal["manual", "dataset"]
+    query_executed: str
+    dataset_label: Optional[str] = None
+    total_results: int
+    openalex_count: int
+    datacite_count: int
+    open_access_count: int
+    provider_status: Dict[str, str] = Field(default_factory=dict)
+    results: List[ResearchWorkItem] = Field(default_factory=list)
+    retrieved_at: str

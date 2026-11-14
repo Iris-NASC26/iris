@@ -55,11 +55,12 @@ from providers.nasa_power import search_nasa_power_catalog
 from providers.noaa_cdo import search_noaa_cdo_catalog
 from providers.noaa_onestop import search_noaa_onestop_catalog
 from providers.opendap import search_opendap_catalog
+from providers.research_literature import execute_research_search
 from schemas import (
-    CaseBoardRequest,
-    CaseBoardResponse,
     CaseFileAnalysisRequest,
     CaseFileAnalysisResponse,
+    AssistantChatRequest,
+    AssistantChatResponse,
     ChatTurnRequest,
     ChatTurnResponse,
     DiscoverRequest,
@@ -69,6 +70,8 @@ from schemas import (
     JobStatusResponse,
     PreviewResponse,
     ProductDetailsResponse,
+    ResearchSearchRequest,
+    ResearchSearchResponse,
 )
 from services.capability_matrix import get_capability_matrix
 from services.cube_service import (
@@ -77,10 +80,10 @@ from services.cube_service import (
     SNAPSHOT_UTC,
     get_evidence_methods_registry,
     get_globe_cube_data,
-    scan_regional_case_board,
 )
 from services.llm_router import extract_scientific_intent, rank_and_explain_products
 from services.science_pipeline import execute_case_file_analysis, load_series_from_job_id
+from services.assistant_chat import process_assistant_chat
 from services.si_chat import process_si_chat_turn
 
 app = FastAPI(
@@ -118,6 +121,12 @@ async def si_conversational_chat(req: ChatTurnRequest) -> ChatTurnResponse:
         raise HTTPException(status_code=502, detail=f"SI chat processing error: {exc}") from exc
 
 
+@app.post("/api/v1/assistant/chat", response_model=AssistantChatResponse)
+async def iris_assistant_chat(req: AssistantChatRequest) -> AssistantChatResponse:
+    """Answers dashboard questions without accessing catalogs or performing actions."""
+    return await process_assistant_chat(req)
+
+
 @app.post("/api/v1/si/discover", response_model=DiscoveryResponse)
 async def si_discover_datasets(req: DiscoverRequest) -> DiscoveryResponse:
     """
@@ -133,6 +142,14 @@ async def si_discover_datasets(req: DiscoverRequest) -> DiscoveryResponse:
         preferred_providers=req.preferred_providers,
         user_api_key=req.gemini_api_key,
     )
+    if intent is None:
+        raise HTTPException(
+            status_code=422,
+            detail=(
+                "Please provide an Earth or environmental research topic or explicitly ask to discover "
+                "datasets for a topic."
+            ),
+        )
     candidates, queried_sources, provider_status = await discover_catalog_products(
         intent=intent,
         preferred_providers=req.preferred_providers,
@@ -499,12 +516,6 @@ async def get_living_globe_cube(
     return get_globe_cube_data(layer_id=layer_id, window=window)
 
 
-@app.post("/api/v1/cube/case-board", response_model=CaseBoardResponse)
-async def post_regional_case_board(req: CaseBoardRequest) -> CaseBoardResponse:
-    """Scans all Global Trend Cube variables for a region and optionally performs Two-Region comparison."""
-    return scan_regional_case_board(req)
-
-
 @app.post("/api/v1/analyze/case-file", response_model=CaseFileAnalysisResponse)
 async def analyze_scientific_case_file(req: CaseFileAnalysisRequest) -> CaseFileAnalysisResponse:
     """
@@ -523,7 +534,7 @@ async def analyze_scientific_case_file(req: CaseFileAnalysisRequest) -> CaseFile
         if preview.extraction_config.target_frequency != "Monthly":
             raise HTTPException(
                 status_code=422,
-                detail="Plot & Visualize currently requires a monthly time series. Re-extract or resample this product to Monthly before analysis.",
+                detail="Data Analysis currently requires a monthly time series. Re-extract or resample this product to Monthly before analysis.",
             )
         s_yr = int(preview.extraction_config.start_date[:4])
         e_yr = int(preview.extraction_config.end_date[:4])
@@ -570,3 +581,25 @@ async def analyze_scientific_case_file(req: CaseFileAnalysisRequest) -> CaseFile
 async def get_evidence_registry() -> dict:
     """Returns Evidence Grade rules, Validation Lab benchmarks, Caveat Registry, and SI disclosure."""
     return get_evidence_methods_registry()
+
+
+# ============================================================================
+# 5. EXISTING RESEARCH LITERATURE & DATASET CITATION DISCOVERY (OPENALEX & DATACITE)
+# ============================================================================
+
+
+@app.post("/api/v1/research/search", response_model=ResearchSearchResponse)
+async def search_existing_research(req: ResearchSearchRequest) -> ResearchSearchResponse:
+    """
+    Searches live OpenAlex (`https://api.openalex.org/works`) and DataCite (`https://api.datacite.org/dois`)
+    for peer-reviewed papers, abstracts, datasets, and citations either by manual query (DOI, keyword, topic)
+    or by the retrieved dataset's metadata.
+    """
+    try:
+        return await execute_research_search(req)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(
+            status_code=502, detail=f"Research literature search error: {exc}"
+        ) from exc

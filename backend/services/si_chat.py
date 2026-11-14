@@ -37,7 +37,19 @@ from schemas import (
 from services.llm_router import (
     _extract_candidate_place_string,
     extract_scientific_intent,
+    has_research_domain,
+    is_explanatory_inquiry,
     rank_and_explain_products,
+)
+
+_DOMAIN_REQUIRED_REPLY = (
+    "I’m Iris System Intelligence, an Earth-observation research assistant. I turn a specific "
+    "Earth or environmental research topic into searchable dataset keywords, then help find "
+    "matching time-series data. What research domain or dataset topic would you like to investigate?"
+)
+_DATASET_SEARCH_REQUIRED_REPLY = (
+    "I’m here to help discover Earth-observation datasets, rather than answer general science questions. "
+    "If you’d like dataset suggestions for this topic, tell me what you want to study or analyze."
 )
 
 
@@ -219,7 +231,7 @@ async def process_si_chat_turn(req: ChatTurnRequest) -> ChatTurnResponse:
                 base_cfg.point_lon = float(geo["lon"])  # type: ignore[arg-type]
 
         sys_prompt = (
-            f"You are Project Iris SI Assistant powered by {GEMINI_MODEL}. "
+            "You are Project Iris SI Assistant. Do not mention the underlying AI provider or model. "
             f"The user selected dataset '{prod.title}' ({prod.variable_id}) from {prod.source_api}. "
             f"Current scope: Region={base_cfg.region_name} ({base_cfg.point_lat}, {base_cfg.point_lon}), "
             f"Date Range={base_cfg.start_date} to {base_cfg.end_date}, Frequency={base_cfg.target_frequency}. "
@@ -266,6 +278,17 @@ async def process_si_chat_turn(req: ChatTurnRequest) -> ChatTurnResponse:
                 preferred_providers=req.preferred_providers,
             )
 
+        if intent is None:
+            return ChatTurnResponse(
+                assistant_reply=_DOMAIN_REQUIRED_REPLY,
+                next_stage="topic_discovery",
+                llm_model_used=GEMINI_MODEL,
+                llm_live_status="awaiting_research_domain",
+                products=[],
+                provider_status={},
+                trigger_extraction=False,
+            )
+
         if req.confirmed_keywords and len(req.confirmed_keywords) > 0:
             intent.keywords = [k.strip() for k in req.confirmed_keywords if k.strip()]
         elif not any(w in msg_lower for w in ("confirm", "search", "yes", "proceed", "ok", "go")):
@@ -301,7 +324,7 @@ async def process_si_chat_turn(req: ChatTurnRequest) -> ChatTurnResponse:
             for p in ranked[:6]
         ]
         sys_prompt = (
-            f"You are Project Iris SI Assistant powered by {GEMINI_MODEL}. "
+            "You are Project Iris SI Assistant. Do not mention the underlying AI provider or model. "
             f"The user confirmed keywords {intent.keywords} for domain '{intent.subject_domain}'. "
             f"We queried {len(queried_sources)} live databases ({', '.join(queried_sources)}) and discovered {len(ranked)} real time-series datasets:\n"
             + "\n".join(product_summary_lines)
@@ -333,13 +356,40 @@ async def process_si_chat_turn(req: ChatTurnRequest) -> ChatTurnResponse:
     # -------------------------------------------------------------------------
     # Stage 1: Initial Topic Analysis -> Propose Keywords ONLY (Zero Catalog API Calls)
     # -------------------------------------------------------------------------
+    if not has_research_domain(req.message):
+        return ChatTurnResponse(
+            assistant_reply=_DOMAIN_REQUIRED_REPLY,
+            next_stage="topic_discovery",
+            llm_model_used=GEMINI_MODEL,
+            llm_live_status="awaiting_research_domain",
+            products=[],
+            provider_status={},
+            trigger_extraction=False,
+        )
+
     intent, _ = await extract_scientific_intent(
         prompt=req.message,
         preferred_providers=req.preferred_providers,
     )
+    if intent is None:
+        is_general_question = has_research_domain(req.message) and is_explanatory_inquiry(req.message)
+        return ChatTurnResponse(
+            assistant_reply=(
+                _DATASET_SEARCH_REQUIRED_REPLY if is_general_question else _DOMAIN_REQUIRED_REPLY
+            ),
+            next_stage="topic_discovery",
+            llm_model_used=GEMINI_MODEL,
+            llm_live_status="awaiting_dataset_discovery_request",
+            products=[],
+            provider_status={},
+            trigger_extraction=False,
+        )
 
     sys_prompt = (
-        f"You are Project Iris SI Assistant powered by {GEMINI_MODEL}. "
+        "You are Project Iris SI Assistant. Do not mention the underlying AI provider or model. "
+        "Only propose keywords because this message has already been classified as a dataset-discovery request. "
+        "Do not treat greetings, general science questions, requests for explanations, or unrelated conversation "
+        "as a request to search datasets. "
         f"The user asked: '{req.message}'. "
         f"We identified subject domain '{intent.subject_domain}' ({intent.scientific_category}), "
         f"proposed time-series search keywords {intent.keywords}, inferred region '{intent.inferred_region_name}', "
