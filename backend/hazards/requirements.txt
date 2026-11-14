@@ -1,0 +1,3 @@
+# Existing visualization environment already provides httpx/FastAPI.
+# uvicorn[standard] also requires python-dotenv; declare direct use explicitly.
+python-dotenv==1.2.4

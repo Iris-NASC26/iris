@@ -3,6 +3,9 @@
 // Cesium stage with 2D fallback, cell inspector and the month timeline. Used
 // by the dedicated /workspace/globe route — one owner, one Cesium lifecycle.
 import dynamic from "next/dynamic";
+import Link from 'next/link';
+import { INVESTIGATIONS, investigationHref } from '@/features/hazards/model';
+import '@/features/hazards/hazards.css';
 import { useState } from "react";
 import { estimateNativeCells, EXTENT_PRESETS, fieldRoute, parseBox } from "./extents";
 import { imageryIndex, LAYER_DEFS, moveLayer } from "./layers";
@@ -35,6 +38,7 @@ export function MapWorkspace({ map, selectedTimestamp, onInspectTimeSeries, spat
      <p className="viz-spatial-description" role="note">{spatialVariable(map.variable).note} Choose an extent and month, then load the spatial field. Colours represent grid-cell values.</p>
      <div className="viz-map-body">
       {layersOpen && <aside className="viz-map-layers" aria-label="Selection and layer controls">
+       <section className="hazard-layer-links"><span className="viz-step">DISASTER INVESTIGATIONS</span>{INVESTIGATIONS.map(item => <Link key={item.id} href={investigationHref(item.id)}>{item.short_label} · evidence & point outlook →</Link>)}<p>Historical case evidence and current point outlooks open separately. No global hazard forecast is implied by the spatial field.</p></section>
        <section><span className="viz-step">SELECTION</span>
         <p className="viz-muted">{EXTENT_PRESETS.find(p => p.id === map.extentId)?.note}</p>
         {['South latitude', 'North latitude', 'West longitude', 'East longitude'].map((label, i) => <label key={label}>{label}<input type="number" step="any" value={map.box[i]} onChange={e => { map.setExtentId('custom'); map.setBox(map.box.map((v, j) => i === j ? e.target.value : v)); }}/></label>)}

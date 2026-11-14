@@ -231,6 +231,7 @@ python-dateutil==2.9.0.post0
     #   pystac-core
 python-dotenv==1.2.4
     # via
+    #   -r backend/hazards/requirements.txt
     #   pydantic-settings
     #   uvicorn
 pyyaml==6.0.3

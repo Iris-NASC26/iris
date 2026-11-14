@@ -10,6 +10,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { REGION_PRESETS } from "@/lib/dataRetrievalEngine";
+import { investigationHref } from '@/features/hazards/model';
 
 interface StudySpot {
     id: string;
@@ -17,6 +18,7 @@ interface StudySpot {
     short: string;
     topic: string;
     location: [number, number];
+    investigationId?: string;
 }
 /** Supported study locations — labels/topics are descriptive, not measurements. */
 const SPOT_SOURCE: StudySpot[] = [
@@ -24,13 +26,13 @@ const SPOT_SOURCE: StudySpot[] = [
     { id: "california", name: "California Central Valley, USA", short: "Central Valley", topic: "Agricultural drought", location: [36.77, -119.41] },
     { id: "amazon", name: "Central Amazon Basin, Brazil", short: "Amazon Basin", topic: "Forest & hydrology", location: [-3.75, -60.0] },
     { id: "mediterranean", name: "Mediterranean Europe", short: "Mediterranean", topic: "Heatwaves & aridity", location: [41.25, 9.25] },
-    { id: "sri-lanka", name: "Colombo, Western Province, Sri Lanka", short: "Sri Lanka", topic: "Monsoon climate", location: [6.9355, 79.8487] },
-    { id: "himalaya", name: "Central Himalaya (Koshi Basin, Nepal)", short: "Himalaya", topic: "Alpine cryosphere", location: [27.95, 87.1] },
+    { id: "sri-lanka", name: "Colombo, Western Province, Sri Lanka", short: "Cyclone Ditwah", topic: "2025 historical investigation", location: [6.9355, 79.8487], investigationId: 'ditwah-sri-lanka-2025' },
+    { id: "himalaya", name: "Kathmandu, Nepal", short: "Nepal floods", topic: "2024 historical investigation", location: [27.7172, 85.324], investigationId: 'nepal-floods-2024' },
 ];
 const SPOTS = SPOT_SOURCE.filter(spot => REGION_PRESETS.some(r => r.id === spot.id));
 
-export const spotHref = (spot: Pick<StudySpot, "name" | "location">) =>
-    `/workspace/globe?place=${encodeURIComponent(spot.name)}&lat=${spot.location[0]}&lon=${spot.location[1]}`;
+export const spotHref = (spot: Pick<StudySpot, "name" | "location" | "investigationId">) =>
+    spot.investigationId ? investigationHref(spot.investigationId) : `/workspace/globe?place=${encodeURIComponent(spot.name)}&lat=${spot.location[0]}&lon=${spot.location[1]}`;
 
 function webglAvailable(): boolean {
     try {
@@ -182,6 +184,6 @@ export function CobeGlobe({ dark }: { dark: boolean }) {
             </Link>
         ))}
         {paused && !failed && <span className="landing-cobe-paused">Paused</span>}
-        <p className="landing-cobe-status" role="status">{failed ? "Interactive globe unavailable — the study locations below still open the workspace." : "Illustrative globe. Markers are study locations, not measurements."}</p>
+        <p className="landing-cobe-status" role="status">{failed ? "Interactive globe unavailable — the study locations below still open the workspace." : "Illustrative globe. Disaster markers open historical investigations, not active warnings."}</p>
     </div>;
 }

@@ -10,6 +10,7 @@ import { OnboardingTour } from "@/components/dashboard/OnboardingTour";
 import { VisualizationProvider } from "@/features/visualization/store";
 import { IrisAssistant } from "@/components/dashboard/IrisAssistant";
 import { DOCS_URL } from "@/lib/docs";
+import { investigation } from '@/features/hazards/model';
 
 const navigation: Array<{
   label?: string;
@@ -53,6 +54,7 @@ const pageTitles: Record<string, [string, string]> = {
 
 function DashboardFrame({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  const activeInvestigation = pathname?.startsWith('/workspace/case-studies/') ? investigation(pathname.split('/').pop() ?? '') : undefined;
   const { dataset, region, extractedPreview, activeProduct, selectedProducts } = useDashboard();
   const { dark, toggleTheme } = useTheme();
   const [collapsed, setCollapsed] = useState(false);
@@ -101,7 +103,7 @@ function DashboardFrame({ children }: { children: ReactNode }) {
     setTourOpen(false);
   }, []);
 
-  const title = (pathname && pageTitles[pathname]) ?? [
+  const title = activeInvestigation ? ['Disaster evidence & point outlook', activeInvestigation.title] : (pathname && pageTitles[pathname]) ?? [
     "Iris workspace",
     "Earth system intelligence",
   ];
@@ -230,7 +232,7 @@ function DashboardFrame({ children }: { children: ReactNode }) {
             <h1>{title[0]}</h1>
           </div>
           <div className="dashboard-context-chip">
-            {isEmptyDataPreview ? (
+            {activeInvestigation ? <><span><i/>Point precipitation</span><strong>{activeInvestigation.point_name}</strong></> : isEmptyDataPreview ? (
               <>
                 <span>
                   <i />
@@ -247,7 +249,7 @@ function DashboardFrame({ children }: { children: ReactNode }) {
                 <strong>{extractedPreview?.extraction_config.region_name || region}</strong>
               </>
             )}
-            {extractedPreview?.job_id && (
+            {!activeInvestigation && extractedPreview?.job_id && (
               <code
                 style={{
                   fontSize: "10px",

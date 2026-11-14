@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Icon, type IconName } from "@/components/ui/Icon";
 import { PageShell } from "@/components/layout/PageShell";
+import { CaseCards } from '@/features/hazards/CaseCards';
 
 const publicCaseStudies = [
   {
@@ -104,6 +105,7 @@ export default function CaseStudiesPage() {
       section="Case library"
       title="Evidence from a changing planet"
     >
+      <CaseCards/>
       <section className="featured-case">
         <div className="featured-map">
           <div className="map-grid" />
