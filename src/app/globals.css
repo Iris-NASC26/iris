@@ -5912,6 +5912,305 @@
   font-size: 12px;
 }
 
+/* Existing Research Workspace (OpenAlex & DataCite) */
+.research-main-container {
+  padding-top: 22px;
+}
+
+.research-search-card {
+  overflow: visible;
+}
+
+.research-search-bar-form {
+  padding: 0 17px 17px;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+
+.research-query-field {
+  margin-bottom: 0;
+  height: 44px;
+  padding: 0 12px;
+}
+
+.research-query-field input {
+  font-size: 12px;
+}
+
+.research-clear-btn {
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 16px;
+  line-height: 1;
+  padding: 2px 6px;
+  border-radius: 5px;
+}
+
+.research-clear-btn:hover {
+  color: var(--text);
+  background: var(--card-soft);
+}
+
+.research-action-buttons {
+  display: grid;
+  grid-template-columns: minmax(150px, 0.42fr) 1fr;
+  gap: 10px;
+}
+
+.research-primary-search-btn,
+.research-dataset-search-btn {
+  height: 40px;
+  font-size: 11px;
+}
+
+.research-dataset-search-btn {
+  background: var(--card-soft);
+  color: var(--green);
+  border: 1px solid color-mix(in srgb, var(--green-bright) 42%, var(--border));
+  box-shadow: none;
+}
+
+.research-dataset-search-btn:hover:not(:disabled) {
+  background: var(--green-soft);
+  border-color: var(--green-bright);
+  color: var(--green);
+}
+
+.research-primary-search-btn:disabled,
+.research-dataset-search-btn:disabled {
+  background: color-mix(in srgb, var(--border) 60%, var(--card-soft));
+  color: var(--faint);
+  border: 1px solid var(--border);
+  box-shadow: none;
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.research-guide-section {
+  margin-top: 16px;
+  display: grid;
+  gap: 14px;
+}
+
+.research-guide-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.research-guide-card {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.research-guide-step {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.research-step-badge {
+  color: var(--green);
+  background: var(--green-soft);
+  padding: 3px 8px;
+  border-radius: 99px;
+  font-size: 8px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.research-guide-card h3 {
+  margin: 0;
+  font-size: 14px;
+  letter-spacing: -0.02em;
+}
+
+.research-guide-card > p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.6;
+}
+
+.research-guide-status {
+  margin-top: auto;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--card-soft);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 9px;
+  color: var(--muted);
+}
+
+.research-guide-status.active {
+  border-color: color-mix(in srgb, var(--green-bright) 35%, var(--border));
+  background: var(--green-soft);
+  color: var(--text);
+}
+
+.research-guide-status a {
+  color: var(--green);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.research-guide-status a:hover {
+  text-decoration: underline;
+}
+
+.research-sample-chips {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.research-sample-chips small {
+  font-size: 8px;
+  color: var(--faint);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+}
+
+.research-sample-chips > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.research-sample-chips button {
+  padding: 5px 9px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--card-soft);
+  color: var(--text);
+  font-size: 9px;
+}
+
+.research-sample-chips button:hover {
+  border-color: var(--green-bright);
+  color: var(--green);
+  background: var(--green-soft);
+}
+
+.research-results-list {
+  display: grid;
+}
+
+.research-result-item {
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.15s ease;
+}
+
+.research-result-item:last-child {
+  border-bottom: 0;
+}
+
+.research-result-item:hover {
+  background: color-mix(in srgb, var(--card-soft) 55%, var(--card));
+}
+
+.research-paper-meta {
+  flex-wrap: wrap;
+}
+
+.research-paper-meta b.source-badge-openalex {
+  color: #07805b;
+  background: var(--green-soft);
+}
+
+.research-paper-meta b.source-badge-datacite {
+  color: #1d4ed8;
+  background: #dbeafe;
+}
+
+.dark .research-paper-meta b.source-badge-datacite {
+  color: #93c5fd;
+  background: #1e3a8a55;
+}
+
+.research-result-item h3 {
+  margin: 10px 0 5px;
+  font-size: 14px;
+  line-height: 1.35;
+  letter-spacing: -0.02em;
+}
+
+.research-title-link {
+  color: var(--text);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.research-title-link:hover {
+  color: var(--green);
+  text-decoration: underline;
+}
+
+.research-result-item .research-authors {
+  margin: 0 0 8px;
+  color: var(--text);
+  font-size: 9px;
+  font-weight: 600;
+}
+
+.research-result-item .research-authors span {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.research-inline-doi {
+  color: var(--green);
+  font-family: "DM Mono", monospace;
+  font-size: 8px;
+  text-decoration: none;
+}
+
+.research-inline-doi:hover {
+  text-decoration: underline;
+}
+
+.research-result-item .research-abstract {
+  margin: 0;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.6;
+  max-width: 920px;
+}
+
+.research-result-item .research-paper-actions {
+  flex-wrap: wrap;
+}
+
+.research-error-card {
+  min-height: 340px;
+  margin-top: 16px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--card);
+}
+
+@media (max-width: 900px) {
+  .research-action-buttons,
+  .research-guide-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .dashboard-toast {
   position: fixed;
   right: 24px;

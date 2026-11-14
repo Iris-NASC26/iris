@@ -55,6 +55,7 @@ from providers.nasa_power import search_nasa_power_catalog
 from providers.noaa_cdo import search_noaa_cdo_catalog
 from providers.noaa_onestop import search_noaa_onestop_catalog
 from providers.opendap import search_opendap_catalog
+from providers.research_literature import execute_research_search
 from schemas import (
     CaseBoardRequest,
     CaseBoardResponse,
@@ -71,6 +72,8 @@ from schemas import (
     JobStatusResponse,
     PreviewResponse,
     ProductDetailsResponse,
+    ResearchSearchRequest,
+    ResearchSearchResponse,
 )
 from services.capability_matrix import get_capability_matrix
 from services.cube_service import (
@@ -587,3 +590,25 @@ async def analyze_scientific_case_file(req: CaseFileAnalysisRequest) -> CaseFile
 async def get_evidence_registry() -> dict:
     """Returns Evidence Grade rules, Validation Lab benchmarks, Caveat Registry, and SI disclosure."""
     return get_evidence_methods_registry()
+
+
+# ============================================================================
+# 5. EXISTING RESEARCH LITERATURE & DATASET CITATION DISCOVERY (OPENALEX & DATACITE)
+# ============================================================================
+
+
+@app.post("/api/v1/research/search", response_model=ResearchSearchResponse)
+async def search_existing_research(req: ResearchSearchRequest) -> ResearchSearchResponse:
+    """
+    Searches live OpenAlex (`https://api.openalex.org/works`) and DataCite (`https://api.datacite.org/dois`)
+    for peer-reviewed papers, abstracts, datasets, and citations either by manual query (DOI, keyword, topic)
+    or by the retrieved dataset's metadata.
+    """
+    try:
+        return await execute_research_search(req)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(
+            status_code=502, detail=f"Research literature search error: {exc}"
+        ) from exc

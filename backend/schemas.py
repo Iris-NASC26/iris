@@ -678,3 +678,70 @@ class CaseFileAnalysisResponse(BaseModel):
     outlook: OutlookSectionData
     citation_doi: str
     source_agency: str
+
+
+# ============================================================================
+# EXISTING RESEARCH LITERATURE & DATASET CITATION DISCOVERY (OPENALEX & DATACITE)
+# ============================================================================
+
+
+class ResearchDatasetContext(BaseModel):
+    product_id: str
+    variable_id: str
+    variable_name: str
+    title: Optional[str] = None
+    category: Optional[str] = None
+    source_api: str
+    provider_agency: Optional[str] = None
+    mission_or_instrument: Optional[str] = None
+    citation_doi: Optional[str] = None
+    gcmd_keywords: List[str] = Field(default_factory=list)
+    region_name: Optional[str] = None
+    start_date: Optional[str] = None
+    end_date: Optional[str] = None
+
+
+class ResearchSearchRequest(BaseModel):
+    mode: Literal["manual", "dataset"] = "manual"
+    query: Optional[str] = None
+    dataset_context: Optional[ResearchDatasetContext] = None
+    sources: List[Literal["openalex", "datacite"]] = Field(
+        default_factory=lambda: ["openalex", "datacite"]
+    )
+    sort: Literal["relevance", "citations", "year"] = "relevance"
+    per_source_limit: int = Field(default=15, ge=1, le=50)
+
+
+class ResearchWorkItem(BaseModel):
+    id: str
+    source_provider: Literal["OpenAlex", "DataCite"]
+    title: str
+    authors: str
+    year: Optional[int] = None
+    publication: str
+    work_type: str
+    topic: str
+    abstract_snippet: str
+    doi: Optional[str] = None
+    doi_url: Optional[str] = None
+    primary_url: str
+    paper_url: Optional[str] = None
+    abstract_url: Optional[str] = None
+    dataset_url: Optional[str] = None
+    record_url: str
+    is_open_access: bool = False
+    cited_by_count: int = 0
+    match_context: Optional[str] = None
+
+
+class ResearchSearchResponse(BaseModel):
+    mode: Literal["manual", "dataset"]
+    query_executed: str
+    dataset_label: Optional[str] = None
+    total_results: int
+    openalex_count: int
+    datacite_count: int
+    open_access_count: int
+    provider_status: Dict[str, str] = Field(default_factory=dict)
+    results: List[ResearchWorkItem] = Field(default_factory=list)
+    retrieved_at: str
