@@ -100,7 +100,7 @@ export interface StudioState {
     setTablePage: (v: number | ((p: number) => number)) => void;
     focus: boolean;
     setFocus: (v: boolean) => void;
-    analysis: UseScientificAnalysis;
+    analysis: Pick<UseScientificAnalysis, 'status' | 'error' | 'binding' | 'inputKey'>;
     exportData: (type: 'csv' | 'json') => void;
     openAnalysis: () => void;
 }

@@ -1,5 +1,7 @@
 # Visualization workspace
 
+The current Plot & Visualize experience uses the approved immersive Landscape design, with the Evidence preset and linked 2D views. See [IMMERSIVE_VISUALIZATION.md](IMMERSIVE_VISUALIZATION.md) for its controls, Data Analysis handoff, scientific boundaries and verification. The acquisition drawer now starts collapsed and layout preferences use v3.
+
 This is a focused addition to the fresh Iris baseline `dcffc86`. It keeps the existing site layout, SI workflow and original scientific-analysis component. It does not consolidate the older application or replace the backend. The user explicitly authorized an additive genuine-grid endpoint without editing existing backend files.
 
 ## Start

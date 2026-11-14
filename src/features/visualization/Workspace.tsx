@@ -11,7 +11,8 @@ import { EXTENT_PRESETS, fieldRoute, parseBox, type ExtentBox } from "./extents"
 import { DEFAULT_ORDER, type LayerId } from "./layers";
 import { DEFAULT_STYLE, type FieldStyle } from "./styles";
 import dynamic from "next/dynamic";
-import { useScientificAnalysis } from "./hooks/useScientificAnalysis";
+import { sourceKey } from './adapters/analysisBinding';
+import { StudioDisplayProvider, useDisplay } from './studio/display';
 import { StudioContext, type MapState, type StudioSelection, type StudioState } from "./studio/state";
 import { StudioShell } from "./studio/StudioShell";
 import type { CellInspection, MapPoint } from "./Globe";
@@ -21,6 +22,10 @@ const MapWorkspace = dynamic(() => import('./MapWorkspace').then(module => modul
 export function VisualizationWorkspace({ initialView = 'charts' }: {
     initialView?: 'charts' | 'globe';
 }) {
+    return <StudioDisplayProvider><VisualizationWorkspaceContent initialView={initialView}/></StudioDisplayProvider>;
+}
+function VisualizationWorkspaceContent({ initialView }: { initialView: 'charts' | 'globe' }) {
+    const { display } = useDisplay();
     const dashboard = useDashboard(), store = useVisualizations(), params = useSearchParams(), router = useRouter();
     const [prompt, setPrompt] = useState(''), [catalog, setCatalog] = useState<DataProduct[]>([]), [selected, setSelected] = useState<string[] | null>(null);
     const [searching, setSearching] = useState(false), [loading, setLoading] = useState(false), [error, setError] = useState(''), [notice, setNotice] = useState('');
@@ -37,7 +42,7 @@ export function VisualizationWorkspace({ initialView = 'charts' }: {
     const [layerVisible, setLayerVisible] = useState<Record<LayerId, boolean>>({ field: true, points: true, extent: true, basemap: true }), [layerOrder, setLayerOrder] = useState<LayerId[]>(DEFAULT_ORDER);
     const [inspection, setInspection] = useState<CellInspection | null>(null);
     const [drawMode, setDrawMode] = useState(false), [cellClearSignal, setCellClearSignal] = useState(0), [applied, setApplied] = useState<{ variable: string; month: string; box: ExtentBox } | null>(null);
-    const [drawerOpen, setDrawerOpen] = useState(true);
+    const [drawerOpen, setDrawerOpen] = useState(false);
     const [focus, setFocus] = useState(false);
     // Whether this session has a loaded field — survives the transient null
     // while a reload is in flight, so playback/steppers keep driving requests.
@@ -60,7 +65,9 @@ export function VisualizationWorkspace({ initialView = 'charts' }: {
     const stats = summary(primaryRows);
     const times = primaryRows.map(r => r.time), selectedTime = times[Math.min(timeIndex, Math.max(0, times.length - 1))];
     const primaryIndex = Math.min(timeIndex, Math.max(0, primaryRows.length - 1));
-    const analysis = useScientificAnalysis(primary?.preview);
+    const inputKey = sourceKey(primary?.preview);
+    const binding = store.analyses[inputKey] ?? null;
+    const analysis: StudioState['analysis'] = { inputKey, binding, status: binding ? 'complete' : 'empty', error: '' };
     const points: MapPoint[] = entries.flatMap(s => { const position = coordinates(s.preview); if (!position)
         return []; const value = (data.get(s.id) ?? []).find(r => r.time === selectedTime)?.value ?? null; return [{ id: s.id, label: `${s.preview.product.variable_name} / ${s.preview.extraction_config.region_name}`, lat: position.lat, lon: position.lon, value, units: s.preview.summary_stats.unit, color: s.color }]; });
     const ingest = (preview: PreviewResponse) => { store.add(preview); setPrimaryId(preview.result_id || preview.job_id); };
@@ -390,7 +397,7 @@ export function VisualizationWorkspace({ initialView = 'charts' }: {
         setLon(String(p.center[1]));
     } }}><option value="">Choose a location...</option>{REGION_PRESETS.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}</select>
      <div className="viz-two-cols"><label>Latitude<input type="number" min={-90} max={90} step="any" value={lat} onChange={e => setLat(e.target.value)}/></label><label>Longitude<input type="number" min={-180} max={180} step="any" value={lon} onChange={e => setLon(e.target.value)}/></label></div>
-     <p className="viz-note">Time-series retrieval samples a point. A region name does not make it a regional average. Click the globe to pick coordinates.</p>
+     <p className="viz-note">Time-series retrieval samples a point. A region name does not make it a regional average. Review the coordinates before loading.</p>
     </section>
     <section className="viz-control-section"><span className="viz-step">03 / SET THE PERIOD</span>
      <div className="viz-two-cols"><label>Observation start<input type="date" value={start} onChange={e => setStart(e.target.value)}/></label><label>Observation end<input type="date" value={end} onChange={e => setEnd(e.target.value)}/></label></div>
@@ -412,9 +419,10 @@ export function VisualizationWorkspace({ initialView = 'charts' }: {
    </section>
   </div>
  </div>;
-    return <StudioContext.Provider value={studio}><div className="viz-workbench dashboard-page-inner">
-  <header className="viz-heading"><div><span className="viz-eyebrow">IRIS VISUALIZATION STUDIO</span><h2>Make the change visible.</h2><p>Choose the evidence. Explore the patterns. Keep the source in view.</p></div><Link className="viz-button" href="/workspace/intelligence"><Icon name="sparkles" size={16}/> Open SI discovery</Link></header>
-  <div className="viz-layout" data-studio data-focus={focus || undefined}>
+    return <StudioContext.Provider value={studio}><div className="viz-workbench viz-immersive dashboard-page-inner" data-environment={display.dark ? 'dark' : 'light'}>
+  <header className="viz-heading"><div><span className="viz-eyebrow">IRIS / EARTH SYSTEM OBSERVATORY</span><h2>Make the change visible.</h2><p>Explore the shape of the record. Follow the evidence behind the trend.</p></div><Link className="viz-button" href="/workspace/intelligence"><Icon name="sparkles" size={16}/> Open SI discovery</Link></header>
+  {primary && <section className="viz-context-strip" aria-label="Selected record"><div><span>WHAT</span><strong>{primary.preview.product.variable_name}</strong><small>{primary.preview.summary_stats.unit} · {primary.preview.product.source_api}</small></div><div><span>WHERE</span><strong>{primary.preview.extraction_config.region_name}</strong><small>{primary.preview.spatial_semantics_applied || 'Point sample; not a regional mean'}</small></div><div><span>WHEN</span><strong>{primary.preview.extraction_config.start_date} → {primary.preview.extraction_config.end_date}</strong><small>{primary.preview.extraction_config.target_frequency} · {stats.count} visible usable observations</small></div><div><span>ANALYSIS</span><strong>{binding ? 'Matching result attached' : 'Not yet attached'}</strong><small>{binding ? `${binding.result.start_year}–${binding.result.end_year} · display filters do not retest` : 'Complete selected methods on Data Analysis'}</small></div></section>}
+  <div className="viz-layout" data-studio data-drawer={drawerOpen || undefined} data-focus={focus || undefined}>
    {drawerOpen && !focus && controls}
    <section className="viz-results" aria-label="Visualization studio" aria-busy={loading}>
     {error && <div className="viz-error" role="alert"><strong>Could not complete this request</strong><p>{error}</p></div>}{notice && <p className="viz-notice" role="status">{notice}</p>}

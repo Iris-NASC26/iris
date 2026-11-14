@@ -6,6 +6,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { CaseFileAnalysisResponse, PreviewResponse } from "@/lib/dataRetrievalEngine";
 import { isCaseFileAnalysis } from "../adapters/analysisResult";
+import { sourceKey } from '../adapters/analysisBinding';
 
 export type SeasonalAdjustment = "auto" | "calendar_climatology" | "stl" | "none";
 export type AnalysisMethod = "ols" | "hamed_rao_mk" | "seasonal_kendall" | "sen_slope" | "pettitt" | "anomalies" | "seasonal_fingerprint" | "case_file_diagnostics";
@@ -38,9 +39,7 @@ export interface UseScientificAnalysis {
 }
 
 export function previewInputKey(preview: PreviewResponse | null | undefined): string {
-    if (!preview) return "";
-    const c = preview.extraction_config;
-    return [preview.job_id || "live", c.variable_id, c.region_name, c.start_date, c.end_date].join("|");
+    return sourceKey(preview);
 }
 
 export function useScientificAnalysis(preview: PreviewResponse | null | undefined): UseScientificAnalysis {

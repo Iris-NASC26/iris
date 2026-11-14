@@ -1,11 +1,15 @@
 // Curated studio arrangements. Layouts are plain serialized-dockview trees so
 // they can be persisted, validated, and restored without a live DockviewApi.
-export type PanelId = 'timeseries' | 'seasonal' | 'relationship' | 'table' | 'source' | 'comparison';
+export type PanelId = 'landscape' | 'heatmap' | 'evidence' | 'rates' | 'timeseries' | 'seasonal' | 'relationship' | 'table' | 'source' | 'comparison';
 export interface PanelDef {
     id: PanelId;
     title: string;
 }
 export const PANEL_DEFS: PanelDef[] = [
+    { id: 'landscape', title: 'Seasonal landscape' },
+    { id: 'heatmap', title: 'Linked heatmap' },
+    { id: 'evidence', title: 'Trend evidence' },
+    { id: 'rates', title: 'Trend intervals' },
     { id: 'timeseries', title: 'Time series' },
     { id: 'seasonal', title: 'Seasonal cycles' },
     { id: 'relationship', title: 'Relationship' },
@@ -19,6 +23,7 @@ type Node = { type: 'leaf'; size: number; views: PanelId[] } | { type: 'split'; 
 const leaf = (size: number, ...views: PanelId[]): Node => ({ type: 'leaf', size, views });
 const row = (...children: Node[]): Node => ({ type: 'split', direction: 'row', children });
 const col = (...children: Node[]): Node => ({ type: 'split', direction: 'column', children });
+const weighted = (size: number, node: Node): Node => ({ ...node, size });
 
 export interface Preset {
     id: string;
@@ -27,6 +32,8 @@ export interface Preset {
     root: Node;
 }
 export const PRESETS: Preset[] = [
+    { id: 'landscape', label: 'Landscape', hint: 'An immersive seasonal landscape with a linked timeline, heatmap and source-bound scientific evidence.', root: row(weighted(70, col(leaf(67, 'landscape'), leaf(33, 'timeseries'))), weighted(30, col(leaf(52, 'evidence'), leaf(48, 'heatmap')))) },
+    { id: 'evidence', label: 'Evidence', hint: 'A clear timeline, seasonal heatmap, trend intervals and a source-bound scientific summary.', root: row(weighted(65, col(leaf(60, 'timeseries'), leaf(40, 'rates', 'comparison'))), weighted(35, col(leaf(50, 'heatmap'), leaf(50, 'evidence', 'source')))) },
     { id: 'explore', label: 'Explore', hint: 'Time series with a supporting seasonal heatmap and a compact source inspector.', root: row(leaf(68, 'timeseries'), col(leaf(58, 'seasonal'), leaf(42, 'source'))) },
     { id: 'compare', label: 'Compare', hint: 'Coordinated series, an aligned-pair relationship view, and a comparison summary.', root: row(col(leaf(62, 'timeseries'), leaf(38, 'comparison')), col(leaf(60, 'relationship'), leaf(40, 'source'))) },
     { id: 'seasonal', label: 'Seasonal', hint: 'Year-by-month heatmap with the seasonal profile and the full record alongside.', root: row(leaf(62, 'seasonal'), col(leaf(55, 'timeseries'), leaf(45, 'source'))) },
@@ -48,7 +55,7 @@ export function presetLayout(preset: Preset, panelsInOrder: PanelId[] = PANEL_ID
             views.forEach(v => { const def = PANEL_DEFS.find(d => d.id === v)!; panels[v] = { id: v, contentComponent: v, title: def.title }; });
             return { type: 'leaf', size: n.size * 10, data: { views, activeView: views[0], id } };
         }
-        return { type: 'branch', data: n.children.map(node) };
+        return { type: 'branch', ...(n.size ? { size: n.size * 10 } : {}), data: n.children.map(node) };
     };
     const root = node(preset.root);
     // Panels not placed by the preset are appended as tabs on the first group.

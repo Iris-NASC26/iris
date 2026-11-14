@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import type { EChartsCoreOption, EChartsType } from "echarts/core";
-import { useTheme } from "@/context/ThemeContext";
+import { useStudioTheme as useTheme } from './studio/display';
 import { calendar, deviation, histogram, lineData, MONTHS, monthlyCells, paired, scale, standardize, type Datum, type VisualSeries } from "./model";
 export type ChartKind = "line" | "area" | "bars" | "seasonal" | "heatmap" | "distribution" | "scatter";
 export const CHARTS: {

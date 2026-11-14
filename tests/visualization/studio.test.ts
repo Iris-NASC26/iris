@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { PANEL_DEFS, PANEL_IDS, PRESETS, presetLayout } from "../../src/features/visualization/studio/presets.ts";
-import { defaultPrefs, layoutPanels, LAYOUT_VERSION, parsePrefs, STORAGE_KEY } from "../../src/features/visualization/studio/layoutPersistence.ts";
+import { clearPrefs, defaultPrefs, layoutPanels, LAYOUT_VERSION, loadPrefs, parsePrefs, savePrefs, STORAGE_KEY } from "../../src/features/visualization/studio/layoutPersistence.ts";
 import { isCaseFileAnalysis, outlookCapabilities } from "../../src/features/visualization/adapters/analysisResult.ts";
 import { deviation, standardize, paired } from "../../src/features/visualization/model.ts";
 
@@ -26,15 +26,23 @@ test("preset trees keep curated panels in their primary position", () => {
 test("corrupt JSON falls back to defaults without throwing", () => {
     const { prefs, recovered } = parsePrefs("{not json");
     assert.equal(recovered, "corrupt");
-    assert.equal(prefs.preset, "explore");
+    assert.equal(prefs.preset, "landscape");
     assert.equal(prefs.layout, null);
 });
 
-test("unsupported versions keep a valid preset but drop the stored layout", () => {
+test('preference loading works during server rendering and with denied browser storage', () => {
+    assert.equal(loadPrefs().prefs.preset, 'landscape');
+    assert.equal(loadPrefs({ getItem: () => { throw new Error('denied'); } }).denied, true);
+    assert.equal(savePrefs(defaultPrefs(), { setItem: () => { throw new Error('denied'); } }), false);
+    assert.doesNotThrow(() => clearPrefs());
+    assert.doesNotThrow(() => clearPrefs({ removeItem: () => { throw new Error('denied'); } }));
+});
+
+test("older layouts migrate to the new Landscape default without restoring removed panels", () => {
     const raw = JSON.stringify({ version: 99, preset: "seasonal", layout: { grid: { root: {} } }, hidden: ["map"] });
     const { prefs, recovered } = parsePrefs(raw);
     assert.equal(recovered, "version");
-    assert.equal(prefs.preset, "seasonal");
+    assert.equal(prefs.preset, "landscape");
     assert.equal(prefs.layout, null);
     assert.deepEqual(prefs.hidden, []);
 });
@@ -46,7 +54,7 @@ test("unknown panel ids and non-object layouts are stripped", () => {
     assert.equal(prefs.layout, null);
     assert.deepEqual(prefs.hidden, ["source"]);
     assert.deepEqual(defaultPrefs().version, LAYOUT_VERSION);
-    assert.equal(STORAGE_KEY.includes("v2"), true);
+    assert.equal(STORAGE_KEY.includes("v3"), true);
 });
 
 test("layoutPanels reports only known panels from a saved layout", () => {
@@ -62,7 +70,7 @@ test("saved Outlook arrangements cannot restore the removed studio panel", () =>
             timeseries: { id: 'timeseries', contentComponent: 'timeseries' },
             outlook: { id: 'outlook', contentComponent: 'outlook' },
         } } }));
-    assert.equal(prefs.preset, 'explore');
+    assert.equal(prefs.preset, 'landscape');
     assert.equal(prefs.layout, null);
     assert.deepEqual(prefs.hidden, []);
 });

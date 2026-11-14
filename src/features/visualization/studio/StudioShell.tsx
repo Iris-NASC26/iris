@@ -6,13 +6,19 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { DockviewReact, type DockviewReadyEvent, type DockviewApi, type IDockviewPanelProps } from "dockview-react";
 import "dockview-react/dist/styles/dockview.css";
 import { Icon } from "@/components/ui/Icon";
-import { useTheme } from "@/context/ThemeContext";
+import { useDisplay, useStudioTheme } from './display';
+import { LandscapePanel, LinkedHeatmapPanel } from './LandscapePanel';
+import { EvidencePanel, TrendIntervalsPanel } from './EvidencePanel';
 import { DEFAULT_PRESET, PANEL_DEFS, PRESETS, presetLayout, type PanelId } from "./presets";
 import { clearPrefs, layoutPanels, loadPrefs, savePrefs, LAYOUT_VERSION, type StudioPrefs } from "./layoutPersistence";
 import { ComparisonPanel, ObservationTablePanel, RelationshipPanel, SeasonalPanel, SourceInspectorPanel, TimeSeriesPanel } from "./panels";
 import { useStudio } from "./state";
 
 export const PANEL_COMPONENTS: Record<PanelId, React.FC<IDockviewPanelProps>> = {
+    landscape: LandscapePanel,
+    heatmap: LinkedHeatmapPanel,
+    evidence: EvidencePanel,
+    rates: TrendIntervalsPanel,
     timeseries: TimeSeriesPanel,
     seasonal: SeasonalPanel,
     relationship: RelationshipPanel,
@@ -21,18 +27,19 @@ export const PANEL_COMPONENTS: Record<PanelId, React.FC<IDockviewPanelProps>> = 
     comparison: ComparisonPanel,
 };
 
-const MOBILE_ORDER: PanelId[] = ['timeseries', 'seasonal', 'relationship', 'table', 'comparison', 'source'];
+const MOBILE_ORDER: PanelId[] = ['landscape', 'timeseries', 'heatmap', 'evidence', 'rates', 'seasonal', 'relationship', 'table', 'comparison', 'source'];
 const narrow = () => typeof window !== 'undefined' && window.matchMedia('(max-width: 900px)').matches;
 
 export function StudioShell({ children }: { children?: React.ReactNode }) {
     const studio = useStudio();
-    const { dark } = useTheme();
+    const { dark } = useStudioTheme();
+    const { update } = useDisplay();
     const api = useRef<DockviewApi | null>(null);
     const saveTimer = useRef<number | undefined>(undefined);
     const applying = useRef(false);
     const [prefs, setPrefs] = useState<StudioPrefs>(() => loadPrefs().prefs);
     const [mobile, setMobile] = useState(false);
-    const [mobilePanel, setMobilePanel] = useState<PanelId>('timeseries');
+    const [mobilePanel, setMobilePanel] = useState<PanelId>('landscape');
     const [closed, setClosed] = useState<PanelId[]>(prefs.hidden);
     const [reopenId, setReopenId] = useState('');
     const [layoutNote, setLayoutNote] = useState('');
@@ -111,9 +118,10 @@ export function StudioShell({ children }: { children?: React.ReactNode }) {
     return <div className="viz-studio">
         <div className="viz-studio-toolbar" role="toolbar" aria-label="Studio controls">
             {children}
+            <label className="viz-studio-field">Environment<select aria-label="Environment" value={dark ? 'dark' : 'light'} onChange={e => update({ dark: e.target.value === 'dark' })}><option value="dark">Midnight</option><option value="light">Daylight</option></select></label>
             <span className="viz-studio-group">
                 <label className="viz-studio-field">Preset
-                    <select value={prefs.preset} onChange={e => applyPreset(e.target.value)} disabled={mobile}>
+                    <select aria-label="Preset" value={prefs.preset} onChange={e => applyPreset(e.target.value)} disabled={mobile}>
                         {PRESETS.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
                     </select>
                 </label>
@@ -123,7 +131,7 @@ export function StudioShell({ children }: { children?: React.ReactNode }) {
             </span>
             <span className="viz-studio-group">
                 <label className="viz-studio-field">Open panel
-                    <select value={reopenId} onChange={e => setReopenId(e.target.value)} disabled={mobile || !closed.length}>
+                    <select aria-label="Open panel" value={reopenId} onChange={e => setReopenId(e.target.value)} disabled={mobile || !closed.length}>
                         <option value="">{closed.length ? 'Choose…' : 'All panels open'}</option>
                         {closed.map(id => <option key={id} value={id}>{PANEL_DEFS.find(d => d.id === id)?.title}</option>)}
                     </select>
@@ -135,7 +143,7 @@ export function StudioShell({ children }: { children?: React.ReactNode }) {
         {mobile
             ? <div className="viz-studio-mobile">
                 <label className="viz-studio-field">Panel
-                    <select value={mobilePanel} onChange={e => setMobilePanel(e.target.value as PanelId)}>
+                    <select aria-label="Panel" value={mobilePanel} onChange={e => setMobilePanel(e.target.value as PanelId)}>
                         {MOBILE_ORDER.map(id => <option key={id} value={id}>{PANEL_DEFS.find(d => d.id === id)?.title}</option>)}
                     </select>
                 </label>

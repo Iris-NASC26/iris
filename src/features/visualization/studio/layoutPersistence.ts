@@ -2,9 +2,9 @@
 // observations, analysis payloads, or renderer instances.
 import { DEFAULT_PRESET, PANEL_IDS, PRESETS, type PanelId } from './presets';
 
-export const STORAGE_KEY = 'iris.studio.layout.v2';
-const LEGACY_STORAGE_KEY = 'iris.studio.layout.v1';
-export const LAYOUT_VERSION = 2;
+export const STORAGE_KEY = 'iris.studio.layout.v3';
+const LEGACY_STORAGE_KEY = 'iris.studio.layout.v2';
+export const LAYOUT_VERSION = 3;
 
 export interface StudioPrefs {
     version: number;
@@ -24,7 +24,7 @@ export function parsePrefs(raw: string | null): { prefs: StudioPrefs; recovered:
     try {
         const value = JSON.parse(raw) as Partial<StudioPrefs>;
         if (!value || typeof value !== 'object') return { prefs: defaultPrefs(), recovered: 'corrupt' };
-        if (value.version !== LAYOUT_VERSION) return { prefs: { ...defaultPrefs(), preset: typeof value.preset === 'string' && PRESETS.some(p => p.id === value.preset) ? value.preset : DEFAULT_PRESET }, recovered: 'version' };
+        if (value.version !== LAYOUT_VERSION) return { prefs: defaultPrefs(), recovered: 'version' };
         const candidate = value.layout as { grid?: unknown; panels?: Record<string, { id?: unknown; contentComponent?: unknown }> } | null;
         const knownLayout = candidate && typeof candidate === 'object' && candidate.grid && candidate.panels
             && Object.entries(candidate.panels).every(([id, panel]) => validPanel(id) && panel?.id === id && panel.contentComponent === id);
@@ -44,26 +44,33 @@ export function parsePrefs(raw: string | null): { prefs: StudioPrefs; recovered:
     }
 }
 
-export function loadPrefs(storage: Pick<Storage, 'getItem'> = window.localStorage): { prefs: StudioPrefs; recovered: string; denied: boolean } {
+export function loadPrefs(storage?: Pick<Storage, 'getItem'>): { prefs: StudioPrefs; recovered: string; denied: boolean } {
     try {
-        const result = parsePrefs(storage.getItem(STORAGE_KEY) ?? storage.getItem(LEGACY_STORAGE_KEY));
+        if (!storage && typeof window === 'undefined') return { prefs: defaultPrefs(), recovered: 'empty', denied: false };
+        const target = storage ?? window.localStorage;
+        const result = parsePrefs(target.getItem(STORAGE_KEY) ?? target.getItem(LEGACY_STORAGE_KEY) ?? target.getItem('iris.studio.layout.v1'));
         return { ...result, denied: false };
     } catch {
         return { prefs: defaultPrefs(), recovered: 'denied', denied: true };
     }
 }
 
-export function savePrefs(prefs: StudioPrefs, storage: Pick<Storage, 'setItem'> = window.localStorage): boolean {
+export function savePrefs(prefs: StudioPrefs, storage?: Pick<Storage, 'setItem'>): boolean {
     try {
-        storage.setItem(STORAGE_KEY, JSON.stringify({ ...prefs, savedAt: new Date().toISOString() }));
+        if (!storage && typeof window === 'undefined') return false;
+        (storage ?? window.localStorage).setItem(STORAGE_KEY, JSON.stringify({ ...prefs, savedAt: new Date().toISOString() }));
         return true;
     } catch {
         return false;
     }
 }
 
-export function clearPrefs(storage: Pick<Storage, 'removeItem'> = window.localStorage): void {
-    try { storage.removeItem(STORAGE_KEY); storage.removeItem(LEGACY_STORAGE_KEY); } catch { /* storage denied */ }
+export function clearPrefs(storage?: Pick<Storage, 'removeItem'>): void {
+    try {
+        if (!storage && typeof window === 'undefined') return;
+        const target = storage ?? window.localStorage;
+        target.removeItem(STORAGE_KEY); target.removeItem(LEGACY_STORAGE_KEY); target.removeItem('iris.studio.layout.v1');
+    } catch { /* storage denied */ }
 }
 
 // Panels present in a restored layout — used to drop references to removed ids.

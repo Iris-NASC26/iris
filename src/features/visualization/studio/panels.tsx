@@ -4,8 +4,8 @@
 import { useMemo, useState } from "react";
 import type { IDockviewPanelProps } from "dockview-react";
 import { DataChart, ChartCanvas, type ChartKind, type SelectEvent } from "../Charts";
-import { calendar, deviation, format, MONTHS, monthlyCells, paired, scale, summary, type VisualSeries } from "../model";
-import { useTheme } from "@/context/ThemeContext";
+import { calendar, deviation, format, lineData, MONTHS, monthlyCells, paired, scale, summary, type VisualSeries } from "../model";
+import { useStudioTheme as useTheme } from './display';
 import { useStudio, type StudioState } from "./state";
 
 type P = IDockviewPanelProps;
@@ -29,18 +29,39 @@ function commitIndex(studio: StudioState, i: number) {
 export function TimeSeriesPanel(_p: P) {
     const s = useStudio();
     const [kind, setKind] = useState<ChartKind>('line');
+    const [signal, setSignal] = useState<'observed' | 'analysis'>('observed');
     if (!s.primary) return <EmptyData />;
     const stats = summary(s.primaryRows);
     const markTime = s.selection?.seriesId === s.primary.id ? s.selection.time : s.primaryRows[Math.min(s.timeIndex, s.primaryRows.length - 1)]?.time ?? null;
     return <div className="viz-panel">
         <div className="viz-panel-tools">
-            <span className="viz-chart-types" role="group" aria-label="Chart type">{(['line', 'area', 'bars'] as const).map(k => <button key={k} aria-pressed={kind === k} onClick={() => setKind(k)}>{({ line: 'Line', area: 'Area', bars: 'Bars' } as const)[k]}</button>)}</span>
+            <span className="viz-chart-types" role="group" aria-label="Chart type">{(['line', 'area', 'bars', 'distribution'] as const).map(k => <button key={k} aria-pressed={kind === k} onClick={() => { setKind(k); setSignal('observed'); }}>{({ line: 'Line', area: 'Area', bars: 'Bars', distribution: 'Distribution' } as const)[k]}</button>)}</span>
+            {s.analysis.binding && <label>Signal<select aria-label="Signal" value={signal} onChange={e => setSignal(e.target.value as typeof signal)}><option value="observed">Observed record</option><option value="analysis">Analysis-adjusted & fitted</option></select></label>}
             {s.entries.length > 1 && <label className="viz-check"><input type="checkbox" checked={s.normalized} onChange={e => s.setNormalized(e.target.checked)}/> Standardize (unitless)</label>}
             <select aria-label="Primary series" value={s.primary.id} onChange={e => s.setPrimaryId(e.target.value)}>{s.entries.map(x => <option key={x.id} value={x.id}>{x.label}</option>)}</select>
         </div>
-        {stats.count ? <DataChart kind={kind} entries={s.entries} primary={s.primary} data={s.data} normalized={s.normalized} markTime={markTime} onSelect={e => publish(s, e)}/> : <Empty text="No usable observations in this period. Adjust the display filters or inspect the QA flags." />}
+        {signal === 'analysis' && s.analysis.binding ? <AnalyzedSeries studio={s}/> : stats.count ? <DataChart kind={kind} entries={s.entries} primary={s.primary} data={s.data} normalized={s.normalized} markTime={markTime} onSelect={e => publish(s, e)}/> : <Empty text="No usable observations in this period. Adjust the display filters or inspect the QA flags." />}
         <p className="viz-panel-foot">Units {s.primary.preview.summary_stats.unit} · {s.primary.preview.extraction_config.target_frequency} · gaps are real, never connected.</p>
     </div>;
+}
+
+function AnalyzedSeries({ studio: s }: { studio: StudioState }) {
+    const { dark } = useTheme(), b = s.analysis.binding!;
+    const foreground = dark ? '#acbdcf' : '#47586d';
+    const byTime = new Map(b.result.analysis_series.map(r => [Date.parse(r.timestamp), r]));
+    const aligned = s.primaryRows.map(row => ({ row, result: byTime.get(row.time) }));
+    if (!aligned.some(x => x.result?.deseasonalized_value !== null && x.result?.deseasonalized_value !== undefined && x.row.value !== null)) return <Empty text="The analysis-adjusted observations cannot be aligned to the visible source timestamps. Use the observed record or Data Analysis; no values were interpolated."/>;
+    const series = [{ name: `Analysis-adjusted (${b.result.seasonal_adjustment_method})`, field: 'deseasonalized_value' as const, color: s.primary!.color },
+        ...(b.submission.methods.includes('ols') ? [{ name: 'Submitted OLS fit', field: 'ols_trend' as const, color: '#e5ab74' }] : []),
+        ...(b.submission.methods.includes('sen_slope') ? [{ name: 'Submitted Sen fit', field: 'sen_trend' as const, color: '#b39ae6' }] : [])];
+    return <><ChartCanvas label={`Submitted analysis-adjusted observations and requested fits for ${s.primary!.label}. Fits are not drawn on unadjusted observations.`} resetable onSelect={data => { if (Array.isArray(data) && typeof data[0] === 'number') publish(s, { kind: 'time', time: data[0] }); }} option={{
+        animation: false, useUTC: true, aria: { enabled: true }, backgroundColor: 'transparent', grid: { top: 45, left: 65, right: 20, bottom: 55 },
+        legend: { type: 'scroll', textStyle: { color: foreground } }, tooltip: { trigger: 'axis', confine: true, renderMode: 'richText' },
+        xAxis: { type: 'time', axisLabel: { color: foreground } }, yAxis: { type: 'value', name: b.result.unit, scale: true, axisLabel: { color: foreground }, splitLine: { lineStyle: { color: dark ? '#29394d' : '#dbe4ed' } } },
+        dataZoom: [{ type: 'inside', filterMode: 'none' }, { type: 'slider', height: 18, bottom: 5, filterMode: 'none' }],
+        series: series.map((item, i) => ({ name: item.name, type: 'line', connectNulls: false, showSymbol: i === 0, symbolSize: 3, lineStyle: { width: 2, type: i === 0 ? 'solid' : 'dashed', color: item.color }, itemStyle: { color: item.color },
+            data: lineData(aligned.map(x => ({ ...x.row, value: x.row.value === null ? null : x.result?.[item.field] ?? null })), s.primary!.preview.extraction_config.target_frequency) })),
+    }}/><p className="viz-panel-foot">Backend fits and adjusted values are aligned by exact timestamp. Only requested methods are shown. Original analysis window {b.result.start_year}–{b.result.end_year}; brush zoom does not refit.</p></>;
 }
 
 export function SeasonalPanel(_p: P) {
@@ -162,7 +183,7 @@ export function ComparisonPanel(_p: P) {
             <tbody>{visible.map(v => { const rows = s.data.get(v.id) ?? []; const st = summary(rows); const sd = deviation(rows); return <tr key={v.id}><td><i className="viz-swatch" style={{ background: v.color }}/>{v.label}</td><td>{st.count}</td><td>{format(st.mean)} {v.preview.summary_stats.unit}</td><td>{format(st.min)}–{format(st.max)}</td><td>{sd === null ? 'Unavailable' : sd === 0 ? '0 (zero variance)' : format(sd)}</td><td>{format(st.change)}</td></tr>; })}</tbody>
         </table>
         {trendOk ? <div className="viz-control-section"><span className="viz-step">SUBMITTED TREND ESTIMATE</span>
-            <dl className="viz-kv"><dt>Sen slope</dt><dd>{format(trendBinding.result.sens_slope_decadal)} {trendBinding.result.unit}/decade · 95% CI {format(trendBinding.result.sens_ci_low)} to {format(trendBinding.result.sens_ci_high)}</dd><dt>OLS slope</dt><dd>{format(trendBinding.result.ols_slope_decadal)} {trendBinding.result.unit}/decade · 95% CI {format(trendBinding.result.ols_ci_low_decadal)} to {format(trendBinding.result.ols_ci_high_decadal)}</dd><dt>Bound to</dt><dd>{trendBinding.result.dataset_name} · {trendBinding.result.start_year}–{trendBinding.result.end_year} · methods {trendBinding.submission.methods.join(', ')}</dd></dl>
+            <dl className="viz-kv">{trendBinding.submission.methods.includes('sen_slope') && <><dt>Sen slope</dt><dd>{format(trendBinding.result.sens_slope_decadal)} {trendBinding.result.unit}/decade · 95% CI {format(trendBinding.result.sens_ci_low)} to {format(trendBinding.result.sens_ci_high)}</dd></>}{trendBinding.submission.methods.includes('ols') && <><dt>OLS slope</dt><dd>{format(trendBinding.result.ols_slope_decadal)} {trendBinding.result.unit}/decade · 95% CI {format(trendBinding.result.ols_ci_low_decadal)} to {format(trendBinding.result.ols_ci_high_decadal)}</dd></>}<dt>Bound to</dt><dd>{trendBinding.result.dataset_name} · {trendBinding.result.start_year}–{trendBinding.result.end_year} · methods {trendBinding.submission.methods.join(', ')}</dd></dl>
             <p className="viz-muted">Intervals are this submission’s estimates only; no cross-dataset trend comparison is implied.</p></div>
             : <p className="viz-muted">Trend estimates appear here only for a matching submitted analysis on the primary series — run the selected methods on Data Analysis. Endpoint differences above are descriptive, not trend estimates.</p>}
     </div>;

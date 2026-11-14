@@ -66,5 +66,6 @@ test('legacy saved globe layouts cannot bring a globe back into the studio', asy
     await expect(page.getByRole('tab', { name: 'Time series', exact: true })).toBeVisible();
     await expect(page.getByRole('tab', { name: 'Living Earth' })).toHaveCount(0);
     await expect(page.locator('.viz-map-workspace, .viz-three-mount')).toHaveCount(0);
+    await page.getByRole('button', { name: 'Data controls', exact: true }).click();
     await expect(page.getByLabel('Find a dataset')).toBeVisible();
 });
