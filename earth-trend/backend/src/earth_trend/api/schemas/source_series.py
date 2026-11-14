@@ -88,3 +88,22 @@ class FieldResult(Versioned):
     cell_lons: list[Number]
     values: list[Number | None]
     source: FieldSource
+
+
+class RegionBox(Contract):
+    lat_min: Number
+    lat_max: Number
+    lon_min: Number
+    lon_max: Number
+    cell_lat_step: Number
+    cell_lon_step: Number
+    native_cells: Annotated[int, Field(strict=True, ge=1)]
+    selection: Literal["area_weighted_mean_native_cells"]
+
+
+class RegionalSeriesResult(Versioned):
+    """Cos(latitude)-weighted monthly mean of a box's native cells. Retrieval, not analysis."""
+
+    series: Series
+    box: RegionBox
+    source: SeriesSource

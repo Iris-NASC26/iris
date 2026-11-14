@@ -34,6 +34,23 @@ export interface paths {
         readonly patch?: never;
         readonly trace?: never;
     };
+    readonly "/api/v1/regional-series/{variable_id}": {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        /** Regional Series */
+        readonly get: operations["regional_series_api_v1_regional_series__variable_id__get"];
+        readonly put?: never;
+        readonly post?: never;
+        readonly delete?: never;
+        readonly options?: never;
+        readonly head?: never;
+        readonly patch?: never;
+        readonly trace?: never;
+    };
     readonly "/api/v1/series/{variable_id}": {
         readonly parameters: {
             readonly query?: never;
@@ -1583,6 +1600,42 @@ export interface components {
             readonly sufficient_disk: boolean;
         };
         /**
+         * RegionalSeriesResult
+         * @description Cos(latitude)-weighted monthly mean of a box's native cells. Retrieval, not analysis.
+         */
+        readonly RegionalSeriesResult: {
+            readonly box: components["schemas"]["RegionBox"];
+            /**
+             * Schema Version
+             * @constant
+             */
+            readonly schema_version: "1.0";
+            readonly series: components["schemas"]["Series"];
+            readonly source: components["schemas"]["SeriesSource"];
+        };
+        /** RegionBox */
+        readonly RegionBox: {
+            /** Cell Lat Step */
+            readonly cell_lat_step: number;
+            /** Cell Lon Step */
+            readonly cell_lon_step: number;
+            /** Lat Max */
+            readonly lat_max: number;
+            /** Lat Min */
+            readonly lat_min: number;
+            /** Lon Max */
+            readonly lon_max: number;
+            /** Lon Min */
+            readonly lon_min: number;
+            /** Native Cells */
+            readonly native_cells: number;
+            /**
+             * Selection
+             * @constant
+             */
+            readonly selection: "area_weighted_mean_native_cells";
+        };
+        /**
          * RegionSpec
          * @description A region specification, not proof of valid topology or scientific support.
          */
@@ -2179,6 +2232,42 @@ export interface operations {
             };
         };
     };
+    readonly regional_series_api_v1_regional_series__variable_id__get: {
+        readonly parameters: {
+            readonly query: {
+                readonly lat_max: number;
+                readonly lat_min: number;
+                readonly lon_max: number;
+                readonly lon_min: number;
+            };
+            readonly header?: never;
+            readonly path: {
+                readonly variable_id: string;
+            };
+            readonly cookie?: never;
+        };
+        readonly requestBody?: never;
+        readonly responses: {
+            /** @description Successful Response */
+            readonly 200: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["RegionalSeriesResult"];
+                };
+            };
+            /** @description Validation Error */
+            readonly 422: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     readonly point_series_api_v1_series__variable_id__get: {
         readonly parameters: {
             readonly query: {
@@ -2278,8 +2367,10 @@ export type ProductCapability = components["schemas"]["ProductCapability"];
 export type Provenance = components["schemas"]["Provenance"];
 export type Quantiles = components["schemas"]["Quantiles"];
 export type Readiness = components["schemas"]["Readiness"];
+export type RegionBox = components["schemas"]["RegionBox"];
 export type RegionSpec = components["schemas"]["RegionSpec"];
 export type RegionSummary = components["schemas"]["RegionSummary"];
+export type RegionalSeriesResult = components["schemas"]["RegionalSeriesResult"];
 export type RegressionDiagnostics = components["schemas"]["RegressionDiagnostics"];
 export type ScanRequest = components["schemas"]["ScanRequest"];
 export type ScanResult = components["schemas"]["ScanResult"];

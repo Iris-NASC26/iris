@@ -31,7 +31,7 @@ from . import (
     TestResult,
     Transform,
 )
-from .source_series import FieldResult, PointSeriesResult
+from .source_series import FieldResult, PointSeriesResult, RegionalSeriesResult
 
 PUBLIC_MODELS: tuple[type[BaseModel], ...] = (
     AnalysisRequest,
@@ -52,6 +52,7 @@ PUBLIC_MODELS: tuple[type[BaseModel], ...] = (
     OutlookResult,
     PointSeriesResult,
     Provenance,
+    RegionalSeriesResult,
     RegionSpec,
     ScanRequest,
     ScanResult,
