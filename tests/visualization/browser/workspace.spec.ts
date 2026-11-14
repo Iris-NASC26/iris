@@ -10,20 +10,24 @@ test.beforeEach(async({page})=>{
 test('does not fetch data on mount and discovers, selects and retrieves on explicit actions',async({page})=>{
  const calls:string[]=[];page.on('request',r=>{if(new URL(r.url()).pathname.startsWith('/api/'))calls.push(new URL(r.url()).pathname);});
  const ui=new VisualizationPage(page);await ui.open();expect(calls).toEqual([]);
- await expect(page.getByText('No demonstration values are loaded.')).toBeVisible();
+ await expect(page.getByText('No demonstration values are loaded.').first()).toBeVisible();
  await ui.discover();await page.getByLabel('Datasets').getByRole('checkbox',{name:/Test air temperature/}).check();
  let requested:Record<string,unknown>|undefined;
  await page.route('**/api/v1/timeseries/extract',route=>{requested=route.request().postDataJSON();return route.fulfill({json:fixture()});});
  await ui.load();expect(requested?.variable_id).toBe('T2M');expect(requested?.spatial_Submode).toBe('point');
  await expect(page.getByRole('img',{name:/Time series for Test air temperature/})).toBeVisible();
- for(const name of ['Area','Observation bars','Seasonal profile','Monthly heatmap','Distribution']){
-  await page.getByRole('button',{name,exact:true}).click();await expect(page.locator('.viz-chart-canvas canvas')).toBeVisible();await expect(page.getByRole('img',{name:/Exact values are available in the observation table/})).toBeVisible();
+ for(const name of ['Area','Bars']){
+  await page.getByRole('button',{name,exact:true}).click();await expect(page.getByRole('img',{name:/Exact values are available in the observation table/}).first()).toBeVisible();
  }
- await page.getByRole('button',{name:'Observation table',exact:true}).click();
+ await page.getByRole('tab',{name:'Seasonal cycles',exact:true}).click();await expect(page.getByRole('img',{name:/Monthly heatmap/})).toBeVisible();
+ await page.getByRole('button',{name:'Seasonal profile',exact:true}).click();await expect(page.getByRole('img',{name:/Seasonal profile for/})).toBeVisible();
+ await page.getByRole('tab',{name:'Observations',exact:true}).click();
  await expect(page.getByRole('table')).toContainText('Missing');await expect(page.getByRole('table')).toContainText('Flagged');
  await expect(page.getByRole('row',{name:/2021-02/})).toContainText('18');await expect(page.getByRole('row',{name:/2021-02/})).toContainText('Unavailable');
- await page.getByRole('checkbox',{name:'Include provider-flagged values'}).check();await expect(page.getByRole('row',{name:/2021-02/})).not.toContainText('Unavailable');
- const download=page.waitForEvent('download');await page.getByRole('button',{name:'Export JSON',exact:true}).click();expect((await download).suggestedFilename()).toBe('iris-T2M.json');
+ await page.getByRole('tab',{name:'Source & selection',exact:true}).click();
+ await page.getByRole('checkbox',{name:'Include provider-flagged values'}).check();
+ await page.getByRole('tab',{name:'Observations',exact:true}).click();await expect(page.getByRole('row',{name:/2021-02/})).not.toContainText('Unavailable');
+ const download=page.waitForEvent('download');await page.getByRole('toolbar',{name:'Studio controls'}).getByRole('button',{name:'Export JSON',exact:true}).click();expect((await download).suggestedFilename()).toBe('iris-T2M.json');
  await ui.noOverflow();
 });
 
@@ -43,8 +47,9 @@ test('keeps two locations and pairs comparisons without asking SI to generate ob
  await page.getByRole('spinbutton',{name:'Longitude',exact:true}).fill('36.82');
  await page.route('**/api/v1/timeseries/extract',route=>route.fulfill({json:fixture('job-second',-1.29,36.82)}));
  await ui.load();await expect(page.getByLabel('Primary series').getByRole('option')).toHaveCount(2);
- await page.getByRole('button',{name:'Relationship',exact:true}).click();await expect(page.locator('.viz-chart-canvas canvas')).toBeVisible();
- await page.getByRole('button',{name:'Living globe',exact:true}).click();await expect(page.getByRole('list',{name:'Mapped observations'}).getByRole('listitem')).toHaveCount(2);
+ await page.getByRole('tab',{name:'Relationship',exact:true}).click();await expect(page.getByRole('img',{name:/Aligned pairs/})).toBeVisible();
+ await expect(page.getByRole('tab',{name:'Living Earth',exact:true})).toHaveCount(0);
+ await expect(page.locator('.viz-three-mount')).toHaveCount(0);
 });
 
 test('real WebGL globe accepts only a loaded native field and clears stale selection',async({page})=>{

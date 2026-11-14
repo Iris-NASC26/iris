@@ -21,6 +21,8 @@ import httpx
 import numcodecs
 import numpy as np
 
+from .catalog import SOURCES, VARIABLES
+
 HOST = "nasa-power.s3.us-west-2.amazonaws.com"
 MAX_OBJECT_BYTES = 4 * 1024 * 1024
 CACHE_TTL_SECONDS = 24 * 3600
@@ -52,31 +54,12 @@ class Store:
 
 
 STORES: dict[str, Store] = {
-    "V01": Store(
-        "V01",
-        "merra2/temporal/power_merra2_monthly_temporal_utc.zarr",
-        "T2M",
-        "C",
-        "°C",
-        "UTC",
-        (
-            "MERRA-2 reanalysis model output; 2 m temperature is not directly assimilated.",
-            "Known MERRA-2 input changes (SST and sea ice in 1982 and 2006-04; production-stream "
-            "breaks around 1991, 2001 and 2011) can create apparent steps in long series.",
-        ),
-    ),
-    "V12": Store(
-        "V12",
-        "syn1deg/temporal/power_syn1deg_monthly_temporal_lst.zarr",
-        "ALLSKY_SFC_SW_DWN",
-        "W m-2",
-        "W/m²",
-        "LST",
-        (
-            "CERES SYN1deg-based radiation on a 1° grid, labelled in local solar time (LST).",
-            "Do not combine with a UTC series or append a different solar product.",
-        ),
-    ),
+    key: Store(
+        key, SOURCES[entry["family"]]["temporal"], entry["field"],
+        entry["source_units"], entry["units"], SOURCES[entry["family"]]["time_standard"],
+        (*SOURCES[entry["family"]]["caveats"], entry["note"]),
+    )
+    for key, entry in VARIABLES.items()
 }
 
 
@@ -324,7 +307,7 @@ def read_field(
 ) -> Field:
     """Read one month's native cells inside a latitude/longitude box (no dateline wrap)."""
     if variable_id not in STORES:
-        raise FieldRejected("Only V01 temperature and V12 sunlight grids are supported")
+        raise FieldRejected("Choose a supported NASA POWER spatial variable")
     if not all(math.isfinite(v) for v in (lat_min, lat_max, lon_min, lon_max)) or not (
         -90 <= lat_min < lat_max <= 90 and -180 <= lon_min < lon_max <= 180
     ):

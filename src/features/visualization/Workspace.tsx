@@ -1,40 +1,44 @@
 "use client";
 import Link from "next/link";
-import dynamic from "next/dynamic";
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useDashboard } from "@/context/DashboardContext";
 import { Icon } from "@/components/ui/Icon";
 import { REGION_PRESETS, type DataProduct, type DiscoveryResponse, type ExtractionRequest, type PreviewResponse } from "@/lib/dataRetrievalEngine";
 import { useVisualizations } from "./store";
-import { CHARTS, type ChartKind } from "./Charts";
-import { coordinates, csvCell, format, isOverview, MAX_SERIES, numeric, parseField, parseOverview, parsePreview, rows, summary, timestamp, type SpatialField, type VisualSeries } from "./model";
-import { EXTENT_PRESETS, estimateNativeCells, fieldRoute, parseBox, type ExtentBox } from "./extents";
-import { DEFAULT_ORDER, imageryIndex, LAYER_DEFS, moveLayer, type LayerId } from "./layers";
-import { DEFAULT_STYLE, RAMPS, rangeLabel, styleRange, type FieldStyle, type RangeMode } from "./styles";
+import { coordinates, csvCell, format, MAX_SERIES, numeric, parseField, parseOverview, parsePreview, rows, summary, type SpatialField } from "./model";
+import { EXTENT_PRESETS, fieldRoute, parseBox, type ExtentBox } from "./extents";
+import { DEFAULT_ORDER, type LayerId } from "./layers";
+import { DEFAULT_STYLE, type FieldStyle } from "./styles";
+import dynamic from "next/dynamic";
+import { useScientificAnalysis } from "./hooks/useScientificAnalysis";
+import { StudioContext, type MapState, type StudioSelection, type StudioState } from "./studio/state";
+import { StudioShell } from "./studio/StudioShell";
 import type { CellInspection, MapPoint } from "./Globe";
 import './visualization.css';
-const DataChart = dynamic(() => import('./Charts').then(m => m.DataChart), { ssr: false, loading: () => <p className="viz-empty">Loading chart engine...</p> });
-const Globe = dynamic(() => import('./Globe').then(m => m.Globe), { ssr: false, loading: () => <p className="viz-empty">Loading Earth renderer...</p> });
+import { spatialVariable, type SpatialVariableId } from "./spatialVariables";
+const MapWorkspace = dynamic(() => import('./MapWorkspace').then(module => module.MapWorkspace), { ssr: false });
 export function VisualizationWorkspace({ initialView = 'charts' }: {
     initialView?: 'charts' | 'globe';
 }) {
     const dashboard = useDashboard(), store = useVisualizations(), params = useSearchParams(), router = useRouter();
-    const [view, setView] = useState<'charts' | 'globe' | 'table'>(initialView), [kind, setKind] = useState<ChartKind>('line');
     const [prompt, setPrompt] = useState(''), [catalog, setCatalog] = useState<DataProduct[]>([]), [selected, setSelected] = useState<string[] | null>(null);
     const [searching, setSearching] = useState(false), [loading, setLoading] = useState(false), [error, setError] = useState(''), [notice, setNotice] = useState('');
     const [place, setPlace] = useState(dashboard.extractionConfig.region_name), [lat, setLat] = useState(String(dashboard.extractionConfig.point_lat ?? 6.9355)), [lon, setLon] = useState(String(dashboard.extractionConfig.point_lon ?? 79.8487));
     const [start, setStart] = useState(dashboard.extractionConfig.start_date), [end, setEnd] = useState(dashboard.extractionConfig.end_date), [frequency, setFrequency] = useState('Monthly');
     const [primaryId, setPrimaryId] = useState(''), [hidden, setHidden] = useState<string[]>([]), [filterStart, setFilterStart] = useState(''), [filterEnd, setFilterEnd] = useState('');
     const [includeFlagged, setIncludeFlagged] = useState(false), [normalized, setNormalized] = useState(false), [timeIndex, setTimeIndex] = useState(0), [playing, setPlaying] = useState(false), [tablePage, setTablePage] = useState(0);
-    const [fieldVariable, setFieldVariable] = useState<'V01' | 'V12'>('V01'), [fieldMonth, setFieldMonth] = useState('2024-01'), [fieldBox, setFieldBox] = useState(['4', '16', '76', '86']);
+    const [selection, setSelection] = useState<StudioSelection | null>(null);
+    const [fieldVariable, setFieldVariable] = useState<SpatialVariableId>('V01'), [fieldMonth, setFieldMonth] = useState('2024-01'), [fieldBox, setFieldBox] = useState(['4', '16', '76', '86']);
     const [field, setField] = useState<SpatialField | null>(null), [fieldBusy, setFieldBusy] = useState(false), [fieldError, setFieldError] = useState('');
     const [extentId, setExtentId] = useState('custom'), [basemapAlpha, setBasemapAlpha] = useState(1), [fieldAlpha, setFieldAlpha] = useState(0.93), [frameSignal, setFrameSignal] = useState(0);
     const [engineBasemap, setEngineBasemap] = useState('tiles-ready');
-    const [fieldStyle, setFieldStyle] = useState<FieldStyle>(DEFAULT_STYLE), [customRange, setCustomRange] = useState(['', '']);
+    const [fieldStyle, setFieldStyle] = useState<FieldStyle>(DEFAULT_STYLE), [customRange, setCustomRange] = useState<[string, string]>(['', '']);
     const [layerVisible, setLayerVisible] = useState<Record<LayerId, boolean>>({ field: true, points: true, extent: true, basemap: true }), [layerOrder, setLayerOrder] = useState<LayerId[]>(DEFAULT_ORDER);
-    const [inspection, setInspection] = useState<CellInspection | null>(null), [inspectorOpen, setInspectorOpen] = useState(false), [layersOpen, setLayersOpen] = useState(true);
+    const [inspection, setInspection] = useState<CellInspection | null>(null);
     const [drawMode, setDrawMode] = useState(false), [cellClearSignal, setCellClearSignal] = useState(0), [applied, setApplied] = useState<{ variable: string; month: string; box: ExtentBox } | null>(null);
+    const [drawerOpen, setDrawerOpen] = useState(true);
+    const [focus, setFocus] = useState(false);
     // Whether this session has a loaded field — survives the transient null
     // while a reload is in flight, so playback/steppers keep driving requests.
     const spatialSession = useRef(false);
@@ -56,6 +60,7 @@ export function VisualizationWorkspace({ initialView = 'charts' }: {
     const stats = summary(primaryRows);
     const times = primaryRows.map(r => r.time), selectedTime = times[Math.min(timeIndex, Math.max(0, times.length - 1))];
     const primaryIndex = Math.min(timeIndex, Math.max(0, primaryRows.length - 1));
+    const analysis = useScientificAnalysis(primary?.preview);
     const points: MapPoint[] = entries.flatMap(s => { const position = coordinates(s.preview); if (!position)
         return []; const value = (data.get(s.id) ?? []).find(r => r.time === selectedTime)?.value ?? null; return [{ id: s.id, label: `${s.preview.product.variable_name} / ${s.preview.extraction_config.region_name}`, lat: position.lat, lon: position.lon, value, units: s.preview.summary_stats.unit, color: s.color }]; });
     const ingest = (preview: PreviewResponse) => { store.add(preview); setPrimaryId(preview.result_id || preview.job_id); };
@@ -91,11 +96,11 @@ export function VisualizationWorkspace({ initialView = 'charts' }: {
             setNotice('Study location prefilled. Review coordinates, then load observations explicitly.');
         } else if (presetPlace?.trim())
             setPlace(presetPlace.trim());
-        if (params.get('view') === 'globe')
-            setView('globe');
+        if (params.get('view') === 'globe' && initialView !== 'globe')
+            router.replace(`/workspace/globe?${params.toString()}`);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
-    useEffect(() => { setTimeIndex(0); setTablePage(0); setPlaying(false); }, [primary?.id, filterStart, filterEnd, includeFlagged]);
+    useEffect(() => { setTimeIndex(0); setTablePage(0); setPlaying(false); setSelection(null); }, [primary?.id, filterStart, filterEnd, includeFlagged]);
     useEffect(() => { if (!playing || times.length < 2)
         return; const id = window.setInterval(() => setTimeIndex(i => (i + 1) % times.length), 650); return () => clearInterval(id); }, [playing, times.length]);
     useEffect(() => () => { request.current?.abort(); fieldRequest.current?.abort(); searchRequest.current?.abort(); geoRequest.current?.abort(); }, []);
@@ -323,10 +328,55 @@ export function VisualizationWorkspace({ initialView = 'charts' }: {
     function analyze() { if (!primary)
         return; dashboard.setExtractedPreview(primary.preview); dashboard.setAutoRunCase(false); router.push(`/workspace/visualize?view=analysis&jobId=${encodeURIComponent(primary.preview.job_id)}`); }
     const pick = (latitude: number, longitude: number) => { setLat(latitude.toFixed(4)); setLon(longitude.toFixed(4)); setPlace(`Picked location ${latitude.toFixed(2)}, ${longitude.toFixed(2)}`); };
-    return <div className="viz-workbench dashboard-page-inner">
-  <header className="viz-heading"><div><span className="viz-eyebrow">YOUR EARTH OBSERVATION STUDIO</span><h2>Make the change visible.</h2><p>Choose the evidence. Explore the patterns. Keep the source in view.</p></div><Link className="viz-button" href="/workspace/intelligence"><Icon name="sparkles" size={16}/> Open SI discovery</Link></header>
-  <div className="viz-layout">
-   <aside className="viz-controls" aria-label="Visualization controls">
+    const map: MapState = {
+        field, applied, busy: fieldBusy, error: fieldError,
+        variable: fieldVariable, setVariable: variable => {
+            setFieldVariable(variable);
+            setFieldStyle({ ...DEFAULT_STYLE, rampId: spatialVariable(variable).ramp });
+            setCustomRange(['', '']);
+            setSpatialPlaying(false);
+            setSyncLinked(false);
+            spatialSession.current = false;
+        },
+        month: fieldMonth, setMonth: setFieldMonth,
+        box: fieldBox, setBox: setFieldBox,
+        extentId, setExtentId,
+        load: m => void loadField(m), clear: () => { fieldRequest.current?.abort(); spatialSession.current = false; setField(null); setApplied(null); setFieldBusy(false); setSpatialPlaying(false); setSyncLinked(false); },
+        shiftMonth,
+        playing: spatialPlaying, setPlaying: setSpatialPlaying,
+        syncLinked, setSyncLinked,
+        style: fieldStyle, setStyle: setFieldStyle,
+        customRange, setCustomRange,
+        basemapAlpha, setBasemapAlpha,
+        fieldAlpha, setFieldAlpha,
+        layerVisible, setLayerVisible,
+        layerOrder, setLayerOrder,
+        inspection, setInspection,
+        cellClearSignal, clearCell: () => setCellClearSignal(s => s + 1),
+        drawMode, setDrawMode,
+        frameSignal, frame: () => setFrameSignal(s => s + 1),
+        engineBasemap, setEngineBasemap,
+        points, onPick: pick,
+        onDrawBox: box => { setExtentId('custom'); setFieldBox(box.map(v => String(v))); setDrawMode(false); },
+        onEngineNotice: msg => setNotice(msg),
+        requestExtentAround: () => { const a = Number(lat), b = Number(lon); if (numeric(a) && numeric(b) && lat.trim() && lon.trim() && Math.abs(a) <= 90 && Math.abs(b) <= 180) { setExtentId('custom'); setFieldBox([String(Math.max(-90, a - 5)), String(Math.min(90, a + 5)), String(Math.max(-180, b - 5)), String(Math.min(180, b + 5))]); } },
+    };
+    const studio: StudioState = {
+        series: store.series, entries, primary, primaryRows, data, times, loading,
+        hidden, toggleHidden: (id, show) => setHidden(c => show ? c.filter(x => x !== id) : [...c, id]),
+        removeSeries: store.remove,
+        primaryId: primary?.id ?? '', setPrimaryId,
+        filterStart, setFilterStart, filterEnd, setFilterEnd,
+        includeFlagged, setIncludeFlagged,
+        normalized, setNormalized,
+        selection, select: setSelection,
+        timeIndex, setTimeIndex,
+        playing, setPlaying,
+        tablePage, setTablePage,
+        focus, setFocus,
+        analysis, exportData, openAnalysis: analyze,
+    };
+    const controls = <aside className="viz-controls" aria-label="Visualization controls">
     <section className="viz-control-section"><span className="viz-step">01 / CHOOSE YOUR DATA</span>
      <form onSubmit={discover}><label htmlFor="viz-prompt">Find a dataset</label><div className="viz-search"><input id="viz-prompt" value={prompt} onChange={e => setPrompt(e.target.value)} placeholder="Temperature, rain, sunlight..." maxLength={500}/><button disabled={searching || !prompt.trim()} type="submit">{searching ? 'Searching...' : 'Search'}</button></div></form>
      <p className="viz-muted">Uses the same discovery API as SI, focused on NASA POWER. Products selected in SI appear here too.</p>
@@ -350,95 +400,35 @@ export function VisualizationWorkspace({ initialView = 'charts' }: {
      {loading && <button className="viz-button" onClick={() => { request.current?.abort(); setLoading(false); setNotice('Request cancelled. Existing data retained.'); }}>Cancel load</button>}
     </section>
     {store.series.length > 0 && <section className="viz-control-section"><span className="viz-step">LOADED SERIES / {store.series.length} OF {MAX_SERIES}</span><div className="viz-loaded-list">{store.series.map(s => <article key={s.id}><label><input type="checkbox" checked={!hidden.includes(s.id)} onChange={e => setHidden(current => e.target.checked ? current.filter(id => id !== s.id) : [...current, s.id])}/><i style={{ background: s.color }}/><span>{s.label}</span></label><button aria-label={`Remove ${s.label}`} onClick={() => store.remove(s.id)}>Remove</button></article>)}</div></section>}
-   </aside>
-   <section className="viz-results" aria-label="Visualization results" aria-busy={loading}>
-    {error && <div className="viz-error" role="alert"><strong>Could not complete this request</strong><p>{error}</p></div>}{notice && <p className="viz-notice" role="status">{notice}</p>}
-    <div className="viz-view-tabs" role="group" aria-label="Visualization view">{([['charts', 'Charts & patterns'], ['globe', 'Living globe'], ['table', 'Observation table']] as const).map(([id, label]) => <button key={id} aria-pressed={view === id} onClick={() => setView(id)}>{label}</button>)}</div>
-    {primary && <div className="viz-data-toolbar"><label>Primary series<select value={primary.id} onChange={e => setPrimaryId(e.target.value)}>{entries.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}</select></label><button className="viz-button" onClick={() => exportData('csv')}>Export CSV</button><button className="viz-button" onClick={() => exportData('json')}>Export JSON</button><button className="viz-button" onClick={analyze}>Scientific analysis</button></div>}
-    {primary && <><div className="viz-filter-row"><label>Display from<input type="date" value={filterStart} onChange={e => setFilterStart(e.target.value)}/></label><label>Display to<input type="date" value={filterEnd} onChange={e => setFilterEnd(e.target.value)}/></label><label className="viz-check"><input type="checkbox" checked={includeFlagged} onChange={e => setIncludeFlagged(e.target.checked)}/> Include provider-flagged values</label></div>{!validWindow && <p className="viz-error" role="alert">Display end must follow display start.</p>}
-     <div className="viz-kpis"><div><span>Usable observations</span><strong>{stats.count}</strong><small>{stats.missing} excluded or missing rows</small></div><div><span>Observed mean</span><strong>{format(stats.mean)}<small>{primary.preview.summary_stats.unit}</small></strong></div><div><span>Observed range</span><strong>{format(stats.min)} <small>to</small> {format(stats.max)}</strong></div><div><span>First-to-last change</span><strong>{format(stats.change)}<small>{primary.preview.summary_stats.unit}</small></strong><small>Endpoint difference, not an estimated trend</small></div></div>
-    </>}
-    {view === 'charts' && (primary ? <section className="viz-chart-card"><div className="viz-chart-types" role="group" aria-label="Chart type">{CHARTS.map(c => <button key={c.id} aria-pressed={kind === c.id} onClick={() => setKind(c.id)}>{c.label}</button>)}</div><p className="viz-chart-hint">{CHARTS.find(c => c.id === kind)?.hint}</p>{['line', 'area', 'bars'].includes(kind) && entries.length > 1 && <label className="viz-check"><input type="checkbox" checked={normalized} onChange={e => setNormalized(e.target.checked)}/> Standardize series for a unitless comparison</label>}{stats.count ? <DataChart kind={kind} entries={entries} primary={primary} data={data} normalized={normalized} onSelect={t => { const i = times.indexOf(t); if (i >= 0)
-        setTimeIndex(i); }}/> : <div className="viz-empty">No usable observations in this period. Adjust the display filters or inspect the QA flags.</div>}</section> : <Empty />)}
-    {view === 'globe' && <section className="viz-map-workspace" aria-label="Map-centred investigation workspace">
-     <div className="viz-map-topbar">
-      <label>Spatial variable<select value={fieldVariable} onChange={e => setFieldVariable(e.target.value as 'V01' | 'V12')}><option value="V01">Air temperature / T2M</option><option value="V12">Surface sunlight / ALLSKY_SFC_SW_DWN</option></select></label>
-      <label>Spatial extent<select value={extentId} onChange={e => { const preset = EXTENT_PRESETS.find(p => p.id === e.target.value); if (!preset) return; setExtentId(preset.id); if (preset.id !== 'custom') { setFieldBox(preset.box.map(String)); setFrameSignal(s => s + 1); } }}>{EXTENT_PRESETS.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</select></label>
-      <div className="viz-month-row"><label>Spatial month<input type="month" value={fieldMonth} onChange={e => setFieldMonth(e.target.value)}/></label><div className="viz-month-steps"><button className="viz-button" aria-label="Previous month" onClick={() => shiftMonth(-1)}>◀</button><button className="viz-button" aria-label="Next month" onClick={() => shiftMonth(1)}>▶</button></div></div>
-      <button className="viz-button viz-primary" disabled={fieldBusy} onClick={() => void loadField()}>{fieldBusy ? 'Loading cells...' : 'Load spatial field'}</button>
-      {field && <button className="viz-button" onClick={() => { fieldRequest.current?.abort(); spatialSession.current = false; setField(null); setApplied(null); setFieldBusy(false); setSpatialPlaying(false); setSyncLinked(false); }}>Clear field</button>}
-      <span className="viz-map-applied" role="status">{field && applied ? `Loaded: ${applied.variable} / ${applied.month} / ${applied.box[0]}°–${applied.box[1]}°N, ${applied.box[2]}°–${applied.box[3]}°E` : fieldBusy ? 'Loading the requested field…' : 'No field loaded for this selection'}</span>
-      <span className="viz-map-panel-toggles"><button className="viz-button" aria-pressed={layersOpen} onClick={() => setLayersOpen(o => !o)}>{layersOpen ? 'Hide layers' : 'Layers'}</button><button className="viz-button" aria-pressed={inspectorOpen} onClick={() => setInspectorOpen(o => !o)}>{inspectorOpen ? 'Hide inspector' : 'Inspector'}</button></span>
-     </div>
-     <div className="viz-map-body">
-      {layersOpen && <aside className="viz-map-layers" aria-label="Selection and layer controls">
-       <section><span className="viz-step">SELECTION</span>
-        <p className="viz-muted">{EXTENT_PRESETS.find(p => p.id === extentId)?.note}</p>
-        {['South latitude', 'North latitude', 'West longitude', 'East longitude'].map((label, i) => <label key={label}>{label}<input type="number" step="any" value={fieldBox[i]} onChange={e => { setExtentId('custom'); setFieldBox(current => current.map((v, j) => i === j ? e.target.value : v)); }}/></label>)}
-        <p className="viz-muted">{parseBox(fieldBox) ? `≈${estimateNativeCells(parseBox(fieldBox)!, fieldVariable).toLocaleString()} native cells — ${fieldRoute(parseBox(fieldBox)!, fieldVariable) === 'field' ? 'native-resolution read (≤ 4,000 cells)' : 'aggregated overview; the declared output resolution is shown with the loaded field'}.` : 'Enter an ordered extent before loading.'}</p>
-        <div className="viz-map-selection-actions"><button className="viz-button" onClick={() => { const a = Number(lat), b = Number(lon); if (numeric(a) && numeric(b) && lat.trim() && lon.trim() && Math.abs(a) <= 90 && Math.abs(b) <= 180) { setExtentId('custom'); setFieldBox([String(Math.max(-90, a - 5)), String(Math.min(90, a + 5)), String(Math.max(-180, b - 5)), String(Math.min(180, b + 5))]); } }}>Use box around selected location</button>
-        <button className="viz-button" aria-pressed={drawMode} onClick={() => setDrawMode(d => !d)}>{drawMode ? 'Cancel box drawing' : 'Draw box on 2D map'}</button></div>
-        {drawMode && <p className="viz-muted" role="status">Drawing armed — switch to the 2D map and drag a rectangle to set the requested extent.</p>}
-       </section>
-       <section className="viz-layer-controls"><span className="viz-step">LAYERS</span>
-        {layerOrder.map((id, index) => { const def = LAYER_DEFS.find(d => d.id === id)!; const status = id === 'field' ? (field ? 'loaded' : fieldBusy ? 'loading…' : 'not loaded') : id === 'points' ? `${points.length} marker${points.length === 1 ? '' : 's'}` : id === 'extent' ? 'requested box' : engineBasemap; return <article key={id} className="viz-layer"><div className="viz-layer-head"><label className="viz-check"><input type="checkbox" checked={layerVisible[id]} onChange={e => setLayerVisible(v => ({ ...v, [id]: e.target.checked }))}/> {def.name}</label><span className="viz-layer-order"><button aria-label={`Move ${def.name} up`} disabled={index === 0} onClick={() => setLayerOrder(o => moveLayer(o, id, -1))}>↑</button><button aria-label={`Move ${def.name} down`} disabled={index === layerOrder.length - 1} onClick={() => setLayerOrder(o => moveLayer(o, id, 1))}>↓</button></span></div><small>{def.group} / {status}</small>
-         {id === 'field' && <label>Field opacity<input aria-label="Field opacity" type="range" min={0.2} max={1} step={0.05} value={fieldAlpha} onChange={e => setFieldAlpha(Number(e.target.value))}/></label>}
-         {id === 'basemap' && <label>Basemap opacity<input aria-label="Basemap opacity" type="range" min={0.2} max={1} step={0.05} value={basemapAlpha} onChange={e => setBasemapAlpha(Number(e.target.value))}/></label>}
-        </article>; })}
-        <p className="viz-muted">Imagery layers can be reordered; outlines and markers always draw above imagery.</p>
-        <button className="viz-button" onClick={() => setFrameSignal(s => s + 1)}>Frame selected extent</button>
-       </section>
-       <section><span className="viz-step">FIELD STYLING</span>
-        <label>Colour ramp<select value={fieldStyle.rampId} onChange={e => setFieldStyle(s => ({ ...s, rampId: e.target.value }))}>{RAMPS.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}</select><small className="viz-muted">{RAMPS.find(r => r.id === fieldStyle.rampId)?.note}</small></label>
-        <label>Colour range<select value={fieldStyle.rangeMode} onChange={e => setFieldStyle(s => ({ ...s, rangeMode: e.target.value as RangeMode }))}><option value="fixed">Fixed physical scale</option><option value="auto">Automatic — loaded field</option><option value="custom">Custom bounds</option></select><small className="viz-muted">{field ? rangeLabel(fieldStyle, field.variable_id) : 'Applies to the next loaded field.'}</small></label>
-        {fieldStyle.rangeMode === 'custom' && <div className="viz-two-cols"><label>Range min<input type="number" step="any" value={customRange[0]} onChange={e => { const next: [string, string] = [e.target.value, customRange[1]]; setCustomRange(next); const lo = Number(next[0]), hi = Number(next[1]); setFieldStyle(s => ({ ...s, custom: numeric(lo) && numeric(hi) && lo < hi ? [lo, hi] : s.custom })); }}/></label><label>Range max<input type="number" step="any" value={customRange[1]} onChange={e => { const next: [string, string] = [customRange[0], e.target.value]; setCustomRange(next); const lo = Number(next[0]), hi = Number(next[1]); setFieldStyle(s => ({ ...s, custom: numeric(lo) && numeric(hi) && lo < hi ? [lo, hi] : s.custom })); }}/></label></div>}
-        {field && <p className="viz-muted">Displayed range: {format(styleRange(field, fieldStyle)[0])} to {format(styleRange(field, fieldStyle)[1])} {field.units}.</p>}
-        <button className="viz-button" onClick={() => { setFieldStyle(DEFAULT_STYLE); setCustomRange(['', '']); }}>Restore default styling</button>
-       </section>
-       {field && <section><span className="viz-step">FIELD SOURCE</span><div className="viz-field-source"><strong>{field.values.filter(numeric).length} of {field.values.length} {isOverview(field) ? 'output cells' : 'native cells'} contain values / {field.month} / {field.units} / {field.time_standard}</strong>{isOverview(field) && <p>Extent {field.extent.lat_min}° to {field.extent.lat_max}° N, {field.extent.lon_min}° to {field.extent.lon_max}° E — {field.resolution.output_cells.toLocaleString()} output cells at {format(field.lat_step)}° × {format(field.lon_step)}°{field.resolution.aggregation === 'none' ? ' (native source resolution)' : `, ${field.resolution.factor_lat} × ${field.resolution.factor_lon} cells combined by cos(lat)-area-weighted mean from ${format(field.resolution.source_lat_step)}° × ${format(field.resolution.source_lon_step)}°`}.</p>}<p>{field.source.title} / {field.source.version}{field.source.stale_cache ? ' / STALE CACHED SOURCE' : field.source.from_cache ? ' / Cached source' : ' / Retrieved source'}</p><p>Raw monthly model data. No slope, significance, forecast or scientific validation is implied.</p><details><summary>Spatial source and provenance</summary><a href={field.source.url} target="_blank" rel="noreferrer">NASA source store</a><p>Retrieved {field.source.retrieved_at}</p><ul>{field.source.caveats.map(c => <li key={c}>{c}</li>)}</ul><pre>{JSON.stringify(field.source.artifact_sha256, null, 2)}</pre></details></div></section>}
-      </aside>}
-      <div className="viz-map-stage">
-       {fieldError && <p role="alert" className="viz-error">{fieldError}</p>}
-       <Globe field={field} points={points} onPick={pick} extentBox={parseBox(fieldBox)} frameSignal={frameSignal} basemapAlpha={basemapAlpha} basemapVisible={layerVisible.basemap} fieldAlpha={fieldAlpha} fieldVisible={layerVisible.field} fieldStyle={fieldStyle} pointsVisible={layerVisible.points} extentVisible={layerVisible.extent} fieldUnderBasemap={imageryIndex(layerOrder, 'field') < imageryIndex(layerOrder, 'basemap')} drawMode={drawMode} cellClearSignal={cellClearSignal} onDrawBox={box => { setExtentId('custom'); setFieldBox(box.map(v => String(v))); setDrawMode(false); }} onCellInspect={i => { setInspection(i); if (i) setInspectorOpen(true); }} onEngineState={s => { setEngineBasemap(s.basemap); if (s.basemap === 'tiles-degraded') setNotice('Tiled basemap requests failed — switched to the local NASA image. "Retry tiled imagery" restores it.'); }}/>
-      </div>
-      {inspectorOpen && <aside className="viz-map-inspector" aria-label="Cell inspector">
-       <div className="viz-inspector-head"><span className="viz-step">INSPECTOR</span><button className="viz-button" onClick={() => setInspectorOpen(false)}>Close</button></div>
-       {inspection ? <><dl>
-        <dt>Coordinates</dt><dd>{inspection.lat.toFixed(3)}°, {inspection.lon.toFixed(3)}°</dd>
-        <dt>Value</dt><dd>{!field ? 'No spatial field loaded' : inspection.cell ? (inspection.value === null ? 'Missing or invalid source value (transparent cell)' : `${format(inspection.value)} ${field.units}`) : 'Outside the loaded field grid'}</dd>
-        {inspection.cell && <><dt>Cell footprint</dt><dd>{inspection.cell.south.toFixed(3)}°–{inspection.cell.north.toFixed(3)}° N, {inspection.cell.west.toFixed(3)}°–{inspection.cell.east.toFixed(3)}° E</dd></>}
-        {field && <><dt>Month / standard</dt><dd>{field.month} / {field.time_standard}</dd>
-        <dt>Resolution</dt><dd>{isOverview(field) && field.resolution.aggregation !== 'none' ? `Aggregated ${format(field.lat_step)}° × ${format(field.lon_step)}° cells (${field.resolution.factor_lat} × ${field.resolution.factor_lon} native cells, area-weighted mean)` : `Native ${format(field.lat_step)}° × ${format(field.lon_step)}° cells`}</dd>
-        {isOverview(field) && inspection.cell && field.coverage && <><dt>Source coverage</dt><dd>{(() => { const r = field.cell_lats.indexOf(inspection.cell!.lat), c = field.cell_lons.indexOf(inspection.cell!.lon); const cov = field.coverage?.[r * field.cell_lons.length + c]; return cov === null || cov === undefined ? 'Unavailable' : `${Math.round(cov * 100)}% of source cells contributed`; })()}</dd></>}
-        <dt>Source</dt><dd>{field.source.title} / {field.source.version}{field.source.stale_cache ? ' / stale cache' : ''}</dd></>}
-       </dl>
-       <div className="viz-inspector-actions">
-        <button className="viz-button" onClick={() => setView('charts')}>Inspect time series at this point</button>
-        <button className="viz-button" onClick={() => { setInspection(null); setCellClearSignal(s => s + 1); }}>Clear selection</button>
-       </div>
-       <p className="viz-muted">Coordinates were copied to the location form — loading a point series remains an explicit action. Picked values come from the numerical payload, never from imagery colours.</p></> : <p className="viz-muted">Click a cell on the map to inspect its actual value, footprint and provenance. Camera moves never inspect data.</p>}
-      </aside>}
-     </div>
-     <div className="viz-map-timeline">
-      <button className="viz-button" disabled={!field} aria-pressed={spatialPlaying} onClick={() => setSpatialPlaying(p => !p)}>{spatialPlaying ? 'Pause spatial playback' : 'Play spatial field'}</button>
-      <div className="viz-month-steps"><button className="viz-button" aria-label="Previous month" onClick={() => shiftMonth(-1)}>◀</button><button className="viz-button" aria-label="Next month" onClick={() => shiftMonth(1)}>▶</button></div>
-      <span>Loaded month: <strong>{field?.month ?? 'none'}</strong></span>
-      {primary && <span>Selected observation: <strong>{primaryRows[primaryIndex]?.timestamp}</strong></span>}
-      {primary && field && <label className="viz-check"><input type="checkbox" checked={syncLinked} onChange={e => setSyncLinked(e.target.checked)}/> Sync spatial field to observation month</label>}
-      <p className="viz-muted">Playback issues a real request per month — unsupported months report failure instead of repeating another month’s values.</p>
-     </div>
-    </section>}
-    {primary && primaryRows.length > 0 && <section className="viz-time-control"><button className="viz-button" onClick={() => setPlaying(p => !p)}>{playing ? 'Pause' : 'Play observations'}</button><label>Selected observation<input aria-label="Observation time" type="range" min={0} max={Math.max(0, times.length - 1)} value={primaryIndex} onChange={e => { setPlaying(false); setTimeIndex(Number(e.target.value)); }}/></label><strong>{primaryRows[primaryIndex]?.timestamp} / {format(primaryRows[primaryIndex]?.value ?? null)} {primary.preview.summary_stats.unit}</strong><button className="viz-button" onClick={() => { const month = primaryRows[primaryIndex]?.timestamp.slice(0, 7); if (month) { setFieldMonth(month); void loadField(month); } }}>Load spatial field for the selected month</button><p>Playback selects retrieved observations only. Spatial fields retain their separately labelled month and change only on an explicit load.</p></section>}
-    {view === 'table' && (primary ? <section className="viz-table-card"><h3>Inspect every observation</h3><p>Values are source observations; blank values are missing or excluded by the visible QA filter.</p><div className="viz-table-scroll"><table><caption>Observation data for {primary.label}</caption><thead><tr><th>Timestamp</th><th>Source value ({primary.preview.summary_stats.unit})</th><th>Plotted value</th><th>Source QA</th></tr></thead><tbody>{primaryRows.slice(tablePage * 50, tablePage * 50 + 50).map(r => <tr key={r.timestamp}><td>{r.timestamp}</td><td>{format(r.sourceValue ?? null, 4)}</td><td>{format(r.value, 4)}</td><td>{r.qa}</td></tr>)}</tbody></table></div><div className="viz-table-pages"><button disabled={tablePage === 0} onClick={() => setTablePage(p => p - 1)}>Previous rows</button><span>Page {tablePage + 1} of {Math.max(1, Math.ceil(primaryRows.length / 50))}</span><button disabled={(tablePage + 1) * 50 >= primaryRows.length} onClick={() => setTablePage(p => p + 1)}>Next rows</button></div></section> : <Empty />)}
-    {primary && <SourceDetails entry={primary}/>}
+   </aside>;
+    const timeStrip = primary && primaryRows.length > 0 && <section className="viz-time-control"><button className="viz-button" onClick={() => setPlaying(p => !p)}>{playing ? 'Pause' : 'Play observations'}</button><label>Selected observation<input aria-label="Observation time" type="range" min={0} max={Math.max(0, times.length - 1)} value={primaryIndex} onChange={e => { setPlaying(false); setTimeIndex(Number(e.target.value)); const r = primaryRows[Number(e.target.value)]; if (r) setSelection({ seriesId: primary.id, time: r.time, timestamp: r.timestamp }); }}/></label><strong>{primaryRows[primaryIndex]?.timestamp} / {format(primaryRows[primaryIndex]?.value ?? null)} {primary.preview.summary_stats.unit}</strong><p>Playback selects retrieved observations only.</p></section>;
+    if (initialView === 'globe')
+        return <div className="viz-workbench dashboard-page-inner">
+  <header className="viz-heading"><div><span className="viz-eyebrow">LIVING GLOBE / NASA SPATIAL LAYERS</span><h2>Make the change visible.</h2><p>Choose a spatial variable, region and month to paint real NASA grid values across the globe.</p></div><Link className="viz-button" href="/workspace/visualize"><Icon name="activity" size={16}/> Open visualization studio</Link></header>
+  <div className="viz-layout viz-spatial-layout">
+   <section className="viz-results" aria-label="Visualization results" aria-busy={fieldBusy}>
+    {notice && <p className="viz-notice" role="status">{notice}</p>}
+    <MapWorkspace map={{ ...map, points: [] }} spatialOnly onInspectTimeSeries={() => router.push(`/workspace/visualize?${new URLSearchParams({ lat, lon, place })}`)}/>
    </section>
   </div>
  </div>;
+    return <StudioContext.Provider value={studio}><div className="viz-workbench dashboard-page-inner">
+  <header className="viz-heading"><div><span className="viz-eyebrow">IRIS VISUALIZATION STUDIO</span><h2>Make the change visible.</h2><p>Choose the evidence. Explore the patterns. Keep the source in view.</p></div><Link className="viz-button" href="/workspace/intelligence"><Icon name="sparkles" size={16}/> Open SI discovery</Link></header>
+  <div className="viz-layout" data-studio data-focus={focus || undefined}>
+   {drawerOpen && !focus && controls}
+   <section className="viz-results" aria-label="Visualization studio" aria-busy={loading}>
+    {error && <div className="viz-error" role="alert"><strong>Could not complete this request</strong><p>{error}</p></div>}{notice && <p className="viz-notice" role="status">{notice}</p>}
+    <StudioShell>
+      <button className="viz-button" aria-pressed={drawerOpen} onClick={() => setDrawerOpen(o => !o)}>{drawerOpen ? 'Hide data controls' : 'Data controls'}</button>
+      {primary && <button className="viz-button" onClick={() => exportData('csv')}>Export CSV</button>}
+      {primary && <button className="viz-button" onClick={() => exportData('json')}>Export JSON</button>}
+      {primary && <button className="viz-button" onClick={analyze}>Scientific analysis</button>}
+    </StudioShell>
+    {timeStrip}
+   </section>
+  </div>
+ </div></StudioContext.Provider>;
 }
-function Empty() { return <div className="viz-empty viz-empty-hero"><Icon name="activity" size={40}/><h3>A clearer picture starts with real data.</h3><p>Search for a dataset, confirm a location and period, then load observations. SI selections and completed Data Preview jobs can be used here directly.</p><span>No demonstration values are loaded.</span></div>; }
-function SourceDetails({ entry }: {
-    entry: VisualSeries;
-}) { const p = entry.preview; return <details className="viz-provenance"><summary>Source, quality and interpretation</summary><dl><dt>Product / variable</dt><dd>{p.product.product_id} / {p.product.variable_id}</dd><dt>Provider</dt><dd>{p.product.source_api} / {p.product.provider_agency}</dd><dt>Time support</dt><dd>{p.extraction_config.target_frequency} / {p.extraction_config.temporal_aggregation}</dd><dt>Spatial support</dt><dd>{p.spatial_semantics_applied || 'Point sampling requested; source footprint not independently verified'}</dd><dt>Result / job</dt><dd>{p.result_id || 'No immutable result ID supplied'} / {p.job_id}</dd><dt>Retrieved</dt><dd>{p.retrieved_at}</dd><dt>Source hash</dt><dd>{p.sha256_hash || 'Not supplied by the extraction service'}</dd></dl><p>Valid source rows are shown by default. Flagged values are optional; missing and interpolated values are never substituted. Gap intervals are not connected. UTC axes position the returned period labels; the extraction contract does not always include the original source time standard. Compare temporal support before interpreting cross-provider relationships. Selected-period means and endpoint differences describe observations, not statistical significance or attribution.</p>{p.product.source_url && <a href={p.product.source_url} rel="noreferrer" target="_blank">Source documentation</a>}</details>; }
 function message(error: unknown): string { return error instanceof Error ? error.message : 'The request could not be completed.'; }
 async function json(url: string, init: RequestInit = {}): Promise<unknown> { const response = await fetch(url, { ...init, cache: 'no-store', signal: init.signal ? AbortSignal.any([init.signal, AbortSignal.timeout(100000)]) : AbortSignal.timeout(100000) }); const body = await response.json().catch(() => null); if (!response.ok)
     throw new Error(typeof body?.error === 'string' ? body.error : typeof body?.detail === 'string' ? body.detail : `Request failed (${response.status}).`); return body; }

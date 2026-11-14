@@ -12,6 +12,13 @@ export interface ColourRamp {
 
 export const RAMPS: ColourRamp[] = [
     {
+        id: "snow",
+        name: "Snow / ice",
+        note: "Dark blue–cyan–white sequential ramp for snow depth; missing cells remain transparent.",
+        diverging: false,
+        stops: [[23, 48, 85], [35, 126, 164], [145, 216, 226], [245, 251, 255]],
+    },
+    {
         id: "thermal",
         name: "Thermal (Iris)",
         note: "Blue–teal–yellow sequential ramp for raw values.",

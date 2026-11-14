@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { EChartsCoreOption, EChartsType } from "echarts/core";
 import { useTheme } from "@/context/ThemeContext";
-import { calendar, histogram, lineData, MONTHS, monthlyCells, paired, scale, standardize, type Datum, type VisualSeries } from "./model";
+import { calendar, deviation, histogram, lineData, MONTHS, monthlyCells, paired, scale, standardize, type Datum, type VisualSeries } from "./model";
 export type ChartKind = "line" | "area" | "bars" | "seasonal" | "heatmap" | "distribution" | "scatter";
 export const CHARTS: {
     id: ChartKind;
@@ -17,10 +17,17 @@ export const CHARTS: {
     { id: "distribution", label: "Distribution", hint: "Frequency of observed values. A distribution has no time ordering." },
     { id: "scatter", label: "Relationship", hint: "Pairs series with the same cadence and exactly matching timestamps. Association does not establish causation." },
 ];
-export function ChartCanvas({ option, label, onSelect }: {
+// Semantic selection events — panels publish dataset identity plus exact
+// timestamps instead of inferring them from raw pixel/x values.
+export type SelectEvent =
+    | { kind: 'time'; time: number }
+    | { kind: 'month'; year: string; month: number; time: number }
+    | { kind: 'pair'; time: number; timestamp: string; x: number; y: number };
+export function ChartCanvas({ option, label, onSelect, resetable }: {
     option: EChartsCoreOption;
     label: string;
-    onSelect?: (time: number) => void;
+    onSelect?: (data: unknown) => void;
+    resetable?: boolean;
 }) {
     const node = useRef<HTMLDivElement>(null), chart = useRef<EChartsType | null>(null);
     const latest = useRef({ option, onSelect });
@@ -32,12 +39,11 @@ export function ChartCanvas({ option, label, onSelect }: {
         void Promise.all([import('echarts/core'), import('echarts/charts'), import('echarts/components'), import('echarts/renderers')]).then(([engine, charts, components, renderers]) => {
             if (disposed || !node.current)
                 return;
-            engine.use([charts.LineChart, charts.BarChart, charts.HeatmapChart, charts.ScatterChart, components.GridComponent, components.TooltipComponent, components.LegendComponent, components.DataZoomComponent, components.VisualMapComponent, components.AriaComponent, renderers.CanvasRenderer]);
+            engine.use([charts.LineChart, charts.BarChart, charts.HeatmapChart, charts.ScatterChart, components.GridComponent, components.TooltipComponent, components.LegendComponent, components.DataZoomComponent, components.VisualMapComponent, components.AriaComponent, components.MarkLineComponent, renderers.CanvasRenderer]);
             const instance = engine.init(node.current, undefined, { renderer: 'canvas' });
             chart.current = instance;
             instance.setOption(latest.current.option, { notMerge: true });
-            instance.on('click', params => { const point = params.data as unknown; if (Array.isArray(point) && typeof point[0] === 'number' && point[0] > 100000000000)
-                latest.current.onSelect?.(point[0]); });
+            instance.on('click', params => { latest.current.onSelect?.((params as { data?: unknown }).data); });
             observer = new ResizeObserver(() => instance.resize());
             observer.observe(node.current);
         }).catch(() => { if (!disposed)
@@ -45,15 +51,20 @@ export function ChartCanvas({ option, label, onSelect }: {
         return () => { disposed = true; observer?.disconnect(); chart.current?.dispose(); chart.current = null; };
     }, []);
     useEffect(() => { chart.current?.setOption(option, { notMerge: true }); }, [option]);
-    return <div className="viz-chart-frame" role="img" aria-label={label}><div className="viz-chart-canvas" ref={node}/>{error && <p role="alert">{error}</p>}</div>;
+    return <div className="viz-chart-frame" role="img" aria-label={label}>
+        <div className="viz-chart-canvas" ref={node}/>
+        {resetable && !error && <button type="button" className="viz-chart-reset" onClick={() => { const c = chart.current; if (!c) return; c.dispatchAction({ type: 'restore' }); c.setOption(latest.current.option, { notMerge: true }); }}>Reset zoom</button>}
+        {error && <p role="alert">{error}</p>}
+    </div>;
 }
-export function DataChart({ kind, entries, primary, data, normalized, onSelect }: {
+export function DataChart({ kind, entries, primary, data, normalized, markTime, onSelect }: {
     kind: ChartKind;
     entries: VisualSeries[];
     primary: VisualSeries;
     data: Map<string, Datum[]>;
     normalized: boolean;
-    onSelect: (time: number) => void;
+    markTime?: number | null;
+    onSelect?: (e: SelectEvent) => void;
 }) {
     const { dark } = useTheme();
     const foreground = dark ? '#c9d8d2' : '#53665e', grid = dark ? '#283e36' : '#e5ece8';
@@ -63,6 +74,9 @@ export function DataChart({ kind, entries, primary, data, normalized, onSelect }
     const comparisonAllowed = (sameUnit && sameCadence) || normalized;
     const plotted = comparisonAllowed ? entries : [primary];
     const units = normalized ? 'Standard deviations (z-score)' : primary.preview.summary_stats.unit;
+    const marker = markTime != null && ['line', 'area', 'bars'].includes(kind)
+        ? { markLine: { silent: true, symbol: 'none', label: { show: false }, lineStyle: { color: '#d78837', type: 'dashed', width: 1.5 }, data: [{ xAxis: markTime }] } }
+        : {};
     const option: EChartsCoreOption = { animation: false, useUTC: true, color: entries.map(s => s.color), backgroundColor: 'transparent', aria: { enabled: true },
         textStyle: { fontFamily: 'Inter, system-ui, sans-serif', color: foreground },
         tooltip: { trigger: 'axis', renderMode: 'richText', confine: true },
@@ -72,11 +86,14 @@ export function DataChart({ kind, entries, primary, data, normalized, onSelect }
         yAxis: { type: 'value', name: units, scale: kind !== 'area' && kind !== 'bars', splitLine: { lineStyle: { color: grid } }, axisLabel: { color: foreground } },
         dataZoom: [{ type: 'inside', filterMode: 'none' }, { type: 'slider', height: 20, bottom: 12, filterMode: 'none' }],
     };
+    let handleSelect: ((d: unknown) => void) | undefined;
     if (['line', 'area', 'bars'].includes(kind)) {
-        option.series = plotted.map(s => ({ name: s.label, type: kind === 'bars' ? 'bar' : 'line', connectNulls: false,
+        option.series = plotted.map((s, i) => ({ name: s.label, type: kind === 'bars' ? 'bar' : 'line', connectNulls: false,
             data: lineData(normalized ? standardize(data.get(s.id) ?? []) : data.get(s.id) ?? [], s.preview.extraction_config.target_frequency),
             showSymbol: true, symbolSize: (data.get(s.id)?.length ?? 0) > 800 ? 2 : 4, lineStyle: { width: 2, color: s.color }, itemStyle: { color: s.color },
+            ...(i === 0 ? marker : {}),
             ...(kind === 'area' ? { areaStyle: { opacity: 0.12 } } : {}), emphasis: { focus: 'series' } }));
+        handleSelect = d => { const a = d as [number, number]; if (Array.isArray(a) && typeof a[0] === 'number') onSelect?.({ kind: 'time', time: a[0] }); };
     }
     else if (kind === 'seasonal') {
         option.xAxis = { type: 'category', data: MONTHS, axisLabel: { color: foreground } };
@@ -94,6 +111,7 @@ export function DataChart({ kind, entries, primary, data, normalized, onSelect }
                 data: unknown;
             }) => { const d = params.data as number[]; return `${MONTHS[d[0]]} ${years[d[1]]}\nDeparture: ${d[2].toFixed(3)} ${primary.preview.summary_stats.unit}\nDescriptive selected-period baseline`; }) as never };
         option.dataZoom = years.length > 20 ? [{ type: 'slider', yAxisIndex: 0, orient: 'vertical', right: 0, width: 14 }] : [];
+        handleSelect = d => { const a = d as [number, number, number]; if (Array.isArray(a) && years[a[1]]) onSelect?.({ kind: 'month', year: years[a[1]], month: a[0], time: Date.UTC(Number(years[a[1]]), a[0]) }); };
     }
     else if (kind === 'distribution') {
         const bins = histogram(selected);
@@ -115,11 +133,15 @@ export function DataChart({ kind, entries, primary, data, normalized, onSelect }
             ]; return `${d[2]}\n${primary.preview.product.variable_id}: ${d[0]} ${primary.preview.summary_stats.unit}\n${other?.preview.product.variable_id}: ${d[1]} ${other?.preview.summary_stats.unit}`; }) as never };
         option.series = [{ name: 'Exactly aligned observations', type: 'scatter', data: other ? paired(selected, data.get(other.id) ?? []) : [], symbolSize: 8, itemStyle: { color: primary.color, opacity: 0.7 } }];
         option.dataZoom = [];
+        const byLabel = new Map(selected.map(r => [r.timestamp, r.time]));
+        handleSelect = d => { const a = d as [number, number, string]; if (Array.isArray(a)) { const t = byLabel.get(a[2]) ?? Date.parse(a[2]); if (Number.isFinite(t)) onSelect?.({ kind: 'pair', time: t, timestamp: a[2], x: a[0], y: a[1] }); } };
     }
+    const zeroVariance = normalized && entries.some(s => deviation(data.get(s.id) ?? []) === 0);
     return <>
   {!comparisonAllowed && entries.length > 1 && ['line', 'area', 'bars'].includes(kind) && <p className="viz-note">Different units or cadences: showing the primary series. Enable standardization for an explicitly unitless comparison, or use Relationship with separate axes.</p>}
   {normalized && ['line', 'area', 'bars'].includes(kind) && <p className="viz-note">Each series is standardized independently using its selected-period mean and sample standard deviation. Absolute magnitudes and units are not comparable in this view.</p>}
+  {zeroVariance && <p className="viz-note" role="alert">At least one visible series has zero variance in the selected period — standardization is undefined for it and it is drawn flat at zero. Do not read a signal into it.</p>}
   {kind === 'scatter' && entries.length < 2 ? <div className="viz-empty">Load a second dataset or location to compare observations.</div> :
-            <ChartCanvas option={option} label={`${CHARTS.find(c => c.id === kind)?.label} for ${primary.label}. Exact values are available in the observation table.`} onSelect={onSelect}/>}
+            <ChartCanvas option={option} label={`${CHARTS.find(c => c.id === kind)?.label} for ${primary.label}. Exact values are available in the observation table.`} onSelect={handleSelect} resetable={['line', 'area', 'bars', 'heatmap'].includes(kind)}/>}
  </>;
 }

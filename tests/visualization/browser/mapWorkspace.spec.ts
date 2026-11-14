@@ -20,8 +20,10 @@ test('map workspace exposes top bar, layer tree, inspector and timeline', async 
   await expect(page.locator('.viz-map-topbar')).toBeVisible();
   await expect(page.locator('.viz-map-layers')).toBeVisible();
   await expect(page.getByText('No field loaded for this selection')).toBeVisible();
-  // Layer tree: all four layers, named and keyboard-reorderable.
-  for (const name of ['Scientific field', 'Observation points', 'Requested extent outline', 'NASA GIBS basemap'])
+  // Living Globe is for gridded fields; point extraction stays in the studio.
+  await expect(page.getByLabel('Find a dataset')).toHaveCount(0);
+  await expect(page.getByRole('checkbox', { name: 'Observation points', exact: true })).toHaveCount(0);
+  for (const name of ['Scientific field', 'Requested extent outline', 'NASA GIBS basemap'])
     await expect(page.getByRole('checkbox', { name, exact: true })).toBeChecked();
   await page.getByRole('button', { name: 'Load spatial field', exact: true }).click();
   await expect(page.getByText('3 of 4 native cells contain values', { exact: false })).toBeVisible();
@@ -104,19 +106,14 @@ test('spatial playback issues one request per month and never recycles values', 
   expect(months).toContain('2024-03');
 });
 
-test('linked observation month drives the spatial field only when enabled', async ({ page }) => {
+test('Living Globe has no point loader or observation-sync controls', async ({ page }) => {
   const ui = new VisualizationPage(page);
   await ui.open('/workspace/globe');
-  await ui.discover();
-  await page.getByLabel('Datasets').getByRole('checkbox', { name: /Test air temperature/ }).check();
-  await ui.load();
+  await expect(page.getByLabel('Visualization controls')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Load selected datasets', exact: true })).toHaveCount(0);
   await page.getByRole('button', { name: 'Load spatial field', exact: true }).click();
   await expect(page.locator('.viz-map-applied')).toContainText('2024-01');
-  // Off by default: scrubbing observations does not refetch the field.
-  const months: string[] = [];
-  page.on('request', r => { if (r.url().includes('visualization/field')) months.push(new URL(r.url()).searchParams.get('month') ?? ''); });
-  await page.locator('.viz-time-control input[type=range]').fill('3');
-  await page.getByRole('checkbox', { name: 'Sync spatial field to observation month' }).check();
-  await expect(page.locator('.viz-map-applied')).toContainText('2021-01', { timeout: 5000 });
-  expect(months.filter(m => m === '2021-01').length).toBe(1);
+  await expect(page.getByRole('checkbox', { name: 'Sync spatial field to observation month' })).toHaveCount(0);
+  await expect(page.locator('.viz-time-control')).toHaveCount(0);
+  await expect(page.getByRole('link', { name: 'Open visualization studio' })).toBeVisible();
 });
