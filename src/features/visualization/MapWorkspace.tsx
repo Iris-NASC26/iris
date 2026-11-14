@@ -1,8 +1,7 @@
 "use client";
 // The map-centred investigation workspace: selection bar, layer/styling panel,
 // Cesium stage with 2D fallback, cell inspector and the month timeline. Used
-// by /workspace/globe directly and by the studio Earth panel — one owner, one
-// Cesium lifecycle.
+// by the dedicated /workspace/globe route — one owner, one Cesium lifecycle.
 import dynamic from "next/dynamic";
 import { useState } from "react";
 import { estimateNativeCells, EXTENT_PRESETS, fieldRoute, parseBox } from "./extents";

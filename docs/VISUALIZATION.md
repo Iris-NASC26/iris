@@ -59,6 +59,10 @@ All listed variables support both bounded native fields and whole-globe/Europe o
 
 The checked-in `shared/` catalogue must ship alongside `backend/` when packaging the Python service. Existing V01/V12 IDs and response schema versions remain compatible. Studio layout preferences move to v2; v1 arrangements containing the removed globe panel recover to a chart-only preset.
 
+Live source verification on 2026-11-15 read January 2024 for all 11 variables at a small native extent (48–49°N, 2–3°E) and for the entire globe. The returned source version was POWER 10.0.0. MERRA-2 global overviews contained 13,104 output cells; the CERES sunlight overview contained 16,200. Snow depth and root-zone wetness retained missing cells (4,474 valid output cells each). A separate request through the running Next/FastAPI overview endpoint confirmed snow depth in cm. These are source/transport checks, not independent validation of climate inference or forecast skill.
+
+The delayed-engine regression check holds back the Cesium module while the user selects snow depth, then verifies the actual north-up raster bytes passed to Cesium against independently calculated snow-palette colours. Engine initialization uses the latest field/style/extent/visibility state, including changes made while loading.
+
 ## Modules and boundaries
 
 | Location | Responsibility |
@@ -203,8 +207,9 @@ loaded data, so preset switches, closes and reopens are lossless.
   `ci_low/ci_high` are reported as returned bounds, never as calibrated
   prediction intervals; failed skill gates suppress short-term rendering with
   the supplied reason.
-- `MapWorkspace.tsx` — the whole map workspace extracted into one component
-  shared by `/workspace/globe` and the Earth panel; a single Cesium lifecycle.
+- `MapWorkspace.tsx` — the map workspace used by the dedicated
+  `/workspace/globe` route. The studio Earth panel and Earth + Time preset
+  have been removed; map renderers do not mount in Plot & Visualize.
 - Charts publish semantic selections (`SelectEvent`: time/month/pair with real
   timestamps) instead of inferring timestamps from a numeric threshold;
   heatmap cells resolve to their actual year+month. The committed selection is

@@ -1,81 +1,46 @@
 # Living Globe
 
-The **Living Globe** is Iris's 3D interactive global visualization — an entry point for the Track B investigation workflow. It renders pre-computed trend results for every 0.5° × 0.5° grid cell on Earth across six core climate variables.
+Living Globe displays authentic NASA POWER **monthly spatial fields**, with a 3D globe and a 2D fallback. Open **Workspace → Living Globe**. This page has no point-dataset discovery or extraction drawer; use **Plot & Visualize** for point time series.
 
-> Navigate to it via: **Workspace → Living Globe** in the left sidebar.
+## Load a layer
 
----
+1. Choose a **Spatial variable** from the grouped dropdown.
+2. Choose **Entire globe**, **Europe — bounding box**, another preset or a custom extent.
+3. Select a **Spatial month**.
+4. Press **Load spatial field**. Changing a selection alone does not download observations.
 
-## What the globe shows
+Small extents use bounded native-grid reads. Large extents use a documented overview with cosine-latitude-weighted aggregation when needed. Source resolution, output resolution, missing values and aggregation are displayed. Europe is a rectangular extent, not an administrative or continental polygon.
 
-The Living Globe displays the **Global Trend Cube** — a pre-computed dataset covering monthly observations from **1981 to 2025** (45 years, 540 monthly time slices) for six core Earth system variables:
+## Available variables
 
-| Variable | Units | Color palette |
-|---|---|---|
-| Near-surface Air Temperature (2m) | °C/decade | Blue → Red (Coolwarm) |
-| Total Precipitation Rate | mm/day/decade | Brown → Teal |
-| Topsoil Moisture Index (0–5cm) | index/decade | Yellow → Blue |
-| Vegetation Index (NDVI) | index/decade | Pink → Green |
-| Solar Radiation (Downward) | kWh/m²/day/decade | Purple → Gold |
-| Relative Humidity (2m) | %/decade | Orange → Purple |
+| Layer | Units |
+| --- | --- |
+| Air temperature at 2 m | °C |
+| Earth skin temperature | °C |
+| Dew/frost point at 2 m | °C |
+| Corrected precipitation rate | mm/day |
+| Snow depth | cm |
+| Surface soil wetness | Dimensionless index, 0–1 |
+| Root-zone soil wetness | Dimensionless index, 0–1 |
+| Relative humidity at 2 m | % |
+| Wind speed at 10 m | m/s |
+| Surface pressure | hPa |
+| Surface sunlight | W/m² |
 
-Colors show the **decadal rate of change** (Sen's slope) for each grid cell. The palette is centered at zero — cells showing no significant change appear neutral, warming cells appear red-toned, and cooling cells appear blue-toned (for temperature).
+Precipitation is a monthly mean daily rate, not a monthly accumulation. Snow depth is a model depth, not snowfall or snow-cover percentage. Soil wetness is not volumetric water content. Wind speed does not include direction. Surface pressure is not sea-level pressure.
 
----
+MERRA-2 variables use UTC-labelled monthly data at 0.5° × 0.625°. The sunlight field uses CERES SYN1deg-based LST-labelled data at 1° × 1°. These maps do not establish trend significance or forecasting skill. They are not the precomputed trend cube described by earlier prototype screens.
 
-## Navigating the globe
+## Explore and customize
 
-**Rotation:** Click and drag to rotate the globe freely.
+Rotate and zoom the globe, frame the selected extent, or switch to **2D map**. The 2D map also supports drawing an extent. Inspect a cell to see its numerical source value, footprint, month and provenance. Values are read from the numeric grid, not inferred from imagery colours.
 
-**Zoom:** Scroll or pinch to zoom in and out. At high zoom, individual 0.5° grid cells become visible.
+Use **Layers** to control field/basemap visibility and opacity. Choose a colour ramp, a fixed display range, the current field's automatic range or custom bounds. Fixed display ranges remain consistent across months; values outside their bounds clamp to the palette endpoints. Styling never changes the underlying values. Snow depth defaults to a blue–cyan–white palette. Missing cells stay transparent.
 
-**Layer selector:** Choose which variable to display using the layer panel on the right side of the screen.
+Use previous/next month or spatial playback to load distinct source months. Unsupported months and provider failures are reported rather than replaced with invented data. The loaded-month label identifies the field actually shown.
 
----
+The tiled basemap has separate imagery attribution and resolution limits; zooming the basemap does not increase the scientific grid's resolution. A 2D fallback remains available when WebGL fails.
 
-## Significance filter
+## Data access
 
-By default, the globe shows trend rates for all grid cells regardless of statistical significance. Toggle the **"Show only significant trends"** filter to mask cells where the Benjamini-Hochberg FDR q-value > 0.05.
-
-This filter is useful for identifying regions where the trend evidence is robust enough to be confident — filtering reduces visual noise from cells where apparent trends could be due to random variability.
-
----
-
-## Time-lapse mode
-
-The **Time-lapse controller** animates the globe through the available record from 1981 to 2025, showing anomaly maps for each year. Use this to visualize how conditions have evolved over time and identify periods of sudden change.
-
-Controls:
-- **Play / Pause** — start or stop the animation
-- **Speed** — adjust animation speed
-- **Year scrubber** — jump to a specific year
-
----
-
-## Dipole mode
-
-**Opposite-Trends Dipole Mode** automatically identifies pairs of regions with strongly opposite trend directions — for example, areas warming rapidly while nearby areas cool, or one region drying while another wets.
-
-These dipole patterns may reflect physical teleconnections: large-scale atmospheric circulation patterns that link distant parts of the climate system. Iris identifies them algorithmically but does not interpret causation.
-
----
-
-## Cell inspector
-
-Click any grid cell to open the **Cell Inspector** tooltip showing:
-
-- Geographic coordinates of the cell centroid
-- Sen's slope value (rate per decade)
-- Mann-Kendall p-value and BH FDR q-value
-- Evidence grade (A–D)
-- 45-year baseline mean and standard deviation
-- A direct action to open the selected location in Data Analysis
-
----
-
-## From globe to investigation
-
-The Living Globe is a discovery tool. When you find a region of interest:
-
-1. Click the cell to open the Cell Inspector
-2. Open the selected location in Data Analysis to inspect its Case File analysis
+These public NASA POWER grids do not require Earthdata credentials. Source details, cache status and artifact hashes are available with the loaded field. See [NASA POWER direct-access documentation](https://power.larc.nasa.gov/docs/services/aws/) and `docs/VISUALIZATION.md` for source bindings and limits.

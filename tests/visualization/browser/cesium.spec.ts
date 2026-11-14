@@ -21,7 +21,46 @@ async function globeReady(page: Page, t: typeof test) {
     if (!ok) t.skip(true, 'WebGL is unavailable in this test environment.');
 }
 
+test('startup applies a changed snow palette after a delayed Cesium load', async ({ page }) => {
+    test.setTimeout(60000);
+    await page.addInitScript(() => {
+        const original = CanvasRenderingContext2D.prototype.putImageData;
+        CanvasRenderingContext2D.prototype.putImageData = function(data: ImageData, ...args: number[]) {
+            if (data.width === 2 && data.height === 2)
+                (window as unknown as { testFieldRaster: number[] }).testFieldRaster = Array.from(data.data);
+            return (original as (...args: unknown[]) => void).call(this, data, ...args);
+        } as typeof original;
+    });
+    let release!: () => void;
+    const gate = new Promise<void>(resolve => { release = resolve; });
+    await page.route('**/cesium/index.js', async route => { await gate; await route.continue(); });
+    await page.route('**/gibs.earthdata.nasa.gov/**', route => route.fulfill({ contentType: 'image/jpeg', headers: { 'Access-Control-Allow-Origin': '*' }, body: TILE_JPEG }));
+    await page.route('**/api/v1/visualization/field?*', route => route.fulfill({ json: {
+        ...field, variable_id: 'SNODP', field: 'SNODP', units: 'cm', source_units: 'cm', values: [100, 0, null, 50],
+    } }));
+    try {
+        const requested = page.waitForRequest('**/cesium/index.js');
+        const ui = new VisualizationPage(page);
+        await ui.open('/workspace/globe');
+        await requested;
+        await page.getByLabel('Spatial variable').selectOption('SNODP');
+        await page.getByRole('button', { name: 'Load spatial field', exact: true }).click();
+        await expect(page.locator('.viz-map-applied')).toContainText('Loaded: SNODP');
+        release();
+        await globeReady(page, test);
+        // Independently calculated snow-ramp RGB values in north-up raster order.
+        // This observes the actual raster sent to Cesium, not the UI legend.
+        await expect.poll(() => page.evaluate(() => (window as unknown as { testFieldRaster?: number[] }).testFieldRaster)).toEqual([
+            0, 0, 0, 0, 90, 171, 195, 255,
+            245, 251, 255, 255, 23, 48, 85, 255,
+        ]);
+    } finally { release(); }
+});
+
 test('tiled basemap zooms to higher GIBS matrix levels without any ion or tokened service', async ({ page }) => {
+    // Cold software-WebGL startup plus two bounded 20 s tile checks can
+    // legitimately exceed the suite's 45 s total budget. Keep every assertion.
+    test.setTimeout(90000);
     const forbidden: string[] = [];
     const matrices = new Set<number>();
     page.on('request', r => {

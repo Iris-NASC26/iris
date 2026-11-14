@@ -10,4 +10,3 @@ export function isSpatialVariableId(value: unknown): value is SpatialVariableId 
     return typeof value === "string" && Object.prototype.hasOwnProperty.call(definitions, value);
 }
 export function spatialVariable(id: SpatialVariableId) { return definitions[id]; }
-

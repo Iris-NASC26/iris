@@ -5,9 +5,10 @@ import { test, expect } from '@playwright/test';
 // destinations work without WebGL or a pointer.
 
 test('COBE globe renders marker links that prefill the workspace', async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('iris-onboarding-complete', 'true'));
   const blocked: string[] = [];
   page.on('request', r => { if (/cesium|echarts|gibs\.earthdata/.test(r.url())) blocked.push(r.url()); });
-  await page.goto('/');
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
   const canvas = page.locator('.landing-cobe-canvas');
   await expect(canvas).toBeVisible();
   const markers = page.locator('a.landing-cobe-marker');
@@ -20,8 +21,12 @@ test('COBE globe renders marker links that prefill the workspace', async ({ page
   expect(blocked).toEqual([]);
   // Keyboard-equivalent activation works even while the marker is occluded.
   await page.keyboard.press('Enter');
-  await page.waitForURL(/\/workspace\/globe\?place=/);
-  await expect(page.getByRole('spinbutton', { name: 'Latitude', exact: true })).toHaveValue(/-?\d/);
+  await page.waitForURL(/\/workspace\/globe\?place=/, { waitUntil: 'domcontentloaded' });
+  await expect(page.getByLabel('Find a dataset')).toHaveCount(0);
+  const location = new URL(page.url()).searchParams;
+  await page.getByRole('button', { name: 'Use box around selected location', exact: true }).click();
+  await expect(page.getByLabel('South latitude')).toHaveValue(String(Math.max(-90, Number(location.get('lat')) - 5)));
+  await expect(page.getByLabel('West longitude')).toHaveValue(String(Math.max(-180, Number(location.get('lon')) - 5)));
   // Nothing scientific loads just by arriving prefilled.
   await expect(page.getByText('No field loaded for this selection')).toBeVisible();
 });
