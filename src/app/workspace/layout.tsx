@@ -8,6 +8,7 @@ import { DashboardProvider, useDashboard } from "@/context/DashboardContext";
 import { useTheme } from "@/context/ThemeContext";
 import { OnboardingTour } from "@/components/dashboard/OnboardingTour";
 import { VisualizationProvider } from "@/features/visualization/store";
+import { IrisAssistant } from "@/components/dashboard/IrisAssistant";
 import { DOCS_URL } from "@/lib/docs";
 
 const navigation: Array<{
@@ -57,7 +58,7 @@ const pageTitles: Record<string, [string, string]> = {
 
 function DashboardFrame({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const { dataset, region, extractedPreview } = useDashboard();
+  const { dataset, region, extractedPreview, activeProduct, selectedProducts } = useDashboard();
   const { dark, toggleTheme } = useTheme();
   const [collapsed, setCollapsed] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -109,6 +110,11 @@ function DashboardFrame({ children }: { children: ReactNode }) {
     "Iris workspace",
     "Earth system intelligence",
   ];
+  const isEmptyDataPreview =
+    pathname?.startsWith("/workspace/data-preview") &&
+    !extractedPreview &&
+    !activeProduct &&
+    selectedProducts.length === 0;
 
   return (
     <div
@@ -229,11 +235,23 @@ function DashboardFrame({ children }: { children: ReactNode }) {
             <h1>{title[0]}</h1>
           </div>
           <div className="dashboard-context-chip">
-            <span>
-              <i />
-              {extractedPreview?.product.variable_id || dataset.code}
-            </span>
-            <strong>{extractedPreview?.extraction_config.region_name || region}</strong>
+            {isEmptyDataPreview ? (
+              <>
+                <span>
+                  <i />
+                  No dataset selected
+                </span>
+                <strong>No data retrieved</strong>
+              </>
+            ) : (
+              <>
+                <span>
+                  <i />
+                  {extractedPreview?.product.variable_id || dataset.code}
+                </span>
+                <strong>{extractedPreview?.extraction_config.region_name || region}</strong>
+              </>
+            )}
             {extractedPreview?.job_id && (
               <code
                 style={{
@@ -253,6 +271,7 @@ function DashboardFrame({ children }: { children: ReactNode }) {
         <main className="dashboard-page">{children}</main>
       </div>
       <OnboardingTour onClose={closeTour} open={tourOpen} />
+      <IrisAssistant pageTitle={title[0]} tourOpen={tourOpen} />
     </div>
   );
 }
@@ -260,7 +279,9 @@ function DashboardFrame({ children }: { children: ReactNode }) {
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   return (
     <DashboardProvider>
-      <VisualizationProvider><DashboardFrame>{children}</DashboardFrame></VisualizationProvider>
+      <VisualizationProvider>
+        <DashboardFrame>{children}</DashboardFrame>
+      </VisualizationProvider>
     </DashboardProvider>
   );
 }

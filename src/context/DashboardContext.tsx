@@ -27,7 +27,11 @@ import {
   type PreviewResponse,
 } from "@/lib/dataRetrievalEngine";
 
-export type SIConversationStage = "topic_discovery" | "keyword_confirmation";
+export type SIConversationStage =
+  | "topic_discovery"
+  | "keyword_confirmation"
+  | "parameter_definition"
+  | "ready_to_extract";
 
 export interface SIConversationTurn {
   id: string;

@@ -60,6 +60,8 @@ from schemas import (
     CaseBoardResponse,
     CaseFileAnalysisRequest,
     CaseFileAnalysisResponse,
+    AssistantChatRequest,
+    AssistantChatResponse,
     ChatTurnRequest,
     ChatTurnResponse,
     DiscoverRequest,
@@ -81,6 +83,7 @@ from services.cube_service import (
 )
 from services.llm_router import extract_scientific_intent, rank_and_explain_products
 from services.science_pipeline import execute_case_file_analysis, load_series_from_job_id
+from services.assistant_chat import process_assistant_chat
 from services.si_chat import process_si_chat_turn
 
 app = FastAPI(
@@ -118,6 +121,12 @@ async def si_conversational_chat(req: ChatTurnRequest) -> ChatTurnResponse:
         raise HTTPException(status_code=502, detail=f"SI chat processing error: {exc}") from exc
 
 
+@app.post("/api/v1/assistant/chat", response_model=AssistantChatResponse)
+async def iris_assistant_chat(req: AssistantChatRequest) -> AssistantChatResponse:
+    """Answers dashboard questions without accessing catalogs or performing actions."""
+    return await process_assistant_chat(req)
+
+
 @app.post("/api/v1/si/discover", response_model=DiscoveryResponse)
 async def si_discover_datasets(req: DiscoverRequest) -> DiscoveryResponse:
     """
@@ -133,6 +142,14 @@ async def si_discover_datasets(req: DiscoverRequest) -> DiscoveryResponse:
         preferred_providers=req.preferred_providers,
         user_api_key=req.gemini_api_key,
     )
+    if intent is None:
+        raise HTTPException(
+            status_code=422,
+            detail=(
+                "Please provide an Earth or environmental research topic or explicitly ask to discover "
+                "datasets for a topic."
+            ),
+        )
     candidates, queried_sources, provider_status = await discover_catalog_products(
         intent=intent,
         preferred_providers=req.preferred_providers,
