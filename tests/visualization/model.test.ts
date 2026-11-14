@@ -41,7 +41,7 @@ describe('descriptive calculations against hand-computed references',()=>{
 
 describe('globe coordinate and field validation',()=>{
  for(const [lat,lon] of [[0,0],[90,0],[-45,80],[12,-179.9]])it(`round trips ${lat},${lon} without reversed longitude`,()=>{const [x,y,z]=vector(lat,lon);const result=location(x,y,z);assert.ok(Math.abs(result.lat-lat)<1e-8);assert.ok(Math.abs(result.lon-lon)<1e-8);});
- const field=()=>({schema_version:'visualization.field.v1',variable_id:'V01',month:'2024-01',field:'T2M',units:'C',cell_lats:[0,0.5],cell_lons:[10,10.625],lat_step:0.5,lon_step:0.625,values:[0,null,-2,3],source:{scientifically_validated:false,artifact_sha256:{test:'a'.repeat(64)}}});
+ const field=()=>({schema_version:'visualization.field.v1',variable_id:'V01',month:'2024-01',field:'T2M',units:'C',source_units:'C',time_standard:'UTC',cell_lats:[0,0.5],cell_lons:[10,10.625],lat_step:0.5,lon_step:0.625,values:[0,null,-2,3],source:{scientifically_validated:false,artifact_sha256:{test:'a'.repeat(64)}}});
  it('retains row-major grid ordering, zero and missing values',()=>assert.deepEqual(parseField(field()).values,[0,null,-2,3]));
  it('rejects transposed/incomplete arrays and descending coordinates',()=>{const f=field();f.values.pop();assert.throws(()=>parseField(f));const g=field();g.cell_lats.reverse();assert.throws(()=>parseField(g));});
 });

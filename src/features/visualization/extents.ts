@@ -1,6 +1,7 @@
 /** Spatial-extent model for the visualization globe. Pure; no renderer imports. */
 import { REGION_PRESETS } from "@/lib/dataRetrievalEngine";
 import { numeric } from "./model";
+import { SPATIAL_VARIABLES } from "./spatialVariables";
 
 /** Requested box in [south, north, west, east] degrees (ordered, no dateline wrap). */
 export type ExtentBox = [number, number, number, number];
@@ -38,10 +39,10 @@ export const EXTENT_PRESETS: SpatialExtent[] = [
 ];
 
 /** Native grid steps per variable, verified against the source .zarray/.zattrs metadata. */
-export const NATIVE_STEP: Record<string, { lat: number; lon: number }> = {
-    V01: { lat: 0.5, lon: 0.625 },
-    V12: { lat: 1, lon: 1 },
-};
+export const NATIVE_STEP: Record<string, { lat: number; lon: number }> = Object.fromEntries(
+    SPATIAL_VARIABLES.map(variable => [variable.id,
+        variable.family === 'syn1deg' ? { lat: 1, lon: 1 } : { lat: 0.5, lon: 0.625 }])
+);
 
 export function parseBox(values: string[]): ExtentBox | null {
     const b = values.map(Number);

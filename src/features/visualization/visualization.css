@@ -12,6 +12,8 @@
 .viz-workbench button:disabled {cursor:not-allowed;opacity:.5;}
 .viz-workbench :is(button,a,input,select):focus-visible {outline:2px solid #148ae3;outline-offset:3px;}
 .viz-layout {display:grid;grid-template-columns:295px minmax(0,1fr);gap:24px;align-items:start;}
+.viz-layout.viz-spatial-layout {grid-template-columns:minmax(0,1fr);}
+.viz-spatial-description {margin:0;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--green-soft);color:var(--text);font-size:12px;line-height:1.65;}
 .viz-controls {border:1px solid var(--border);border-radius:12px;background:var(--card);overflow:hidden;}
 .viz-control-section {padding:22px 20px;border-bottom:1px solid var(--border);display:grid;gap:12px;}
 .viz-control-section:last-child {border-bottom:0;}

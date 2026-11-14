@@ -10,6 +10,7 @@ import type { ExtentBox } from "../extents";
 import type { FieldStyle } from "../styles";
 import type { LayerId } from "../layers";
 import type { UseScientificAnalysis } from "../hooks/useScientificAnalysis";
+import type { SpatialVariableId } from "../spatialVariables";
 
 // A committed, semantic selection: which series and which exact timestamp.
 export interface StudioSelection {
@@ -18,15 +19,14 @@ export interface StudioSelection {
     timestamp: string; // source label for display
 }
 
-// Spatial field bundle — the map panel consumes the same state the dedicated
-// globe workspace uses, so loaded layers survive preset switches.
+// Spatial field state belongs to the dedicated Living Globe workspace.
 export interface MapState {
     field: SpatialField | null;
     applied: { variable: string; month: string; box: ExtentBox } | null;
     busy: boolean;
     error: string;
-    variable: 'V01' | 'V12';
-    setVariable: (v: 'V01' | 'V12') => void;
+    variable: SpatialVariableId;
+    setVariable: (v: SpatialVariableId) => void;
     month: string;
     setMonth: (m: string) => void;
     box: string[];
@@ -100,7 +100,6 @@ export interface StudioState {
     setTablePage: (v: number | ((p: number) => number)) => void;
     focus: boolean;
     setFocus: (v: boolean) => void;
-    map: MapState;
     analysis: UseScientificAnalysis;
     exportData: (type: 'csv' | 'json') => void;
     openAnalysis: () => void;

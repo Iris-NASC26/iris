@@ -22,6 +22,8 @@ from typing import Any, cast
 import httpx
 import numpy as np
 
+from .catalog import SOURCES, VARIABLES
+
 from .power_zarr import (
     HOST,
     STORES,
@@ -42,8 +44,7 @@ _CACHE_LOCK = threading.Lock()
 # valid range as the temporal stores verified in power_zarr.STORES; only the
 # chunk layout differs: chunks == [1, nlat, nlon], one month per object.
 SPATIAL_PATHS = {
-    "V01": "merra2/spatial/power_merra2_monthly_spatial_utc.zarr",
-    "V12": "syn1deg/spatial/power_syn1deg_monthly_spatial_lst.zarr",
+    key: SOURCES[entry["family"]]["spatial"] for key, entry in VARIABLES.items()
 }
 
 
@@ -193,7 +194,7 @@ def read_overview(
 ) -> tuple[Field, dict[str, Any]]:
     """Read one month's field for an extent, aggregating honestly when beyond the cell cap."""
     if variable_id not in SPATIAL_PATHS:
-        raise FieldRejected("Only V01 temperature and V12 sunlight grids are supported")
+        raise FieldRejected("Choose a supported NASA POWER spatial variable")
     if not all(math.isfinite(v) for v in (lat_min, lat_max, lon_min, lon_max)) or not (
         -90 <= lat_min < lat_max <= 90 and -180 <= lon_min < lon_max <= 180
     ):

@@ -2,7 +2,6 @@
 // Studio panel components. All shared state comes from StudioContext so panel
 // lifecycles never own loaded data — closing/reopening a panel is lossless.
 import { useMemo, useState } from "react";
-import dynamic from "next/dynamic";
 import type { IDockviewPanelProps } from "dockview-react";
 import { DataChart, ChartCanvas, type ChartKind, type SelectEvent } from "../Charts";
 import { calendar, deviation, format, MONTHS, monthlyCells, paired, scale, summary, type VisualSeries } from "../model";
@@ -11,7 +10,6 @@ import { ANALYSIS_METHODS, type AnalysisMethod, type SeasonalAdjustment } from "
 import { outlookCapabilities } from "../adapters/analysisResult";
 import { useStudio, type StudioState } from "./state";
 
-const MapWorkspace = dynamic(() => import('../MapWorkspace').then(m => m.MapWorkspace), { ssr: false, loading: () => <p className="viz-empty">Loading Earth workspace...</p> });
 type P = IDockviewPanelProps;
 const Empty = ({ text }: { text: string }) => <div className="viz-empty"><p>{text}</p></div>;
 
@@ -170,11 +168,6 @@ export function ComparisonPanel(_p: P) {
             <p className="viz-muted">Intervals are this submission’s estimates only; no cross-dataset trend comparison is implied.</p></div>
             : <p className="viz-muted">Trend estimates appear here only for a matching submitted analysis on the primary series — open the Outlook panel to run one. Endpoint differences above are descriptive, not trend estimates.</p>}
     </div>;
-}
-
-export function MapPanel(_p: P) {
-    const s = useStudio();
-    return <div className="viz-panel viz-panel-fill"><MapWorkspace map={s.map} selectedTimestamp={s.selection?.timestamp}/></div>;
 }
 
 export function OutlookPanel(_p: P) {

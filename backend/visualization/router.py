@@ -2,9 +2,11 @@
 
 import logging
 import threading
-from typing import Annotated, Literal
+from typing import Annotated
 
 from fastapi import APIRouter, HTTPException, Query
+
+from .catalog import VARIABLE_PATTERN
 
 from .overview import overview_response
 from .power_zarr import FieldRejected, SourceFormatError, SourceUnavailable, read_field
@@ -16,7 +18,7 @@ _slots = threading.BoundedSemaphore(2)
 
 @router.get("/field")
 def field(
-    variable: Literal["V01", "V12"],
+    variable: Annotated[str, Query(pattern=VARIABLE_PATTERN)],
     month: Annotated[str, Query(pattern=r"^\d{4}-(0[1-9]|1[0-2])$")],
     lat_min: Annotated[float, Query(ge=-90, le=90, allow_inf_nan=False)],
     lat_max: Annotated[float, Query(ge=-90, le=90, allow_inf_nan=False)],
@@ -82,7 +84,7 @@ def field(
 
 @router.get("/overview")
 def overview(
-    variable: Literal["V01", "V12"],
+    variable: Annotated[str, Query(pattern=VARIABLE_PATTERN)],
     month: Annotated[str, Query(pattern=r"^\d{4}-(0[1-9]|1[0-2])$")],
     lat_min: Annotated[float, Query(ge=-90, le=90, allow_inf_nan=False)],
     lat_max: Annotated[float, Query(ge=-90, le=90, allow_inf_nan=False)],

@@ -26,14 +26,38 @@ The baseline imports EODAG unconditionally but omits it from `backend/requiremen
 
 ## User workflow
 
-1. Open `/workspace/visualize` for charts or `/workspace/globe` for the 3D view. There are no automatic catalog or extraction calls on an empty page.
+1. Open `/workspace/visualize` for charts or `/workspace/globe` for spatial layers. The studio has no globe panel, including in mobile and restored layouts. Living Globe has no point-discovery/extraction drawer. There are no automatic catalog or extraction calls on an empty page.
 2. Search for datasets using the same discovery endpoint used by SI, or use products already selected in SI. Suggestions may prefill coordinates and dates, but observations load only on an explicit action.
 3. Confirm a location, date range and supported cadence. This retrieval uses the existing point extraction API. A region name does not imply a polygon average. The geocoder returns its top match; users review the filled coordinates before retrieval.
 4. Load datasets, then select a second location and load again to compare. Keep up to six in-memory series. Native navigation between the two visualization routes preserves loaded series; a full refresh restores a supplied `jobId` through the real backend job endpoint.
 5. Choose time series, area, observation bars, seasonal profile, monthly anomaly heatmap, distribution or paired scatter. Use the observation table to inspect precise values/QA, and export source/display values with metadata.
 6. On the globe, follow the Dataset -> Spatial extent -> Date -> Load layer flow. Extent presets include the entire globe, a documented Europe bounding box `[34, 72, -25, 45]` (south, north, west, east — a rectangle, not a continental polygon), smaller region presets, an ordered custom box, and a drag-drawn box on the 2D map. Native-sized extents load through `/field`; the globe and larger extents load through `/overview`, which may return documented coarser output cells. Inspect cells in the right-hand inspector, focus the camera, restyle the field, reorder layers or switch to a 2D fallback.
-6b. From the landing page, the illustrative COBE globe's study-location markers open `/workspace/globe` with `?place&lat&lon` prefilled — they fill the location box only and never fetch data by themselves.
+6b. From the landing page, the illustrative COBE globe's study-location markers open `/workspace/globe` with `?place&lat&lon`. These set the location used by “Use box around selected location” without fetching observations. Point time series are requested separately in the studio.
 7. Scientific analysis is an explicit separate action on the selected immutable source job. The original scientific interface is preserved. No analysis is triggered by loading a chart, selecting a method, or opening a job link.
+
+## Spatial variable catalogue
+
+`shared/spatial-variables.json` is the allowlist shared by the TypeScript UI/validators and Python readers. The backend still verifies source units, dimensions, time standard and declared valid ranges at runtime; it never derives fields from point samples. The nine added fields were checked in NASA POWER's temporal and spatial `.zmetadata` on 2026-11-15.
+
+| ID | NASA field | Source units | Meaning |
+| --- | --- | --- | --- |
+| V01 | T2M | C | Monthly mean air temperature at 2 m |
+| TS | TS | C | Monthly mean Earth skin temperature |
+| T2MDEW | T2MDEW | C | Monthly mean dew/frost point at 2 m |
+| PRECTOTCORR | PRECTOTCORR | mm/day | Monthly mean daily corrected precipitation rate, not a monthly total |
+| SNODP | SNODP | cm | Monthly mean model snow depth, not snowfall or optical snow-cover fraction |
+| GWETTOP | GWETTOP | 1 | Dimensionless surface soil-wetness index |
+| GWETROOT | GWETROOT | 1 | Dimensionless root-zone wetness index |
+| RH2M | RH2M | % | Monthly mean relative humidity at 2 m |
+| WS10M | WS10M | m/s | Monthly mean scalar wind speed at 10 m; no vector direction |
+| PS | PS | hPa | Monthly mean surface pressure, not sea-level pressure |
+| V12 | ALLSKY_SFC_SW_DWN | W m-2 | Monthly mean downward shortwave irradiance |
+
+MERRA-2 fields use the existing UTC monthly temporal/native and spatial/overview stores at 0.5° × 0.625°. Sunlight retains the existing CERES SYN1deg LST stores at 1° × 1°. These are different source/time supports; no new product is spliced into a series. Source metadata: [MERRA-2 temporal](https://nasa-power.s3.us-west-2.amazonaws.com/merra2/temporal/power_merra2_monthly_temporal_utc.zarr/.zmetadata), [MERRA-2 spatial](https://nasa-power.s3.us-west-2.amazonaws.com/merra2/spatial/power_merra2_monthly_spatial_utc.zarr/.zmetadata), and [NASA POWER direct-access documentation](https://power.larc.nasa.gov/docs/services/aws/).
+
+All listed variables support both bounded native fields and whole-globe/Europe overviews. Missing source cells remain transparent, including undefined land-variable cells. Changing variables clears the old layer, stops playback/linkage and resets variable-specific display styling. Colour ranges are presentation choices (values beyond them clamp to endpoint colours), not NASA validity limits or inferred trends. Snow depth has a blue–cyan–white palette. No extra credentials are required for these public stores.
+
+The checked-in `shared/` catalogue must ship alongside `backend/` when packaging the Python service. Existing V01/V12 IDs and response schema versions remain compatible. Studio layout preferences move to v2; v1 arrangements containing the removed globe panel recover to a chart-only preset.
 
 ## Modules and boundaries
 

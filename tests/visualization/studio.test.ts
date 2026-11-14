@@ -17,8 +17,8 @@ test("preset trees keep curated panels in their primary position", () => {
     const explore = presetLayout(PRESETS.find(p => p.id === "explore")!) as { grid: { root: { data: [{ type: string; data: { views: string[]; activeView: string } }] } } };
     assert.equal(explore.grid.root.data[0].data.views[0], "timeseries");
     assert.equal(explore.grid.root.data[0].data.activeView, "timeseries");
-    const earth = presetLayout(PRESETS.find(p => p.id === "earth-time")!) as { grid: { root: { data: [{ data: { views: string[]; activeView: string } }] } } };
-    assert.equal(earth.grid.root.data[0].data.views[0], "map");
+    assert.ok(!PRESETS.some(p => p.id === "earth-time"));
+    assert.ok(!(PANEL_IDS as string[]).includes("map"));
 });
 
 test("corrupt JSON falls back to defaults without throwing", () => {
@@ -38,13 +38,13 @@ test("unsupported versions keep a valid preset but drop the stored layout", () =
 });
 
 test("unknown panel ids and non-object layouts are stripped", () => {
-    const raw = JSON.stringify({ version: LAYOUT_VERSION, preset: "explore", layout: "bad", hidden: ["map", "ghost-panel", 7] });
+    const raw = JSON.stringify({ version: LAYOUT_VERSION, preset: "explore", layout: "bad", hidden: ["source", "map", "ghost-panel", 7] });
     const { prefs, recovered } = parsePrefs(raw);
     assert.equal(recovered, "ok");
     assert.equal(prefs.layout, null);
-    assert.deepEqual(prefs.hidden, ["map"]);
+    assert.deepEqual(prefs.hidden, ["source"]);
     assert.deepEqual(defaultPrefs().version, LAYOUT_VERSION);
-    assert.equal(STORAGE_KEY.includes("v1"), true);
+    assert.equal(STORAGE_KEY.includes("v2"), true);
 });
 
 test("layoutPanels reports only known panels from a saved layout", () => {
