@@ -68,6 +68,41 @@ test.describe('Real NASA POWER series in Data preview', () => {
     expect(requested).toHaveLength(before);
   });
 
+  test('a mocked regional mean loads through the box form and explains the aggregation', async ({ page }) => {
+    const months = Array.from({ length: 12 }, (_, i) => `2024-${String(i + 1).padStart(2, '0')}`);
+    const value = months.map((_, i) => (i === 5 ? null : 25 + i));
+    const body = {
+      schema_version: '1.0',
+      series: {
+        schema_version: '1.0', series_id: 'retrieved:V01:region', variable_id: 'V01', binding_id: 'unadmitted-power-T2M', branch_id: 'raw_monthly',
+        frequency: 'monthly', time: months, value, coverage: value.map(v => (v === null ? null : 1)), valid: value.map(v => v !== null),
+        reason: value.map(v => (v === null ? 'missing_observation' : null)), units: '°C',
+        transform: { transform_id: 'identity-power-regional', version: '1', kind: 'identity', input_units: 'C', output_units: '°C', scale: 1, offset: 0, order: ['decode_fill', 'weighted_regional_mean'] },
+        grid_id: 'power-native-0.5x0.625', provenance_id: 'retrieval:test',
+      },
+      box: { lat_min: 3.75, lat_max: 16.25, lon_min: 75.6875, lon_max: 86.3125, cell_lat_step: 0.5, cell_lon_step: 0.625, native_cells: 425, selection: 'area_weighted_mean_native_cells' },
+      source: {
+        variable_id: 'V01', store_title: 'Mocked test store', store_version: 'TEST', field: 'T2M', source_units: 'C', units: '°C', time_standard: 'UTC',
+        data_kind: 'model', first_month: '2024-01', last_finite_month: '2024-12', declared_end: '2029-12-31T00:00:00', missing_months: 1,
+        retrieved_at: '2026-11-14T10:00:00Z', served_from_cache: true, stale_cache: false, artifact_sha256: { 'T2M/0.1.1': 'a'.repeat(64) },
+        acknowledgement: 'Test acknowledgement', caveats: ['Cos(latitude)-weighted mean over 425 native cells.'], scientifically_validated: false,
+      },
+    };
+    const requested: string[] = [];
+    await page.route('**/api/v1/regional-series/V01?**', route => { requested.push(new URL(route.request().url()).search); return route.fulfill({ json: body }); });
+    await new WorkspacePage(page).open('/workspace/data-preview?variable=V01');
+    await page.getByLabel('Series kind').selectOption('region');
+    await page.getByRole('button', { name: 'Load series' }).click();
+    await expect(page.getByText(/weighted mean of 425 native cells/)).toBeVisible();
+    await expect(page.getByText('Real NASA POWER data')).toBeVisible();
+    await expect(page.locator('.series-summary div', { hasText: 'Missing' })).toContainText('1');
+    expect(requested).toEqual(['?lat_min=4&lat_max=16&lon_min=76&lon_max=86']);
+    await page.getByLabel('lat min').fill('20');
+    await page.getByRole('button', { name: 'Load series' }).click();
+    await expect(page.locator('.si-error')).toContainText('Enter a box');
+    expect(requested).toHaveLength(1);
+  });
+
   test('an unconnected variable still says no observations are loaded', async ({ page }) => {
     await new WorkspacePage(page).open('/workspace/data-preview?variable=V05');
     await expect(page.getByRole('heading', { name: 'No observations loaded' })).toBeVisible();

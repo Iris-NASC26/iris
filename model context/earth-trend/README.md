@@ -1,7 +1,7 @@
 # Earth Trend Detective — Vimukthi's integration work
 
 This folder holds the documentation set from the `earth-system-trend-detective`
-repository, snapshotted at commit `2268cdf` (branch `main`).
+repository, snapshotted at commit `384e72c` (branch `main`).
 
 ## Where the code is
 
@@ -26,6 +26,7 @@ before re-merging either direction.
 
 - `EXECUTION_STATUS.md` is the ledger: what is verified, what is device-specific,
   and which scientific gates remain open.
-- Real NASA POWER data is connected for V01/V12 only (monthly series endpoint and
-  raw fields on the globe). Nothing is trend/significance-validated yet.
+- Real NASA POWER data is connected for V01/V12 only: monthly series endpoint,
+  raw fields on the globe, and a cos(lat)-weighted regional mean series.
+  Nothing is trend/significance-validated yet.
 - The globe engine meets its ≥30 fps bar (59.9 fps median, Intel Iris Xe).

@@ -76,6 +76,18 @@ box painted real cells through Next and FastAPI; an opt-in live browser test (`E
 journey cover the path. Not done: global/unbounded layers (U08 needs chunked streaming and a contract decision),
 trend/q/relief channels, and the independent human spot-check.
 
+**U04 third real-data slice — regional mean series (REVIEW, not DONE).** `GET /api/v1/regional-series/{id}`
+returns `RegionalSeriesResult`: the same contract-valid `Series` shape, now a cos(latitude)-weighted mean over a
+bounded box's native cells (4,000-cell cap, no dateline wrap), with `weighted_regional_mean` in the transform order,
+`native_cells` count and box bounds echoed. A month missing in some cells uses the finite cells only; a month with
+none stays missing — nothing is interpolated. The transform `order` discloses the aggregation; `scientifically_validated`
+stays false and the UI labels it a weighted mean, not a trend. Data preview has a "Series kind" toggle (nearest cell /
+box mean). Verified live: V01 over the Sri Lanka box returned 549 months (1981-01..2026-09, 88 cells, no gaps).
+A denominator bug in the first implementation (per-row weights instead of per-cell) was caught by the unit test and
+fixed before merge. 192 backend tests, mocked+live browser journeys. Not done: the regional mean is a simple
+arithmetic aggregate — it is NOT the validated analysis pipeline's regional series (S-tasks may add masking, QA
+flags and uncertainty), and the human spot-check is still open.
+
 **U03 globe engine spike (REVIEW, not DONE).** `/workspace/globe` now runs globe.gl 2.46.2 /
 Three.js 0.186.1 with a bundled NASA GIBS `BlueMarble_ShadedRelief_Bathymetry` texture
 (WMS 1.3.0, EPSG:4326, latitude-first BBOX, 2048x1024, retrieved 14 November 2026; SHA-256

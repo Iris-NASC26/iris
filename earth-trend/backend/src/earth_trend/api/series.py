@@ -13,10 +13,12 @@ from earth_trend.sources.power_zarr import (
     Field,
     FieldRejected,
     MonthlyPoint,
+    RegionalSeries,
     SourceFormatError,
     SourceUnavailable,
     read_field,
     read_point,
+    read_regional_series,
 )
 
 from .schemas import Error, Series, Transform
@@ -26,6 +28,8 @@ from .schemas.source_series import (
     FieldSource,
     PointLocation,
     PointSeriesResult,
+    RegionalSeriesResult,
+    RegionBox,
     SeriesSource,
 )
 
@@ -210,6 +214,138 @@ def build_field_result(field: Field) -> FieldResult:
         values=field.values,
         source=source,
     )
+
+
+def build_regional_result(region: RegionalSeries) -> RegionalSeriesResult:
+    store = region.store
+    digest = hashlib.sha256(
+        "|".join(f"{k}={v}" for k, v in sorted(region.artifact_hashes.items())).encode()
+    ).hexdigest()
+    valid = [value is not None for value in region.values]
+    cells = len(region.cell_lats) * len(region.cell_lons)
+    series = Series.model_validate(
+        {
+            "schema_version": "1.0",
+            "series_id": (
+                f"retrieved:{store.variable_id}:region:"
+                f"{region.cell_lats[0]}..{region.cell_lats[-1]}:"
+                f"{region.cell_lons[0]}..{region.cell_lons[-1]}"
+            ),
+            "variable_id": store.variable_id,
+            "binding_id": f"unadmitted-power-{store.field}",
+            "branch_id": "raw_monthly",
+            "frequency": "monthly",
+            "time": region.months,
+            "value": region.values,
+            "coverage": [1.0 if ok else None for ok in valid],
+            "valid": valid,
+            "reason": [None if ok else "missing_observation" for ok in valid],
+            "units": store.units,
+            "transform": Transform.model_validate(
+                {
+                    "transform_id": "identity-power-regional",
+                    "version": "1",
+                    "kind": "identity",
+                    "input_units": store.source_units,
+                    "output_units": store.units,
+                    "scale": 1.0,
+                    "offset": 0.0,
+                    "order": ["decode_fill", "weighted_regional_mean"],
+                }
+            ),
+            "grid_id": f"power-native-{region.lat_step}x{region.lon_step}",
+            "provenance_id": f"retrieval:{digest[:32]}",
+        }
+    )
+    source = SeriesSource(
+        variable_id=store.variable_id,  # type: ignore[arg-type]
+        store_title=region.store_title,
+        store_version=region.store_version,
+        field=store.field,
+        source_units=store.source_units,
+        units=store.units,  # type: ignore[arg-type]
+        time_standard=store.time_standard,  # type: ignore[arg-type]
+        data_kind="model",
+        first_month=region.months[0],
+        last_finite_month=region.months[-1],
+        declared_end=region.declared_end,
+        missing_months=valid.count(False),
+        retrieved_at=region.retrieved_at,
+        served_from_cache=region.from_cache,
+        stale_cache=region.stale_cache,
+        artifact_sha256=region.artifact_hashes,
+        acknowledgement=region.acknowledgement,
+        caveats=[
+            *store.caveats,
+            f"Cos(latitude)-weighted mean over {cells} native cells; a month with no "
+            "finite cell stays missing, and a partially missing month uses only its "
+            "finite cells.",
+            "Retrieved data only: no trend, significance or validation is implied.",
+        ],
+        scientifically_validated=False,
+    )
+    return RegionalSeriesResult(
+        schema_version="1.0",
+        series=series,
+        box=RegionBox(
+            lat_min=min(region.cell_lats) - region.lat_step / 2,
+            lat_max=max(region.cell_lats) + region.lat_step / 2,
+            lon_min=min(region.cell_lons) - region.lon_step / 2,
+            lon_max=max(region.cell_lons) + region.lon_step / 2,
+            cell_lat_step=region.lat_step,
+            cell_lon_step=region.lon_step,
+            native_cells=cells,
+            selection="area_weighted_mean_native_cells",
+        ),
+        source=source,
+    )
+
+
+@router.get("/api/v1/regional-series/{variable_id}", response_model=RegionalSeriesResult)
+def regional_series(
+    variable_id: str,
+    lat_min: Annotated[float, Query(ge=-90, le=90, allow_inf_nan=False)],
+    lat_max: Annotated[float, Query(ge=-90, le=90, allow_inf_nan=False)],
+    lon_min: Annotated[float, Query(ge=-180, le=180, allow_inf_nan=False)],
+    lon_max: Annotated[float, Query(ge=-180, le=180, allow_inf_nan=False)],
+) -> RegionalSeriesResult | JSONResponse:
+    if not VARIABLE.fullmatch(variable_id):
+        return problem(404, "NOT_FOUND", "Unknown variable", "Variable IDs run from V01 to V13.")
+    if lat_min >= lat_max or lon_min >= lon_max:
+        return problem(
+            422,
+            "INVALID_PARAMETERS",
+            "Invalid box",
+            "lat_min must be below lat_max and lon_min below lon_max; no dateline crossing.",
+        )
+    if variable_id not in STORES:
+        return problem(
+            409,
+            "MODE_UNAVAILABLE",
+            "Source not connected",
+            f"{variable_id} has no connected data source yet; only {', '.join(STORES)} do.",
+        )
+    try:
+        return build_regional_result(
+            read_regional_series(variable_id, lat_min, lat_max, lon_min, lon_max)
+        )
+    except FieldRejected as error:
+        return problem(422, "INVALID_PARAMETERS", "Box rejected", str(error))
+    except SourceUnavailable:
+        return problem(
+            503,
+            "PROVIDER_UNAVAILABLE",
+            "NASA POWER unreachable",
+            "The store could not be reached and no cached copy exists.",
+            retryable=True,
+        )
+    except SourceFormatError:
+        return problem(
+            502,
+            "PROVIDER_RESPONSE_INVALID",
+            "Unexpected source content",
+            "The NASA POWER store returned content this reader cannot safely interpret.",
+        )
 
 
 @router.get("/api/v1/field/{variable_id}", response_model=FieldResult)

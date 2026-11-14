@@ -127,6 +127,25 @@ class Field:
     stale_cache: bool
 
 
+@dataclass(frozen=True)
+class RegionalSeries:
+    store: Store
+    months: list[str]
+    values: list[float | None]
+    cell_lats: list[float]
+    cell_lons: list[float]
+    lat_step: float
+    lon_step: float
+    store_title: str
+    store_version: str
+    acknowledgement: str
+    declared_end: str
+    artifact_hashes: dict[str, str]
+    retrieved_at: datetime
+    from_cache: bool
+    stale_cache: bool
+
+
 def cache_root() -> Path:
     configured = os.environ.get("EARTH_TREND_DATA_DIR")
     base = Path(configured) if configured else Path(__file__).resolve().parents[4] / "artifacts"
@@ -414,6 +433,80 @@ def read_field(
         store_title=str(ctx.root_attrs.get("title", ctx.store.path)),
         store_version=str(ctx.root_attrs.get("version", "unknown")),
         acknowledgement=str(ctx.root_attrs.get("acknowledgement", "")),
+        artifact_hashes=ctx.hashes,
+        retrieved_at=datetime.now(UTC),
+        from_cache=all(item.cached for item in ctx.fetches),
+        stale_cache=any(item.stale for item in ctx.fetches),
+    )
+
+
+def read_regional_series(
+    variable_id: str,
+    lat_min: float,
+    lat_max: float,
+    lon_min: float,
+    lon_max: float,
+    *,
+    root: Path | None = None,
+    client: httpx.Client | None = None,
+) -> RegionalSeries:
+    """Area-weighted (cos latitude) monthly mean over the box's native cells.
+
+    Cells with a missing month are excluded from that month's mean only; a month
+    with no finite cell stays missing rather than being interpolated.
+    """
+    ctx = _open(variable_id, root=root, client=client)
+    lat_axis, lon_axis, chunks, months = ctx.lat_axis, ctx.lon_axis, ctx.chunks, ctx.months
+    lat_mask = np.nonzero((lat_axis >= lat_min) & (lat_axis <= lat_max))[0]
+    lon_mask = np.nonzero((lon_axis >= lon_min) & (lon_axis <= lon_max))[0]
+    if lat_mask.size == 0 or lon_mask.size == 0:
+        raise FieldRejected("The box contains no native cells")
+    if lat_mask.size * lon_mask.size > MAX_FIELD_CELLS:
+        raise FieldRejected("The box exceeds the field cell limit")
+    needed = {(int(la) // chunks[1], int(lo) // chunks[2]) for la in lat_mask for lo in lon_mask}
+    decoded: dict[tuple[int, int], Any] = {}
+    for block in needed:
+        body = ctx.get(f"{ctx.store.field}/0.{block[0]}.{block[1]}")
+        decoded[block] = decode(body.body, ctx.field_array, ctx.chunks)
+    low, high = float(ctx.field_attrs["valid_min"]), float(ctx.field_attrs["valid_max"])
+    grid = np.full((len(months), lat_mask.size, lon_mask.size), np.nan)
+    for row, la in enumerate(lat_mask):
+        for col, lo in enumerate(lon_mask):
+            grid[:, row, col] = decoded[(int(la) // chunks[1], int(lo) // chunks[2])][
+                :, int(la) % chunks[1], int(lo) % chunks[2]
+            ]
+    finite = np.isfinite(grid)
+    if bool(np.any(grid[finite] < low) or np.any(grid[finite] > high)):
+        raise SourceFormatError("Decoded value outside the source's declared valid range")
+    weights = np.cos(np.deg2rad(lat_axis[lat_mask]))[:, None]
+    cell_weights = np.broadcast_to(weights, grid.shape[1:])
+    with np.errstate(invalid="ignore"):
+        totals = np.nansum(grid * weights, axis=(1, 2))
+        weight_sums = (finite * cell_weights).sum(axis=(1, 2))
+        mean = np.divide(
+            totals, weight_sums, out=np.full(len(months), np.nan), where=weight_sums > 0
+        )
+    if not bool(np.any(np.isfinite(mean))):
+        raise SourceFormatError("No finite values exist in this box")
+    last = int(np.max(np.nonzero(np.isfinite(mean))))
+    decimals = _decimals(ctx)
+    return RegionalSeries(
+        store=ctx.store,
+        months=months[: last + 1],
+        values=[
+            None
+            if not np.isfinite(mean[i])
+            else (round(float(mean[i]), decimals) if decimals is not None else float(mean[i]))
+            for i in range(last + 1)
+        ],
+        cell_lats=[float(lat_axis[i]) for i in lat_mask],
+        cell_lons=[float(lon_axis[i]) for i in lon_mask],
+        lat_step=float(abs(lat_axis[1] - lat_axis[0])),
+        lon_step=float(abs(lon_axis[1] - lon_axis[0])),
+        store_title=str(ctx.root_attrs.get("title", ctx.store.path)),
+        store_version=str(ctx.root_attrs.get("version", "unknown")),
+        acknowledgement=str(ctx.root_attrs.get("acknowledgement", "")),
+        declared_end=str(ctx.root_attrs.get("time_coverage_end", "")),
         artifact_hashes=ctx.hashes,
         retrieved_at=datetime.now(UTC),
         from_cache=all(item.cached for item in ctx.fetches),

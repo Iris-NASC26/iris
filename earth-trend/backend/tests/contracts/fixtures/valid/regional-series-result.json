@@ -1,0 +1,88 @@
+{
+  "fixture_kind": "synthetic_contract",
+  "fixture_id": "regional-series-result",
+  "model": "RegionalSeriesResult",
+  "disclosure": "STRUCTURAL TEST ONLY. Invented values and IDs; no NASA observations, method validation or scientific findings. Never bundle as product data.",
+  "payload": {
+    "schema_version": "1.0",
+    "series": {
+      "schema_version": "1.0",
+      "series_id": "synthetic-regional-series-shape-only",
+      "variable_id": "V01",
+      "binding_id": "synthetic-binding",
+      "branch_id": "raw_monthly",
+      "frequency": "monthly",
+      "time": [
+        "2003-01",
+        "2003-02"
+      ],
+      "value": [
+        1.0,
+        null
+      ],
+      "coverage": [
+        1.0,
+        null
+      ],
+      "valid": [
+        true,
+        false
+      ],
+      "reason": [
+        null,
+        "missing_observation"
+      ],
+      "units": "°C",
+      "transform": {
+        "transform_id": "synthetic-identity-regional",
+        "version": "fixture-v1",
+        "kind": "identity",
+        "input_units": "C",
+        "output_units": "°C",
+        "scale": 1,
+        "offset": 0,
+        "order": [
+          "decode_fill",
+          "weighted_regional_mean"
+        ]
+      },
+      "grid_id": "synthetic-grid",
+      "provenance_id": "synthetic-retrieval"
+    },
+    "box": {
+      "lat_min": 0.75,
+      "lat_max": 1.75,
+      "lon_min": 29.6875,
+      "lon_max": 40.3125,
+      "cell_lat_step": 0.5,
+      "cell_lon_step": 0.625,
+      "native_cells": 4,
+      "selection": "area_weighted_mean_native_cells"
+    },
+    "source": {
+      "variable_id": "V01",
+      "store_title": "Synthetic test store",
+      "store_version": "fixture-v1",
+      "field": "T2M",
+      "source_units": "C",
+      "units": "°C",
+      "time_standard": "UTC",
+      "data_kind": "model",
+      "first_month": "2003-01",
+      "last_finite_month": "2003-02",
+      "declared_end": "2003-12-31",
+      "missing_months": 1,
+      "retrieved_at": "2003-01-01T00:00:00Z",
+      "served_from_cache": false,
+      "stale_cache": false,
+      "artifact_sha256": {
+        "synthetic": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "acknowledgement": "Synthetic fixture",
+      "caveats": [
+        "Structural test only."
+      ],
+      "scientifically_validated": false
+    }
+  }
+}

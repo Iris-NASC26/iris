@@ -27,6 +27,7 @@ from earth_trend.sources.power_zarr import (
     SourceUnavailable,
     read_field,
     read_point,
+    read_regional_series,
 )
 
 BASE = "/merra2/temporal/power_merra2_monthly_temporal_utc.zarr/"
@@ -336,19 +337,21 @@ def test_field_rejects_boxes_over_the_cell_limit(
 @pytest.fixture
 def field_api(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> TestClient:
     files = make_store()
-    original: Callable[..., Any] = power_zarr.read_field
+    client = client_for(files)
+    original_field: Callable[..., Any] = power_zarr.read_field
+    original_region: Callable[..., Any] = power_zarr.read_regional_series
     monkeypatch.setattr(
         series_module,
         "read_field",
-        lambda variable, month, lat_min, lat_max, lon_min, lon_max: original(
-            variable,
-            month,
-            lat_min,
-            lat_max,
-            lon_min,
-            lon_max,
-            root=tmp_path,
-            client=client_for(files),
+        lambda variable, month, lat_min, lat_max, lon_min, lon_max: original_field(
+            variable, month, lat_min, lat_max, lon_min, lon_max, root=tmp_path, client=client
+        ),
+    )
+    monkeypatch.setattr(
+        series_module,
+        "read_regional_series",
+        lambda variable, lat_min, lat_max, lon_min, lon_max: original_region(
+            variable, lat_min, lat_max, lon_min, lon_max, root=tmp_path, client=client
         ),
     )
     return TestClient(create_app(), base_url="http://127.0.0.1")
@@ -406,3 +409,65 @@ def test_field_endpoint_reports_out_of_axis_months(field_api: TestClient) -> Non
         params={"month": "1980-01", "lat_min": 0.9, "lat_max": 1.6, "lon_min": 29, "lon_max": 41},
     )
     assert outside.status_code == 422 and outside.json()["code"] == "INVALID_PARAMETERS"
+
+
+def test_regional_series_is_a_cos_lat_weighted_mean_and_keeps_gaps(tmp_path: Path) -> None:
+    region = read_regional_series(
+        "V01", 0.9, 1.6, 29.0, 41.0, root=tmp_path, client=client_for(make_store())
+    )
+    assert region.cell_lats == [1.0, 1.5] and region.cell_lons == [30.0, 40.0]
+    assert region.months == ["1981-01", "1981-02", "1981-03", "1981-04"]
+    base = np.arange(80, dtype=np.float32).reshape(5, 4, 4) * 0.37 + 10.0
+    cells = base[:4, 2:4, 2:4].copy()
+    cells[2, 1, 0] = np.nan  # the same interior gap the synthetic store carries
+    weights = np.cos(np.deg2rad(np.array([1.0, 1.5])))[:, None]
+    for t in (0, 1, 3):
+        expected = float(np.sum(cells[t] * weights) / np.sum(np.broadcast_to(weights, (2, 2))))
+        assert region.values[t] == pytest.approx(expected, abs=0.005)
+    # month 2: cell (1.5, 30) is missing, so the mean uses the remaining three cells
+    finite2 = np.isfinite(cells[2])
+    expected2 = float(
+        np.sum(cells[2][finite2] * np.broadcast_to(weights, (2, 2))[finite2])
+        / np.sum(np.broadcast_to(weights, (2, 2))[finite2])
+    )
+    assert region.values[2] == pytest.approx(expected2, abs=0.005)
+
+
+def test_regional_series_rejects_empty_boxes_and_oversize(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    with pytest.raises(FieldRejected):
+        read_regional_series(
+            "V01", 50.0, 51.0, 29.0, 41.0, root=tmp_path, client=client_for(make_store())
+        )
+    monkeypatch.setattr(power_zarr, "MAX_FIELD_CELLS", 3)
+    with pytest.raises(FieldRejected, match="limit"):
+        read_regional_series(
+            "V01", 0.9, 1.6, 29.0, 41.0, root=tmp_path, client=client_for(make_store())
+        )
+
+
+def test_regional_endpoint_returns_a_contract_valid_series(field_api: TestClient) -> None:
+    response = field_api.get(
+        "/api/v1/regional-series/V01",
+        params={"lat_min": 0.9, "lat_max": 1.6, "lon_min": 29, "lon_max": 41},
+    )
+    assert response.status_code == 200
+    from earth_trend.api.schemas.source_series import RegionalSeriesResult
+
+    result = RegionalSeriesResult.model_validate_json(response.text)
+    assert result.box.selection == "area_weighted_mean_native_cells"
+    assert result.box.native_cells == 4
+    assert result.series.transform.order == ["decode_fill", "weighted_regional_mean"]
+    assert result.source.scientifically_validated is False
+    assert any("weighted mean" in caveat for caveat in result.source.caveats)
+
+
+def test_regional_endpoint_rejects_bad_boxes_and_unconnected(field_api: TestClient) -> None:
+    box = {"lat_min": 0, "lat_max": 1, "lon_min": 0, "lon_max": 1}
+    inverted = field_api.get("/api/v1/regional-series/V01", params={**box, "lat_min": 2})
+    assert inverted.status_code == 422 and inverted.json()["code"] == "INVALID_PARAMETERS"
+    unconnected = field_api.get("/api/v1/regional-series/V02", params=box)
+    assert unconnected.status_code == 409 and unconnected.json()["code"] == "MODE_UNAVAILABLE"
+    unknown = field_api.get("/api/v1/regional-series/V99", params=box)
+    assert unknown.status_code == 404 and unknown.json()["code"] == "NOT_FOUND"
