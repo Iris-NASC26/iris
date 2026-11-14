@@ -2,9 +2,9 @@
 // observations, analysis payloads, or renderer instances.
 import { DEFAULT_PRESET, PANEL_IDS, type PanelId } from './presets';
 
-export const STORAGE_KEY = 'iris.studio.layout.v4';
-const LEGACY_STORAGE_KEY = 'iris.studio.layout.v3';
-export const LAYOUT_VERSION = 4;
+export const STORAGE_KEY = 'iris.studio.layout.v5';
+const LEGACY_STORAGE_KEY = 'iris.studio.layout.v4';
+export const LAYOUT_VERSION = 5;
 
 export interface StudioPrefs {
     version: number;
@@ -50,7 +50,7 @@ export function loadPrefs(storage?: Pick<Storage, 'getItem'>): { prefs: StudioPr
     try {
         if (!storage && typeof window === 'undefined') return { prefs: defaultPrefs(), recovered: 'empty', denied: false };
         const target = storage ?? window.localStorage;
-        const result = parsePrefs(target.getItem(STORAGE_KEY) ?? target.getItem(LEGACY_STORAGE_KEY) ?? target.getItem('iris.studio.layout.v2') ?? target.getItem('iris.studio.layout.v1'));
+        const result = parsePrefs(target.getItem(STORAGE_KEY) ?? target.getItem(LEGACY_STORAGE_KEY) ?? target.getItem('iris.studio.layout.v3') ?? target.getItem('iris.studio.layout.v2') ?? target.getItem('iris.studio.layout.v1'));
         return { ...result, denied: false };
     } catch {
         return { prefs: defaultPrefs(), recovered: 'denied', denied: true };
@@ -71,7 +71,7 @@ export function clearPrefs(storage?: Pick<Storage, 'removeItem'>): void {
     try {
         if (!storage && typeof window === 'undefined') return;
         const target = storage ?? window.localStorage;
-        target.removeItem(STORAGE_KEY); target.removeItem(LEGACY_STORAGE_KEY); target.removeItem('iris.studio.layout.v2'); target.removeItem('iris.studio.layout.v1');
+        target.removeItem(STORAGE_KEY); target.removeItem(LEGACY_STORAGE_KEY); target.removeItem('iris.studio.layout.v3'); target.removeItem('iris.studio.layout.v2'); target.removeItem('iris.studio.layout.v1');
     } catch { /* storage denied */ }
 }
 

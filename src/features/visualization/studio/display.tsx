@@ -1,5 +1,5 @@
 "use client";
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { useTheme } from '@/context/ThemeContext';
 import type { Quantity } from '../landscape/model';
 
@@ -29,10 +29,14 @@ export function parseDisplay(value: unknown): DisplayPrefs {
 }
 const DisplayContext = createContext<{ display: DisplayPrefs; update: (patch: Partial<DisplayPrefs>) => void } | null>(null);
 export function StudioDisplayProvider({ children }: { children: ReactNode }) {
-    const [display, setDisplay] = useState(DEFAULT_DISPLAY), [ready, setReady] = useState(false);
-    useEffect(() => { try { setDisplay(parseDisplay(JSON.parse(localStorage.getItem(DISPLAY_KEY) ?? '{}'))); } catch { /* defaults */ } setReady(true); }, []);
-    useEffect(() => { if (ready) try { localStorage.setItem(DISPLAY_KEY, JSON.stringify(display)); } catch { /* in-memory controls still work */ } }, [display, ready]);
-    return <DisplayContext.Provider value={{ display, update: patch => setDisplay(p => parseDisplay({ ...p, ...patch })) }}>{children}</DisplayContext.Provider>;
+    const { dark } = useTheme();
+    const [preferences, setPreferences] = useState(DEFAULT_DISPLAY), [ready, setReady] = useState(false);
+    // Theme comes from the app. Ignore the removed environment control's saved
+    // dark value while retaining palette, quantity and camera preferences.
+    const display = useMemo(() => ({ ...preferences, dark }), [preferences, dark]);
+    useEffect(() => { try { setPreferences(parseDisplay(JSON.parse(localStorage.getItem(DISPLAY_KEY) ?? '{}'))); } catch { /* defaults */ } setReady(true); }, []);
+    useEffect(() => { if (ready) try { localStorage.setItem(DISPLAY_KEY, JSON.stringify({ ...preferences, dark: undefined })); } catch { /* in-memory controls still work */ } }, [preferences, ready]);
+    return <DisplayContext.Provider value={{ display, update: patch => setPreferences(p => parseDisplay({ ...p, ...patch })) }}>{children}</DisplayContext.Provider>;
 }
 export function useDisplay() { const value = useContext(DisplayContext); if (!value) throw new Error('StudioDisplayProvider required'); return value; }
 export function useStudioTheme() { const global = useTheme(), local = useContext(DisplayContext); return { dark: local?.display.dark ?? global.dark }; }

@@ -64,6 +64,7 @@ function VisualizationWorkspaceContent({ initialView }: { initialView: 'charts' 
     const stats = summary(primaryRows);
     const times = primaryRows.map(r => r.time), selectedTime = times[Math.min(timeIndex, Math.max(0, times.length - 1))];
     const primaryIndex = Math.min(timeIndex, Math.max(0, primaryRows.length - 1));
+    const selectedTimestamp = primaryRows[primaryIndex]?.timestamp;
     const inputKey = sourceKey(primary?.preview);
     const binding = store.analyses[inputKey] ?? null;
     const analysis: StudioState['analysis'] = { inputKey, binding, status: binding ? 'complete' : 'empty', error: '' };
@@ -109,6 +110,11 @@ function VisualizationWorkspaceContent({ initialView }: { initialView: 'charts' 
     useEffect(() => { setTimeIndex(0); setPlaying(false); setSelection(null); }, [primary?.id, filterStart, filterEnd, includeFlagged]);
     useEffect(() => { if (!playing || times.length < 2)
         return; const id = window.setInterval(() => setTimeIndex(i => (i + 1) % times.length), 650); return () => clearInterval(id); }, [playing, times.length]);
+    useEffect(() => {
+        if (playing && primary && selectedTime !== undefined && selectedTimestamp) {
+            setSelection({ seriesId: primary.id, time: selectedTime, timestamp: selectedTimestamp });
+        }
+    }, [playing, primary?.id, selectedTime, selectedTimestamp]);
     useEffect(() => () => { request.current?.abort(); fieldRequest.current?.abort(); searchRequest.current?.abort(); geoRequest.current?.abort(); }, []);
     const fieldKey = `${fieldVariable}|${fieldMonth}|${fieldBox.join(',')}`;
     useEffect(() => {
@@ -405,7 +411,7 @@ function VisualizationWorkspaceContent({ initialView }: { initialView: 'charts' 
     </section>
     {store.series.length > 0 && <section className="viz-control-section"><span className="viz-step">LOADED SERIES / {store.series.length} OF {MAX_SERIES}</span><div className="viz-loaded-list">{store.series.map(s => <article key={s.id}><label><input type="checkbox" checked={!hidden.includes(s.id)} onChange={e => setHidden(current => e.target.checked ? current.filter(id => id !== s.id) : [...current, s.id])}/><i style={{ background: s.color }}/><span>{s.label}</span></label><button aria-label={`Remove ${s.label}`} onClick={() => store.remove(s.id)}>Remove</button></article>)}</div></section>}
    </aside>;
-    const timeStrip = primary && primaryRows.length > 0 && <section className="viz-time-control"><button className="viz-button" onClick={() => setPlaying(p => !p)}>{playing ? 'Pause' : 'Play observations'}</button><label>Selected observation<input aria-label="Observation time" type="range" min={0} max={Math.max(0, times.length - 1)} value={primaryIndex} onChange={e => { setPlaying(false); setTimeIndex(Number(e.target.value)); const r = primaryRows[Number(e.target.value)]; if (r) setSelection({ seriesId: primary.id, time: r.time, timestamp: r.timestamp }); }}/></label><strong>{primaryRows[primaryIndex]?.timestamp} / {format(primaryRows[primaryIndex]?.value ?? null)} {primary.preview.summary_stats.unit}</strong><p>Playback selects retrieved observations only.</p></section>;
+    const timeStrip = primary && primaryRows.length > 0 && <section className="viz-time-control"><button className="viz-button" onClick={() => setPlaying(p => !p)}>{playing ? 'Pause' : 'Play observations'}</button><label>Selected observation<input aria-label="Observation time" type="range" min={0} max={Math.max(0, times.length - 1)} value={primaryIndex} onChange={e => { setPlaying(false); setTimeIndex(Number(e.target.value)); const r = primaryRows[Number(e.target.value)]; if (r) setSelection({ seriesId: primary.id, time: r.time, timestamp: r.timestamp }); }}/></label><strong>{primaryRows[primaryIndex]?.timestamp} / {format(primaryRows[primaryIndex]?.value ?? null)} {primary.preview.summary_stats.unit}</strong><p>Step through retrieved timestamps and highlight the same observation across views.</p></section>;
     if (initialView === 'globe')
         return <div className="viz-workbench dashboard-page-inner">
   <header className="viz-heading"><div><span className="viz-eyebrow">LIVING GLOBE / NASA SPATIAL LAYERS</span><h2>Make the change visible.</h2><p>Choose a spatial variable, region and month to paint real NASA grid values across the globe.</p></div><Link className="viz-button" href="/workspace/visualize"><Icon name="activity" size={16}/> Open visualization studio</Link></header>

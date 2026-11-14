@@ -2,7 +2,7 @@
 // One studio arrangement, with resizable/dockable views and a mobile selector.
 // Views stay available without workspace-management controls or closable tabs.
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { DockviewDefaultTab, DockviewReact, type DockviewReadyEvent, type DockviewApi, type IDockviewPanelHeaderProps, type IDockviewPanelProps } from 'dockview-react';
+import { DockviewDefaultTab, DockviewReact, themeDark, themeLight, type DockviewReadyEvent, type DockviewApi, type IDockviewPanelHeaderProps, type IDockviewPanelProps } from 'dockview-react';
 import 'dockview-react/dist/styles/dockview.css';
 import { useStudioTheme } from './display';
 import { LandscapePanel, LinkedHeatmapPanel } from './LandscapePanel';
@@ -87,7 +87,7 @@ export function StudioShell({ children }: { children?: React.ReactNode }) {
             </label>
             <div className="viz-studio-mobile-stage"><ActiveMobile api={undefined as never} containerApi={undefined as never} params={{}}/></div>
         </div> : <div className={`viz-studio-dock ${dark ? 'dockview-theme-dark' : 'dockview-theme-light'}`}>
-            <DockviewReact components={PANEL_COMPONENTS} defaultTabComponent={StudioTab} onReady={onReady} disableFloatingGroups getTabContextMenuItems={() => []} getTabGroupChipContextMenuItems={() => []} className="viz-dockview"/>
+            <DockviewReact components={PANEL_COMPONENTS} defaultTabComponent={StudioTab} theme={dark ? themeDark : themeLight} onReady={onReady} disableFloatingGroups getTabContextMenuItems={() => []} getTabGroupChipContextMenuItems={() => []} className="viz-dockview"/>
         </div>}
     </div>;
 }

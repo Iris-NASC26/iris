@@ -15,6 +15,7 @@ test('does not fetch data on mount and discovers, selects and retrieves on expli
  let requested:Record<string,unknown>|undefined;
  await page.route('**/api/v1/timeseries/extract',route=>{requested=route.request().postDataJSON();return route.fulfill({json:fixture()});});
  await ui.load();expect(requested?.variable_id).toBe('T2M');expect(requested?.spatial_Submode).toBe('point');
+ await page.getByRole('tab',{name:'Time series',exact:true}).click();
  await expect(page.getByRole('img',{name:/Time series for Test air temperature/})).toBeVisible();
  for(const name of ['Area','Bars']){
   await page.getByRole('button',{name,exact:true}).click();await expect(page.getByRole('img',{name:/Exact values are available in CSV and JSON exports/}).first()).toBeVisible();
@@ -45,7 +46,7 @@ test('keeps two locations and pairs comparisons without asking SI to generate ob
  await page.getByRole('spinbutton',{name:'Latitude',exact:true}).fill('-1.29');
  await page.getByRole('spinbutton',{name:'Longitude',exact:true}).fill('36.82');
  await page.route('**/api/v1/timeseries/extract',route=>route.fulfill({json:fixture('job-second',-1.29,36.82)}));
- await ui.load();await expect(page.getByLabel('Primary series').getByRole('option')).toHaveCount(2);
+ await ui.load();await page.getByRole('tab',{name:'Time series',exact:true}).click();await expect(page.getByLabel('Primary series').getByRole('option')).toHaveCount(2);
  await page.getByRole('tab',{name:'Relationship',exact:true}).click();await expect(page.getByRole('img',{name:/Aligned pairs/})).toBeVisible();
  await expect(page.getByRole('tab',{name:'Living Earth',exact:true})).toHaveCount(0);
  await expect(page.locator('.viz-three-mount')).toHaveCount(0);

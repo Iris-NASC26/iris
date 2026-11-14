@@ -1,6 +1,6 @@
 # Visualization workspace
 
-The current Plot & Visualize experience uses the approved immersive Landscape design, with linked 2D views and trend evidence. See [IMMERSIVE_VISUALIZATION.md](IMMERSIVE_VISUALIZATION.md) for its controls, Data Analysis handoff, scientific boundaries and verification. The acquisition drawer starts collapsed and layout preferences use v4. The toolbar has data controls and exports; Compare and Observations tabs and workspace-management controls have been removed.
+The current Plot & Visualize experience uses the approved immersive Landscape design, with linked 2D views and trend evidence. See [IMMERSIVE_VISUALIZATION.md](IMMERSIVE_VISUALIZATION.md) for its controls, Data Analysis handoff, scientific boundaries and verification. The acquisition drawer starts collapsed and layout preferences use v5. The toolbar has data controls and exports; Compare and Observations tabs and workspace-management controls have been removed.
 
 This is a focused addition to the fresh Iris baseline `dcffc86`. It keeps the existing site layout, SI workflow and original scientific-analysis component. It does not consolidate the older application or replace the backend. The user explicitly authorized an additive genuine-grid endpoint without editing existing backend files.
 
@@ -59,7 +59,7 @@ MERRA-2 fields use the existing UTC monthly temporal/native and spatial/overview
 
 All listed variables support both bounded native fields and whole-globe/Europe overviews. Missing source cells remain transparent, including undefined land-variable cells. Changing variables clears the old layer, stops playback/linkage and resets variable-specific display styling. Colour ranges are presentation choices (values beyond them clamp to endpoint colours), not NASA validity limits or inferred trends. Snow depth has a blue–cyan–white palette. No extra credentials are required for these public stores.
 
-The checked-in `shared/` catalogue must ship alongside `backend/` when packaging the Python service. Existing V01/V12 IDs and response schema versions remain compatible. Studio layout preferences use v4; older arrangements containing removed panels recover to the default Landscape arrangement.
+The checked-in `shared/` catalogue must ship alongside `backend/` when packaging the Python service. Existing V01/V12 IDs and response schema versions remain compatible. Studio layout preferences use v5; older arrangements containing removed panels recover to the default Landscape arrangement.
 
 Live source verification on 2026-11-15 read January 2024 for all 11 variables at a small native extent (48–49°N, 2–3°E) and for the entire globe. The returned source version was POWER 10.0.0. MERRA-2 global overviews contained 13,104 output cells; the CERES sunlight overview contained 16,200. Snow depth and root-zone wetness retained missing cells (4,474 valid output cells each). A separate request through the running Next/FastAPI overview endpoint confirmed snow depth in cm. These are source/transport checks, not independent validation of climate inference or forecast skill.
 
@@ -193,7 +193,7 @@ through the workspace navigation; Outlook stays on that page.
 
 - `studio/presets.ts` defines serialized arrangements and the current panel
   registry. The studio opens the Landscape arrangement; there is no preset picker.
-- `studio/layoutPersistence.ts` stores the versioned `iris.studio.layout.v4`
+- `studio/layoutPersistence.ts` stores the versioned `iris.studio.layout.v5`
   presentation record. Older, incomplete or removed-panel layouts fall back
   safely to the default. Legacy hidden/focus state is ignored. Observations
   and analysis payloads are never stored in these preferences.

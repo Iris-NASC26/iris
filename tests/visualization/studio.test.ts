@@ -17,6 +17,8 @@ test("preset trees keep curated panels in their primary position", () => {
     const explore = presetLayout(PRESETS.find(p => p.id === "explore")!) as { grid: { root: { data: [{ type: string; data: { views: string[]; activeView: string } }] } } };
     assert.equal(explore.grid.root.data[0].data.views[0], "timeseries");
     assert.equal(explore.grid.root.data[0].data.activeView, "timeseries");
+    const main = presetLayout(PRESETS[0]) as typeof explore;
+    assert.deepEqual(main.grid.root.data[0].data.views.slice(0, 2), ["landscape", "timeseries"]);
     assert.ok(!PRESETS.some(p => p.id === "earth-time"));
     assert.ok(!(PANEL_IDS as string[]).includes("map"));
     assert.ok(!(PANEL_IDS as string[]).includes("outlook"));
@@ -54,7 +56,7 @@ test("unknown panel ids and non-object layouts are stripped", () => {
     assert.equal(prefs.layout, null);
     assert.deepEqual(prefs.hidden, []);
     assert.deepEqual(defaultPrefs().version, LAYOUT_VERSION);
-    assert.equal(STORAGE_KEY.includes("v4"), true);
+    assert.equal(STORAGE_KEY.includes("v5"), true);
 });
 
 test("layoutPanels reports only known panels from a saved layout", () => {

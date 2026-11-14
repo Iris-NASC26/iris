@@ -55,6 +55,7 @@ test('completed Data Analysis binds evidence and fitted values across navigation
     await expect(page.locator('.viz-evidence')).toContainText('95% confidence interval: 0.5 to 3.5');
     await expect(page.locator('.viz-evidence')).toContainText('p = 0.0300');
     await expect(page.locator('.viz-evidence')).toContainText('Hamed–Rao Mann–Kendall');
+    await page.getByRole('tab', { name: 'Time series', exact: true }).click();
     await page.getByLabel('Signal', { exact: true }).selectOption('analysis');
     await expect(page.getByRole('img', { name: /Submitted analysis-adjusted observations/ })).toBeVisible();
     await page.getByRole('tab', { name: 'Trend intervals', exact: true }).click();

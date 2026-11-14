@@ -30,7 +30,7 @@ export interface Preset {
     root: Node;
 }
 export const PRESETS: Preset[] = [
-    { id: 'landscape', label: 'Landscape', hint: 'An immersive seasonal landscape with a linked timeline, heatmap and source-bound scientific evidence.', root: row(weighted(70, col(leaf(67, 'landscape'), leaf(33, 'timeseries'))), weighted(30, col(leaf(52, 'evidence'), leaf(48, 'heatmap')))) },
+    { id: 'landscape', label: 'Landscape', hint: 'An immersive seasonal landscape and time series in one top tab group, beside the linked heatmap and scientific evidence.', root: row(leaf(70, 'landscape', 'timeseries'), weighted(30, col(leaf(52, 'evidence'), leaf(48, 'heatmap')))) },
     { id: 'evidence', label: 'Evidence', hint: 'A clear timeline, seasonal heatmap, trend intervals and a source-bound scientific summary.', root: row(weighted(65, col(leaf(60, 'timeseries'), leaf(40, 'rates'))), weighted(35, col(leaf(50, 'heatmap'), leaf(50, 'evidence', 'source')))) },
     { id: 'explore', label: 'Explore', hint: 'Time series with a supporting seasonal heatmap and a compact source inspector.', root: row(leaf(68, 'timeseries'), col(leaf(58, 'seasonal'), leaf(42, 'source'))) },
     { id: 'seasonal', label: 'Seasonal', hint: 'Year-by-month heatmap with the seasonal profile and the full record alongside.', root: row(leaf(62, 'seasonal'), col(leaf(55, 'timeseries'), leaf(45, 'source'))) },
