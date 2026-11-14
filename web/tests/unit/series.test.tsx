@@ -110,6 +110,7 @@ describe('SeriesView', () => {
     let release: (value: Response) => void = () => undefined;
     const first = new Promise<Response>(resolve => { release = resolve; });
     const base = response();
+    if (!('location' in base)) throw new Error('fixture is not a point series');
     const second = { ...base, location: { ...base.location, cell_lat: -3 } } as SeriesResult;
     const request = vi.fn().mockReturnValueOnce(first).mockResolvedValueOnce(ok(second));
     vi.stubGlobal('fetch', request);

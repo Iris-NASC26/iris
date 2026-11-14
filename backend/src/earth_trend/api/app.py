@@ -10,6 +10,7 @@ from pydantic import BaseModel, ConfigDict
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 from starlette.responses import JSONResponse, Response
 
+from .geocode import router as geocode_router
 from .series import problem
 from .series import router as series_router
 
@@ -57,6 +58,7 @@ def create_app() -> FastAPI:
         )
 
     app.include_router(series_router)
+    app.include_router(geocode_router)
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=["127.0.0.1", "localhost"])
 
     @app.get("/api/v1/health", response_model=HealthResponse)

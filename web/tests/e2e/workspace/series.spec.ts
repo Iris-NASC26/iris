@@ -103,6 +103,38 @@ test.describe('Real NASA POWER series in Data preview', () => {
     expect(requested).toHaveLength(1);
   });
 
+  test('a mocked place search fills the coordinates and loads the point series', async ({ page }) => {
+    const geocodeBody = {
+      schema_version: '1.0', query: 'nairobi',
+      candidates: [
+        { name: 'Nairobi', country: 'Kenya', admin1: 'Nairobi Area', lat: -1.29, lon: 36.82 },
+        { name: 'Nairobi County', country: 'Kenya', admin1: null, lat: -1.29, lon: 36.81 },
+      ],
+      source: { provider: 'open-meteo-geocoding', retrieved_at: '2026-11-14T10:00:00Z', served_from_cache: true, stale_cache: false, artifact_sha256: { '/v1/search': 'a'.repeat(64) }, acknowledgement: 'Test acknowledgement', caveats: ['Confirm the intended place before loading data.'], scientifically_validated: false },
+    };
+    const seen: string[] = [];
+    await page.route('**/api/v1/geocode?**', route => { seen.push(new URL(route.request().url()).search); return route.fulfill({ json: geocodeBody }); });
+    const seriesCalls: string[] = [];
+    await page.route('**/api/v1/series/V01?**', route => { seriesCalls.push(new URL(route.request().url()).search); return route.fulfill({ status: 503, contentType: 'application/problem+json', json: { schema_version: '1.0', type: 'about:blank', title: 'down', status: 503, detail: 'backend down in test', code: 'PROVIDER_UNAVAILABLE', request_id: 't', retryable: true, retry_after_seconds: null, field_errors: [] } }); });
+    await new WorkspacePage(page).open('/workspace/data-preview?variable=V01');
+    await page.getByPlaceholder('e.g. Nairobi').fill('nairobi');
+    await page.getByRole('button', { name: 'Find' }).click();
+    await page.getByRole('button', { name: /Nairobi, Nairobi Area, Kenya/ }).click();
+    expect(seen).toEqual(['?name=nairobi']);
+    expect(seriesCalls[seriesCalls.length - 1]).toBe('?lat=-1.29&lon=36.82');
+    await expect(page.getByLabel('Latitude')).toHaveValue('-1.29');
+    await expect(page.getByLabel('Longitude')).toHaveValue('36.82');
+    await expect(page.locator('.series-status.error')).toContainText('backend down');
+  });
+
+  test('the geocode proxy rejects bad input without contacting the backend', async ({ request }) => {
+    for (const query of ['', 'name=', 'name=' + 'x'.repeat(101)]) {
+      const response = await request.get(`/api/v1/geocode?${query}`);
+      expect(response.status()).toBe(422);
+      expect((await response.json()).code).toBe('INVALID_PARAMETERS');
+    }
+  });
+
   test('an unconnected variable still says no observations are loaded', async ({ page }) => {
     await new WorkspacePage(page).open('/workspace/data-preview?variable=V05');
     await expect(page.getByRole('heading', { name: 'No observations loaded' })).toBeVisible();

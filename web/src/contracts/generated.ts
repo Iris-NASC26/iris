@@ -17,6 +17,23 @@ export interface paths {
         readonly patch?: never;
         readonly trace?: never;
     };
+    readonly "/api/v1/geocode": {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        /** Lookup */
+        readonly get: operations["lookup_api_v1_geocode_get"];
+        readonly put?: never;
+        readonly post?: never;
+        readonly delete?: never;
+        readonly options?: never;
+        readonly head?: never;
+        readonly patch?: never;
+        readonly trace?: never;
+    };
     readonly "/api/v1/health": {
         readonly parameters: {
             readonly query?: never;
@@ -1067,6 +1084,62 @@ export interface components {
              * @enum {string}
              */
             readonly variable_id: "V01" | "V02" | "V03" | "V04" | "V05" | "V06" | "V07" | "V08" | "V09" | "V10" | "V11" | "V12" | "V13";
+        };
+        /** GeocodeCandidate */
+        readonly GeocodeCandidate: {
+            /** Admin1 */
+            readonly admin1: string | null;
+            /** Country */
+            readonly country: string | null;
+            /** Lat */
+            readonly lat: number;
+            /** Lon */
+            readonly lon: number;
+            /** Name */
+            readonly name: string;
+        };
+        /** GeocodeResult */
+        readonly GeocodeResult: {
+            /** Candidates */
+            readonly candidates: readonly components["schemas"]["GeocodeCandidate"][];
+            /** Query */
+            readonly query: string;
+            /**
+             * Schema Version
+             * @constant
+             */
+            readonly schema_version: "1.0";
+            readonly source: components["schemas"]["GeocodeSource"];
+        };
+        /** GeocodeSource */
+        readonly GeocodeSource: {
+            /** Acknowledgement */
+            readonly acknowledgement: string;
+            /** Artifact Sha256 */
+            readonly artifact_sha256: {
+                readonly [key: string]: string;
+            };
+            /** Caveats */
+            readonly caveats: readonly string[];
+            /**
+             * Provider
+             * @constant
+             */
+            readonly provider: "open-meteo-geocoding";
+            /**
+             * Retrieved At
+             * Format: date-time
+             */
+            readonly retrieved_at: string;
+            /**
+             * Scientifically Validated
+             * @constant
+             */
+            readonly scientifically_validated: false;
+            /** Served From Cache */
+            readonly served_from_cache: boolean;
+            /** Stale Cache */
+            readonly stale_cache: boolean;
         };
         /** GlobalRegion */
         readonly GlobalRegion: {
@@ -2212,6 +2285,37 @@ export interface operations {
             };
         };
     };
+    readonly lookup_api_v1_geocode_get: {
+        readonly parameters: {
+            readonly query: {
+                readonly name: string;
+            };
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        readonly requestBody?: never;
+        readonly responses: {
+            /** @description Successful Response */
+            readonly 200: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["GeocodeResult"];
+                };
+            };
+            /** @description Validation Error */
+            readonly 422: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     readonly health_api_v1_health_get: {
         readonly parameters: {
             readonly query?: never;
@@ -2340,6 +2444,9 @@ export type FieldBox = components["schemas"]["FieldBox"];
 export type FieldError = components["schemas"]["FieldError"];
 export type FieldResult = components["schemas"]["FieldResult"];
 export type FieldSource = components["schemas"]["FieldSource"];
+export type GeocodeCandidate = components["schemas"]["GeocodeCandidate"];
+export type GeocodeResult = components["schemas"]["GeocodeResult"];
+export type GeocodeSource = components["schemas"]["GeocodeSource"];
 export type GlobalRegion = components["schemas"]["GlobalRegion"];
 export type Grade = components["schemas"]["Grade"];
 export type HTTPValidationError = components["schemas"]["HTTPValidationError"];

@@ -226,6 +226,7 @@ def test_export_is_deterministic_and_adds_only_the_retrieval_endpoints() -> None
         "/api/v1/series/{variable_id}",
         "/api/v1/field/{variable_id}",
         "/api/v1/regional-series/{variable_id}",
+        "/api/v1/geocode",
     }
     components = document["components"]
     assert isinstance(components, dict)

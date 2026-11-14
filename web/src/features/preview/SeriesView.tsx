@@ -3,6 +3,8 @@
 /** Real native-cell monthly series for connected sources. Display only: no statistics are computed. */
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
 import { fetchRegionalSeries, fetchSeries, type RegionBox, type SeriesResult } from '../../data/series';
+import { geocodePlace, GeocodeError } from '../../data/geocode';
+import type { GeocodeResult } from '../../contracts/generated';
 import { Icon } from '../../components/ui/Icon';
 import type { PlannedVariable } from '../catalog/plannedCatalog';
 import { extent } from './chartMath';
@@ -27,6 +29,8 @@ export function SeriesView({ variable }: { variable: PlannedVariable }) {
   const [lat, setLat] = useState(String(places[0].lat));
   const [lon, setLon] = useState(String(places[0].lon));
   const [boxText, setBoxText] = useState({ latMin: String(DEFAULT_BOX.latMin), latMax: String(DEFAULT_BOX.latMax), lonMin: String(DEFAULT_BOX.lonMin), lonMax: String(DEFAULT_BOX.lonMax) });
+  const [searchText, setSearchText] = useState('');
+  const [search, setSearch] = useState<'idle' | 'searching' | 'none' | GeocodeResult | { error: string }>('idle');
   const [state, setState] = useState<State>({ kind: 'loading' });
   const [formError, setFormError] = useState('');
   const controller = useRef<AbortController | null>(null);
@@ -73,6 +77,25 @@ export function SeriesView({ variable }: { variable: PlannedVariable }) {
     void load({ lat: places[index].lat, lon: places[index].lon });
   }
 
+  async function searchPlaces(event: FormEvent) {
+    event.preventDefault();
+    const name = searchText.trim();
+    if (!name || search === 'searching') return;
+    setSearch('searching');
+    try {
+      const result = await geocodePlace(name, new AbortController().signal);
+      setSearch(result.candidates.length ? result : 'none');
+    } catch (error) {
+      setSearch({ error: error instanceof GeocodeError ? error.message : 'The place lookup failed.' });
+    }
+  }
+
+  function chooseCandidate(candidate: GeocodeResult['candidates'][number]) {
+    setLat(String(candidate.lat)); setLon(String(candidate.lon)); setFormError('');
+    setSearch('idle'); setSearchText('');
+    void load({ lat: candidate.lat, lon: candidate.lon });
+  }
+
   const ready = state.kind === 'ready' ? state.result : null;
   const series = ready?.series;
   const range = series ? extent(series.value) : null;
@@ -85,6 +108,8 @@ export function SeriesView({ variable }: { variable: PlannedVariable }) {
       {mode === 'point' ? <>
         <label>Example place<select value={place} onChange={event => choose(Number(event.target.value))}>
           {places.map((item, index) => <option key={item.name} value={index}>{item.name}</option>)}</select></label>
+        <label>Search a place<input value={searchText} placeholder="e.g. Nairobi" onChange={event => setSearchText(event.target.value)} />
+          <button className="secondary-button" type="button" disabled={search === 'searching'} onClick={event => void searchPlaces(event)}>{search === 'searching' ? 'Searching…' : 'Find'}</button></label>
         <label>Latitude<input inputMode="decimal" value={lat} onChange={event => setLat(event.target.value)} aria-invalid={Boolean(formError)} /></label>
         <label>Longitude<input inputMode="decimal" value={lon} onChange={event => setLon(event.target.value)} aria-invalid={Boolean(formError)} /></label>
       </> : <>
@@ -95,6 +120,17 @@ export function SeriesView({ variable }: { variable: PlannedVariable }) {
       </>}
       <button className="primary-button" type="submit" disabled={state.kind === 'loading'}>Load series</button>
     </form>
+    {mode === 'point' && typeof search === 'object' && 'candidates' in search && (
+      <div className="geocode-results" role="group" aria-label="Place suggestions">
+        <p className="small-label">Suggestions from the Open-Meteo geocoder{search.source.served_from_cache ? ' (local cache)' : ''}. Pick the intended place:</p>
+        {search.candidates.map(candidate => (
+          <button className="secondary-button" type="button" key={`${candidate.name}-${candidate.lat}-${candidate.lon}`}
+            onClick={() => chooseCandidate(candidate)}>
+            {[candidate.name, candidate.admin1, candidate.country].filter(Boolean).join(', ')} · {candidate.lat.toFixed(2)}°, {candidate.lon.toFixed(2)}°
+          </button>))}
+      </div>)}
+    {search === 'none' && <p className="small-label" role="status">No places found for that name.</p>}
+    {typeof search === 'object' && 'error' in search && <p className="si-error" role="alert">{search.error}</p>}
     {formError && <p className="si-error" role="alert">{formError}</p>}
     {state.kind === 'loading' && <p className="series-status" aria-live="polite">Reading NASA POWER. The first request can take about 15 seconds…</p>}
     {state.kind === 'error' && <div className="series-status error" role="alert"><Icon name="alert" size={18} /><span>{state.message}</span>

@@ -88,6 +88,16 @@ fixed before merge. 192 backend tests, mocked+live browser journeys. Not done: t
 arithmetic aggregate — it is NOT the validated analysis pipeline's regional series (S-tasks may add masking, QA
 flags and uncertainty), and the human spot-check is still open.
 
+**Place geocoder port (REVIEW, not DONE).** The first clean port from `IRIS_PORTING.md` is
+implemented: `GET /api/v1/geocode?name=` queries the Open-Meteo geocoding API through the
+POWER-style fetch path — allowlisted HTTPS host (`geocoding-api.open-meteo.com`), no redirects,
+size cap, verified content-hash cache and a new `GeocodeResult` contract. Unlike Navida's
+`providers/geocoder.py`, it returns provider coordinates only and does NOT fabricate a bounding
+box (Navida invented ±1-2 degree boxes); the regional box form stays manual. Data preview point
+mode now has a place search whose candidates fill lat/lon. Live-verified (`colombo` returned real
+candidates); 206 backend tests, 47 Vitest, 24 browser journeys, contract drift clean. Caveat shown:
+suggestions come from a third-party geocoder — confirm the intended place before loading data.
+
 **U03 globe engine spike (REVIEW, not DONE).** `/workspace/globe` now runs globe.gl 2.46.2 /
 Three.js 0.186.1 with a bundled NASA GIBS `BlueMarble_ShadedRelief_Bathymetry` texture
 (WMS 1.3.0, EPSG:4326, latitude-first BBOX, 2048x1024, retrieved 14 November 2026; SHA-256

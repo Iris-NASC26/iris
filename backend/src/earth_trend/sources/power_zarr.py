@@ -146,16 +146,16 @@ class RegionalSeries:
     stale_cache: bool
 
 
-def cache_root() -> Path:
+def cache_root(kind: str = "power") -> Path:
     configured = os.environ.get("EARTH_TREND_DATA_DIR")
     base = Path(configured) if configured else Path(__file__).resolve().parents[4] / "artifacts"
-    return base / "runtime" / "power"
+    return base / "runtime" / kind
 
 
-def _check_url(url: str) -> None:
+def _check_url(url: str, host: str) -> None:
     parts = httpx.URL(url)
-    if parts.scheme != "https" or parts.host != HOST or parts.userinfo:
-        raise SourceFormatError("Source URL is outside the approved POWER store")
+    if parts.scheme != "https" or parts.host != host or parts.userinfo:
+        raise SourceFormatError("Source URL is outside an approved host")
 
 
 def _download(url: str, client: httpx.Client | None) -> bytes:
@@ -182,10 +182,17 @@ def _store_atomically(path: Path, data: bytes) -> None:
     os.replace(name, path)
 
 
-def fetch(url: str, *, root: Path | None = None, client: httpx.Client | None = None) -> Fetched:
+def fetch(
+    url: str,
+    *,
+    host: str = HOST,
+    cache: str = "power",
+    root: Path | None = None,
+    client: httpx.Client | None = None,
+) -> Fetched:
     """Fetch one bounded object, preferring a fresh cache and falling back to a stale one."""
-    _check_url(url)
-    folder = root or cache_root()
+    _check_url(url, host)
+    folder = root or cache_root(cache)
     key = hashlib.sha256(url.encode()).hexdigest()
     path, meta = folder / key, folder / (key + ".json")
     cached: bytes | None = None

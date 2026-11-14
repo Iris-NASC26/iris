@@ -3216,6 +3216,154 @@
         "title": "FieldSource",
         "type": "object"
       },
+      "GeocodeCandidate": {
+        "additionalProperties": false,
+        "properties": {
+          "admin1": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Admin1"
+          },
+          "country": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Country"
+          },
+          "lat": {
+            "title": "Lat",
+            "type": "number"
+          },
+          "lon": {
+            "title": "Lon",
+            "type": "number"
+          },
+          "name": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "country",
+          "admin1",
+          "lat",
+          "lon"
+        ],
+        "title": "GeocodeCandidate",
+        "type": "object"
+      },
+      "GeocodeResult": {
+        "additionalProperties": false,
+        "properties": {
+          "candidates": {
+            "items": {
+              "$ref": "#/components/schemas/GeocodeCandidate"
+            },
+            "title": "Candidates",
+            "type": "array"
+          },
+          "query": {
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Query",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "1.0",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "source": {
+            "$ref": "#/components/schemas/GeocodeSource"
+          }
+        },
+        "required": [
+          "schema_version",
+          "query",
+          "candidates",
+          "source"
+        ],
+        "title": "GeocodeResult",
+        "type": "object"
+      },
+      "GeocodeSource": {
+        "additionalProperties": false,
+        "properties": {
+          "acknowledgement": {
+            "maxLength": 500,
+            "title": "Acknowledgement",
+            "type": "string"
+          },
+          "artifact_sha256": {
+            "additionalProperties": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            "title": "Artifact Sha256",
+            "type": "object"
+          },
+          "caveats": {
+            "items": {
+              "maxLength": 300,
+              "minLength": 1,
+              "type": "string"
+            },
+            "title": "Caveats",
+            "type": "array"
+          },
+          "provider": {
+            "const": "open-meteo-geocoding",
+            "title": "Provider",
+            "type": "string"
+          },
+          "retrieved_at": {
+            "format": "date-time",
+            "title": "Retrieved At",
+            "type": "string"
+          },
+          "scientifically_validated": {
+            "const": false,
+            "title": "Scientifically Validated",
+            "type": "boolean"
+          },
+          "served_from_cache": {
+            "title": "Served From Cache",
+            "type": "boolean"
+          },
+          "stale_cache": {
+            "title": "Stale Cache",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "provider",
+          "retrieved_at",
+          "served_from_cache",
+          "stale_cache",
+          "artifact_sha256",
+          "acknowledgement",
+          "caveats",
+          "scientifically_validated"
+        ],
+        "title": "GeocodeSource",
+        "type": "object"
+      },
       "GlobalRegion": {
         "additionalProperties": false,
         "properties": {
@@ -6909,6 +7057,47 @@
         "summary": "Monthly Field"
       }
     },
+    "/api/v1/geocode": {
+      "get": {
+        "operationId": "lookup_api_v1_geocode_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "maxLength": 100,
+              "minLength": 1,
+              "title": "Name",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeocodeResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Lookup"
+      }
+    },
     "/api/v1/health": {
       "get": {
         "operationId": "health_api_v1_health_get",
@@ -7083,6 +7272,7 @@
     "Estimate",
     "FdrResult",
     "FieldResult",
+    "GeocodeResult",
     "Job",
     "JobAccepted",
     "LayerManifest",

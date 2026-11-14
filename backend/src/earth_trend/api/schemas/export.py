@@ -31,6 +31,7 @@ from . import (
     TestResult,
     Transform,
 )
+from .geocoding import GeocodeResult
 from .source_series import FieldResult, PointSeriesResult, RegionalSeriesResult
 
 PUBLIC_MODELS: tuple[type[BaseModel], ...] = (
@@ -44,6 +45,7 @@ PUBLIC_MODELS: tuple[type[BaseModel], ...] = (
     Estimate,
     FdrResult,
     FieldResult,
+    GeocodeResult,
     Job,
     JobAccepted,
     LayerManifest,
