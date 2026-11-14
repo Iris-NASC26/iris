@@ -88,7 +88,7 @@ export function GlobePage() {
         <button className="primary-button" type="button" disabled={status !== 'ready' || benchmark === 'running'} onClick={() => void runBenchmark()}>
           {benchmark === 'running' ? `Spinning for ${BENCHMARK_SECONDS} s…` : `Run ${BENCHMARK_SECONDS}-second spin benchmark`}</button>
         <div className="globe-readout" aria-live="polite" aria-label="Benchmark result">
-          {benchmark && benchmark !== 'running' ? <p><strong>Median {benchmark.medianFps.toFixed(1)} fps</strong> (slowest {benchmark.minFps.toFixed(1)}) over {benchmark.frames} frames · {benchmark.canvas} @ {benchmark.pixelRatio}× · {benchmark.renderer}. Target ≥ 30 fps on the reference laptop; this reading applies only to this device.</p>
+          {benchmark && benchmark !== 'running' ? <p><strong>Median {benchmark.medianFps.toFixed(1)} fps</strong> (slowest {benchmark.minFps.toFixed(1)}) over {benchmark.frames} frames · {benchmark.canvas} @ {benchmark.pixelRatio}× · {benchmark.renderer}.{benchmark.gpu ? ` Last frame: ${benchmark.gpu.drawCalls} draw calls, ${benchmark.gpu.triangles.toLocaleString('en-US')} triangles, ${benchmark.gpu.textures} textures.` : ''} Target ≥ 30 fps on the reference laptop; this reading applies only to this device.</p>
             : <p>No benchmark run yet.</p>}
         </div>
         <p className="small-label" aria-label="GPU objects">{stats ? `GPU objects: ${stats.geometries} geometries, ${stats.textures} textures · ${stats.drawCalls} draw calls · ${stats.triangles.toLocaleString('en-US')} triangles` : 'GPU objects: starting'}</p>

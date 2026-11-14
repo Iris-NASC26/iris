@@ -11,7 +11,7 @@ const DEFAULT_VIEW = { lat: 15, lng: 10, altitude: 2.0 } as const;
 const NUDGE = { lat: 15, lng: 20, altitude: 0.35 } as const;
 
 export interface RenderStats { geometries: number; textures: number; drawCalls: number; triangles: number }
-export interface SpinResult { medianFps: number; minFps: number; frames: number; seconds: number; renderer: string; canvas: string; pixelRatio: number }
+export interface SpinResult { medianFps: number; minFps: number; frames: number; seconds: number; renderer: string; canvas: string; pixelRatio: number; gpu: RenderStats | null }
 export interface PickedCell { lat: number; lon: number; index: number | null }
 export type Nudge = 'left' | 'right' | 'up' | 'down' | 'in' | 'out';
 
@@ -81,7 +81,7 @@ export function createGlobeScene(container: HTMLElement, onPick: (cell: PickedCe
         const start = performance.now();
         let last = start;
         const tick = (now: number) => {
-          if (disposed) return resolve({ medianFps: 0, minFps: 0, frames: deltas.length, seconds: 0, renderer: 'disposed', canvas: '', pixelRatio: 0 });
+          if (disposed) return resolve({ medianFps: 0, minFps: 0, frames: deltas.length, seconds: 0, renderer: 'disposed', canvas: '', pixelRatio: 0, gpu: null });
           deltas.push(now - last); last = now;
           if (now - start < seconds * 1000) return void requestAnimationFrame(tick);
           controls.autoRotate = wasRotating; controls.autoRotateSpeed = previousSpeed;
@@ -92,7 +92,7 @@ export function createGlobeScene(container: HTMLElement, onPick: (cell: PickedCe
           resolve({
             medianFps: 1000 / median, minFps: 1000 / (sorted[sorted.length - 1] ?? Infinity), frames: sorted.length,
             seconds: (now - start) / 1000, renderer: info ? String(gl.getParameter(info.UNMASKED_RENDERER_WEBGL)) : 'unavailable',
-            canvas: `${renderer.domElement.width}×${renderer.domElement.height}`, pixelRatio: renderer.getPixelRatio(),
+            canvas: `${renderer.domElement.width}×${renderer.domElement.height}`, pixelRatio: renderer.getPixelRatio(), gpu: this.stats(),
           });
         };
         requestAnimationFrame(tick);

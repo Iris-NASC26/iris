@@ -67,6 +67,7 @@ test.describe('Living Globe renderer (U03)', () => {
     const result = page.getByLabel('Benchmark result');
     await expect(result).toContainText(/Median [\d.]+ fps/, { timeout: 30000 });
     await expect(result).toContainText('applies only to this device');
+    await expect(result).toContainText('Last frame: 3 draw calls, 145,440 triangles, 1 textures');
     await expect(page.getByRole('note')).toBeVisible();
     console.log(`BENCHMARK: ${await result.textContent()}`);
   });

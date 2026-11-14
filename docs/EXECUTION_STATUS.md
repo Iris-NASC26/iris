@@ -59,11 +59,7 @@ default, labelled on screen and never a variable. No scientific layer, trend, si
 or relief is shown (U08). Unit tests cover grid indexing/wrapping/round trips and axis
 convention; Chromium journeys cover local-only requests, picking near the camera centre,
 GPU-object counts stable across cell toggles and three page revisits, reduced motion and
-the WebGL fallback. **Open for U03 acceptance:** the >=30 fps ten-second benchmark on the
-reference laptop (AS-05, integrated GPU, Chrome). Headless Chromium on SwiftShader (software
-GL) measured a median of about 15 fps at 616x490; that is not a hardware reading and does
-not pass or fail the requirement. Run the in-page benchmark button on the reference device
-and record the result. Idle render-on-demand, the approved diverging scale, q channel,
+the WebGL fallback. **Measured:** on the user's Intel Iris Xe laptop (Chrome/ANGLE D3D11, 1071x660 at 1.25x, development server) the in-page ten-second benchmark gave a median of 59.9 fps (slowest 56.5) over 600 frames, above the 30 fps target. The accompanying readout showed 1 geometry, 0 textures and 129,600 triangles, which would mean the basemap sphere was not drawn; this could not be reproduced here (3 draw calls, 145,440 triangles, 1 texture) so it is unexplained. The benchmark result now records last-frame draw calls/triangles/textures. U03 acceptance still needs one confirmed run with the basemap visibly rendered, the reference laptop being formally designated (AS-05), and human sign-off. Headless SwiftShader measured about 15 fps and is not a hardware reading. Idle render-on-demand, the approved diverging scale, q channel,
 relief, no-data hatching and the offline fallback texture variant remain later work.
 
 **Ask the Detective (SI chat) added.** The chat missing from the integration is now a
