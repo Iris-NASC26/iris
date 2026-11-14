@@ -16,6 +16,7 @@ import type { SpatialField } from "../model";
 import type { MapPoint } from "../Globe";
 import { fieldRectangle, fieldToRgba, type RasterRect } from "../fieldRaster";
 import type { ExtentBox } from "../extents";
+import type { FieldStyle } from "../styles";
 
 export const GIBS_TILE_URL =
     "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/{TileMatrixSet}/{TileMatrix}/{TileRow}/{TileCol}.jpeg";
@@ -189,6 +190,11 @@ export class GlobeEngine {
         this.render();
     }
 
+    setBasemapVisible(visible: boolean) {
+        if (this.basemapLayer) this.basemapLayer.show = visible;
+        this.render();
+    }
+
     setFieldAlpha(alpha: number) {
         this.fieldAlpha = alpha;
         if (this.fieldLayer) this.fieldLayer.alpha = alpha;
@@ -200,15 +206,36 @@ export class GlobeEngine {
         this.render();
     }
 
+    /** Whether the basemap imagery draws above the field imagery. */
+    setFieldUnderBasemap(under: boolean) {
+        if (!this.fieldLayer || !this.basemapLayer) return;
+        if (under) this.viewer.imageryLayers.lowerToBottom(this.fieldLayer);
+        else this.viewer.imageryLayers.raiseToTop(this.fieldLayer);
+        this.render();
+    }
+
+    setPointsVisible(visible: boolean) {
+        this.points.show = visible;
+        this.render();
+    }
+
+    setExtentVisible(visible: boolean) {
+        if (this.extentEntity) this.extentEntity.show = visible;
+        this.render();
+    }
+
+    private fieldStyle: FieldStyle | undefined;
+
     /** Replace the numeric field layer. One image pixel per output cell; NEAREST keeps true cell structure. */
-    setField(field: SpatialField | null, alpha: number, visible: boolean) {
-        this.fieldAlpha = alpha;
+    setField(field: SpatialField | null, opts: { alpha: number; visible: boolean; style?: FieldStyle }) {
+        this.fieldAlpha = opts.alpha;
+        this.fieldStyle = opts.style;
         if (this.fieldLayer) {
             this.viewer.imageryLayers.remove(this.fieldLayer, true);
             this.fieldLayer = null;
         }
         if (field) {
-            const { width, height, data } = fieldToRgba(field, 1);
+            const { width, height, data } = fieldToRgba(field, 1, this.fieldStyle);
             const canvas = document.createElement("canvas");
             canvas.width = width;
             canvas.height = height;
@@ -222,8 +249,8 @@ export class GlobeEngine {
                 credit: `${field.field} ${field.month} — numeric source raster, not basemap imagery`,
             });
             this.fieldLayer = this.viewer.imageryLayers.addImageryProvider(provider, 1);
-            this.fieldLayer.alpha = alpha;
-            this.fieldLayer.show = visible;
+            this.fieldLayer.alpha = opts.alpha;
+            this.fieldLayer.show = opts.visible;
             this.fieldLayer.magnificationFilter = Cesium.TextureMagnificationFilter.NEAREST;
             this.fieldLayer.minificationFilter = Cesium.TextureMinificationFilter.LINEAR;
         }

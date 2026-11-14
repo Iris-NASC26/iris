@@ -20,6 +20,9 @@ importers:
       cesium:
         specifier: 1.147.0
         version: 1.147.0
+      cobe:
+        specifier: 2.0.1
+        version: 2.0.1
       echarts:
         specifier: 6.0.0
         version: 6.0.0
@@ -925,6 +928,9 @@ packages:
 
   client-only@0.0.1:
     resolution: {integrity: sha512-IV3Ou0jSMzZrd3pZ48nLkT9DA7Ag1pnPzaiQhpW7c3RbcqqzvzzVu+L8gfqMp/8IM2MQtSiqaCxrrcfu8I8rMA==}
+
+  cobe@2.0.1:
+    resolution: {integrity: sha512-aaa6vcIlaC8C1SF50LDH0Anybo/EAXnrxqe+bwvr4+YUtZydqjeBjTTD7ziCCkbRrRGSns3I3F6cZsf3W+L+ag==}
 
   commander@2.20.3:
     resolution: {integrity: sha512-GpVkmM8vF2vQUkj2LvZmD35JxeJOLCwJ9cUkugyk2nuhbv3+mJvpLYYt+0+USMxE+oj+ey/lJEnhZw75x/OMcQ==}
@@ -2903,6 +2909,8 @@ snapshots:
       protobufjs: 8.8.1
 
   client-only@0.0.1: {}
+
+  cobe@2.0.1: {}
 
   commander@2.20.3: {}
 
