@@ -40,6 +40,6 @@ uvicorn main:app --reload --port 8000
 
 ## Visualization contribution
 
-The visualization workspace now supports selected SI datasets and locations, multiple chart types, a real Three.js globe, bounded native NASA POWER spatial fields, QA-aware tables and provenance exports. The existing public design and scientific-analysis screen are retained. See [visualization setup, source limits and verification](docs/VISUALIZATION.md).
+The visualization workspace now supports selected SI datasets and locations, multiple chart types, a CesiumJS globe with progressively tiled NASA GIBS imagery (token-free; local NASA image fallback), bounded native NASA POWER spatial fields and a documented global/Europe overview path with cosine-latitude-weighted aggregation, QA-aware tables and provenance exports. The existing public design and scientific-analysis screen are retained. See [visualization setup, source limits and verification](docs/VISUALIZATION.md).
 
 Use the additive `visualization_app:app` backend entry for spatial fields; it registers the new routes on the existing app without editing its source. The optional pinned setup also supplies the baseline's missing EODAG import dependency. This is raw-data visualization, not a declaration that the global trend cube or statistical release gates are complete.

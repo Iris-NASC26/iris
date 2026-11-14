@@ -107,3 +107,7 @@
 @media(prefers-reduced-motion:reduce){.viz-workbench *{animation:none!important;transition:none!important;}}
 
 .viz-field-presets {display:flex;gap:12px;align-items:end;flex-wrap:wrap;} .viz-field-presets label{flex:1;min-width:170px;}
+.viz-month-row {display:flex;gap:8px;align-items:end;} .viz-month-row label{flex:1;} .viz-month-steps{display:flex;gap:4px;} .viz-month-steps button{padding:9px 10px;font-size:10px;}
+.viz-layer-controls {display:flex;gap:14px;align-items:center;flex-wrap:wrap;padding:14px;border:1px solid var(--border);border-radius:9px;background:var(--panel);} .viz-layer-controls .viz-step{margin:0;width:100%;} .viz-layer-controls label:not(.viz-check){display:grid;gap:5px;font-size:10px;color:var(--muted);} .viz-layer-controls input[type=range]{width:130px;}
+.viz-basemap-toggle {border:1px solid var(--border);border-radius:5px;background:transparent;color:var(--muted);font-size:9px;padding:7px 9px;flex-shrink:0;} .viz-basemap-toggle:hover{color:var(--green);border-color:var(--green);}
+.viz-three-mount .cesium-viewer-bottom {right:80px;}
