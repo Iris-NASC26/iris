@@ -27,19 +27,6 @@ export type CaseStudy = {
   source: string;
 };
 
-export type ResearchPaper = {
-  id: string;
-  title: string;
-  authors: string;
-  publication: string;
-  year: number;
-  topic: string;
-  datasetIds: string[];
-  summary: string;
-  doi: string;
-  verified: boolean;
-};
-
 export const datasets: Dataset[] = [
   {
     id: "temperature",
@@ -159,61 +146,6 @@ export const caseStudies: CaseStudy[] = [
     finding: "−3.8% cover / decade",
     confidence: "97.7%",
     source: "MODIS MOD10C1",
-  },
-];
-
-export const researchPapers: ResearchPaper[] = [
-  {
-    id: "paper-1",
-    title: "The Modern-Era Retrospective Analysis for Research and Applications, Version 2",
-    authors: "Gelaro, R. et al.",
-    publication: "Journal of Climate",
-    year: 2017,
-    topic: "Atmosphere",
-    datasetIds: ["temperature", "soil-moisture"],
-    summary:
-      "Foundational description and evaluation of the MERRA-2 reanalysis used by several Iris variables.",
-    doi: "https://doi.org/10.1175/JCLI-D-16-0758.1",
-    verified: true,
-  },
-  {
-    id: "paper-2",
-    title: "The Global Precipitation Measurement mission",
-    authors: "Hou, A. Y. et al.",
-    publication: "Bulletin of the American Meteorological Society",
-    year: 2014,
-    topic: "Water",
-    datasetIds: ["precipitation"],
-    summary:
-      "Mission overview for the satellite precipitation observations used to characterize rainfall extremes.",
-    doi: "https://doi.org/10.1175/BAMS-D-13-00164.1",
-    verified: true,
-  },
-  {
-    id: "paper-3",
-    title: "Monitoring vegetation systems in the Great Plains with ERTS",
-    authors: "Rouse, J. W. et al.",
-    publication: "NASA SP-351",
-    year: 1974,
-    topic: "Biosphere",
-    datasetIds: ["vegetation"],
-    summary:
-      "Early technical foundation for normalized vegetation-index analysis and interpretation.",
-    doi: "https://ntrs.nasa.gov/citations/19740022614",
-    verified: true,
-  },
-  {
-    id: "paper-4",
-    title: "Accuracy assessment of the MODIS snow products",
-    authors: "Hall, D. K. & Riggs, G. A.",
-    publication: "Hydrological Processes",
-    year: 2007,
-    topic: "Cryosphere",
-    datasetIds: ["snow"],
-    summary:
-      "Peer-reviewed validation of MODIS NDSI snow cover mapping across alpine and seasonal snow regimes.",
-    doi: "https://doi.org/10.1002/hyp.6715",
-    verified: true,
   },
 ];
 

@@ -76529,6 +76529,2563 @@
         "api_endpoint_called": "https://archive-api.open-meteo.com/v1/era5?latitude=28.0&longitude=84.0&start_date=2007-05-31&end_date=2025-12-31&daily=temperature_2m_mean&timezone=UTC",
         "retrieved_at": "2026-11-14T07:17:56Z"
       }
+    },
+    "job-b7ea3e03e8": {
+      "created_at": 1794676235.2519681,
+      "result_id": "res-66a8d856e184f449",
+      "req": {
+        "product_id": "NASA_POWER_T2M",
+        "variable_id": "T2M",
+        "variable_name": "Temperature at 2 Meters",
+        "source_api": "NASA POWER",
+        "unit": "C",
+        "start_date": "2015-01-01",
+        "end_date": "2024-12-31",
+        "target_frequency": "Monthly",
+        "temporal_aggregation": "mean",
+        "spatial_level": "regional",
+        "spatial_Submode": "bbox",
+        "region_name": "Sri Lanka",
+        "bbox": [
+          79.5,
+          5.9,
+          81.9,
+          9.9
+        ],
+        "point_lat": 7.9,
+        "point_lon": 80.7,
+        "spatial_reduction": "mean",
+        "additional_products": []
+      },
+      "preview": {
+        "job_id": "job-b7ea3e03e8",
+        "result_id": "res-66a8d856e184f449",
+        "status": "completed",
+        "product": {
+          "product_id": "NASA_POWER_T2M",
+          "variable_id": "T2M",
+          "variable_name": "Temperature at 2 Meters",
+          "title": "NASA POWER \u2014 Temperature at 2 Meters (T2M)",
+          "category": "Meteorology",
+          "source_api": "NASA POWER",
+          "provider_agency": "NASA Langley Research Center (LaRC) POWER Project (SOURCE)",
+          "mission_or_instrument": "NASA POWER / SOURCE Assimilation",
+          "source_url": "https://power.larc.nasa.gov/docs/services/api/",
+          "citation_doi": "https://power.larc.nasa.gov/",
+          "description": "The average air (dry bulb) temperature at 2 meters above the surface of the earth.",
+          "what_it_measures": "Temperature at 2 Meters (C) derived from SOURCE for community AG.",
+          "unit": "C",
+          "native_frequency": "Daily",
+          "supported_frequencies": [
+            "Daily",
+            "Monthly",
+            "Seasonal",
+            "Yearly"
+          ],
+          "temporal_start": "1981-01-01",
+          "temporal_end": "2025-12-31",
+          "spatial_resolution": "0.5\u00b0 \u00d7 0.625\u00b0 (MERRA-2) / 1.0\u00b0 (CERES)",
+          "spatial_resolution_km": 50.0,
+          "spatial_coverage": "Global",
+          "spatial_bbox": [
+            -180.0,
+            -90.0,
+            180.0,
+            90.0
+          ],
+          "gcmd_keywords": [
+            "temperature at 2 meters",
+            "t2m",
+            "meteorology",
+            "source"
+          ],
+          "ai_match_reason": "Live NASA POWER parameter 'T2M' (Temperature at 2 Meters) matched via /api/system/manager/parameters.",
+          "relevance_score": 99.0,
+          "is_async": false,
+          "available_layers": [
+            {
+              "variable_id": "T2M",
+              "variable_name": "Temperature at 2 Meters",
+              "unit": "C",
+              "description": "The average air (dry bulb) temperature at 2 meters above the surface of the earth.",
+              "native_frequency": "Daily",
+              "supported_frequencies": [
+                "Daily",
+                "Monthly",
+                "Seasonal",
+                "Yearly"
+              ],
+              "recommended_aggregation": "mean",
+              "min_valid": null,
+              "max_valid": null
+            }
+          ],
+          "capability_state": "extract_verified",
+          "supported_spatial_modes": [
+            "point",
+            "bbox"
+          ],
+          "requires_credentials": false,
+          "catalog_freshness_utc": "2026-11-14T17:09:59Z"
+        },
+        "extraction_config": {
+          "product_id": "NASA_POWER_T2M",
+          "variable_id": "T2M",
+          "variable_name": "Temperature at 2 Meters",
+          "source_api": "NASA POWER",
+          "unit": "C",
+          "start_date": "2015-01-01",
+          "end_date": "2024-12-31",
+          "target_frequency": "Monthly",
+          "temporal_aggregation": "mean",
+          "spatial_level": "regional",
+          "spatial_Submode": "bbox",
+          "region_name": "Sri Lanka",
+          "bbox": [
+            79.5,
+            5.9,
+            81.9,
+            9.9
+          ],
+          "point_lat": 7.9,
+          "point_lon": 80.7,
+          "spatial_reduction": "mean",
+          "additional_products": []
+        },
+        "summary_stats": {
+          "count": 120,
+          "valid_count": 116,
+          "flagged_count": 4,
+          "missing_count": 0,
+          "completeness_pct": 100.0,
+          "missing_pct": 0.0,
+          "missing_warning": false,
+          "mean": 26.495,
+          "median": 26.62,
+          "std_dev": 1.479,
+          "min_val": 23.25,
+          "min_date": "2023-01-01",
+          "max_val": 30.29,
+          "max_date": "2019-04-01",
+          "decadal_slope": 0.0737,
+          "unit": "C"
+        },
+        "chart_series": [
+          {
+            "timestamp": "2015-01",
+            "value": 23.72,
+            "secondary_value": null,
+            "rolling_avg": 23.72,
+            "anomaly_z": -1.88,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2015-02",
+            "value": 24.32,
+            "secondary_value": null,
+            "rolling_avg": 24.02,
+            "anomaly_z": -1.47,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2015-03",
+            "value": 25.68,
+            "secondary_value": null,
+            "rolling_avg": 24.5733,
+            "anomaly_z": -0.55,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2015-04",
+            "value": 26.83,
+            "secondary_value": null,
+            "rolling_avg": 25.1375,
+            "anomaly_z": 0.23,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2015-05",
+            "value": 26.77,
+            "secondary_value": null,
+            "rolling_avg": 25.464,
+            "anomaly_z": 0.19,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2015-06",
+            "value": 26.67,
+            "secondary_value": null,
+            "rolling_avg": 25.665,
+            "anomaly_z": 0.12,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2015-07",
+            "value": 27.23,
+            "secondary_value": null,
+            "rolling_avg": 26.25,
+            "anomaly_z": 0.5,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2015-08",
+            "value": 27.6,
+            "secondary_value": null,
+            "rolling_avg": 26.7967,
+            "anomaly_z": 0.75,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2015-09",
+            "value": 26.68,
+            "secondary_value": null,
+            "rolling_avg": 26.9633,
+            "anomaly_z": 0.12,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2015-10",
+            "value": 26.05,
+            "secondary_value": null,
+            "rolling_avg": 26.8333,
+            "anomaly_z": -0.3,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2015-11",
+            "value": 25.24,
+            "secondary_value": null,
+            "rolling_avg": 26.5783,
+            "anomaly_z": -0.85,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2015-12",
+            "value": 25.08,
+            "secondary_value": null,
+            "rolling_avg": 26.3133,
+            "anomaly_z": -0.96,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2016-01",
+            "value": 24.18,
+            "secondary_value": null,
+            "rolling_avg": 25.805,
+            "anomaly_z": -1.57,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2016-02",
+            "value": 25.02,
+            "secondary_value": null,
+            "rolling_avg": 25.375,
+            "anomaly_z": -1.0,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2016-03",
+            "value": 27.57,
+            "secondary_value": null,
+            "rolling_avg": 25.5233,
+            "anomaly_z": 0.73,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2016-04",
+            "value": 29.54,
+            "secondary_value": null,
+            "rolling_avg": 26.105,
+            "anomaly_z": 2.06,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2016-05",
+            "value": 27.9,
+            "secondary_value": null,
+            "rolling_avg": 26.5483,
+            "anomaly_z": 0.95,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2016-06",
+            "value": 26.55,
+            "secondary_value": null,
+            "rolling_avg": 26.7933,
+            "anomaly_z": 0.04,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2016-07",
+            "value": 26.76,
+            "secondary_value": null,
+            "rolling_avg": 27.2233,
+            "anomaly_z": 0.18,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2016-08",
+            "value": 27.71,
+            "secondary_value": null,
+            "rolling_avg": 27.6717,
+            "anomaly_z": 0.82,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2016-09",
+            "value": 28.17,
+            "secondary_value": null,
+            "rolling_avg": 27.7717,
+            "anomaly_z": 1.13,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2016-10",
+            "value": 27.99,
+            "secondary_value": null,
+            "rolling_avg": 27.5133,
+            "anomaly_z": 1.01,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2016-11",
+            "value": 25.25,
+            "secondary_value": null,
+            "rolling_avg": 27.0717,
+            "anomaly_z": -0.84,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2016-12",
+            "value": 24.7,
+            "secondary_value": null,
+            "rolling_avg": 26.7633,
+            "anomaly_z": -1.21,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2017-01",
+            "value": 24.66,
+            "secondary_value": null,
+            "rolling_avg": 26.4133,
+            "anomaly_z": -1.24,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2017-02",
+            "value": 25.53,
+            "secondary_value": null,
+            "rolling_avg": 26.05,
+            "anomaly_z": -0.65,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2017-03",
+            "value": 26.32,
+            "secondary_value": null,
+            "rolling_avg": 25.7417,
+            "anomaly_z": -0.12,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2017-04",
+            "value": 28.5,
+            "secondary_value": null,
+            "rolling_avg": 25.8267,
+            "anomaly_z": 1.36,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2017-05",
+            "value": 28.21,
+            "secondary_value": null,
+            "rolling_avg": 26.32,
+            "anomaly_z": 1.16,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2017-06",
+            "value": 27.64,
+            "secondary_value": null,
+            "rolling_avg": 26.81,
+            "anomaly_z": 0.77,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2017-07",
+            "value": 28.05,
+            "secondary_value": null,
+            "rolling_avg": 27.375,
+            "anomaly_z": 1.05,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2017-08",
+            "value": 27.75,
+            "secondary_value": null,
+            "rolling_avg": 27.745,
+            "anomaly_z": 0.85,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2017-09",
+            "value": 27.22,
+            "secondary_value": null,
+            "rolling_avg": 27.895,
+            "anomaly_z": 0.49,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2017-10",
+            "value": 27.08,
+            "secondary_value": null,
+            "rolling_avg": 27.6583,
+            "anomaly_z": 0.4,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2017-11",
+            "value": 25.34,
+            "secondary_value": null,
+            "rolling_avg": 27.18,
+            "anomaly_z": -0.78,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2017-12",
+            "value": 24.61,
+            "secondary_value": null,
+            "rolling_avg": 26.675,
+            "anomaly_z": -1.27,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2018-01",
+            "value": 24.08,
+            "secondary_value": null,
+            "rolling_avg": 26.0133,
+            "anomaly_z": -1.63,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2018-02",
+            "value": 25.91,
+            "secondary_value": null,
+            "rolling_avg": 25.7067,
+            "anomaly_z": -0.4,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2018-03",
+            "value": 27.19,
+            "secondary_value": null,
+            "rolling_avg": 25.7017,
+            "anomaly_z": 0.47,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2018-04",
+            "value": 28.24,
+            "secondary_value": null,
+            "rolling_avg": 25.895,
+            "anomaly_z": 1.18,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2018-05",
+            "value": 26.84,
+            "secondary_value": null,
+            "rolling_avg": 26.145,
+            "anomaly_z": 0.23,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2018-06",
+            "value": 26.37,
+            "secondary_value": null,
+            "rolling_avg": 26.4383,
+            "anomaly_z": -0.08,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2018-07",
+            "value": 26.55,
+            "secondary_value": null,
+            "rolling_avg": 26.85,
+            "anomaly_z": 0.04,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2018-08",
+            "value": 26.94,
+            "secondary_value": null,
+            "rolling_avg": 27.0217,
+            "anomaly_z": 0.3,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2018-09",
+            "value": 27.81,
+            "secondary_value": null,
+            "rolling_avg": 27.125,
+            "anomaly_z": 0.89,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2018-10",
+            "value": 25.92,
+            "secondary_value": null,
+            "rolling_avg": 26.7383,
+            "anomaly_z": -0.39,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2018-11",
+            "value": 25.18,
+            "secondary_value": null,
+            "rolling_avg": 26.4617,
+            "anomaly_z": -0.89,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2018-12",
+            "value": 24.38,
+            "secondary_value": null,
+            "rolling_avg": 26.13,
+            "anomaly_z": -1.43,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2019-01",
+            "value": 23.91,
+            "secondary_value": null,
+            "rolling_avg": 25.69,
+            "anomaly_z": -1.75,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2019-02",
+            "value": 26.08,
+            "secondary_value": null,
+            "rolling_avg": 25.5467,
+            "anomaly_z": -0.28,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2019-03",
+            "value": 28.38,
+            "secondary_value": null,
+            "rolling_avg": 25.6417,
+            "anomaly_z": 1.27,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2019-04",
+            "value": 30.29,
+            "secondary_value": null,
+            "rolling_avg": 26.37,
+            "anomaly_z": 2.57,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Flagged"
+          },
+          {
+            "timestamp": "2019-05",
+            "value": 29.68,
+            "secondary_value": null,
+            "rolling_avg": 27.12,
+            "anomaly_z": 2.15,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Flagged"
+          },
+          {
+            "timestamp": "2019-06",
+            "value": 29.06,
+            "secondary_value": null,
+            "rolling_avg": 27.9,
+            "anomaly_z": 1.73,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2019-07",
+            "value": 28.71,
+            "secondary_value": null,
+            "rolling_avg": 28.7,
+            "anomaly_z": 1.5,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2019-08",
+            "value": 27.4,
+            "secondary_value": null,
+            "rolling_avg": 28.92,
+            "anomaly_z": 0.61,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2019-09",
+            "value": 26.96,
+            "secondary_value": null,
+            "rolling_avg": 28.6833,
+            "anomaly_z": 0.31,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2019-10",
+            "value": 25.73,
+            "secondary_value": null,
+            "rolling_avg": 27.9233,
+            "anomaly_z": -0.52,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2019-11",
+            "value": 25.74,
+            "secondary_value": null,
+            "rolling_avg": 27.2667,
+            "anomaly_z": -0.51,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2019-12",
+            "value": 24.94,
+            "secondary_value": null,
+            "rolling_avg": 26.58,
+            "anomaly_z": -1.05,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2020-01",
+            "value": 24.36,
+            "secondary_value": null,
+            "rolling_avg": 25.855,
+            "anomaly_z": -1.44,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2020-02",
+            "value": 24.96,
+            "secondary_value": null,
+            "rolling_avg": 25.4483,
+            "anomaly_z": -1.04,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2020-03",
+            "value": 27.72,
+            "secondary_value": null,
+            "rolling_avg": 25.575,
+            "anomaly_z": 0.83,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2020-04",
+            "value": 29.26,
+            "secondary_value": null,
+            "rolling_avg": 26.1633,
+            "anomaly_z": 1.87,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2020-05",
+            "value": 27.86,
+            "secondary_value": null,
+            "rolling_avg": 26.5167,
+            "anomaly_z": 0.92,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2020-06",
+            "value": 27.18,
+            "secondary_value": null,
+            "rolling_avg": 26.89,
+            "anomaly_z": 0.46,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2020-07",
+            "value": 26.44,
+            "secondary_value": null,
+            "rolling_avg": 27.2367,
+            "anomaly_z": -0.04,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2020-08",
+            "value": 27.37,
+            "secondary_value": null,
+            "rolling_avg": 27.6383,
+            "anomaly_z": 0.59,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2020-09",
+            "value": 26.34,
+            "secondary_value": null,
+            "rolling_avg": 27.4083,
+            "anomaly_z": -0.11,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2020-10",
+            "value": 27.15,
+            "secondary_value": null,
+            "rolling_avg": 27.0567,
+            "anomaly_z": 0.44,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2020-11",
+            "value": 25.94,
+            "secondary_value": null,
+            "rolling_avg": 26.7367,
+            "anomaly_z": -0.38,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2020-12",
+            "value": 24.76,
+            "secondary_value": null,
+            "rolling_avg": 26.3333,
+            "anomaly_z": -1.17,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2021-01",
+            "value": 24.32,
+            "secondary_value": null,
+            "rolling_avg": 25.98,
+            "anomaly_z": -1.47,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2021-02",
+            "value": 24.28,
+            "secondary_value": null,
+            "rolling_avg": 25.465,
+            "anomaly_z": -1.5,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2021-03",
+            "value": 25.66,
+            "secondary_value": null,
+            "rolling_avg": 25.3517,
+            "anomaly_z": -0.56,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2021-04",
+            "value": 27.58,
+            "secondary_value": null,
+            "rolling_avg": 25.4233,
+            "anomaly_z": 0.73,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2021-05",
+            "value": 27.0,
+            "secondary_value": null,
+            "rolling_avg": 25.6,
+            "anomaly_z": 0.34,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2021-06",
+            "value": 26.63,
+            "secondary_value": null,
+            "rolling_avg": 25.9117,
+            "anomaly_z": 0.09,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2021-07",
+            "value": 26.46,
+            "secondary_value": null,
+            "rolling_avg": 26.2683,
+            "anomaly_z": -0.02,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2021-08",
+            "value": 26.6,
+            "secondary_value": null,
+            "rolling_avg": 26.655,
+            "anomaly_z": 0.07,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2021-09",
+            "value": 26.98,
+            "secondary_value": null,
+            "rolling_avg": 26.875,
+            "anomaly_z": 0.33,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2021-10",
+            "value": 26.1,
+            "secondary_value": null,
+            "rolling_avg": 26.6283,
+            "anomaly_z": -0.27,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2021-11",
+            "value": 25.09,
+            "secondary_value": null,
+            "rolling_avg": 26.31,
+            "anomaly_z": -0.95,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2021-12",
+            "value": 24.67,
+            "secondary_value": null,
+            "rolling_avg": 25.9833,
+            "anomaly_z": -1.23,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2022-01",
+            "value": 24.46,
+            "secondary_value": null,
+            "rolling_avg": 25.65,
+            "anomaly_z": -1.38,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2022-02",
+            "value": 24.33,
+            "secondary_value": null,
+            "rolling_avg": 25.2717,
+            "anomaly_z": -1.46,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2022-03",
+            "value": 26.36,
+            "secondary_value": null,
+            "rolling_avg": 25.1683,
+            "anomaly_z": -0.09,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2022-04",
+            "value": 26.82,
+            "secondary_value": null,
+            "rolling_avg": 25.2883,
+            "anomaly_z": 0.22,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2022-05",
+            "value": 26.91,
+            "secondary_value": null,
+            "rolling_avg": 25.5917,
+            "anomaly_z": 0.28,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2022-06",
+            "value": 26.58,
+            "secondary_value": null,
+            "rolling_avg": 25.91,
+            "anomaly_z": 0.06,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2022-07",
+            "value": 26.82,
+            "secondary_value": null,
+            "rolling_avg": 26.3033,
+            "anomaly_z": 0.22,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2022-08",
+            "value": 26.65,
+            "secondary_value": null,
+            "rolling_avg": 26.69,
+            "anomaly_z": 0.1,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2022-09",
+            "value": 26.61,
+            "secondary_value": null,
+            "rolling_avg": 26.7317,
+            "anomaly_z": 0.08,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2022-10",
+            "value": 26.18,
+            "secondary_value": null,
+            "rolling_avg": 26.625,
+            "anomaly_z": -0.21,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2022-11",
+            "value": 24.73,
+            "secondary_value": null,
+            "rolling_avg": 26.2617,
+            "anomaly_z": -1.19,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2022-12",
+            "value": 24.44,
+            "secondary_value": null,
+            "rolling_avg": 25.905,
+            "anomaly_z": -1.39,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2023-01",
+            "value": 23.25,
+            "secondary_value": null,
+            "rolling_avg": 25.31,
+            "anomaly_z": -2.19,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Flagged"
+          },
+          {
+            "timestamp": "2023-02",
+            "value": 23.89,
+            "secondary_value": null,
+            "rolling_avg": 24.85,
+            "anomaly_z": -1.76,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2023-03",
+            "value": 26.02,
+            "secondary_value": null,
+            "rolling_avg": 24.7517,
+            "anomaly_z": -0.32,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2023-04",
+            "value": 27.34,
+            "secondary_value": null,
+            "rolling_avg": 24.945,
+            "anomaly_z": 0.57,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2023-05",
+            "value": 26.97,
+            "secondary_value": null,
+            "rolling_avg": 25.3183,
+            "anomaly_z": 0.32,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2023-06",
+            "value": 27.56,
+            "secondary_value": null,
+            "rolling_avg": 25.8383,
+            "anomaly_z": 0.72,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2023-07",
+            "value": 28.0,
+            "secondary_value": null,
+            "rolling_avg": 26.63,
+            "anomaly_z": 1.02,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2023-08",
+            "value": 29.1,
+            "secondary_value": null,
+            "rolling_avg": 27.4983,
+            "anomaly_z": 1.76,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2023-09",
+            "value": 27.47,
+            "secondary_value": null,
+            "rolling_avg": 27.74,
+            "anomaly_z": 0.66,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2023-10",
+            "value": 26.26,
+            "secondary_value": null,
+            "rolling_avg": 27.56,
+            "anomaly_z": -0.16,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2023-11",
+            "value": 25.82,
+            "secondary_value": null,
+            "rolling_avg": 27.3683,
+            "anomaly_z": -0.46,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2023-12",
+            "value": 25.62,
+            "secondary_value": null,
+            "rolling_avg": 27.045,
+            "anomaly_z": -0.59,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2024-01",
+            "value": 24.57,
+            "secondary_value": null,
+            "rolling_avg": 26.4733,
+            "anomaly_z": -1.3,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2024-02",
+            "value": 25.47,
+            "secondary_value": null,
+            "rolling_avg": 25.8683,
+            "anomaly_z": -0.69,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2024-03",
+            "value": 26.68,
+            "secondary_value": null,
+            "rolling_avg": 25.7367,
+            "anomaly_z": 0.12,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2024-04",
+            "value": 30.17,
+            "secondary_value": null,
+            "rolling_avg": 26.3883,
+            "anomaly_z": 2.48,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Flagged"
+          },
+          {
+            "timestamp": "2024-05",
+            "value": 28.59,
+            "secondary_value": null,
+            "rolling_avg": 26.85,
+            "anomaly_z": 1.42,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2024-06",
+            "value": 27.39,
+            "secondary_value": null,
+            "rolling_avg": 27.145,
+            "anomaly_z": 0.6,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2024-07",
+            "value": 27.9,
+            "secondary_value": null,
+            "rolling_avg": 27.7,
+            "anomaly_z": 0.95,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2024-08",
+            "value": 27.33,
+            "secondary_value": null,
+            "rolling_avg": 28.01,
+            "anomaly_z": 0.56,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2024-09",
+            "value": 28.05,
+            "secondary_value": null,
+            "rolling_avg": 28.2383,
+            "anomaly_z": 1.05,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2024-10",
+            "value": 26.82,
+            "secondary_value": null,
+            "rolling_avg": 27.68,
+            "anomaly_z": 0.22,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2024-11",
+            "value": 25.82,
+            "secondary_value": null,
+            "rolling_avg": 27.2183,
+            "anomaly_z": -0.46,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2024-12",
+            "value": 25.34,
+            "secondary_value": null,
+            "rolling_avg": 26.8767,
+            "anomaly_z": -0.78,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          }
+        ],
+        "raw_rows": [
+          {
+            "timestamp": "2015-01",
+            "value": 23.72,
+            "secondary_value": null,
+            "rolling_avg": 23.72,
+            "anomaly_z": -1.88,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2015-02",
+            "value": 24.32,
+            "secondary_value": null,
+            "rolling_avg": 24.02,
+            "anomaly_z": -1.47,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2015-03",
+            "value": 25.68,
+            "secondary_value": null,
+            "rolling_avg": 24.5733,
+            "anomaly_z": -0.55,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2015-04",
+            "value": 26.83,
+            "secondary_value": null,
+            "rolling_avg": 25.1375,
+            "anomaly_z": 0.23,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2015-05",
+            "value": 26.77,
+            "secondary_value": null,
+            "rolling_avg": 25.464,
+            "anomaly_z": 0.19,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2015-06",
+            "value": 26.67,
+            "secondary_value": null,
+            "rolling_avg": 25.665,
+            "anomaly_z": 0.12,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2015-07",
+            "value": 27.23,
+            "secondary_value": null,
+            "rolling_avg": 26.25,
+            "anomaly_z": 0.5,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2015-08",
+            "value": 27.6,
+            "secondary_value": null,
+            "rolling_avg": 26.7967,
+            "anomaly_z": 0.75,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2015-09",
+            "value": 26.68,
+            "secondary_value": null,
+            "rolling_avg": 26.9633,
+            "anomaly_z": 0.12,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2015-10",
+            "value": 26.05,
+            "secondary_value": null,
+            "rolling_avg": 26.8333,
+            "anomaly_z": -0.3,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2015-11",
+            "value": 25.24,
+            "secondary_value": null,
+            "rolling_avg": 26.5783,
+            "anomaly_z": -0.85,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2015-12",
+            "value": 25.08,
+            "secondary_value": null,
+            "rolling_avg": 26.3133,
+            "anomaly_z": -0.96,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2016-01",
+            "value": 24.18,
+            "secondary_value": null,
+            "rolling_avg": 25.805,
+            "anomaly_z": -1.57,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2016-02",
+            "value": 25.02,
+            "secondary_value": null,
+            "rolling_avg": 25.375,
+            "anomaly_z": -1.0,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2016-03",
+            "value": 27.57,
+            "secondary_value": null,
+            "rolling_avg": 25.5233,
+            "anomaly_z": 0.73,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2016-04",
+            "value": 29.54,
+            "secondary_value": null,
+            "rolling_avg": 26.105,
+            "anomaly_z": 2.06,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2016-05",
+            "value": 27.9,
+            "secondary_value": null,
+            "rolling_avg": 26.5483,
+            "anomaly_z": 0.95,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2016-06",
+            "value": 26.55,
+            "secondary_value": null,
+            "rolling_avg": 26.7933,
+            "anomaly_z": 0.04,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2016-07",
+            "value": 26.76,
+            "secondary_value": null,
+            "rolling_avg": 27.2233,
+            "anomaly_z": 0.18,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2016-08",
+            "value": 27.71,
+            "secondary_value": null,
+            "rolling_avg": 27.6717,
+            "anomaly_z": 0.82,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2016-09",
+            "value": 28.17,
+            "secondary_value": null,
+            "rolling_avg": 27.7717,
+            "anomaly_z": 1.13,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2016-10",
+            "value": 27.99,
+            "secondary_value": null,
+            "rolling_avg": 27.5133,
+            "anomaly_z": 1.01,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2016-11",
+            "value": 25.25,
+            "secondary_value": null,
+            "rolling_avg": 27.0717,
+            "anomaly_z": -0.84,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2016-12",
+            "value": 24.7,
+            "secondary_value": null,
+            "rolling_avg": 26.7633,
+            "anomaly_z": -1.21,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2017-01",
+            "value": 24.66,
+            "secondary_value": null,
+            "rolling_avg": 26.4133,
+            "anomaly_z": -1.24,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2017-02",
+            "value": 25.53,
+            "secondary_value": null,
+            "rolling_avg": 26.05,
+            "anomaly_z": -0.65,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2017-03",
+            "value": 26.32,
+            "secondary_value": null,
+            "rolling_avg": 25.7417,
+            "anomaly_z": -0.12,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2017-04",
+            "value": 28.5,
+            "secondary_value": null,
+            "rolling_avg": 25.8267,
+            "anomaly_z": 1.36,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2017-05",
+            "value": 28.21,
+            "secondary_value": null,
+            "rolling_avg": 26.32,
+            "anomaly_z": 1.16,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2017-06",
+            "value": 27.64,
+            "secondary_value": null,
+            "rolling_avg": 26.81,
+            "anomaly_z": 0.77,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2017-07",
+            "value": 28.05,
+            "secondary_value": null,
+            "rolling_avg": 27.375,
+            "anomaly_z": 1.05,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2017-08",
+            "value": 27.75,
+            "secondary_value": null,
+            "rolling_avg": 27.745,
+            "anomaly_z": 0.85,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2017-09",
+            "value": 27.22,
+            "secondary_value": null,
+            "rolling_avg": 27.895,
+            "anomaly_z": 0.49,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2017-10",
+            "value": 27.08,
+            "secondary_value": null,
+            "rolling_avg": 27.6583,
+            "anomaly_z": 0.4,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2017-11",
+            "value": 25.34,
+            "secondary_value": null,
+            "rolling_avg": 27.18,
+            "anomaly_z": -0.78,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2017-12",
+            "value": 24.61,
+            "secondary_value": null,
+            "rolling_avg": 26.675,
+            "anomaly_z": -1.27,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2018-01",
+            "value": 24.08,
+            "secondary_value": null,
+            "rolling_avg": 26.0133,
+            "anomaly_z": -1.63,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2018-02",
+            "value": 25.91,
+            "secondary_value": null,
+            "rolling_avg": 25.7067,
+            "anomaly_z": -0.4,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2018-03",
+            "value": 27.19,
+            "secondary_value": null,
+            "rolling_avg": 25.7017,
+            "anomaly_z": 0.47,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2018-04",
+            "value": 28.24,
+            "secondary_value": null,
+            "rolling_avg": 25.895,
+            "anomaly_z": 1.18,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2018-05",
+            "value": 26.84,
+            "secondary_value": null,
+            "rolling_avg": 26.145,
+            "anomaly_z": 0.23,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2018-06",
+            "value": 26.37,
+            "secondary_value": null,
+            "rolling_avg": 26.4383,
+            "anomaly_z": -0.08,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2018-07",
+            "value": 26.55,
+            "secondary_value": null,
+            "rolling_avg": 26.85,
+            "anomaly_z": 0.04,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2018-08",
+            "value": 26.94,
+            "secondary_value": null,
+            "rolling_avg": 27.0217,
+            "anomaly_z": 0.3,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2018-09",
+            "value": 27.81,
+            "secondary_value": null,
+            "rolling_avg": 27.125,
+            "anomaly_z": 0.89,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2018-10",
+            "value": 25.92,
+            "secondary_value": null,
+            "rolling_avg": 26.7383,
+            "anomaly_z": -0.39,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2018-11",
+            "value": 25.18,
+            "secondary_value": null,
+            "rolling_avg": 26.4617,
+            "anomaly_z": -0.89,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2018-12",
+            "value": 24.38,
+            "secondary_value": null,
+            "rolling_avg": 26.13,
+            "anomaly_z": -1.43,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2019-01",
+            "value": 23.91,
+            "secondary_value": null,
+            "rolling_avg": 25.69,
+            "anomaly_z": -1.75,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2019-02",
+            "value": 26.08,
+            "secondary_value": null,
+            "rolling_avg": 25.5467,
+            "anomaly_z": -0.28,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2019-03",
+            "value": 28.38,
+            "secondary_value": null,
+            "rolling_avg": 25.6417,
+            "anomaly_z": 1.27,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2019-04",
+            "value": 30.29,
+            "secondary_value": null,
+            "rolling_avg": 26.37,
+            "anomaly_z": 2.57,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Flagged"
+          },
+          {
+            "timestamp": "2019-05",
+            "value": 29.68,
+            "secondary_value": null,
+            "rolling_avg": 27.12,
+            "anomaly_z": 2.15,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Flagged"
+          },
+          {
+            "timestamp": "2019-06",
+            "value": 29.06,
+            "secondary_value": null,
+            "rolling_avg": 27.9,
+            "anomaly_z": 1.73,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2019-07",
+            "value": 28.71,
+            "secondary_value": null,
+            "rolling_avg": 28.7,
+            "anomaly_z": 1.5,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2019-08",
+            "value": 27.4,
+            "secondary_value": null,
+            "rolling_avg": 28.92,
+            "anomaly_z": 0.61,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2019-09",
+            "value": 26.96,
+            "secondary_value": null,
+            "rolling_avg": 28.6833,
+            "anomaly_z": 0.31,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2019-10",
+            "value": 25.73,
+            "secondary_value": null,
+            "rolling_avg": 27.9233,
+            "anomaly_z": -0.52,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2019-11",
+            "value": 25.74,
+            "secondary_value": null,
+            "rolling_avg": 27.2667,
+            "anomaly_z": -0.51,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2019-12",
+            "value": 24.94,
+            "secondary_value": null,
+            "rolling_avg": 26.58,
+            "anomaly_z": -1.05,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2020-01",
+            "value": 24.36,
+            "secondary_value": null,
+            "rolling_avg": 25.855,
+            "anomaly_z": -1.44,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2020-02",
+            "value": 24.96,
+            "secondary_value": null,
+            "rolling_avg": 25.4483,
+            "anomaly_z": -1.04,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2020-03",
+            "value": 27.72,
+            "secondary_value": null,
+            "rolling_avg": 25.575,
+            "anomaly_z": 0.83,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2020-04",
+            "value": 29.26,
+            "secondary_value": null,
+            "rolling_avg": 26.1633,
+            "anomaly_z": 1.87,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2020-05",
+            "value": 27.86,
+            "secondary_value": null,
+            "rolling_avg": 26.5167,
+            "anomaly_z": 0.92,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2020-06",
+            "value": 27.18,
+            "secondary_value": null,
+            "rolling_avg": 26.89,
+            "anomaly_z": 0.46,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2020-07",
+            "value": 26.44,
+            "secondary_value": null,
+            "rolling_avg": 27.2367,
+            "anomaly_z": -0.04,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2020-08",
+            "value": 27.37,
+            "secondary_value": null,
+            "rolling_avg": 27.6383,
+            "anomaly_z": 0.59,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2020-09",
+            "value": 26.34,
+            "secondary_value": null,
+            "rolling_avg": 27.4083,
+            "anomaly_z": -0.11,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2020-10",
+            "value": 27.15,
+            "secondary_value": null,
+            "rolling_avg": 27.0567,
+            "anomaly_z": 0.44,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2020-11",
+            "value": 25.94,
+            "secondary_value": null,
+            "rolling_avg": 26.7367,
+            "anomaly_z": -0.38,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2020-12",
+            "value": 24.76,
+            "secondary_value": null,
+            "rolling_avg": 26.3333,
+            "anomaly_z": -1.17,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2021-01",
+            "value": 24.32,
+            "secondary_value": null,
+            "rolling_avg": 25.98,
+            "anomaly_z": -1.47,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2021-02",
+            "value": 24.28,
+            "secondary_value": null,
+            "rolling_avg": 25.465,
+            "anomaly_z": -1.5,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2021-03",
+            "value": 25.66,
+            "secondary_value": null,
+            "rolling_avg": 25.3517,
+            "anomaly_z": -0.56,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2021-04",
+            "value": 27.58,
+            "secondary_value": null,
+            "rolling_avg": 25.4233,
+            "anomaly_z": 0.73,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2021-05",
+            "value": 27.0,
+            "secondary_value": null,
+            "rolling_avg": 25.6,
+            "anomaly_z": 0.34,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2021-06",
+            "value": 26.63,
+            "secondary_value": null,
+            "rolling_avg": 25.9117,
+            "anomaly_z": 0.09,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2021-07",
+            "value": 26.46,
+            "secondary_value": null,
+            "rolling_avg": 26.2683,
+            "anomaly_z": -0.02,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2021-08",
+            "value": 26.6,
+            "secondary_value": null,
+            "rolling_avg": 26.655,
+            "anomaly_z": 0.07,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2021-09",
+            "value": 26.98,
+            "secondary_value": null,
+            "rolling_avg": 26.875,
+            "anomaly_z": 0.33,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2021-10",
+            "value": 26.1,
+            "secondary_value": null,
+            "rolling_avg": 26.6283,
+            "anomaly_z": -0.27,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2021-11",
+            "value": 25.09,
+            "secondary_value": null,
+            "rolling_avg": 26.31,
+            "anomaly_z": -0.95,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2021-12",
+            "value": 24.67,
+            "secondary_value": null,
+            "rolling_avg": 25.9833,
+            "anomaly_z": -1.23,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2022-01",
+            "value": 24.46,
+            "secondary_value": null,
+            "rolling_avg": 25.65,
+            "anomaly_z": -1.38,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2022-02",
+            "value": 24.33,
+            "secondary_value": null,
+            "rolling_avg": 25.2717,
+            "anomaly_z": -1.46,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2022-03",
+            "value": 26.36,
+            "secondary_value": null,
+            "rolling_avg": 25.1683,
+            "anomaly_z": -0.09,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2022-04",
+            "value": 26.82,
+            "secondary_value": null,
+            "rolling_avg": 25.2883,
+            "anomaly_z": 0.22,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2022-05",
+            "value": 26.91,
+            "secondary_value": null,
+            "rolling_avg": 25.5917,
+            "anomaly_z": 0.28,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2022-06",
+            "value": 26.58,
+            "secondary_value": null,
+            "rolling_avg": 25.91,
+            "anomaly_z": 0.06,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2022-07",
+            "value": 26.82,
+            "secondary_value": null,
+            "rolling_avg": 26.3033,
+            "anomaly_z": 0.22,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2022-08",
+            "value": 26.65,
+            "secondary_value": null,
+            "rolling_avg": 26.69,
+            "anomaly_z": 0.1,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2022-09",
+            "value": 26.61,
+            "secondary_value": null,
+            "rolling_avg": 26.7317,
+            "anomaly_z": 0.08,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2022-10",
+            "value": 26.18,
+            "secondary_value": null,
+            "rolling_avg": 26.625,
+            "anomaly_z": -0.21,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2022-11",
+            "value": 24.73,
+            "secondary_value": null,
+            "rolling_avg": 26.2617,
+            "anomaly_z": -1.19,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2022-12",
+            "value": 24.44,
+            "secondary_value": null,
+            "rolling_avg": 25.905,
+            "anomaly_z": -1.39,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2023-01",
+            "value": 23.25,
+            "secondary_value": null,
+            "rolling_avg": 25.31,
+            "anomaly_z": -2.19,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Flagged"
+          },
+          {
+            "timestamp": "2023-02",
+            "value": 23.89,
+            "secondary_value": null,
+            "rolling_avg": 24.85,
+            "anomaly_z": -1.76,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2023-03",
+            "value": 26.02,
+            "secondary_value": null,
+            "rolling_avg": 24.7517,
+            "anomaly_z": -0.32,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2023-04",
+            "value": 27.34,
+            "secondary_value": null,
+            "rolling_avg": 24.945,
+            "anomaly_z": 0.57,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2023-05",
+            "value": 26.97,
+            "secondary_value": null,
+            "rolling_avg": 25.3183,
+            "anomaly_z": 0.32,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2023-06",
+            "value": 27.56,
+            "secondary_value": null,
+            "rolling_avg": 25.8383,
+            "anomaly_z": 0.72,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2023-07",
+            "value": 28.0,
+            "secondary_value": null,
+            "rolling_avg": 26.63,
+            "anomaly_z": 1.02,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2023-08",
+            "value": 29.1,
+            "secondary_value": null,
+            "rolling_avg": 27.4983,
+            "anomaly_z": 1.76,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2023-09",
+            "value": 27.47,
+            "secondary_value": null,
+            "rolling_avg": 27.74,
+            "anomaly_z": 0.66,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2023-10",
+            "value": 26.26,
+            "secondary_value": null,
+            "rolling_avg": 27.56,
+            "anomaly_z": -0.16,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2023-11",
+            "value": 25.82,
+            "secondary_value": null,
+            "rolling_avg": 27.3683,
+            "anomaly_z": -0.46,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2023-12",
+            "value": 25.62,
+            "secondary_value": null,
+            "rolling_avg": 27.045,
+            "anomaly_z": -0.59,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2024-01",
+            "value": 24.57,
+            "secondary_value": null,
+            "rolling_avg": 26.4733,
+            "anomaly_z": -1.3,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2024-02",
+            "value": 25.47,
+            "secondary_value": null,
+            "rolling_avg": 25.8683,
+            "anomaly_z": -0.69,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2024-03",
+            "value": 26.68,
+            "secondary_value": null,
+            "rolling_avg": 25.7367,
+            "anomaly_z": 0.12,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2024-04",
+            "value": 30.17,
+            "secondary_value": null,
+            "rolling_avg": 26.3883,
+            "anomaly_z": 2.48,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Flagged"
+          },
+          {
+            "timestamp": "2024-05",
+            "value": 28.59,
+            "secondary_value": null,
+            "rolling_avg": 26.85,
+            "anomaly_z": 1.42,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2024-06",
+            "value": 27.39,
+            "secondary_value": null,
+            "rolling_avg": 27.145,
+            "anomaly_z": 0.6,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2024-07",
+            "value": 27.9,
+            "secondary_value": null,
+            "rolling_avg": 27.7,
+            "anomaly_z": 0.95,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2024-08",
+            "value": 27.33,
+            "secondary_value": null,
+            "rolling_avg": 28.01,
+            "anomaly_z": 0.56,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2024-09",
+            "value": 28.05,
+            "secondary_value": null,
+            "rolling_avg": 28.2383,
+            "anomaly_z": 1.05,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2024-10",
+            "value": 26.82,
+            "secondary_value": null,
+            "rolling_avg": 27.68,
+            "anomaly_z": 0.22,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2024-11",
+            "value": 25.82,
+            "secondary_value": null,
+            "rolling_avg": 27.2183,
+            "anomaly_z": -0.46,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2024-12",
+            "value": 25.34,
+            "secondary_value": null,
+            "rolling_avg": 26.8767,
+            "anomaly_z": -0.78,
+            "unit": "C",
+            "variable_id": "T2M",
+            "qa_flag": "Valid"
+          }
+        ],
+        "total_rows": 120,
+        "page": 1,
+        "page_size": 120,
+        "upstream_live_fetched": true,
+        "provenance_mode": "live_upstream",
+        "sha256_hash": "ecaa738f08f8cb1cc59e45f96b30ea54ebe7aea6919a9ae70833b81875554aa0",
+        "spatial_semantics_applied": "centroid_representative_sample (7.900N, 80.700E)",
+        "qa_summary_note": "Retrieval QA flags reflect upstream fill-value and physical range checks. Scientific anomaly detection (|Z| >= 2.0 on deseasonalized residuals) is performed in the Case File.",
+        "secondary_jobs": [],
+        "api_endpoint_called": "https://power.larc.nasa.gov/api/temporal/monthly/point?parameters=T2M&community=ag&longitude=80.7&latitude=7.9&start=2015&end=2024&format=JSON",
+        "retrieved_at": "2026-11-14T17:10:35Z"
+      }
     }
   },
   "cache_index": {
@@ -76543,6 +79100,7 @@
     "res-616c06d53a121b92": "job-c01efe6d01",
     "res-4eca98c223f5a66c": "job-9018729368",
     "res-3176afabb4932d4f": "job-78586755a2",
-    "res-aa6589ca960a15ed": "job-8bfb7f1123"
+    "res-aa6589ca960a15ed": "job-8bfb7f1123",
+    "res-66a8d856e184f449": "job-b7ea3e03e8"
   }
 }

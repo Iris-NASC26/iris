@@ -574,3 +574,67 @@ export const EMPTY_DISCOVERY_STATE: DiscoveryResponse = {
   cache_hit: false,
   total_candidates_evaluated: 0,
 };
+
+export type ResearchSourceProvider = "openalex" | "datacite";
+export type ResearchSortOrder = "relevance" | "citations" | "year";
+
+export interface ResearchDatasetContext {
+  product_id: string;
+  variable_id: string;
+  variable_name: string;
+  title?: string;
+  category?: string;
+  source_api: string;
+  provider_agency?: string;
+  mission_or_instrument?: string;
+  citation_doi?: string;
+  gcmd_keywords?: string[];
+  region_name?: string;
+  start_date?: string;
+  end_date?: string;
+}
+
+export interface ResearchSearchRequest {
+  mode: "manual" | "dataset";
+  query?: string;
+  dataset_context?: ResearchDatasetContext | null;
+  sources?: ResearchSourceProvider[];
+  sort?: ResearchSortOrder;
+  per_source_limit?: number;
+}
+
+export interface ResearchWorkItem {
+  id: string;
+  source_provider: "OpenAlex" | "DataCite";
+  title: string;
+  authors: string;
+  year: number | null;
+  publication: string;
+  work_type: string;
+  topic: string;
+  abstract_snippet: string;
+  doi: string | null;
+  doi_url: string | null;
+  primary_url: string;
+  paper_url: string | null;
+  abstract_url: string | null;
+  dataset_url: string | null;
+  record_url: string;
+  is_open_access: boolean;
+  cited_by_count: number;
+  match_context: string | null;
+}
+
+export interface ResearchSearchResponse {
+  mode: "manual" | "dataset";
+  query_executed: string;
+  dataset_label?: string | null;
+  total_results: number;
+  openalex_count: number;
+  datacite_count: number;
+  open_access_count: number;
+  provider_status: Record<string, string>;
+  results: ResearchWorkItem[];
+  retrieved_at: string;
+}
+
