@@ -15,7 +15,7 @@ python scripts/dev.py start
 
 Setup uses `uv sync --locked` and `npx --yes pnpm@12.18.0 install --frozen-lockfile`. Internet is needed to retrieve package-manager/runtime/dependency artifacts on first setup. Setup makes no NASA calls and reads no NASA credentials. Start uses installed executables and starts only loopback services: Next.js at `http://127.0.0.1:5173`, FastAPI at `http://127.0.0.1:8000`. Ctrl+C stops both. The launcher rejects occupied ports and stops the remaining server if either exits. Start does not install packages. This is a development server, not an approved public-hosting configuration.
 
-Next.js serves the browser origin and forwards the implemented `/api/v1/health` route to a fixed loopback FastAPI URL. Other API routes remain unimplemented; no generic provider proxy is exposed. Next.js and FastAPI both reject unexpected Host/Origin values. FastAPI rejects unexpected Host and browser Origin headers. No permissive CORS is enabled. The health route is a small F02 liveness contract (`health.v1`); F03 owns future scientific contracts. `analysis_ready: false` must stay false until a separately reviewed readiness design exists.
+Next.js serves the browser origin and forwards the implemented `/api/v1/health` route to a fixed loopback FastAPI URL. The one data route is `GET /api/v1/series/{V01|V12}?lat=&lon=`: FastAPI reads a single native-cell monthly series from the anonymous NASA POWER Zarr stores (fixed host, HTTPS only, no redirects, size-bounded, SHA-256-cached under `artifacts/runtime/power/`, 24 h freshness, stale copy only if the provider is unreachable and then flagged) and Next.js forwards it with validated parameters. Other variables return a clear "source not connected" problem; no generic provider proxy is exposed. Next.js and FastAPI both reject unexpected Host/Origin values. FastAPI rejects unexpected Host and browser Origin headers. No permissive CORS is enabled. The health route is a small F02 liveness contract (`health.v1`); F03 owns future scientific contracts. `analysis_ready: false` must stay false until a separately reviewed readiness design exists.
 
 ## Verification commands
 
@@ -178,3 +178,5 @@ offline snapshot export and second-device recovery remain R01/R02/R07.
 The methods page includes the user-approved caniuse-lite browser-data attribution.
 See the updated licence inventory and SRS CMP-1/AC-34; the exception applies only
 to named ancillary browser-compatibility data, not software libraries.
+
+Ordinary checks never contact NASA. To exercise the real V01/V12 journey end to end (about 15 s on a cold cache), run the browser suite with `$env:EARTH_TREND_LIVE = '1'` (PowerShell); it is skipped otherwise.

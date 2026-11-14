@@ -17,6 +17,23 @@ export interface paths {
         readonly patch?: never;
         readonly trace?: never;
     };
+    readonly "/api/v1/series/{variable_id}": {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        /** Point Series */
+        readonly get: operations["point_series_api_v1_series__variable_id__get"];
+        readonly put?: never;
+        readonly post?: never;
+        readonly delete?: never;
+        readonly options?: never;
+        readonly head?: never;
+        readonly patch?: never;
+        readonly trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -958,6 +975,11 @@ export interface components {
              */
             readonly status?: "ok";
         };
+        /** HTTPValidationError */
+        readonly HTTPValidationError: {
+            /** Detail */
+            readonly detail?: readonly components["schemas"]["ValidationError"][];
+        };
         /** InlineMembership */
         readonly InlineMembership: {
             /** Exclusions */
@@ -1274,6 +1296,37 @@ export interface components {
             readonly seed: number;
             /** Validation Report Id */
             readonly validation_report_id: string | null;
+        };
+        /** PointLocation */
+        readonly PointLocation: {
+            /** Cell Lat */
+            readonly cell_lat: number;
+            /** Cell Lat Step */
+            readonly cell_lat_step: number;
+            /** Cell Lon */
+            readonly cell_lon: number;
+            /** Cell Lon Step */
+            readonly cell_lon_step: number;
+            /** Requested Lat */
+            readonly requested_lat: number;
+            /** Requested Lon */
+            readonly requested_lon: number;
+            /**
+             * Selection
+             * @constant
+             */
+            readonly selection: "nearest_native_cell";
+        };
+        /** PointSeriesResult */
+        readonly PointSeriesResult: {
+            readonly location: components["schemas"]["PointLocation"];
+            /**
+             * Schema Version
+             * @constant
+             */
+            readonly schema_version: "1.0";
+            readonly series: components["schemas"]["Series"];
+            readonly source: components["schemas"]["SeriesSource"];
         };
         /** PolygonGeometry */
         readonly PolygonGeometry: {
@@ -1609,6 +1662,67 @@ export interface components {
             /** Series Id */
             readonly series_id: string;
         };
+        /** SeriesSource */
+        readonly SeriesSource: {
+            /** Acknowledgement */
+            readonly acknowledgement: string;
+            /** Artifact Sha256 */
+            readonly artifact_sha256: {
+                readonly [key: string]: string;
+            };
+            /** Caveats */
+            readonly caveats: readonly string[];
+            /**
+             * Data Kind
+             * @constant
+             */
+            readonly data_kind: "model";
+            /** Declared End */
+            readonly declared_end: string;
+            /** Field */
+            readonly field: string;
+            /** First Month */
+            readonly first_month: string;
+            /** Last Finite Month */
+            readonly last_finite_month: string;
+            /** Missing Months */
+            readonly missing_months: number;
+            /**
+             * Retrieved At
+             * Format: date-time
+             */
+            readonly retrieved_at: string;
+            /**
+             * Scientifically Validated
+             * @constant
+             */
+            readonly scientifically_validated: false;
+            /** Served From Cache */
+            readonly served_from_cache: boolean;
+            /** Source Units */
+            readonly source_units: string;
+            /** Stale Cache */
+            readonly stale_cache: boolean;
+            /** Store Title */
+            readonly store_title: string;
+            /** Store Version */
+            readonly store_version: string;
+            /**
+             * Time Standard
+             * @enum {string}
+             */
+            readonly time_standard: "UTC" | "LST";
+            /**
+             * Units
+             * @enum {string}
+             */
+            readonly units: "°C" | "mm/day" | "mm" | "10^15 molecules/cm²" | "dimensionless" | "mg/m³" | "W/m²";
+            /**
+             * Variable Id
+             * @enum {string}
+             */
+            readonly variable_id: "V01" | "V02" | "V03" | "V04" | "V05" | "V06" | "V07" | "V08" | "V09" | "V10" | "V11" | "V12" | "V13";
+        };
         /** SkillMetrics */
         readonly SkillMetrics: {
             /** Candidate Mae */
@@ -1850,6 +1964,19 @@ export interface components {
             /** Valid N */
             readonly valid_n: number;
         };
+        /** ValidationError */
+        readonly ValidationError: {
+            /** Context */
+            readonly ctx?: Record<string, never>;
+            /** Input */
+            readonly input?: unknown;
+            /** Location */
+            readonly loc: readonly (string | number)[];
+            /** Message */
+            readonly msg: string;
+            /** Error Type */
+            readonly type: string;
+        };
         /** VariableCoverage */
         readonly VariableCoverage: {
             /** Coverage */
@@ -1899,6 +2026,40 @@ export interface operations {
             };
         };
     };
+    readonly point_series_api_v1_series__variable_id__get: {
+        readonly parameters: {
+            readonly query: {
+                readonly lat: number;
+                readonly lon: number;
+            };
+            readonly header?: never;
+            readonly path: {
+                readonly variable_id: string;
+            };
+            readonly cookie?: never;
+        };
+        readonly requestBody?: never;
+        readonly responses: {
+            /** @description Successful Response */
+            readonly 200: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["PointSeriesResult"];
+                };
+            };
+            /** @description Validation Error */
+            readonly 422: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
 }
 
 export type ActiveJob = components["schemas"]["ActiveJob"];
@@ -1936,6 +2097,7 @@ export type FdrResult = components["schemas"]["FdrResult"];
 export type FieldError = components["schemas"]["FieldError"];
 export type GlobalRegion = components["schemas"]["GlobalRegion"];
 export type Grade = components["schemas"]["Grade"];
+export type HTTPValidationError = components["schemas"]["HTTPValidationError"];
 export type HealthResponse = components["schemas"]["HealthResponse"];
 export type InlineMembership = components["schemas"]["InlineMembership"];
 export type Job = components["schemas"]["Job"];
@@ -1950,6 +2112,8 @@ export type MultiPolygonGeometry = components["schemas"]["MultiPolygonGeometry"]
 export type OutlookRequest = components["schemas"]["OutlookRequest"];
 export type OutlookResult = components["schemas"]["OutlookResult"];
 export type PairedBootstrap = components["schemas"]["PairedBootstrap"];
+export type PointLocation = components["schemas"]["PointLocation"];
+export type PointSeriesResult = components["schemas"]["PointSeriesResult"];
 export type PolygonGeometry = components["schemas"]["PolygonGeometry"];
 export type PolygonRegion = components["schemas"]["PolygonRegion"];
 export type PreparedCase = components["schemas"]["PreparedCase"];
@@ -1967,6 +2131,7 @@ export type SeasonalMonth = components["schemas"]["SeasonalMonth"];
 export type Seasonality = components["schemas"]["Seasonality"];
 export type Series = components["schemas"]["Series"];
 export type SeriesRef = components["schemas"]["SeriesRef"];
+export type SeriesSource = components["schemas"]["SeriesSource"];
 export type SkillMetrics = components["schemas"]["SkillMetrics"];
 export type SucceededJob = components["schemas"]["SucceededJob"];
 export type TestResult = components["schemas"]["TestResult"];
@@ -1976,5 +2141,6 @@ export type UnavailableForecast = components["schemas"]["UnavailableForecast"];
 export type UnavailableGrade = components["schemas"]["UnavailableGrade"];
 export type UnavailableProjection = components["schemas"]["UnavailableProjection"];
 export type UnavailableTest = components["schemas"]["UnavailableTest"];
+export type ValidationError = components["schemas"]["ValidationError"];
 export type VariableCoverage = components["schemas"]["VariableCoverage"];
 export type WindowBaseline = components["schemas"]["WindowBaseline"];

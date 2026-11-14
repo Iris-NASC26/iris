@@ -215,13 +215,13 @@ def test_geometry_bounds_do_not_claim_topology_validation() -> None:
     validate(RegionSpec, value)
 
 
-def test_export_is_deterministic_and_does_not_add_endpoints() -> None:
+def test_export_is_deterministic_and_adds_only_the_series_endpoint() -> None:
     assert render_document() == render_document()
     document = build_document()
     assert document["paths"] == create_app().openapi()["paths"]
     paths = document["paths"]
     assert isinstance(paths, dict)
-    assert set(paths) == {"/api/v1/health"}
+    assert set(paths) == {"/api/v1/health", "/api/v1/series/{variable_id}"}
     components = document["components"]
     assert isinstance(components, dict)
     assert len(components["schemas"]) > len(PUBLIC_MODELS)

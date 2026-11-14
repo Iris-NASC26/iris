@@ -2990,6 +2990,19 @@
         ],
         "title": "Grade"
       },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
       "HealthResponse": {
         "additionalProperties": false,
         "description": "Liveness only: an available server does not imply available science.",
@@ -3902,6 +3915,78 @@
           "validation_report_id"
         ],
         "title": "PairedBootstrap",
+        "type": "object"
+      },
+      "PointLocation": {
+        "additionalProperties": false,
+        "properties": {
+          "cell_lat": {
+            "title": "Cell Lat",
+            "type": "number"
+          },
+          "cell_lat_step": {
+            "title": "Cell Lat Step",
+            "type": "number"
+          },
+          "cell_lon": {
+            "title": "Cell Lon",
+            "type": "number"
+          },
+          "cell_lon_step": {
+            "title": "Cell Lon Step",
+            "type": "number"
+          },
+          "requested_lat": {
+            "title": "Requested Lat",
+            "type": "number"
+          },
+          "requested_lon": {
+            "title": "Requested Lon",
+            "type": "number"
+          },
+          "selection": {
+            "const": "nearest_native_cell",
+            "title": "Selection",
+            "type": "string"
+          }
+        },
+        "required": [
+          "requested_lat",
+          "requested_lon",
+          "cell_lat",
+          "cell_lon",
+          "cell_lat_step",
+          "cell_lon_step",
+          "selection"
+        ],
+        "title": "PointLocation",
+        "type": "object"
+      },
+      "PointSeriesResult": {
+        "additionalProperties": false,
+        "properties": {
+          "location": {
+            "$ref": "#/components/schemas/PointLocation"
+          },
+          "schema_version": {
+            "const": "1.0",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "series": {
+            "$ref": "#/components/schemas/Series"
+          },
+          "source": {
+            "$ref": "#/components/schemas/SeriesSource"
+          }
+        },
+        "required": [
+          "schema_version",
+          "series",
+          "location",
+          "source"
+        ],
+        "title": "PointSeriesResult",
         "type": "object"
       },
       "PolygonGeometry": {
@@ -5185,6 +5270,163 @@
         "title": "SeriesRef",
         "type": "object"
       },
+      "SeriesSource": {
+        "additionalProperties": false,
+        "properties": {
+          "acknowledgement": {
+            "maxLength": 500,
+            "title": "Acknowledgement",
+            "type": "string"
+          },
+          "artifact_sha256": {
+            "additionalProperties": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            "title": "Artifact Sha256",
+            "type": "object"
+          },
+          "caveats": {
+            "items": {
+              "maxLength": 300,
+              "minLength": 1,
+              "type": "string"
+            },
+            "title": "Caveats",
+            "type": "array"
+          },
+          "data_kind": {
+            "const": "model",
+            "title": "Data Kind",
+            "type": "string"
+          },
+          "declared_end": {
+            "maxLength": 40,
+            "title": "Declared End",
+            "type": "string"
+          },
+          "field": {
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Field",
+            "type": "string"
+          },
+          "first_month": {
+            "pattern": "^(?:[1-9][0-9]{3}|0[1-9][0-9]{2}|00[1-9][0-9]|000[1-9])-(?:0[1-9]|1[0-2])$",
+            "title": "First Month",
+            "type": "string"
+          },
+          "last_finite_month": {
+            "pattern": "^(?:[1-9][0-9]{3}|0[1-9][0-9]{2}|00[1-9][0-9]|000[1-9])-(?:0[1-9]|1[0-2])$",
+            "title": "Last Finite Month",
+            "type": "string"
+          },
+          "missing_months": {
+            "minimum": 0,
+            "title": "Missing Months",
+            "type": "integer"
+          },
+          "retrieved_at": {
+            "format": "date-time",
+            "title": "Retrieved At",
+            "type": "string"
+          },
+          "scientifically_validated": {
+            "const": false,
+            "title": "Scientifically Validated",
+            "type": "boolean"
+          },
+          "served_from_cache": {
+            "title": "Served From Cache",
+            "type": "boolean"
+          },
+          "source_units": {
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Source Units",
+            "type": "string"
+          },
+          "stale_cache": {
+            "title": "Stale Cache",
+            "type": "boolean"
+          },
+          "store_title": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Store Title",
+            "type": "string"
+          },
+          "store_version": {
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Store Version",
+            "type": "string"
+          },
+          "time_standard": {
+            "enum": [
+              "UTC",
+              "LST"
+            ],
+            "title": "Time Standard",
+            "type": "string"
+          },
+          "units": {
+            "enum": [
+              "°C",
+              "mm/day",
+              "mm",
+              "10^15 molecules/cm²",
+              "dimensionless",
+              "mg/m³",
+              "W/m²"
+            ],
+            "title": "Units",
+            "type": "string"
+          },
+          "variable_id": {
+            "enum": [
+              "V01",
+              "V02",
+              "V03",
+              "V04",
+              "V05",
+              "V06",
+              "V07",
+              "V08",
+              "V09",
+              "V10",
+              "V11",
+              "V12",
+              "V13"
+            ],
+            "title": "Variable Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "variable_id",
+          "store_title",
+          "store_version",
+          "field",
+          "source_units",
+          "units",
+          "time_standard",
+          "data_kind",
+          "first_month",
+          "last_finite_month",
+          "declared_end",
+          "missing_months",
+          "retrieved_at",
+          "served_from_cache",
+          "stale_cache",
+          "artifact_sha256",
+          "acknowledgement",
+          "caveats",
+          "scientifically_validated"
+        ],
+        "title": "SeriesSource",
+        "type": "object"
+      },
       "SkillMetrics": {
         "additionalProperties": false,
         "properties": {
@@ -6089,6 +6331,46 @@
         "title": "UnavailableTest",
         "type": "object"
       },
+      "ValidationError": {
+        "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      },
       "VariableCoverage": {
         "additionalProperties": false,
         "properties": {
@@ -6214,6 +6496,67 @@
         },
         "summary": "Health"
       }
+    },
+    "/api/v1/series/{variable_id}": {
+      "get": {
+        "operationId": "point_series_api_v1_series__variable_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "variable_id",
+            "required": true,
+            "schema": {
+              "title": "Variable Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "lat",
+            "required": true,
+            "schema": {
+              "maximum": 90,
+              "minimum": -90,
+              "title": "Lat",
+              "type": "number"
+            }
+          },
+          {
+            "in": "query",
+            "name": "lon",
+            "required": true,
+            "schema": {
+              "maximum": 180,
+              "minimum": -180,
+              "title": "Lon",
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PointSeriesResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Point Series"
+      }
     }
   },
   "x-contract-models": [
@@ -6232,6 +6575,7 @@
     "MonthlyWindow",
     "OutlookRequest",
     "OutlookResult",
+    "PointSeriesResult",
     "Provenance",
     "RegionSpec",
     "ScanRequest",

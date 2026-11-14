@@ -5,9 +5,13 @@ from collections.abc import Awaitable, Callable
 from typing import Literal
 
 from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
 from pydantic import BaseModel, ConfigDict
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 from starlette.responses import JSONResponse, Response
+
+from .series import problem
+from .series import router as series_router
 
 logger = logging.getLogger(__name__)
 LOCAL_ORIGINS = frozenset(
@@ -43,6 +47,16 @@ def create_app() -> FastAPI:
         response.headers["X-Content-Type-Options"] = "nosniff"
         return response
 
+    @app.exception_handler(RequestValidationError)
+    async def invalid_parameters(request: Request, error: RequestValidationError) -> Response:
+        return problem(
+            422,
+            "INVALID_PARAMETERS",
+            "Invalid parameters",
+            "Check latitude (-90 to 90) and longitude (-180 to 180).",
+        )
+
+    app.include_router(series_router)
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=["127.0.0.1", "localhost"])
 
     @app.get("/api/v1/health", response_model=HealthResponse)

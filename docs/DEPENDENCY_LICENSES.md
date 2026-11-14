@@ -326,3 +326,14 @@ acknowledgment. It is decorative and not analytical provenance.
 | three-slippy-map-globe | 1.0.6 | MIT |
 | tinycolor2 | 1.6.0 | MIT |
 | tslib | 2.9.1 | 0BSD |
+
+## U04 real-data reader additions
+
+Inspected 14 November 2026. Runtime Python additions (exact pins): `numcodecs` 0.16.3 (MIT, Zarr codec decoding) and
+`numpy` 2.5.4 (BSD-3-Clause; the wheel also bundles permissively licensed components whose notices are an F06/R06
+item). `httpx` 0.28.1 (BSD-3-Clause) moves from development to runtime use. No new Node packages.
+
+| Package | Version | Licence |
+| --- | --- | --- |
+| numcodecs | 0.16.3 | MIT |
+| numpy | 2.5.4 | BSD-3-Clause |

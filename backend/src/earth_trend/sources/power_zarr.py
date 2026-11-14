@@ -1,0 +1,293 @@
+"""Read one native-cell monthly series from the NASA POWER anonymous Zarr stores.
+
+Only the approved V01 and V12 stores are reachable. Each request fetches a few small
+metadata/coordinate objects and exactly one spatial chunk (the whole time axis for a
+tile). Values are decoded with the codecs the store declares, the source's own
+quantization is respected, and nothing is interpolated or filled. Raw objects are cached
+locally with their SHA-256 so a result can be traced and, if the network fails, a stale
+cached copy can be used and is reported as such.
+"""
+
+import hashlib
+import json
+import math
+import os
+import re
+import tempfile
+import time
+from dataclasses import dataclass
+from datetime import UTC, datetime, timedelta
+from pathlib import Path
+from typing import Any, cast
+
+import httpx
+import numcodecs
+import numpy as np
+
+HOST = "nasa-power.s3.us-west-2.amazonaws.com"
+MAX_OBJECT_BYTES = 4 * 1024 * 1024
+CACHE_TTL_SECONDS = 24 * 3600
+_CALENDARS = ("standard", "gregorian", "proleptic_gregorian")
+
+
+class SourceUnavailable(Exception):
+    """The provider could not be reached and no cached copy exists."""
+
+
+class SourceFormatError(Exception):
+    """The provider returned something this reader must not interpret."""
+
+
+@dataclass(frozen=True)
+class Store:
+    variable_id: str
+    path: str
+    field: str
+    source_units: str
+    units: str
+    time_standard: str
+    caveats: tuple[str, ...]
+
+
+STORES: dict[str, Store] = {
+    "V01": Store(
+        "V01",
+        "merra2/temporal/power_merra2_monthly_temporal_utc.zarr",
+        "T2M",
+        "C",
+        "°C",
+        "UTC",
+        (
+            "MERRA-2 reanalysis model output; 2 m temperature is not directly assimilated.",
+            "Known MERRA-2 input changes (SST and sea ice in 1982 and 2006-04; production-stream "
+            "breaks around 1991, 2001 and 2011) can create apparent steps in long series.",
+        ),
+    ),
+    "V12": Store(
+        "V12",
+        "syn1deg/temporal/power_syn1deg_monthly_temporal_lst.zarr",
+        "ALLSKY_SFC_SW_DWN",
+        "W m-2",
+        "W/m²",
+        "LST",
+        (
+            "CERES SYN1deg-based radiation on a 1° grid, labelled in local solar time (LST).",
+            "Do not combine with a UTC series or append a different solar product.",
+        ),
+    ),
+}
+
+
+@dataclass(frozen=True)
+class Fetched:
+    body: bytes
+    sha256: str
+    cached: bool
+    stale: bool
+
+
+@dataclass(frozen=True)
+class MonthlyPoint:
+    store: Store
+    months: list[str]
+    values: list[float | None]
+    requested_lat: float
+    requested_lon: float
+    cell_lat: float
+    cell_lon: float
+    lat_step: float
+    lon_step: float
+    store_title: str
+    store_version: str
+    acknowledgement: str
+    declared_end: str
+    artifact_hashes: dict[str, str]
+    retrieved_at: datetime
+    from_cache: bool
+    stale_cache: bool
+
+
+def cache_root() -> Path:
+    configured = os.environ.get("EARTH_TREND_DATA_DIR")
+    base = Path(configured) if configured else Path(__file__).resolve().parents[4] / "artifacts"
+    return base / "runtime" / "power"
+
+
+def _check_url(url: str) -> None:
+    parts = httpx.URL(url)
+    if parts.scheme != "https" or parts.host != HOST or parts.userinfo:
+        raise SourceFormatError("Source URL is outside the approved POWER store")
+
+
+def _download(url: str, client: httpx.Client | None) -> bytes:
+    session = client or httpx.Client(timeout=20.0, follow_redirects=False)
+    try:
+        with session.stream("GET", url, headers={"Accept": "*/*"}) as response:
+            if response.status_code != 200:
+                raise SourceFormatError(f"Unexpected HTTP status {response.status_code}")
+            body = bytearray()
+            for part in response.iter_bytes():
+                body.extend(part)
+                if len(body) > MAX_OBJECT_BYTES:
+                    raise SourceFormatError("Source object exceeds the size limit")
+            return bytes(body)
+    finally:
+        if client is None:
+            session.close()
+
+
+def _store_atomically(path: Path, data: bytes) -> None:
+    handle, name = tempfile.mkstemp(dir=path.parent)
+    with os.fdopen(handle, "wb") as stream:
+        stream.write(data)
+    os.replace(name, path)
+
+
+def fetch(url: str, *, root: Path | None = None, client: httpx.Client | None = None) -> Fetched:
+    """Fetch one bounded object, preferring a fresh cache and falling back to a stale one."""
+    _check_url(url)
+    folder = root or cache_root()
+    key = hashlib.sha256(url.encode()).hexdigest()
+    path, meta = folder / key, folder / (key + ".json")
+    cached: bytes | None = None
+    if path.exists() and meta.exists():
+        body = path.read_bytes()
+        info = json.loads(meta.read_text(encoding="utf-8"))
+        if hashlib.sha256(body).hexdigest() == info.get("sha256"):
+            cached = body
+            if time.time() - path.stat().st_mtime < CACHE_TTL_SECONDS:
+                return Fetched(body, info["sha256"], True, False)
+    try:
+        body = _download(url, client)
+    except (httpx.HTTPError, SourceFormatError) as error:
+        if cached is not None:
+            return Fetched(cached, hashlib.sha256(cached).hexdigest(), True, True)
+        if isinstance(error, SourceFormatError):
+            raise
+        raise SourceUnavailable("The NASA POWER store could not be reached") from error
+    digest = hashlib.sha256(body).hexdigest()
+    folder.mkdir(parents=True, exist_ok=True)
+    _store_atomically(path, body)
+    _store_atomically(meta, json.dumps({"url": url, "sha256": digest}).encode())
+    return Fetched(body, digest, False, False)
+
+
+def decode(body: bytes, descriptor: dict[str, Any], shape: tuple[int, ...]) -> Any:
+    """Decode a Zarr v2 chunk with its declared compressor and filters."""
+    if descriptor.get("zarr_format") != 2 or descriptor.get("order") != "C":
+        raise SourceFormatError("Unsupported Zarr layout")
+    raw = numcodecs.get_codec(descriptor["compressor"]).decode(body)
+    array = np.frombuffer(raw, dtype=descriptor["dtype"])
+    for filter_config in reversed(descriptor.get("filters") or []):
+        array = numcodecs.get_codec(filter_config).decode(array)
+    if array.size != math.prod(shape):
+        raise SourceFormatError("Decoded chunk does not match its declared shape")
+    return array.reshape(shape)
+
+
+def month_labels(days: Any, attributes: dict[str, Any]) -> list[str]:
+    if attributes.get("calendar", "standard") not in _CALENDARS:
+        raise SourceFormatError("Unsupported calendar")
+    match = re.fullmatch(r"days since (\d{4}-\d{2}-\d{2})(?: 00:00:00)?", attributes["units"])
+    if match is None:
+        raise SourceFormatError("Unsupported time units")
+    epoch = datetime.fromisoformat(match[1])
+    labels = [(epoch + timedelta(days=int(value))).strftime("%Y-%m") for value in days]
+    positions = [int(label[:4]) * 12 + int(label[5:]) for label in labels]
+    if any(b != a + 1 for a, b in zip(positions, positions[1:], strict=False)):
+        raise SourceFormatError("Source months are not consecutive")
+    return labels
+
+
+def nearest_index(axis: Any, target: float, *, circular: bool) -> int:
+    difference = np.abs(axis - target)
+    if circular:
+        difference = np.abs(((axis - target + 180.0) % 360.0) - 180.0)
+    return int(np.argmin(difference))
+
+
+def read_point(
+    variable_id: str,
+    lat: float,
+    lon: float,
+    *,
+    root: Path | None = None,
+    client: httpx.Client | None = None,
+) -> MonthlyPoint:
+    store = STORES[variable_id]
+    base = f"https://{HOST}/{store.path}"
+    hashes: dict[str, str] = {}
+    fetches: list[Fetched] = []
+
+    def get(name: str) -> Fetched:
+        item = fetch(f"{base}/{name}", root=root, client=client)
+        hashes[name] = item.sha256
+        fetches.append(item)
+        return item
+
+    def meta(name: str) -> dict[str, Any]:
+        return cast(dict[str, Any], json.loads(get(name).body))
+
+    root_attrs = meta(".zattrs")
+    field_array = meta(f"{store.field}/.zarray")
+    field_attrs = meta(f"{store.field}/.zattrs")
+    if field_attrs.get("units") != store.source_units:
+        raise SourceFormatError("Source units differ from the approved binding")
+    if str(root_attrs.get("time_standard", "")).split("(")[-1].rstrip(")") != store.time_standard:
+        raise SourceFormatError("Source time standard differs from the approved binding")
+    if field_attrs.get("_ARRAY_DIMENSIONS") != ["time", "lat", "lon"]:
+        raise SourceFormatError("Unexpected source dimension order")
+    shape, chunks = tuple(field_array["shape"]), tuple(field_array["chunks"])
+    if chunks[0] != shape[0] or field_array.get("dimension_separator", ".") != ".":
+        raise SourceFormatError("Unsupported chunk layout")
+
+    coordinates: dict[str, Any] = {}
+    for name in ("time", "lat", "lon"):
+        descriptor = meta(f"{name}/.zarray")
+        coordinates[name] = decode(get(f"{name}/0").body, descriptor, tuple(descriptor["shape"]))
+    lat_axis, lon_axis = coordinates["lat"], coordinates["lon"]
+    if (len(coordinates["time"]), len(lat_axis), len(lon_axis)) != shape:
+        raise SourceFormatError("Coordinate lengths do not match the data array")
+    months = month_labels(coordinates["time"], meta("time/.zattrs"))
+
+    lat_index = nearest_index(lat_axis, lat, circular=False)
+    lon_index = nearest_index(lon_axis, ((lon + 180.0) % 360.0) - 180.0, circular=True)
+    key = f"{store.field}/0.{lat_index // chunks[1]}.{lon_index // chunks[2]}"
+    chunk = decode(get(key).body, field_array, chunks)
+    column = np.asarray(chunk[:, lat_index % chunks[1], lon_index % chunks[2]], dtype=np.float64)
+
+    low, high = float(field_attrs["valid_min"]), float(field_attrs["valid_max"])
+    finite = np.isfinite(column)
+    if bool(np.any(column[finite] < low) or np.any(column[finite] > high)):
+        raise SourceFormatError("Decoded values fall outside the source's declared valid range")
+    if not bool(np.any(finite)):
+        raise SourceFormatError("No finite values exist for this location")
+    last = int(np.max(np.nonzero(finite)))
+    scale = next(
+        (f["scale"] for f in field_array.get("filters") or [] if f.get("id") == "fixedscaleoffset"),
+        None,
+    )
+    decimals = int(round(math.log10(scale))) if scale else None
+    values = [
+        None if not finite[i] else (round(float(v), decimals) if decimals is not None else float(v))
+        for i, v in enumerate(column[: last + 1])
+    ]
+    return MonthlyPoint(
+        store=store,
+        months=months[: last + 1],
+        values=values,
+        requested_lat=lat,
+        requested_lon=lon,
+        cell_lat=float(lat_axis[lat_index]),
+        cell_lon=float(lon_axis[lon_index]),
+        lat_step=float(abs(lat_axis[1] - lat_axis[0])),
+        lon_step=float(abs(lon_axis[1] - lon_axis[0])),
+        store_title=str(root_attrs.get("title", store.path)),
+        store_version=str(root_attrs.get("version", "unknown")),
+        acknowledgement=str(root_attrs.get("acknowledgement", "")),
+        declared_end=str(root_attrs.get("time_coverage_end", "")),
+        artifact_hashes=hashes,
+        retrieved_at=datetime.now(UTC),
+        from_cache=all(item.cached for item in fetches),
+        stale_cache=any(item.stale for item in fetches),
+    )

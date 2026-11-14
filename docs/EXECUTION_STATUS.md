@@ -47,6 +47,23 @@ licence. This does not complete final release notice obligations or AC-34. Stati
 snapshot packaging and Node/Python final release supervision remain R01/R02/R07;
 scientific method/data admission gates are unchanged.
 
+**U04 first real-data slice (REVIEW, not DONE).** Data preview now shows REAL NASA POWER monthly data for V01
+(MERRA-2 T2M, UTC, 1981 to the last finite month) and V12 (SYN1deg ALLSKY_SFC_SW_DWN, LST, 2001 onward) for any
+latitude/longitude, replacing the empty state for those two variables only; every other variable still says no
+observations are loaded. Path: Zarr v2 objects (Blosc + fixedscaleoffset decoded exactly as the store declares) -> FastAPI
+`GET /api/v1/series/{id}` returning the new `PointSeriesResult` contract (a contract-valid `Series` plus location, units
+evidence, SHA-256 of every source object, cache/stale flags and caveats; `scientifically_validated` is always false) ->
+Next proxy -> SVG chart + accessible table. Missing months stay null rows and break the line; unpublished trailing months
+(the store declares coverage to 2029-12 but is finite only to 2026-09 / 2026-07) are dropped, not filled. The value is the
+nearest native grid cell, not an area-weighted regional mean. Trend, intervals, significance and Outlook are explicitly
+unavailable (S-tasks). Verified live: Colombo V01 gave 549 months 1981-01..2026-09 with no gaps (24.38..29.32 degC) and V12
+307 months 2001-01..2026-07; the F05 independent REST comparison of the same store remains the cross-check on record. Checks:
+173 backend tests (synthetic Zarr-style store through real decoders, cache/stale/integrity, host allowlist, redirects, size
+limit, problem responses), 42 Vitest, contract drift, and Chromium journeys including an opt-in live test
+(`EARTH_TREND_LIVE=1`). Not done: an independent spot-check of rendered numbers by a human (U04 acceptance), the approved
+anomaly/trend/CI/test outputs, regional (area-weighted) series, the other 11 variables (Earthdata/Giovanni/AppEEARS), the
+Case File link, and ECharts-based views (U12).
+
 **U03 globe engine spike (REVIEW, not DONE).** `/workspace/globe` now runs globe.gl 2.46.2 /
 Three.js 0.186.1 with a bundled NASA GIBS `BlueMarble_ShadedRelief_Bathymetry` texture
 (WMS 1.3.0, EPSG:4326, latitude-first BBOX, 2048x1024, retrieved 14 November 2026; SHA-256

@@ -10,7 +10,7 @@ export class WorkspacePage {
   }
 
   async expectUnavailable(): Promise<void> {
-    await expect(this.page.getByText('Analysis unavailable · No observations loaded', { exact: true })).toBeVisible();
+    await expect(this.page.getByText('Analysis unavailable · Trend methods not validated', { exact: true })).toBeVisible();
   }
 
   async expectNoOverflow(): Promise<void> {

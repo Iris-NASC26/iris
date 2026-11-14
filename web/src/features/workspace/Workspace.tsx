@@ -95,7 +95,7 @@ export function Workspace({ children }: { children: ReactNode }) {
         </select></label><label className="motion-control"><input type="checkbox" checked={reducedMotion}
           onChange={event => setReducedMotion(event.target.checked)} />Reduce motion</label></div>
       </header>
-      <div className="capability-banner"><span><Icon name="info" size={16} />Analysis unavailable · No observations loaded</span><ConnectionStatus /></div>
+      <div className="capability-banner"><span><Icon name="info" size={16} />Analysis unavailable · Trend methods not validated</span><ConnectionStatus /></div>
       <main id="workspace-content" ref={content} tabIndex={-1} className="dashboard-page">{children}</main>
       <footer className="workspace-footer"><span>Statistics decide. Every result needs a source.</span><span>Local · SI off</span></footer>
     </div>

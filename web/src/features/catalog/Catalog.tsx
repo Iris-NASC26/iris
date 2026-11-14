@@ -4,6 +4,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { isConnected } from '../../data/series';
 import { Icon } from '../../components/ui/Icon';
 import { usePreferences } from '../../state/preferences';
 import { findPlannedVariable, plannedCatalog } from './plannedCatalog';
@@ -20,7 +21,7 @@ export function Catalog() {
     `${item.name} ${item.id} ${item.product} ${item.field}`.toLowerCase().includes(needle));
   return <>
     <div className="page-heading"><p className="eyebrow">01 / DATA SELECTION</p><h1>What are you curious about?</h1>
-      <p>Browse the approved variable list. These are planned data sources; none is installed for analysis yet.</p></div>
+      <p>Browse the approved variable list. Variables marked Preview available can show a real NASA POWER series; none is ready for analysis yet.</p></div>
     <div className="catalog-toolbar"><label className="search-field"><Icon name="search" size={18} /><span className="sr-only">Search variables</span>
       <input value={query} onChange={event => setQuery(event.target.value)} placeholder="Search a variable, product or field…" /></label>
       <label className="filter-field">Theme<select value={theme} onChange={event => setTheme(event.target.value)}>
@@ -37,7 +38,7 @@ export function Catalog() {
       </button>)}</div>
     </section><aside className="selection-panel" aria-label="Selected variable">
       {selected ? <><p className="eyebrow">VARIABLE FLASHCARD / {selected.id}</p><h2>{selected.name}</h2>
-        <span className="availability-badge">Not installed</span><p>{level === 'explorer' ? selected.summary : selected.definition}</p>
+        <span className="availability-badge">{isConnected(selected.id) ? 'Preview available' : 'Not installed'}</span><p>{level === 'explorer' ? selected.summary : selected.definition}</p>
         <dl><dt>Intended NASA source</dt><dd>{selected.product}</dd><dt>Display units</dt><dd>{selected.units}</dd>
           <dt>Scope</dt><dd>{selected.regionalOnly ? 'Regional presets; no globe layer' : 'Global cube and regional analysis'}</dd>
           {level === 'scientist' && <><dt>Target field</dt><dd><code>{selected.field}</code></dd></>}</dl>

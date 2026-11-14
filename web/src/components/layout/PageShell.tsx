@@ -7,7 +7,7 @@ import { ConnectionStatus } from '../../features/workspace/ConnectionStatus';
 
 export function PublicFrame({ children }: { children: ReactNode }) {
   return <div className="app-shell public-site"><a href="#public-content" className="skip-link">Skip to content</a>
-    <PublicNavbar /><div className="capability-banner"><span><Icon name="info" size={16} />Analysis unavailable · No observations loaded</span><ConnectionStatus /></div>
+    <PublicNavbar /><div className="capability-banner"><span><Icon name="info" size={16} />Analysis unavailable · Trend methods not validated</span><ConnectionStatus /></div>
     <main className="public-content" id="public-content">{children}</main>
     <footer className="public-footer"><div><strong>Iris · Earth Trend Detective</strong><p>Curiosity, grounded in evidence.</p></div>
       <nav aria-label="Footer navigation"><Link href="/methodology">Methods</Link><Link href="/data">Data sources</Link><Link href="/about">Project</Link></nav>
