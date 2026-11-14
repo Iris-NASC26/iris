@@ -1,0 +1,12 @@
+{
+  "fixture_kind": "synthetic_contract",
+  "fixture_id": "region-cell",
+  "model": "RegionSpec",
+  "disclosure": "STRUCTURAL TEST ONLY. Invented values and IDs; no NASA observations, method validation or scientific findings. Never bundle as product data.",
+  "payload": {
+    "kind": "cell",
+    "grid_id": "synthetic-grid",
+    "layer_id": "synthetic-layer",
+    "cell_id": 0
+  }
+}

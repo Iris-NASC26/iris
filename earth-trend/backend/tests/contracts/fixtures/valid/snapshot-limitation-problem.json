@@ -1,0 +1,18 @@
+{
+  "fixture_kind": "synthetic_contract",
+  "fixture_id": "snapshot-limitation-problem",
+  "model": "Error",
+  "disclosure": "STRUCTURAL TEST ONLY. Invented values and IDs; no NASA observations, method validation or scientific findings. Never bundle as product data.",
+  "payload": {
+    "schema_version": "1.0",
+    "type": "urn:earth-trend:problem:snapshot-not-bundled",
+    "title": "Query not bundled",
+    "status": 409,
+    "detail": "Snapshot contains prepared queries only.",
+    "code": "SNAPSHOT_NOT_BUNDLED",
+    "request_id": "synthetic-request",
+    "retryable": false,
+    "retry_after_seconds": null,
+    "field_errors": []
+  }
+}

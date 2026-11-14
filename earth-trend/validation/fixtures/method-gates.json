@@ -1,0 +1,227 @@
+{
+  "schema_version": "f04-gates-v1",
+  "meaning": "Evidence classifications only. VERIFIED is not human approval, production readiness, a passed SRS acceptance criterion, or permission to set F03 method.validation_status=validated.",
+  "human_review": "PENDING: H3 plus an independently qualified scientific reviewer",
+  "gates": [
+    {
+      "id": "CALENDAR",
+      "status": "VERIFIED",
+      "claim": "Gregorian midpoint-day offsets preserve real elapsed time and gaps on the hand-tabulated fixtures.",
+      "sources": [
+        "TDD-4.1",
+        "HAND-CALENDAR"
+      ],
+      "downstream": [
+        "S01",
+        "S02"
+      ],
+      "remaining": "H3 must choose the production year ruler; the reference uses an explicit 365.2425-day parameter, marked PROVISIONAL."
+    },
+    {
+      "id": "CLIMATOLOGY",
+      "status": "VERIFIED",
+      "claim": "Monthly baseline means and equal-weight annual anomaly arithmetic match fixed analytic examples.",
+      "sources": [
+        "TDD-4.2",
+        "HAND-SEASONAL"
+      ],
+      "downstream": [
+        "S01"
+      ],
+      "remaining": "Production QA/coverage eligibility and baseline minimum-count policies still need implementation and review."
+    },
+    {
+      "id": "SEN-POINT",
+      "status": "VERIFIED",
+      "claim": "Pairwise slopes on actual coordinates agree with exact affine/outlier/tie fixtures and SciPy.",
+      "sources": [
+        "SCIPY-THEIL",
+        "HAND-SLOPES"
+      ],
+      "downstream": [
+        "S02"
+      ],
+      "remaining": "Reference agreement is not empirical coverage or production sign-off."
+    },
+    {
+      "id": "OLS-REFERENCE",
+      "status": "VERIFIED",
+      "claim": "SVD least squares matches hand rational sums and independent SciPy linregress; F=t squared and the df=2 closed-form tail agree.",
+      "sources": [
+        "SANTER-2000",
+        "SCIPY-LINREGRESS",
+        "HAND-OLS"
+      ],
+      "downstream": [
+        "S02"
+      ],
+      "remaining": "Uncorrected inference requires independent homoscedastic errors; no serial-dependence validity is claimed."
+    },
+    {
+      "id": "MK-NORMAL",
+      "status": "PROVISIONAL",
+      "claim": "Pair scores, ties and continuity-corrected normal p-values agree with complete-series pyMannKendall.",
+      "sources": [
+        "PYMK-1.4.3"
+      ],
+      "downstream": [
+        "S03",
+        "S13"
+      ],
+      "remaining": "Approximate p-values are not exact small-sample permutation probabilities. Full null calibration has not run."
+    },
+    {
+      "id": "HR-COMPLETE",
+      "status": "PROVISIONAL",
+      "claim": "An explicitly capped complete-monthly pyMannKendall comparator is available; its diagnostic alpha is fixed at 0.05.",
+      "sources": [
+        "HAMED-RAO-1998",
+        "PYMK-1.4.3"
+      ],
+      "downstream": [
+        "S03",
+        "S13"
+      ],
+      "remaining": "Publisher full text returned 403. Original-paper variance/lag conventions and applicability need qualified review; library agreement alone cannot certify them. The library detrends on month/observation indices, not actual elapsed midpoint days; matching the TDD requires separate coordinate-convention review."
+    },
+    {
+      "id": "HR-GAPS",
+      "status": "BLOCKED",
+      "claim": "No validated calendar-gap Hamed-Rao variance correction is available in this foundation.",
+      "sources": [
+        "TDD-4.3",
+        "PYMK-1.4.3"
+      ],
+      "downstream": [
+        "S03",
+        "S13"
+      ],
+      "unavailable_reason": "method_unvalidated_for_gaps",
+      "remaining": "Derive/review a calendar-aware extension; run the missing-month scenarios before publication. Never compress gaps and call the result gap-aware."
+    },
+    {
+      "id": "SEN-IID-RANKS",
+      "status": "VERIFIED",
+      "claim": "SciPy 1.18.1 uses tie-corrected variance and nearest-even rank rounding; the six-point fixture selects one-based ranks 2 and 14.",
+      "sources": [
+        "SCIPY-THEIL",
+        "SCIPY-ROBUST-SOURCE",
+        "HAND-SLOPES"
+      ],
+      "downstream": [
+        "S05"
+      ],
+      "remaining": "This establishes the reference rank convention, not finite-sample coverage or an autocorrelation-adjusted interval."
+    },
+    {
+      "id": "SEN-ADJUSTED-CI",
+      "status": "BLOCKED",
+      "claim": "No autocorrelation-adjusted Sen CI is certified or computed here.",
+      "sources": [
+        "TDD-4.4"
+      ],
+      "downstream": [
+        "S05",
+        "S13"
+      ],
+      "unavailable_reason": "method_validation_required",
+      "remaining": "Review the rank inversion/variance correction and calibrate coverage; a bootstrap fallback needs its own reviewed version and latency benchmark."
+    },
+    {
+      "id": "OLS-EFFECTIVE-DF",
+      "status": "PROVISIONAL",
+      "claim": "Santer printed pages 7343-7344 visually confirm effective-n, residual-variance substitution and the adjusted-df variant used by the TDD.",
+      "sources": [
+        "SANTER-2000",
+        "TDD-4.3"
+      ],
+      "downstream": [
+        "S04",
+        "S13"
+      ],
+      "remaining": "The comparator accepts supplied rho only. Residual ACF normalization, calendar-pair treatment and the 24-pair rule need review/calibration; no residual-rho estimator is silently selected."
+    },
+    {
+      "id": "WEATHERHEAD",
+      "status": "BLOCKED",
+      "claim": "Primary extracted text identifies monthly sampling and trend per year; equation (3) and coefficient were not visually verified.",
+      "sources": [
+        "WEATHERHEAD-1998",
+        "TDD-4.7"
+      ],
+      "downstream": [
+        "S09"
+      ],
+      "unavailable_reason": "method_validation_required",
+      "remaining": "Harvard PDF text was accessible, but local download was denied and screenshot returned cache miss; alternate Hamburg copy required authorization. Inspect the actual equation, sampling derivation and approximation before implementing. No horizon is calculated here."
+    },
+    {
+      "id": "BH-ARITHMETIC",
+      "status": "VERIFIED",
+      "claim": "Exact adjusted fractions and original-order/exclusion handling agree with the frozen family and SciPy.",
+      "sources": [
+        "SCIPY-BH",
+        "HAND-BH"
+      ],
+      "downstream": [
+        "S06"
+      ],
+      "remaining": "Dependence assumptions, complete family identity and repeated exploratory selections remain scientific limitations."
+    },
+    {
+      "id": "SPATIAL-WEIGHTS",
+      "status": "VERIFIED",
+      "claim": "Analytic exact-weight examples preserve weighted numerators/denominators, missing support and true zeros.",
+      "sources": [
+        "SRS-SM-02",
+        "HAND-WEIGHTS"
+      ],
+      "downstream": [
+        "D14",
+        "D15"
+      ],
+      "remaining": "No actual geometry, masks, provider weighting or NASA global mean has been checked."
+    },
+    {
+      "id": "ACKER-SOURCE-FACTS",
+      "status": "VERIFIED",
+      "claim": "NTRS PDF pages 4, 17 and 22 were visually inspected: ten boxes, Table 5 outcomes and January 1998-December 2007 candidate window.",
+      "sources": [
+        "ACKER-2009"
+      ],
+      "downstream": [
+        "D09",
+        "S14"
+      ],
+      "remaining": "Page 3 calls the span nine years; keep the discrepancy. Table 5 slope units are not explicit; do not assume a per-decade conversion."
+    },
+    {
+      "id": "ACKER-REPRODUCTION",
+      "status": "BLOCKED",
+      "claim": "No SeaWiFS observations have been acquired or reproduced.",
+      "sources": [
+        "ACKER-2009",
+        "TDD-9.3"
+      ],
+      "downstream": [
+        "S14"
+      ],
+      "remaining": "Obtain authentic versioned series, verify calendar/QA/window and published slope units, then compare monthly and annual branches separately. Modern reprocessing can differ."
+    },
+    {
+      "id": "FULL-CALIBRATION",
+      "status": "BLOCKED",
+      "claim": "SM-12, AC-30/31 and VL-01/02 are not complete.",
+      "sources": [
+        "SRS-SM-12",
+        "TDD-9.2"
+      ],
+      "downstream": [
+        "S13",
+        "S14",
+        "R06"
+      ],
+      "remaining": "At least 2000 independent 300-month realizations per required scenario, full reports and human scientific sign-off are still required."
+    }
+  ]
+}

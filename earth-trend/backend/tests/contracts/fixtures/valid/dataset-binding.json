@@ -1,0 +1,49 @@
+{
+  "fixture_kind": "synthetic_contract",
+  "fixture_id": "dataset-binding",
+  "model": "DatasetBinding",
+  "disclosure": "STRUCTURAL TEST ONLY. Invented values and IDs; no NASA observations, method validation or scientific findings. Never bundle as product data.",
+  "payload": {
+    "schema_version": "1.0",
+    "binding_id": "synthetic-binding",
+    "variable_id": "V01",
+    "product": "SYNTHETIC-NOT-NASA",
+    "product_version": "fixture-v1",
+    "doi": null,
+    "concept_id": null,
+    "field": "synthetic_value",
+    "provider": "synthetic_contract",
+    "resource": "SYNTHETIC CONTRACT ONLY",
+    "native_units": "C",
+    "units": "°C",
+    "unit_evidence": "synthetic_contract",
+    "evidence_refs": [],
+    "transform": {
+      "transform_id": "synthetic-identity",
+      "version": "fixture-v1",
+      "kind": "identity",
+      "input_units": "C",
+      "output_units": "°C",
+      "scale": 1,
+      "offset": 0,
+      "order": [
+        "decode_fill",
+        "qa",
+        "scale_units",
+        "weighted_regional_mean"
+      ]
+    },
+    "domain": "land",
+    "native_grid_id": "synthetic-native-grid",
+    "analysis_grid_id": "synthetic-analysis-grid",
+    "source_calendar": "gregorian",
+    "time_convention": "UTC",
+    "coverage": {
+      "start": "2003-01",
+      "end": "2023-12"
+    },
+    "scale_type": "interval",
+    "data_kind": "synthetic_contract",
+    "caveat_ids": []
+  }
+}

@@ -1,0 +1,6939 @@
+{
+  "components": {
+    "schemas": {
+      "ActiveJob": {
+        "additionalProperties": false,
+        "properties": {
+          "attempt": {
+            "minimum": 0,
+            "title": "Attempt",
+            "type": "integer"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "job_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Job Id",
+            "type": "string"
+          },
+          "progress": {
+            "anyOf": [
+              {
+                "maximum": 1,
+                "minimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Progress"
+          },
+          "progress_reason": {
+            "anyOf": [
+              {
+                "enum": [
+                  "missing_observation",
+                  "insufficient_coverage",
+                  "insufficient_record",
+                  "outside_product_domain",
+                  "unknown_coverage",
+                  "unknown_units",
+                  "invalid_variance",
+                  "zero_or_unresolved_slope",
+                  "zero_residual_variance",
+                  "interval_scale_variable",
+                  "index_variable",
+                  "near_zero_mean",
+                  "method_validation_required",
+                  "method_unvalidated_for_gaps",
+                  "insufficient_lag_pairs",
+                  "insufficient_baseline",
+                  "no_forecast_skill",
+                  "insufficient_backtest_origins",
+                  "nonstationary_residuals",
+                  "unsupported_transform",
+                  "snapshot_not_bundled",
+                  "not_implemented",
+                  "not_requested",
+                  "no_fdr_context",
+                  "insufficient_contiguous_blocks",
+                  "no_eligible_tests",
+                  "provider_progress_unknown"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Progress Reason"
+          },
+          "provider_job_ids": {
+            "items": {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+              "type": "string"
+            },
+            "title": "Provider Job Ids",
+            "type": "array"
+          },
+          "request_hash": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Request Hash",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "1.0",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "stage": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Stage",
+            "type": "string"
+          },
+          "state": {
+            "enum": [
+              "queued",
+              "running",
+              "waiting_provider"
+            ],
+            "title": "State",
+            "type": "string"
+          },
+          "status_url": {
+            "pattern": "^/api/v1/jobs/[A-Za-z0-9._:-]+$",
+            "title": "Status Url",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "schema_version",
+          "created_at",
+          "job_id",
+          "request_hash",
+          "status_url",
+          "updated_at",
+          "stage",
+          "attempt",
+          "provider_job_ids",
+          "state",
+          "progress",
+          "progress_reason"
+        ],
+        "title": "ActiveJob",
+        "type": "object"
+      },
+      "AnalysedRow": {
+        "additionalProperties": false,
+        "properties": {
+          "actual_window": {
+            "$ref": "#/components/schemas/MonthlyWindow"
+          },
+          "grade": {
+            "$ref": "#/components/schemas/Grade"
+          },
+          "primary_test": {
+            "$ref": "#/components/schemas/AvailableTest"
+          },
+          "result_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Result Id",
+            "type": "string"
+          },
+          "standardized_slope": {
+            "$ref": "#/components/schemas/Estimate"
+          },
+          "status": {
+            "const": "analysed",
+            "title": "Status",
+            "type": "string"
+          },
+          "variable_id": {
+            "enum": [
+              "V01",
+              "V02",
+              "V03",
+              "V04",
+              "V05",
+              "V06",
+              "V07",
+              "V08",
+              "V09",
+              "V10",
+              "V11",
+              "V12",
+              "V13"
+            ],
+            "title": "Variable Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "variable_id",
+          "result_id",
+          "actual_window",
+          "primary_test",
+          "standardized_slope",
+          "grade"
+        ],
+        "title": "AnalysedRow",
+        "type": "object"
+      },
+      "AnalysisBranch": {
+        "additionalProperties": false,
+        "properties": {
+          "branch_id": {
+            "enum": [
+              "raw_monthly",
+              "monthly_anomaly",
+              "log10_monthly_anomaly",
+              "reference_raw_monthly",
+              "reference_annual_anomaly",
+              "annual_layer",
+              "seasonal_month"
+            ],
+            "title": "Branch Id",
+            "type": "string"
+          },
+          "diagnostics": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RegressionDiagnostics"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "diagnostics_reason": {
+            "anyOf": [
+              {
+                "enum": [
+                  "missing_observation",
+                  "insufficient_coverage",
+                  "insufficient_record",
+                  "outside_product_domain",
+                  "unknown_coverage",
+                  "unknown_units",
+                  "invalid_variance",
+                  "zero_or_unresolved_slope",
+                  "zero_residual_variance",
+                  "interval_scale_variable",
+                  "index_variable",
+                  "near_zero_mean",
+                  "method_validation_required",
+                  "method_unvalidated_for_gaps",
+                  "insufficient_lag_pairs",
+                  "insufficient_baseline",
+                  "no_forecast_skill",
+                  "insufficient_backtest_origins",
+                  "nonstationary_residuals",
+                  "unsupported_transform",
+                  "snapshot_not_bundled",
+                  "not_implemented",
+                  "not_requested",
+                  "no_fdr_context",
+                  "insufficient_contiguous_blocks",
+                  "no_eligible_tests",
+                  "provider_progress_unknown"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Diagnostics Reason"
+          },
+          "estimates": {
+            "items": {
+              "$ref": "#/components/schemas/Estimate"
+            },
+            "minItems": 1,
+            "title": "Estimates",
+            "type": "array"
+          },
+          "frequency": {
+            "enum": [
+              "monthly",
+              "annual"
+            ],
+            "title": "Frequency",
+            "type": "string"
+          },
+          "series_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Series Id",
+            "type": "string"
+          },
+          "tests": {
+            "items": {
+              "$ref": "#/components/schemas/TestResult"
+            },
+            "title": "Tests",
+            "type": "array"
+          },
+          "transform": {
+            "enum": [
+              "raw",
+              "anomaly",
+              "log10_anomaly",
+              "annual_anomaly"
+            ],
+            "title": "Transform",
+            "type": "string"
+          }
+        },
+        "required": [
+          "branch_id",
+          "series_id",
+          "transform",
+          "frequency",
+          "estimates",
+          "tests",
+          "diagnostics",
+          "diagnostics_reason"
+        ],
+        "title": "AnalysisBranch",
+        "type": "object"
+      },
+      "AnalysisRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "alpha": {
+            "maximum": 0.1,
+            "minimum": 0.01,
+            "title": "Alpha",
+            "type": "number"
+          },
+          "baseline": {
+            "discriminator": {
+              "mapping": {
+                "analysis_window": "#/components/schemas/WindowBaseline",
+                "explicit": "#/components/schemas/ExplicitBaseline"
+              },
+              "propertyName": "kind"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/WindowBaseline"
+              },
+              {
+                "$ref": "#/components/schemas/ExplicitBaseline"
+              }
+            ],
+            "title": "Baseline"
+          },
+          "data_release_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Data Release Id",
+            "type": "string"
+          },
+          "method_profile": {
+            "const": "srs-p0-v1",
+            "title": "Method Profile",
+            "type": "string"
+          },
+          "region": {
+            "$ref": "#/components/schemas/RegionSpec"
+          },
+          "schema_version": {
+            "const": "1.0",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "variable_id": {
+            "enum": [
+              "V01",
+              "V02",
+              "V03",
+              "V04",
+              "V05",
+              "V06",
+              "V07",
+              "V08",
+              "V09",
+              "V10",
+              "V11",
+              "V12",
+              "V13"
+            ],
+            "title": "Variable Id",
+            "type": "string"
+          },
+          "window": {
+            "$ref": "#/components/schemas/MonthlyWindow"
+          }
+        },
+        "required": [
+          "schema_version",
+          "window",
+          "baseline",
+          "alpha",
+          "method_profile",
+          "data_release_id",
+          "variable_id",
+          "region"
+        ],
+        "title": "AnalysisRequest",
+        "type": "object"
+      },
+      "AnalysisResult": {
+        "additionalProperties": false,
+        "properties": {
+          "analysis_status": {
+            "enum": [
+              "available",
+              "unavailable"
+            ],
+            "title": "Analysis Status",
+            "type": "string"
+          },
+          "binding_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Binding Id",
+            "type": "string"
+          },
+          "branches": {
+            "items": {
+              "$ref": "#/components/schemas/AnalysisBranch"
+            },
+            "minItems": 1,
+            "title": "Branches",
+            "type": "array"
+          },
+          "caveat_ids": {
+            "items": {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+              "type": "string"
+            },
+            "title": "Caveat Ids",
+            "type": "array"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "data_release_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Data Release Id",
+            "type": "string"
+          },
+          "detectability": {
+            "$ref": "#/components/schemas/Detectability"
+          },
+          "evidence_kind": {
+            "enum": [
+              "scientific",
+              "synthetic_contract"
+            ],
+            "title": "Evidence Kind",
+            "type": "string"
+          },
+          "fdr": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FdrResult"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "fdr_reason": {
+            "anyOf": [
+              {
+                "enum": [
+                  "missing_observation",
+                  "insufficient_coverage",
+                  "insufficient_record",
+                  "outside_product_domain",
+                  "unknown_coverage",
+                  "unknown_units",
+                  "invalid_variance",
+                  "zero_or_unresolved_slope",
+                  "zero_residual_variance",
+                  "interval_scale_variable",
+                  "index_variable",
+                  "near_zero_mean",
+                  "method_validation_required",
+                  "method_unvalidated_for_gaps",
+                  "insufficient_lag_pairs",
+                  "insufficient_baseline",
+                  "no_forecast_skill",
+                  "insufficient_backtest_origins",
+                  "nonstationary_residuals",
+                  "unsupported_transform",
+                  "snapshot_not_bundled",
+                  "not_implemented",
+                  "not_requested",
+                  "no_fdr_context",
+                  "insufficient_contiguous_blocks",
+                  "no_eligible_tests",
+                  "provider_progress_unknown"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fdr Reason"
+          },
+          "grade": {
+            "$ref": "#/components/schemas/Grade"
+          },
+          "mode": {
+            "enum": [
+              "local",
+              "snapshot"
+            ],
+            "title": "Mode",
+            "type": "string"
+          },
+          "physical_units": {
+            "anyOf": [
+              {
+                "enum": [
+                  "°C",
+                  "mm/day",
+                  "mm",
+                  "10^15 molecules/cm²",
+                  "dimensionless",
+                  "mg/m³",
+                  "W/m²"
+                ],
+                "type": "string"
+              },
+              {
+                "enum": [
+                  "log10(mg/m³)",
+                  "°C/decade",
+                  "mm/day/decade",
+                  "mm/decade",
+                  "10^15 molecules/cm²/decade",
+                  "dimensionless/decade",
+                  "mg/m³/decade",
+                  "W/m²/decade",
+                  "log10(mg/m³)/decade",
+                  "%/decade",
+                  "sigma/decade",
+                  "years",
+                  "fractional_year",
+                  "km²"
+                ],
+                "type": "string"
+              }
+            ],
+            "title": "Physical Units"
+          },
+          "primary_branch": {
+            "enum": [
+              "raw_monthly",
+              "monthly_anomaly",
+              "log10_monthly_anomaly",
+              "reference_raw_monthly",
+              "reference_annual_anomaly",
+              "annual_layer",
+              "seasonal_month"
+            ],
+            "title": "Primary Branch",
+            "type": "string"
+          },
+          "provenance_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Provenance Id",
+            "type": "string"
+          },
+          "provenance_map": {
+            "additionalProperties": {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+              "type": "string"
+            },
+            "minProperties": 1,
+            "title": "Provenance Map",
+            "type": "object"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "enum": [
+                  "missing_observation",
+                  "insufficient_coverage",
+                  "insufficient_record",
+                  "outside_product_domain",
+                  "unknown_coverage",
+                  "unknown_units",
+                  "invalid_variance",
+                  "zero_or_unresolved_slope",
+                  "zero_residual_variance",
+                  "interval_scale_variable",
+                  "index_variable",
+                  "near_zero_mean",
+                  "method_validation_required",
+                  "method_unvalidated_for_gaps",
+                  "insufficient_lag_pairs",
+                  "insufficient_baseline",
+                  "no_forecast_skill",
+                  "insufficient_backtest_origins",
+                  "nonstationary_residuals",
+                  "unsupported_transform",
+                  "snapshot_not_bundled",
+                  "not_implemented",
+                  "not_requested",
+                  "no_fdr_context",
+                  "insufficient_contiguous_blocks",
+                  "no_eligible_tests",
+                  "provider_progress_unknown"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "request": {
+            "$ref": "#/components/schemas/AnalysisRequest"
+          },
+          "request_hash": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Request Hash",
+            "type": "string"
+          },
+          "result_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Result Id",
+            "type": "string"
+          },
+          "scale_type": {
+            "enum": [
+              "interval",
+              "ratio",
+              "index"
+            ],
+            "title": "Scale Type",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "1.0",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "seasonality": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Seasonality"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "seasonality_reason": {
+            "anyOf": [
+              {
+                "enum": [
+                  "missing_observation",
+                  "insufficient_coverage",
+                  "insufficient_record",
+                  "outside_product_domain",
+                  "unknown_coverage",
+                  "unknown_units",
+                  "invalid_variance",
+                  "zero_or_unresolved_slope",
+                  "zero_residual_variance",
+                  "interval_scale_variable",
+                  "index_variable",
+                  "near_zero_mean",
+                  "method_validation_required",
+                  "method_unvalidated_for_gaps",
+                  "insufficient_lag_pairs",
+                  "insufficient_baseline",
+                  "no_forecast_skill",
+                  "insufficient_backtest_origins",
+                  "nonstationary_residuals",
+                  "unsupported_transform",
+                  "snapshot_not_bundled",
+                  "not_implemented",
+                  "not_requested",
+                  "no_fdr_context",
+                  "insufficient_contiguous_blocks",
+                  "no_eligible_tests",
+                  "provider_progress_unknown"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Seasonality Reason"
+          },
+          "series_refs": {
+            "items": {
+              "$ref": "#/components/schemas/SeriesRef"
+            },
+            "minItems": 1,
+            "title": "Series Refs",
+            "type": "array"
+          },
+          "status": {
+            "const": "completed",
+            "title": "Status",
+            "type": "string"
+          },
+          "warnings": {
+            "items": {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+              "type": "string"
+            },
+            "title": "Warnings",
+            "type": "array"
+          }
+        },
+        "required": [
+          "schema_version",
+          "created_at",
+          "status",
+          "result_id",
+          "request_hash",
+          "data_release_id",
+          "mode",
+          "evidence_kind",
+          "provenance_id",
+          "provenance_map",
+          "warnings",
+          "request",
+          "binding_id",
+          "physical_units",
+          "scale_type",
+          "analysis_status",
+          "reason",
+          "series_refs",
+          "branches",
+          "primary_branch",
+          "fdr",
+          "fdr_reason",
+          "seasonality",
+          "seasonality_reason",
+          "grade",
+          "caveat_ids",
+          "detectability"
+        ],
+        "title": "AnalysisResult",
+        "type": "object"
+      },
+      "AnnualFrame": {
+        "additionalProperties": false,
+        "properties": {
+          "anomaly": {
+            "$ref": "#/components/schemas/LayerArray"
+          },
+          "year": {
+            "pattern": "^(?:[1-9][0-9]{3}|0[1-9][0-9]{2}|00[1-9][0-9]|000[1-9])$",
+            "title": "Year",
+            "type": "string"
+          }
+        },
+        "required": [
+          "year",
+          "anomaly"
+        ],
+        "title": "AnnualFrame",
+        "type": "object"
+      },
+      "ArtifactMembership": {
+        "additionalProperties": false,
+        "description": "Complete global family membership is retained in checksummed artifacts.",
+        "properties": {
+          "exclusions": {
+            "$ref": "#/components/schemas/ArtifactRef"
+          },
+          "kind": {
+            "const": "artifact",
+            "title": "Kind",
+            "type": "string"
+          },
+          "members": {
+            "$ref": "#/components/schemas/ArtifactRef"
+          }
+        },
+        "required": [
+          "kind",
+          "members",
+          "exclusions"
+        ],
+        "title": "ArtifactMembership",
+        "type": "object"
+      },
+      "ArtifactRef": {
+        "additionalProperties": false,
+        "properties": {
+          "artifact_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Artifact Id",
+            "type": "string"
+          },
+          "bytes": {
+            "minimum": 0,
+            "title": "Bytes",
+            "type": "integer"
+          },
+          "media_type": {
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Media Type",
+            "type": "string"
+          },
+          "path": {
+            "pattern": "^/artifacts/[A-Za-z0-9/_.-]+$",
+            "title": "Path",
+            "type": "string"
+          },
+          "sha256": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Sha256",
+            "type": "string"
+          }
+        },
+        "required": [
+          "artifact_id",
+          "sha256",
+          "path",
+          "media_type",
+          "bytes"
+        ],
+        "title": "ArtifactRef",
+        "type": "object"
+      },
+      "AvailableEstimate": {
+        "additionalProperties": false,
+        "properties": {
+          "branch_id": {
+            "enum": [
+              "raw_monthly",
+              "monthly_anomaly",
+              "log10_monthly_anomaly",
+              "reference_raw_monthly",
+              "reference_annual_anomaly",
+              "annual_layer",
+              "seasonal_month"
+            ],
+            "title": "Branch Id",
+            "type": "string"
+          },
+          "ci_high": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ci High"
+          },
+          "ci_low": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ci Low"
+          },
+          "ci_method": {
+            "anyOf": [
+              {
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ci Method"
+          },
+          "ci_method_version": {
+            "anyOf": [
+              {
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ci Method Version"
+          },
+          "ci_reason": {
+            "anyOf": [
+              {
+                "enum": [
+                  "missing_observation",
+                  "insufficient_coverage",
+                  "insufficient_record",
+                  "outside_product_domain",
+                  "unknown_coverage",
+                  "unknown_units",
+                  "invalid_variance",
+                  "zero_or_unresolved_slope",
+                  "zero_residual_variance",
+                  "interval_scale_variable",
+                  "index_variable",
+                  "near_zero_mean",
+                  "method_validation_required",
+                  "method_unvalidated_for_gaps",
+                  "insufficient_lag_pairs",
+                  "insufficient_baseline",
+                  "no_forecast_skill",
+                  "insufficient_backtest_origins",
+                  "nonstationary_residuals",
+                  "unsupported_transform",
+                  "snapshot_not_bundled",
+                  "not_implemented",
+                  "not_requested",
+                  "no_fdr_context",
+                  "insufficient_contiguous_blocks",
+                  "no_eligible_tests",
+                  "provider_progress_unknown"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ci Reason"
+          },
+          "confidence_level": {
+            "anyOf": [
+              {
+                "exclusiveMaximum": 1,
+                "exclusiveMinimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confidence Level"
+          },
+          "estimator": {
+            "enum": [
+              "sen",
+              "ols",
+              "derived"
+            ],
+            "title": "Estimator",
+            "type": "string"
+          },
+          "estimator_version": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Estimator Version",
+            "type": "string"
+          },
+          "provenance_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Provenance Id",
+            "type": "string"
+          },
+          "quantity": {
+            "enum": [
+              "slope_per_decade",
+              "percent_change_per_decade",
+              "standardized_slope_per_decade",
+              "mean",
+              "residual_sd",
+              "ols_standard_error",
+              "detectability_horizon_years",
+              "emergence_year"
+            ],
+            "title": "Quantity",
+            "type": "string"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "null"
+          },
+          "status": {
+            "const": "available",
+            "title": "Status",
+            "type": "string"
+          },
+          "units": {
+            "anyOf": [
+              {
+                "enum": [
+                  "°C",
+                  "mm/day",
+                  "mm",
+                  "10^15 molecules/cm²",
+                  "dimensionless",
+                  "mg/m³",
+                  "W/m²"
+                ],
+                "type": "string"
+              },
+              {
+                "enum": [
+                  "log10(mg/m³)",
+                  "°C/decade",
+                  "mm/day/decade",
+                  "mm/decade",
+                  "10^15 molecules/cm²/decade",
+                  "dimensionless/decade",
+                  "mg/m³/decade",
+                  "W/m²/decade",
+                  "log10(mg/m³)/decade",
+                  "%/decade",
+                  "sigma/decade",
+                  "years",
+                  "fractional_year",
+                  "km²"
+                ],
+                "type": "string"
+              }
+            ],
+            "title": "Units"
+          },
+          "value": {
+            "title": "Value",
+            "type": "number"
+          }
+        },
+        "required": [
+          "quantity",
+          "units",
+          "branch_id",
+          "estimator",
+          "estimator_version",
+          "provenance_id",
+          "status",
+          "value",
+          "reason",
+          "ci_low",
+          "ci_high",
+          "confidence_level",
+          "ci_method",
+          "ci_method_version",
+          "ci_reason"
+        ],
+        "title": "AvailableEstimate",
+        "type": "object"
+      },
+      "AvailableForecast": {
+        "additionalProperties": false,
+        "properties": {
+          "branch_id": {
+            "enum": [
+              "raw_monthly",
+              "monthly_anomaly",
+              "log10_monthly_anomaly",
+              "reference_raw_monthly",
+              "reference_annual_anomaly",
+              "annual_layer",
+              "seasonal_month"
+            ],
+            "title": "Branch Id",
+            "type": "string"
+          },
+          "horizon_months": {
+            "enum": [
+              12,
+              24
+            ],
+            "title": "Horizon Months",
+            "type": "integer"
+          },
+          "label": {
+            "const": "Statistical forecast",
+            "title": "Label",
+            "type": "string"
+          },
+          "model": {
+            "const": "trend_seasonality_ar1",
+            "title": "Model",
+            "type": "string"
+          },
+          "model_version": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Model Version",
+            "type": "string"
+          },
+          "provenance_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Provenance Id",
+            "type": "string"
+          },
+          "quantiles": {
+            "items": {
+              "$ref": "#/components/schemas/Quantiles"
+            },
+            "maxItems": 24,
+            "minItems": 12,
+            "title": "Quantiles",
+            "type": "array"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "null"
+          },
+          "seed": {
+            "minimum": 0,
+            "title": "Seed",
+            "type": "integer"
+          },
+          "skill": {
+            "$ref": "#/components/schemas/SkillMetrics"
+          },
+          "status": {
+            "const": "available",
+            "title": "Status",
+            "type": "string"
+          },
+          "units": {
+            "anyOf": [
+              {
+                "enum": [
+                  "°C",
+                  "mm/day",
+                  "mm",
+                  "10^15 molecules/cm²",
+                  "dimensionless",
+                  "mg/m³",
+                  "W/m²"
+                ],
+                "type": "string"
+              },
+              {
+                "enum": [
+                  "log10(mg/m³)",
+                  "°C/decade",
+                  "mm/day/decade",
+                  "mm/decade",
+                  "10^15 molecules/cm²/decade",
+                  "dimensionless/decade",
+                  "mg/m³/decade",
+                  "W/m²/decade",
+                  "log10(mg/m³)/decade",
+                  "%/decade",
+                  "sigma/decade",
+                  "years",
+                  "fractional_year",
+                  "km²"
+                ],
+                "type": "string"
+              }
+            ],
+            "title": "Units"
+          },
+          "validation_report_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Validation Report Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "reason",
+          "label",
+          "model",
+          "model_version",
+          "validation_report_id",
+          "branch_id",
+          "seed",
+          "horizon_months",
+          "units",
+          "quantiles",
+          "skill",
+          "provenance_id"
+        ],
+        "title": "AvailableForecast",
+        "type": "object"
+      },
+      "AvailableGrade": {
+        "additionalProperties": false,
+        "properties": {
+          "provenance_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Provenance Id",
+            "type": "string"
+          },
+          "reasons": {
+            "items": {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Reasons",
+            "type": "array"
+          },
+          "status": {
+            "const": "available",
+            "title": "Status",
+            "type": "string"
+          },
+          "value": {
+            "enum": [
+              "A",
+              "B",
+              "C",
+              "D"
+            ],
+            "title": "Value",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "value",
+          "reasons",
+          "provenance_id"
+        ],
+        "title": "AvailableGrade",
+        "type": "object"
+      },
+      "AvailableProjection": {
+        "additionalProperties": false,
+        "properties": {
+          "branch_id": {
+            "enum": [
+              "raw_monthly",
+              "monthly_anomaly",
+              "log10_monthly_anomaly",
+              "reference_raw_monthly",
+              "reference_annual_anomaly",
+              "annual_layer",
+              "seasonal_month"
+            ],
+            "title": "Branch Id",
+            "type": "string"
+          },
+          "horizon_months": {
+            "maximum": 240,
+            "minimum": 1,
+            "title": "Horizon Months",
+            "type": "integer"
+          },
+          "label": {
+            "const": "Not a prediction",
+            "title": "Label",
+            "type": "string"
+          },
+          "model": {
+            "const": "trend_seasonality_ar1",
+            "title": "Model",
+            "type": "string"
+          },
+          "model_version": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Model Version",
+            "type": "string"
+          },
+          "provenance_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Provenance Id",
+            "type": "string"
+          },
+          "quantiles": {
+            "items": {
+              "$ref": "#/components/schemas/Quantiles"
+            },
+            "maxItems": 240,
+            "minItems": 1,
+            "title": "Quantiles",
+            "type": "array"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "null"
+          },
+          "seed": {
+            "minimum": 0,
+            "title": "Seed",
+            "type": "integer"
+          },
+          "simulation_paths": {
+            "const": 2000,
+            "title": "Simulation Paths",
+            "type": "integer"
+          },
+          "status": {
+            "const": "available",
+            "title": "Status",
+            "type": "string"
+          },
+          "units": {
+            "anyOf": [
+              {
+                "enum": [
+                  "°C",
+                  "mm/day",
+                  "mm",
+                  "10^15 molecules/cm²",
+                  "dimensionless",
+                  "mg/m³",
+                  "W/m²"
+                ],
+                "type": "string"
+              },
+              {
+                "enum": [
+                  "log10(mg/m³)",
+                  "°C/decade",
+                  "mm/day/decade",
+                  "mm/decade",
+                  "10^15 molecules/cm²/decade",
+                  "dimensionless/decade",
+                  "mg/m³/decade",
+                  "W/m²/decade",
+                  "log10(mg/m³)/decade",
+                  "%/decade",
+                  "sigma/decade",
+                  "years",
+                  "fractional_year",
+                  "km²"
+                ],
+                "type": "string"
+              }
+            ],
+            "title": "Units"
+          },
+          "validation_report_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Validation Report Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "reason",
+          "label",
+          "model",
+          "model_version",
+          "validation_report_id",
+          "branch_id",
+          "seed",
+          "simulation_paths",
+          "horizon_months",
+          "units",
+          "quantiles",
+          "provenance_id"
+        ],
+        "title": "AvailableProjection",
+        "type": "object"
+      },
+      "AvailableTest": {
+        "additionalProperties": false,
+        "properties": {
+          "branch_id": {
+            "enum": [
+              "raw_monthly",
+              "monthly_anomaly",
+              "log10_monthly_anomaly",
+              "reference_raw_monthly",
+              "reference_annual_anomaly",
+              "annual_layer",
+              "seasonal_month"
+            ],
+            "title": "Branch Id",
+            "type": "string"
+          },
+          "df_denominator": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Df Denominator"
+          },
+          "df_numerator": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Df Numerator"
+          },
+          "effective_n": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 2,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Effective N"
+          },
+          "lags": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LagParameters"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "method": {
+            "$ref": "#/components/schemas/Method"
+          },
+          "p": {
+            "maximum": 1,
+            "minimum": 0,
+            "title": "P",
+            "type": "number"
+          },
+          "provenance_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Provenance Id",
+            "type": "string"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "null"
+          },
+          "role": {
+            "enum": [
+              "primary",
+              "secondary",
+              "reference",
+              "seasonal"
+            ],
+            "title": "Role",
+            "type": "string"
+          },
+          "statistic": {
+            "title": "Statistic",
+            "type": "number"
+          },
+          "status": {
+            "const": "available",
+            "title": "Status",
+            "type": "string"
+          },
+          "valid_n": {
+            "minimum": 0,
+            "title": "Valid N",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "branch_id",
+          "role",
+          "method",
+          "valid_n",
+          "provenance_id",
+          "status",
+          "p",
+          "statistic",
+          "df_numerator",
+          "df_denominator",
+          "effective_n",
+          "lags",
+          "reason"
+        ],
+        "title": "AvailableTest",
+        "type": "object"
+      },
+      "BboxRegion": {
+        "additionalProperties": false,
+        "properties": {
+          "bbox": {
+            "maxItems": 4,
+            "minItems": 4,
+            "prefixItems": [
+              {
+                "maximum": 180,
+                "minimum": -180,
+                "type": "number"
+              },
+              {
+                "maximum": 90,
+                "minimum": -90,
+                "type": "number"
+              },
+              {
+                "maximum": 180,
+                "minimum": -180,
+                "type": "number"
+              },
+              {
+                "maximum": 90,
+                "minimum": -90,
+                "type": "number"
+              }
+            ],
+            "title": "Bbox",
+            "type": "array"
+          },
+          "dateline": {
+            "default": "not_crossing",
+            "enum": [
+              "not_crossing",
+              "crossing"
+            ],
+            "title": "Dateline",
+            "type": "string"
+          },
+          "kind": {
+            "const": "bbox",
+            "title": "Kind",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "bbox"
+        ],
+        "title": "BboxRegion",
+        "type": "object"
+      },
+      "CancelledJob": {
+        "additionalProperties": false,
+        "properties": {
+          "attempt": {
+            "minimum": 0,
+            "title": "Attempt",
+            "type": "integer"
+          },
+          "cancellation_scope": {
+            "enum": [
+              "local_polling_only",
+              "local_and_remote"
+            ],
+            "title": "Cancellation Scope",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "job_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Job Id",
+            "type": "string"
+          },
+          "provider_job_ids": {
+            "items": {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+              "type": "string"
+            },
+            "title": "Provider Job Ids",
+            "type": "array"
+          },
+          "remote_work": {
+            "enum": [
+              "may_continue",
+              "cancelled",
+              "not_submitted"
+            ],
+            "title": "Remote Work",
+            "type": "string"
+          },
+          "request_hash": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Request Hash",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "1.0",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "stage": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Stage",
+            "type": "string"
+          },
+          "state": {
+            "const": "cancelled",
+            "title": "State",
+            "type": "string"
+          },
+          "status_url": {
+            "pattern": "^/api/v1/jobs/[A-Za-z0-9._:-]+$",
+            "title": "Status Url",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "schema_version",
+          "created_at",
+          "job_id",
+          "request_hash",
+          "status_url",
+          "updated_at",
+          "stage",
+          "attempt",
+          "provider_job_ids",
+          "state",
+          "cancellation_scope",
+          "remote_work"
+        ],
+        "title": "CancelledJob",
+        "type": "object"
+      },
+      "Capabilities": {
+        "additionalProperties": false,
+        "properties": {
+          "analysis_ready": {
+            "title": "Analysis Ready",
+            "type": "boolean"
+          },
+          "arbitrary_regions": {
+            "title": "Arbitrary Regions",
+            "type": "boolean"
+          },
+          "available_products": {
+            "items": {
+              "$ref": "#/components/schemas/ProductCapability"
+            },
+            "title": "Available Products",
+            "type": "array"
+          },
+          "build_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Build Id",
+            "type": "string"
+          },
+          "data_release_id": {
+            "anyOf": [
+              {
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data Release Id"
+          },
+          "enabled_operations": {
+            "items": {
+              "enum": [
+                "analyse",
+                "scan",
+                "compare",
+                "outlook",
+                "acquire",
+                "export",
+                "read_prepared"
+              ],
+              "type": "string"
+            },
+            "title": "Enabled Operations",
+            "type": "array"
+          },
+          "limitations": {
+            "items": {
+              "enum": [
+                "missing_observation",
+                "insufficient_coverage",
+                "insufficient_record",
+                "outside_product_domain",
+                "unknown_coverage",
+                "unknown_units",
+                "invalid_variance",
+                "zero_or_unresolved_slope",
+                "zero_residual_variance",
+                "interval_scale_variable",
+                "index_variable",
+                "near_zero_mean",
+                "method_validation_required",
+                "method_unvalidated_for_gaps",
+                "insufficient_lag_pairs",
+                "insufficient_baseline",
+                "no_forecast_skill",
+                "insufficient_backtest_origins",
+                "nonstationary_residuals",
+                "unsupported_transform",
+                "snapshot_not_bundled",
+                "not_implemented",
+                "not_requested",
+                "no_fdr_context",
+                "insufficient_contiguous_blocks",
+                "no_eligible_tests",
+                "provider_progress_unknown"
+              ],
+              "type": "string"
+            },
+            "title": "Limitations",
+            "type": "array"
+          },
+          "mode": {
+            "enum": [
+              "local",
+              "snapshot"
+            ],
+            "title": "Mode",
+            "type": "string"
+          },
+          "prepared_cases": {
+            "items": {
+              "$ref": "#/components/schemas/PreparedCase"
+            },
+            "title": "Prepared Cases",
+            "type": "array"
+          },
+          "readiness": {
+            "$ref": "#/components/schemas/Readiness"
+          },
+          "schema_version": {
+            "const": "1.0",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "supported_schema_versions": {
+            "items": {
+              "const": "1.0",
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Supported Schema Versions",
+            "type": "array"
+          }
+        },
+        "required": [
+          "schema_version",
+          "mode",
+          "build_id",
+          "supported_schema_versions",
+          "data_release_id",
+          "available_products",
+          "prepared_cases",
+          "enabled_operations",
+          "arbitrary_regions",
+          "analysis_ready",
+          "readiness",
+          "limitations"
+        ],
+        "title": "Capabilities",
+        "type": "object"
+      },
+      "CellRegion": {
+        "additionalProperties": false,
+        "properties": {
+          "cell_id": {
+            "minimum": 0,
+            "title": "Cell Id",
+            "type": "integer"
+          },
+          "grid_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Grid Id",
+            "type": "string"
+          },
+          "kind": {
+            "const": "cell",
+            "title": "Kind",
+            "type": "string"
+          },
+          "layer_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Layer Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "grid_id",
+          "layer_id",
+          "cell_id"
+        ],
+        "title": "CellRegion",
+        "type": "object"
+      },
+      "ComparedResult": {
+        "additionalProperties": false,
+        "properties": {
+          "binding_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Binding Id",
+            "type": "string"
+          },
+          "branch_id": {
+            "enum": [
+              "raw_monthly",
+              "monthly_anomaly",
+              "log10_monthly_anomaly",
+              "reference_raw_monthly",
+              "reference_annual_anomaly",
+              "annual_layer",
+              "seasonal_month"
+            ],
+            "title": "Branch Id",
+            "type": "string"
+          },
+          "result_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Result Id",
+            "type": "string"
+          },
+          "slope": {
+            "$ref": "#/components/schemas/Estimate"
+          },
+          "variable_id": {
+            "enum": [
+              "V01",
+              "V02",
+              "V03",
+              "V04",
+              "V05",
+              "V06",
+              "V07",
+              "V08",
+              "V09",
+              "V10",
+              "V11",
+              "V12",
+              "V13"
+            ],
+            "title": "Variable Id",
+            "type": "string"
+          },
+          "window": {
+            "$ref": "#/components/schemas/MonthlyWindow"
+          }
+        },
+        "required": [
+          "result_id",
+          "binding_id",
+          "variable_id",
+          "branch_id",
+          "window",
+          "slope"
+        ],
+        "title": "ComparedResult",
+        "type": "object"
+      },
+      "ComparisonRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "alpha": {
+            "maximum": 0.1,
+            "minimum": 0.01,
+            "title": "Alpha",
+            "type": "number"
+          },
+          "baseline": {
+            "discriminator": {
+              "mapping": {
+                "analysis_window": "#/components/schemas/WindowBaseline",
+                "explicit": "#/components/schemas/ExplicitBaseline"
+              },
+              "propertyName": "kind"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/WindowBaseline"
+              },
+              {
+                "$ref": "#/components/schemas/ExplicitBaseline"
+              }
+            ],
+            "title": "Baseline"
+          },
+          "data_release_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Data Release Id",
+            "type": "string"
+          },
+          "method_profile": {
+            "const": "srs-p0-v1",
+            "title": "Method Profile",
+            "type": "string"
+          },
+          "regions": {
+            "maxItems": 2,
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "$ref": "#/components/schemas/RegionSpec"
+              },
+              {
+                "$ref": "#/components/schemas/RegionSpec"
+              }
+            ],
+            "title": "Regions",
+            "type": "array"
+          },
+          "schema_version": {
+            "const": "1.0",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "variable_id": {
+            "enum": [
+              "V01",
+              "V02",
+              "V03",
+              "V04",
+              "V05",
+              "V06",
+              "V07",
+              "V08",
+              "V09",
+              "V10",
+              "V11",
+              "V12",
+              "V13"
+            ],
+            "title": "Variable Id",
+            "type": "string"
+          },
+          "window": {
+            "$ref": "#/components/schemas/MonthlyWindow"
+          }
+        },
+        "required": [
+          "schema_version",
+          "window",
+          "baseline",
+          "alpha",
+          "method_profile",
+          "data_release_id",
+          "variable_id",
+          "regions"
+        ],
+        "title": "ComparisonRequest",
+        "type": "object"
+      },
+      "ComparisonResult": {
+        "additionalProperties": false,
+        "properties": {
+          "bootstrap": {
+            "$ref": "#/components/schemas/PairedBootstrap"
+          },
+          "common_support": {
+            "items": {
+              "pattern": "^(?:[1-9][0-9]{3}|0[1-9][0-9]{2}|00[1-9][0-9]|000[1-9])-(?:0[1-9]|1[0-2])$",
+              "type": "string"
+            },
+            "maxItems": 600,
+            "title": "Common Support",
+            "type": "array"
+          },
+          "common_window": {
+            "$ref": "#/components/schemas/MonthlyWindow"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "data_release_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Data Release Id",
+            "type": "string"
+          },
+          "difference": {
+            "$ref": "#/components/schemas/Estimate"
+          },
+          "evidence_kind": {
+            "enum": [
+              "scientific",
+              "synthetic_contract"
+            ],
+            "title": "Evidence Kind",
+            "type": "string"
+          },
+          "left": {
+            "$ref": "#/components/schemas/ComparedResult"
+          },
+          "mode": {
+            "enum": [
+              "local",
+              "snapshot"
+            ],
+            "title": "Mode",
+            "type": "string"
+          },
+          "provenance_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Provenance Id",
+            "type": "string"
+          },
+          "provenance_map": {
+            "additionalProperties": {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+              "type": "string"
+            },
+            "minProperties": 1,
+            "title": "Provenance Map",
+            "type": "object"
+          },
+          "request": {
+            "$ref": "#/components/schemas/ComparisonRequest"
+          },
+          "request_hash": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Request Hash",
+            "type": "string"
+          },
+          "result_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Result Id",
+            "type": "string"
+          },
+          "right": {
+            "$ref": "#/components/schemas/ComparedResult"
+          },
+          "schema_version": {
+            "const": "1.0",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "status": {
+            "const": "completed",
+            "title": "Status",
+            "type": "string"
+          },
+          "warnings": {
+            "items": {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+              "type": "string"
+            },
+            "title": "Warnings",
+            "type": "array"
+          }
+        },
+        "required": [
+          "schema_version",
+          "created_at",
+          "status",
+          "result_id",
+          "request_hash",
+          "data_release_id",
+          "mode",
+          "evidence_kind",
+          "provenance_id",
+          "provenance_map",
+          "warnings",
+          "request",
+          "left",
+          "right",
+          "common_window",
+          "common_support",
+          "difference",
+          "bootstrap"
+        ],
+        "title": "ComparisonResult",
+        "type": "object"
+      },
+      "DatasetBinding": {
+        "additionalProperties": false,
+        "properties": {
+          "analysis_grid_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Analysis Grid Id",
+            "type": "string"
+          },
+          "binding_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Binding Id",
+            "type": "string"
+          },
+          "caveat_ids": {
+            "items": {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+              "type": "string"
+            },
+            "title": "Caveat Ids",
+            "type": "array"
+          },
+          "concept_id": {
+            "anyOf": [
+              {
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Concept Id"
+          },
+          "coverage": {
+            "$ref": "#/components/schemas/MonthlyWindow"
+          },
+          "data_kind": {
+            "enum": [
+              "observations",
+              "model",
+              "synthetic_contract"
+            ],
+            "title": "Data Kind",
+            "type": "string"
+          },
+          "doi": {
+            "anyOf": [
+              {
+                "pattern": "^10\\.[0-9]{4,9}/[^\\s?#]+$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Doi"
+          },
+          "domain": {
+            "enum": [
+              "land",
+              "ocean",
+              "global"
+            ],
+            "title": "Domain",
+            "type": "string"
+          },
+          "evidence_refs": {
+            "items": {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+              "type": "string"
+            },
+            "title": "Evidence Refs",
+            "type": "array"
+          },
+          "field": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Field",
+            "type": "string"
+          },
+          "native_grid_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Native Grid Id",
+            "type": "string"
+          },
+          "native_units": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Native Units"
+          },
+          "product": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Product",
+            "type": "string"
+          },
+          "product_version": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Product Version",
+            "type": "string"
+          },
+          "provider": {
+            "enum": [
+              "power",
+              "earthdata",
+              "giovanni",
+              "appeears",
+              "obdaac",
+              "synthetic_contract"
+            ],
+            "title": "Provider",
+            "type": "string"
+          },
+          "resource": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Resource",
+            "type": "string"
+          },
+          "scale_type": {
+            "enum": [
+              "interval",
+              "ratio",
+              "index"
+            ],
+            "title": "Scale Type",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "1.0",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "source_calendar": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Source Calendar",
+            "type": "string"
+          },
+          "time_convention": {
+            "enum": [
+              "UTC",
+              "LST",
+              "source_native"
+            ],
+            "title": "Time Convention",
+            "type": "string"
+          },
+          "transform": {
+            "$ref": "#/components/schemas/Transform"
+          },
+          "unit_evidence": {
+            "enum": [
+              "header_required",
+              "header_verified",
+              "synthetic_contract"
+            ],
+            "title": "Unit Evidence",
+            "type": "string"
+          },
+          "units": {
+            "enum": [
+              "°C",
+              "mm/day",
+              "mm",
+              "10^15 molecules/cm²",
+              "dimensionless",
+              "mg/m³",
+              "W/m²"
+            ],
+            "title": "Units",
+            "type": "string"
+          },
+          "variable_id": {
+            "enum": [
+              "V01",
+              "V02",
+              "V03",
+              "V04",
+              "V05",
+              "V06",
+              "V07",
+              "V08",
+              "V09",
+              "V10",
+              "V11",
+              "V12",
+              "V13"
+            ],
+            "title": "Variable Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "schema_version",
+          "binding_id",
+          "variable_id",
+          "product",
+          "product_version",
+          "doi",
+          "concept_id",
+          "field",
+          "provider",
+          "resource",
+          "native_units",
+          "units",
+          "unit_evidence",
+          "evidence_refs",
+          "transform",
+          "domain",
+          "native_grid_id",
+          "analysis_grid_id",
+          "source_calendar",
+          "time_convention",
+          "coverage",
+          "scale_type",
+          "data_kind",
+          "caveat_ids"
+        ],
+        "title": "DatasetBinding",
+        "type": "object"
+      },
+      "Detectability": {
+        "additionalProperties": false,
+        "properties": {
+          "detection_probability": {
+            "maximum": 0.9,
+            "minimum": 0.9,
+            "title": "Detection Probability",
+            "type": "number"
+          },
+          "emergence": {
+            "items": {
+              "$ref": "#/components/schemas/Emergence"
+            },
+            "maxItems": 2,
+            "minItems": 2,
+            "title": "Emergence",
+            "type": "array"
+          },
+          "first_valid_month": {
+            "anyOf": [
+              {
+                "pattern": "^(?:[1-9][0-9]{3}|0[1-9][0-9]{2}|00[1-9][0-9]|000[1-9])-(?:0[1-9]|1[0-2])$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Valid Month"
+          },
+          "horizon": {
+            "$ref": "#/components/schemas/Estimate"
+          },
+          "label": {
+            "const": "if the trend continues",
+            "title": "Label",
+            "type": "string"
+          },
+          "noise_units": {
+            "anyOf": [
+              {
+                "enum": [
+                  "°C",
+                  "mm/day",
+                  "mm",
+                  "10^15 molecules/cm²",
+                  "dimensionless",
+                  "mg/m³",
+                  "W/m²"
+                ],
+                "type": "string"
+              },
+              {
+                "enum": [
+                  "log10(mg/m³)",
+                  "°C/decade",
+                  "mm/day/decade",
+                  "mm/decade",
+                  "10^15 molecules/cm²/decade",
+                  "dimensionless/decade",
+                  "mg/m³/decade",
+                  "W/m²/decade",
+                  "log10(mg/m³)/decade",
+                  "%/decade",
+                  "sigma/decade",
+                  "years",
+                  "fractional_year",
+                  "km²"
+                ],
+                "type": "string"
+              }
+            ],
+            "title": "Noise Units"
+          },
+          "significance_alpha": {
+            "maximum": 0.05,
+            "minimum": 0.05,
+            "title": "Significance Alpha",
+            "type": "number"
+          },
+          "years_still_needed": {
+            "$ref": "#/components/schemas/Estimate"
+          }
+        },
+        "required": [
+          "horizon",
+          "years_still_needed",
+          "emergence",
+          "first_valid_month",
+          "noise_units",
+          "significance_alpha",
+          "detection_probability",
+          "label"
+        ],
+        "title": "Detectability",
+        "type": "object"
+      },
+      "Emergence": {
+        "additionalProperties": false,
+        "properties": {
+          "estimate": {
+            "$ref": "#/components/schemas/Estimate"
+          },
+          "k": {
+            "enum": [
+              1,
+              2
+            ],
+            "title": "K",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "k",
+          "estimate"
+        ],
+        "title": "Emergence",
+        "type": "object"
+      },
+      "Error": {
+        "additionalProperties": false,
+        "description": "Wire shape for application/problem+json; no HTTP handler is installed by F03.",
+        "properties": {
+          "code": {
+            "enum": [
+              "MALFORMED_JSON",
+              "INVALID_PARAMETERS",
+              "INVALID_GEOMETRY",
+              "NOT_FOUND",
+              "MODE_UNAVAILABLE",
+              "OUTSIDE_PRODUCT_DOMAIN",
+              "INSUFFICIENT_COVERAGE",
+              "UNKNOWN_UNITS",
+              "AUTH_REQUIRED",
+              "PROVIDER_QUOTA",
+              "PROVIDER_TIMEOUT",
+              "PROVIDER_RESPONSE_INVALID",
+              "PROVIDER_UNAVAILABLE",
+              "ARTIFACT_INTEGRITY",
+              "SNAPSHOT_NOT_BUNDLED",
+              "METHOD_VALIDATION_REQUIRED"
+            ],
+            "title": "Code",
+            "type": "string"
+          },
+          "detail": {
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Detail",
+            "type": "string"
+          },
+          "field_errors": {
+            "items": {
+              "$ref": "#/components/schemas/FieldError"
+            },
+            "title": "Field Errors",
+            "type": "array"
+          },
+          "request_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Request Id",
+            "type": "string"
+          },
+          "retry_after_seconds": {
+            "anyOf": [
+              {
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Retry After Seconds"
+          },
+          "retryable": {
+            "title": "Retryable",
+            "type": "boolean"
+          },
+          "schema_version": {
+            "const": "1.0",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              400,
+              401,
+              404,
+              409,
+              422,
+              429,
+              500,
+              502,
+              503
+            ],
+            "title": "Status",
+            "type": "integer"
+          },
+          "title": {
+            "maxLength": 150,
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          },
+          "type": {
+            "pattern": "^(?:about:blank|urn:earth-trend:problem:[a-z0-9-]+)$",
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "schema_version",
+          "type",
+          "title",
+          "status",
+          "detail",
+          "code",
+          "request_id",
+          "retryable",
+          "retry_after_seconds",
+          "field_errors"
+        ],
+        "title": "Error",
+        "type": "object"
+      },
+      "Estimate": {
+        "discriminator": {
+          "mapping": {
+            "available": "#/components/schemas/AvailableEstimate",
+            "unavailable": "#/components/schemas/UnavailableEstimate",
+            "unbounded": "#/components/schemas/UnavailableEstimate"
+          },
+          "propertyName": "status"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/AvailableEstimate"
+          },
+          {
+            "$ref": "#/components/schemas/UnavailableEstimate"
+          }
+        ],
+        "title": "Estimate"
+      },
+      "ExcludedRow": {
+        "additionalProperties": false,
+        "properties": {
+          "actual_window": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MonthlyWindow"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reason": {
+            "enum": [
+              "missing_observation",
+              "insufficient_coverage",
+              "insufficient_record",
+              "outside_product_domain",
+              "unknown_coverage",
+              "unknown_units",
+              "invalid_variance",
+              "zero_or_unresolved_slope",
+              "zero_residual_variance",
+              "interval_scale_variable",
+              "index_variable",
+              "near_zero_mean",
+              "method_validation_required",
+              "method_unvalidated_for_gaps",
+              "insufficient_lag_pairs",
+              "insufficient_baseline",
+              "no_forecast_skill",
+              "insufficient_backtest_origins",
+              "nonstationary_residuals",
+              "unsupported_transform",
+              "snapshot_not_bundled",
+              "not_implemented",
+              "not_requested",
+              "no_fdr_context",
+              "insufficient_contiguous_blocks",
+              "no_eligible_tests",
+              "provider_progress_unknown"
+            ],
+            "title": "Reason",
+            "type": "string"
+          },
+          "result_id": {
+            "title": "Result Id",
+            "type": "null"
+          },
+          "status": {
+            "const": "excluded",
+            "title": "Status",
+            "type": "string"
+          },
+          "variable_id": {
+            "enum": [
+              "V01",
+              "V02",
+              "V03",
+              "V04",
+              "V05",
+              "V06",
+              "V07",
+              "V08",
+              "V09",
+              "V10",
+              "V11",
+              "V12",
+              "V13"
+            ],
+            "title": "Variable Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "variable_id",
+          "actual_window",
+          "result_id",
+          "reason"
+        ],
+        "title": "ExcludedRow",
+        "type": "object"
+      },
+      "Exclusion": {
+        "additionalProperties": false,
+        "properties": {
+          "member_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Member Id",
+            "type": "string"
+          },
+          "reason": {
+            "enum": [
+              "missing_observation",
+              "insufficient_coverage",
+              "insufficient_record",
+              "outside_product_domain",
+              "unknown_coverage",
+              "unknown_units",
+              "invalid_variance",
+              "zero_or_unresolved_slope",
+              "zero_residual_variance",
+              "interval_scale_variable",
+              "index_variable",
+              "near_zero_mean",
+              "method_validation_required",
+              "method_unvalidated_for_gaps",
+              "insufficient_lag_pairs",
+              "insufficient_baseline",
+              "no_forecast_skill",
+              "insufficient_backtest_origins",
+              "nonstationary_residuals",
+              "unsupported_transform",
+              "snapshot_not_bundled",
+              "not_implemented",
+              "not_requested",
+              "no_fdr_context",
+              "insufficient_contiguous_blocks",
+              "no_eligible_tests",
+              "provider_progress_unknown"
+            ],
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "member_id",
+          "reason"
+        ],
+        "title": "Exclusion",
+        "type": "object"
+      },
+      "ExplicitBaseline": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "const": "explicit",
+            "title": "Kind",
+            "type": "string"
+          },
+          "window": {
+            "$ref": "#/components/schemas/MonthlyWindow"
+          }
+        },
+        "required": [
+          "kind",
+          "window"
+        ],
+        "title": "ExplicitBaseline",
+        "type": "object"
+      },
+      "FailedJob": {
+        "additionalProperties": false,
+        "properties": {
+          "attempt": {
+            "minimum": 0,
+            "title": "Attempt",
+            "type": "integer"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "error": {
+            "$ref": "#/components/schemas/Error"
+          },
+          "job_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Job Id",
+            "type": "string"
+          },
+          "provider_job_ids": {
+            "items": {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+              "type": "string"
+            },
+            "title": "Provider Job Ids",
+            "type": "array"
+          },
+          "request_hash": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Request Hash",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "1.0",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "stage": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Stage",
+            "type": "string"
+          },
+          "state": {
+            "const": "failed",
+            "title": "State",
+            "type": "string"
+          },
+          "status_url": {
+            "pattern": "^/api/v1/jobs/[A-Za-z0-9._:-]+$",
+            "title": "Status Url",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "schema_version",
+          "created_at",
+          "job_id",
+          "request_hash",
+          "status_url",
+          "updated_at",
+          "stage",
+          "attempt",
+          "provider_job_ids",
+          "state",
+          "error"
+        ],
+        "title": "FailedJob",
+        "type": "object"
+      },
+      "FdrContext": {
+        "additionalProperties": false,
+        "properties": {
+          "baseline": {
+            "discriminator": {
+              "mapping": {
+                "analysis_window": "#/components/schemas/WindowBaseline",
+                "explicit": "#/components/schemas/ExplicitBaseline"
+              },
+              "propertyName": "kind"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/WindowBaseline"
+              },
+              {
+                "$ref": "#/components/schemas/ExplicitBaseline"
+              }
+            ],
+            "title": "Baseline"
+          },
+          "data_release_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Data Release Id",
+            "type": "string"
+          },
+          "method_profile": {
+            "const": "srs-p0-v1",
+            "title": "Method Profile",
+            "type": "string"
+          },
+          "region_hash": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Region Hash",
+            "type": "string"
+          },
+          "window": {
+            "$ref": "#/components/schemas/MonthlyWindow"
+          },
+          "window_policy": {
+            "default": "shared_intersection",
+            "enum": [
+              "shared_intersection",
+              "per_variable_defaults"
+            ],
+            "title": "Window Policy",
+            "type": "string"
+          }
+        },
+        "required": [
+          "region_hash",
+          "window",
+          "baseline",
+          "data_release_id",
+          "method_profile"
+        ],
+        "title": "FdrContext",
+        "type": "object"
+      },
+      "FdrMember": {
+        "additionalProperties": false,
+        "properties": {
+          "actual_window": {
+            "$ref": "#/components/schemas/MonthlyWindow"
+          },
+          "branch_id": {
+            "enum": [
+              "raw_monthly",
+              "monthly_anomaly",
+              "log10_monthly_anomaly",
+              "reference_raw_monthly",
+              "reference_annual_anomaly",
+              "annual_layer",
+              "seasonal_month"
+            ],
+            "title": "Branch Id",
+            "type": "string"
+          },
+          "member_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Member Id",
+            "type": "string"
+          },
+          "p": {
+            "maximum": 1,
+            "minimum": 0,
+            "title": "P",
+            "type": "number"
+          },
+          "provenance_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Provenance Id",
+            "type": "string"
+          },
+          "q": {
+            "maximum": 1,
+            "minimum": 0,
+            "title": "Q",
+            "type": "number"
+          }
+        },
+        "required": [
+          "member_id",
+          "branch_id",
+          "p",
+          "q",
+          "provenance_id",
+          "actual_window"
+        ],
+        "title": "FdrMember",
+        "type": "object"
+      },
+      "FdrResult": {
+        "additionalProperties": false,
+        "properties": {
+          "context": {
+            "$ref": "#/components/schemas/FdrContext"
+          },
+          "family_id": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Family Id",
+            "type": "string"
+          },
+          "family_kind": {
+            "enum": [
+              "regional_scan",
+              "seasonal_fingerprint",
+              "global_layer"
+            ],
+            "title": "Family Kind",
+            "type": "string"
+          },
+          "membership": {
+            "discriminator": {
+              "mapping": {
+                "artifact": "#/components/schemas/ArtifactMembership",
+                "inline": "#/components/schemas/InlineMembership"
+              },
+              "propertyName": "kind"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InlineMembership"
+              },
+              {
+                "$ref": "#/components/schemas/ArtifactMembership"
+              }
+            ],
+            "title": "Membership"
+          },
+          "size": {
+            "exclusiveMinimum": 0,
+            "title": "Size",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "family_kind",
+          "family_id",
+          "size",
+          "context",
+          "membership"
+        ],
+        "title": "FdrResult",
+        "type": "object"
+      },
+      "FieldBox": {
+        "additionalProperties": false,
+        "properties": {
+          "cell_lat_step": {
+            "title": "Cell Lat Step",
+            "type": "number"
+          },
+          "cell_lon_step": {
+            "title": "Cell Lon Step",
+            "type": "number"
+          },
+          "lat_max": {
+            "title": "Lat Max",
+            "type": "number"
+          },
+          "lat_min": {
+            "title": "Lat Min",
+            "type": "number"
+          },
+          "lon_max": {
+            "title": "Lon Max",
+            "type": "number"
+          },
+          "lon_min": {
+            "title": "Lon Min",
+            "type": "number"
+          },
+          "selection": {
+            "const": "native_cells_in_box",
+            "title": "Selection",
+            "type": "string"
+          }
+        },
+        "required": [
+          "lat_min",
+          "lat_max",
+          "lon_min",
+          "lon_max",
+          "cell_lat_step",
+          "cell_lon_step",
+          "selection"
+        ],
+        "title": "FieldBox",
+        "type": "object"
+      },
+      "FieldError": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Code",
+            "type": "string"
+          },
+          "location": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "message": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Message",
+            "type": "string"
+          }
+        },
+        "required": [
+          "location",
+          "code",
+          "message"
+        ],
+        "title": "FieldError",
+        "type": "object"
+      },
+      "FieldResult": {
+        "additionalProperties": false,
+        "description": "One month's raw native-cell field in a box. No aggregation, trend or analysis.",
+        "properties": {
+          "box": {
+            "$ref": "#/components/schemas/FieldBox"
+          },
+          "cell_lats": {
+            "items": {
+              "type": "number"
+            },
+            "title": "Cell Lats",
+            "type": "array"
+          },
+          "cell_lons": {
+            "items": {
+              "type": "number"
+            },
+            "title": "Cell Lons",
+            "type": "array"
+          },
+          "month": {
+            "pattern": "^(?:[1-9][0-9]{3}|0[1-9][0-9]{2}|00[1-9][0-9]|000[1-9])-(?:0[1-9]|1[0-2])$",
+            "title": "Month",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "1.0",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "source": {
+            "$ref": "#/components/schemas/FieldSource"
+          },
+          "values": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": "Values",
+            "type": "array"
+          },
+          "variable_id": {
+            "enum": [
+              "V01",
+              "V02",
+              "V03",
+              "V04",
+              "V05",
+              "V06",
+              "V07",
+              "V08",
+              "V09",
+              "V10",
+              "V11",
+              "V12",
+              "V13"
+            ],
+            "title": "Variable Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "schema_version",
+          "variable_id",
+          "month",
+          "box",
+          "cell_lats",
+          "cell_lons",
+          "values",
+          "source"
+        ],
+        "title": "FieldResult",
+        "type": "object"
+      },
+      "FieldSource": {
+        "additionalProperties": false,
+        "properties": {
+          "acknowledgement": {
+            "maxLength": 500,
+            "title": "Acknowledgement",
+            "type": "string"
+          },
+          "artifact_sha256": {
+            "additionalProperties": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            "title": "Artifact Sha256",
+            "type": "object"
+          },
+          "caveats": {
+            "items": {
+              "maxLength": 300,
+              "minLength": 1,
+              "type": "string"
+            },
+            "title": "Caveats",
+            "type": "array"
+          },
+          "data_kind": {
+            "const": "model",
+            "title": "Data Kind",
+            "type": "string"
+          },
+          "field": {
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Field",
+            "type": "string"
+          },
+          "retrieved_at": {
+            "format": "date-time",
+            "title": "Retrieved At",
+            "type": "string"
+          },
+          "scientifically_validated": {
+            "const": false,
+            "title": "Scientifically Validated",
+            "type": "boolean"
+          },
+          "served_from_cache": {
+            "title": "Served From Cache",
+            "type": "boolean"
+          },
+          "source_units": {
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Source Units",
+            "type": "string"
+          },
+          "stale_cache": {
+            "title": "Stale Cache",
+            "type": "boolean"
+          },
+          "store_title": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Store Title",
+            "type": "string"
+          },
+          "store_version": {
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Store Version",
+            "type": "string"
+          },
+          "time_standard": {
+            "enum": [
+              "UTC",
+              "LST"
+            ],
+            "title": "Time Standard",
+            "type": "string"
+          },
+          "units": {
+            "enum": [
+              "°C",
+              "mm/day",
+              "mm",
+              "10^15 molecules/cm²",
+              "dimensionless",
+              "mg/m³",
+              "W/m²"
+            ],
+            "title": "Units",
+            "type": "string"
+          },
+          "variable_id": {
+            "enum": [
+              "V01",
+              "V02",
+              "V03",
+              "V04",
+              "V05",
+              "V06",
+              "V07",
+              "V08",
+              "V09",
+              "V10",
+              "V11",
+              "V12",
+              "V13"
+            ],
+            "title": "Variable Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "variable_id",
+          "store_title",
+          "store_version",
+          "field",
+          "source_units",
+          "units",
+          "time_standard",
+          "data_kind",
+          "retrieved_at",
+          "served_from_cache",
+          "stale_cache",
+          "artifact_sha256",
+          "acknowledgement",
+          "caveats",
+          "scientifically_validated"
+        ],
+        "title": "FieldSource",
+        "type": "object"
+      },
+      "GlobalRegion": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "const": "global",
+            "title": "Kind",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind"
+        ],
+        "title": "GlobalRegion",
+        "type": "object"
+      },
+      "Grade": {
+        "discriminator": {
+          "mapping": {
+            "available": "#/components/schemas/AvailableGrade",
+            "unavailable": "#/components/schemas/UnavailableGrade"
+          },
+          "propertyName": "status"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/AvailableGrade"
+          },
+          {
+            "$ref": "#/components/schemas/UnavailableGrade"
+          }
+        ],
+        "title": "Grade"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "HealthResponse": {
+        "additionalProperties": false,
+        "description": "Liveness only: an available server does not imply available science.",
+        "properties": {
+          "analysis_ready": {
+            "const": false,
+            "default": false,
+            "title": "Analysis Ready",
+            "type": "boolean"
+          },
+          "mode": {
+            "const": "local",
+            "default": "local",
+            "title": "Mode",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "health.v1",
+            "default": "health.v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "status": {
+            "const": "ok",
+            "default": "ok",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "title": "HealthResponse",
+        "type": "object"
+      },
+      "InlineMembership": {
+        "additionalProperties": false,
+        "properties": {
+          "exclusions": {
+            "items": {
+              "$ref": "#/components/schemas/Exclusion"
+            },
+            "title": "Exclusions",
+            "type": "array"
+          },
+          "kind": {
+            "const": "inline",
+            "title": "Kind",
+            "type": "string"
+          },
+          "members": {
+            "items": {
+              "$ref": "#/components/schemas/FdrMember"
+            },
+            "maxItems": 13,
+            "minItems": 1,
+            "title": "Members",
+            "type": "array"
+          }
+        },
+        "required": [
+          "kind",
+          "members",
+          "exclusions"
+        ],
+        "title": "InlineMembership",
+        "type": "object"
+      },
+      "Job": {
+        "discriminator": {
+          "mapping": {
+            "cancelled": "#/components/schemas/CancelledJob",
+            "failed": "#/components/schemas/FailedJob",
+            "queued": "#/components/schemas/ActiveJob",
+            "running": "#/components/schemas/ActiveJob",
+            "succeeded": "#/components/schemas/SucceededJob",
+            "waiting_provider": "#/components/schemas/ActiveJob"
+          },
+          "propertyName": "state"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/ActiveJob"
+          },
+          {
+            "$ref": "#/components/schemas/SucceededJob"
+          },
+          {
+            "$ref": "#/components/schemas/FailedJob"
+          },
+          {
+            "$ref": "#/components/schemas/CancelledJob"
+          }
+        ],
+        "title": "Job"
+      },
+      "JobAccepted": {
+        "additionalProperties": false,
+        "description": "Future transport: HTTP 202 and Location=status_url; no result payload yet.",
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "job_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Job Id",
+            "type": "string"
+          },
+          "request_hash": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Request Hash",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "1.0",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "state": {
+            "enum": [
+              "queued",
+              "running",
+              "waiting_provider"
+            ],
+            "title": "State",
+            "type": "string"
+          },
+          "status_url": {
+            "pattern": "^/api/v1/jobs/[A-Za-z0-9._:-]+$",
+            "title": "Status Url",
+            "type": "string"
+          }
+        },
+        "required": [
+          "schema_version",
+          "created_at",
+          "job_id",
+          "request_hash",
+          "status_url",
+          "state"
+        ],
+        "title": "JobAccepted",
+        "type": "object"
+      },
+      "LagParameters": {
+        "additionalProperties": false,
+        "properties": {
+          "diagnostic_alpha": {
+            "maximum": 0.05,
+            "minimum": 0.05,
+            "title": "Diagnostic Alpha",
+            "type": "number"
+          },
+          "gap_policy": {
+            "const": "calendar_positions",
+            "title": "Gap Policy",
+            "type": "string"
+          },
+          "included_lags": {
+            "items": {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            "title": "Included Lags",
+            "type": "array"
+          },
+          "max_lag": {
+            "minimum": 0,
+            "title": "Max Lag",
+            "type": "integer"
+          },
+          "spacing": {
+            "enum": [
+              "calendar_months",
+              "calendar_years"
+            ],
+            "title": "Spacing",
+            "type": "string"
+          }
+        },
+        "required": [
+          "max_lag",
+          "included_lags",
+          "diagnostic_alpha",
+          "spacing",
+          "gap_policy"
+        ],
+        "title": "LagParameters",
+        "type": "object"
+      },
+      "LayerArray": {
+        "additionalProperties": false,
+        "properties": {
+          "artifact": {
+            "$ref": "#/components/schemas/ArtifactRef"
+          },
+          "branch_id": {
+            "enum": [
+              "raw_monthly",
+              "monthly_anomaly",
+              "log10_monthly_anomaly",
+              "reference_raw_monthly",
+              "reference_annual_anomaly",
+              "annual_layer",
+              "seasonal_month"
+            ],
+            "title": "Branch Id",
+            "type": "string"
+          },
+          "byte_order": {
+            "const": "little",
+            "title": "Byte Order",
+            "type": "string"
+          },
+          "count": {
+            "exclusiveMinimum": 0,
+            "title": "Count",
+            "type": "integer"
+          },
+          "dtype": {
+            "enum": [
+              "float32",
+              "int16",
+              "uint16",
+              "uint8"
+            ],
+            "title": "Dtype",
+            "type": "string"
+          },
+          "missing_mask": {
+            "$ref": "#/components/schemas/ArtifactRef"
+          },
+          "missing_mask_encoding": {
+            "const": "uint8_0_valid_1_missing",
+            "title": "Missing Mask Encoding",
+            "type": "string"
+          },
+          "offset": {
+            "title": "Offset",
+            "type": "number"
+          },
+          "scale": {
+            "title": "Scale",
+            "type": "number"
+          },
+          "units": {
+            "anyOf": [
+              {
+                "enum": [
+                  "°C",
+                  "mm/day",
+                  "mm",
+                  "10^15 molecules/cm²",
+                  "dimensionless",
+                  "mg/m³",
+                  "W/m²"
+                ],
+                "type": "string"
+              },
+              {
+                "enum": [
+                  "log10(mg/m³)",
+                  "°C/decade",
+                  "mm/day/decade",
+                  "mm/decade",
+                  "10^15 molecules/cm²/decade",
+                  "dimensionless/decade",
+                  "mg/m³/decade",
+                  "W/m²/decade",
+                  "log10(mg/m³)/decade",
+                  "%/decade",
+                  "sigma/decade",
+                  "years",
+                  "fractional_year",
+                  "km²"
+                ],
+                "type": "string"
+              }
+            ],
+            "title": "Units"
+          },
+          "value_transform": {
+            "enum": [
+              "raw",
+              "anomaly",
+              "log10_anomaly"
+            ],
+            "title": "Value Transform",
+            "type": "string"
+          }
+        },
+        "required": [
+          "artifact",
+          "dtype",
+          "byte_order",
+          "count",
+          "units",
+          "scale",
+          "offset",
+          "missing_mask",
+          "missing_mask_encoding",
+          "branch_id",
+          "value_transform"
+        ],
+        "title": "LayerArray",
+        "type": "object"
+      },
+      "LayerGrid": {
+        "additionalProperties": false,
+        "properties": {
+          "cell_id_formula": {
+            "const": "row * n_lon + column",
+            "title": "Cell Id Formula",
+            "type": "string"
+          },
+          "cell_order": {
+            "const": "row_major",
+            "title": "Cell Order",
+            "type": "string"
+          },
+          "grid_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Grid Id",
+            "type": "string"
+          },
+          "latitude_order": {
+            "enum": [
+              "north_to_south",
+              "south_to_north"
+            ],
+            "title": "Latitude Order",
+            "type": "string"
+          },
+          "longitude_origin": {
+            "exclusiveMaximum": 180,
+            "minimum": -180,
+            "title": "Longitude Origin",
+            "type": "number"
+          },
+          "longitude_wrap": {
+            "const": true,
+            "title": "Longitude Wrap",
+            "type": "boolean"
+          },
+          "n_lat": {
+            "exclusiveMinimum": 0,
+            "title": "N Lat",
+            "type": "integer"
+          },
+          "n_lon": {
+            "exclusiveMinimum": 0,
+            "title": "N Lon",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "grid_id",
+          "n_lat",
+          "n_lon",
+          "latitude_order",
+          "longitude_origin",
+          "longitude_wrap",
+          "cell_order",
+          "cell_id_formula"
+        ],
+        "title": "LayerGrid",
+        "type": "object"
+      },
+      "LayerManifest": {
+        "additionalProperties": false,
+        "properties": {
+          "alpha_independent_p_q": {
+            "const": true,
+            "title": "Alpha Independent P Q",
+            "type": "boolean"
+          },
+          "attribution": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Attribution",
+            "type": "array"
+          },
+          "baseline": {
+            "discriminator": {
+              "mapping": {
+                "analysis_window": "#/components/schemas/WindowBaseline",
+                "explicit": "#/components/schemas/ExplicitBaseline"
+              },
+              "propertyName": "kind"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/WindowBaseline"
+              },
+              {
+                "$ref": "#/components/schemas/ExplicitBaseline"
+              }
+            ],
+            "title": "Baseline"
+          },
+          "binding_ids": {
+            "items": {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Binding Ids",
+            "type": "array"
+          },
+          "caveat_ids": {
+            "items": {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+              "type": "string"
+            },
+            "title": "Caveat Ids",
+            "type": "array"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "data_release_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Data Release Id",
+            "type": "string"
+          },
+          "dataset_identifiers": {
+            "items": {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Dataset Identifiers",
+            "type": "array"
+          },
+          "fdr": {
+            "$ref": "#/components/schemas/FdrResult"
+          },
+          "flag_meanings": {
+            "minProperties": 1,
+            "patternProperties": {
+              "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$": {
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+                "type": "string"
+              }
+            },
+            "title": "Flag Meanings",
+            "type": "object"
+          },
+          "frames": {
+            "items": {
+              "$ref": "#/components/schemas/AnnualFrame"
+            },
+            "title": "Frames",
+            "type": "array"
+          },
+          "grid": {
+            "$ref": "#/components/schemas/LayerGrid"
+          },
+          "layer_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Layer Id",
+            "type": "string"
+          },
+          "method_flags": {
+            "$ref": "#/components/schemas/LayerArray"
+          },
+          "method_profile": {
+            "const": "srs-p0-v1",
+            "title": "Method Profile",
+            "type": "string"
+          },
+          "method_versions": {
+            "minProperties": 1,
+            "patternProperties": {
+              "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$": {
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+                "type": "string"
+              }
+            },
+            "title": "Method Versions",
+            "type": "object"
+          },
+          "p": {
+            "$ref": "#/components/schemas/LayerArray"
+          },
+          "provenance_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Provenance Id",
+            "type": "string"
+          },
+          "q": {
+            "$ref": "#/components/schemas/LayerArray"
+          },
+          "schema_version": {
+            "const": "1.0",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "slope": {
+            "$ref": "#/components/schemas/LayerArray"
+          },
+          "standardized_slope": {
+            "$ref": "#/components/schemas/LayerArray"
+          },
+          "valid_counts": {
+            "$ref": "#/components/schemas/LayerArray"
+          },
+          "variable_id": {
+            "enum": [
+              "V01",
+              "V02",
+              "V03",
+              "V04",
+              "V05",
+              "V06",
+              "V07",
+              "V08",
+              "V09",
+              "V10",
+              "V11",
+              "V12",
+              "V13"
+            ],
+            "title": "Variable Id",
+            "type": "string"
+          },
+          "window": {
+            "$ref": "#/components/schemas/MonthlyWindow"
+          }
+        },
+        "required": [
+          "schema_version",
+          "created_at",
+          "layer_id",
+          "data_release_id",
+          "variable_id",
+          "binding_ids",
+          "dataset_identifiers",
+          "grid",
+          "window",
+          "baseline",
+          "method_profile",
+          "method_versions",
+          "slope",
+          "standardized_slope",
+          "p",
+          "q",
+          "valid_counts",
+          "method_flags",
+          "flag_meanings",
+          "fdr",
+          "alpha_independent_p_q",
+          "frames",
+          "attribution",
+          "caveat_ids",
+          "provenance_id"
+        ],
+        "title": "LayerManifest",
+        "type": "object"
+      },
+      "Method": {
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "enum": [
+              "hamed_rao_mk",
+              "ols_ar1_effective_n",
+              "reference_ols_f",
+              "ordinary_mk",
+              "seasonal_kendall"
+            ],
+            "title": "Name",
+            "type": "string"
+          },
+          "validation_report_id": {
+            "anyOf": [
+              {
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Validation Report Id"
+          },
+          "validation_status": {
+            "enum": [
+              "pending",
+              "validated",
+              "failed",
+              "synthetic_contract"
+            ],
+            "title": "Validation Status",
+            "type": "string"
+          },
+          "version": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "version",
+          "validation_status",
+          "validation_report_id"
+        ],
+        "title": "Method",
+        "type": "object"
+      },
+      "MonthlyWindow": {
+        "additionalProperties": false,
+        "description": "Inclusive complete calendar months, bounded by the TDD's 600-position limit.",
+        "properties": {
+          "end": {
+            "pattern": "^(?:[1-9][0-9]{3}|0[1-9][0-9]{2}|00[1-9][0-9]|000[1-9])-(?:0[1-9]|1[0-2])$",
+            "title": "End",
+            "type": "string"
+          },
+          "start": {
+            "pattern": "^(?:[1-9][0-9]{3}|0[1-9][0-9]{2}|00[1-9][0-9]|000[1-9])-(?:0[1-9]|1[0-2])$",
+            "title": "Start",
+            "type": "string"
+          }
+        },
+        "required": [
+          "start",
+          "end"
+        ],
+        "title": "MonthlyWindow",
+        "type": "object"
+      },
+      "MultiPolygonGeometry": {
+        "additionalProperties": false,
+        "properties": {
+          "coordinates": {
+            "items": {
+              "items": {
+                "items": {
+                  "maxItems": 2,
+                  "minItems": 2,
+                  "prefixItems": [
+                    {
+                      "maximum": 180,
+                      "minimum": -180,
+                      "type": "number"
+                    },
+                    {
+                      "maximum": 90,
+                      "minimum": -90,
+                      "type": "number"
+                    }
+                  ],
+                  "type": "array"
+                },
+                "maxItems": 2000,
+                "minItems": 4,
+                "type": "array"
+              },
+              "maxItems": 50,
+              "minItems": 1,
+              "type": "array"
+            },
+            "maxItems": 50,
+            "minItems": 1,
+            "title": "Coordinates",
+            "type": "array"
+          },
+          "type": {
+            "const": "MultiPolygon",
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "coordinates"
+        ],
+        "title": "MultiPolygonGeometry",
+        "type": "object"
+      },
+      "OutlookRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "analysis_result_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Analysis Result Id",
+            "type": "string"
+          },
+          "forecast_horizon_months": {
+            "enum": [
+              12,
+              24
+            ],
+            "title": "Forecast Horizon Months",
+            "type": "integer"
+          },
+          "projection_horizon_years": {
+            "exclusiveMinimum": 0,
+            "maximum": 20,
+            "title": "Projection Horizon Years",
+            "type": "number"
+          },
+          "schema_version": {
+            "const": "1.0",
+            "title": "Schema Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "schema_version",
+          "analysis_result_id",
+          "projection_horizon_years",
+          "forecast_horizon_months"
+        ],
+        "title": "OutlookRequest",
+        "type": "object"
+      },
+      "OutlookResult": {
+        "additionalProperties": false,
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "data_release_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Data Release Id",
+            "type": "string"
+          },
+          "evidence_kind": {
+            "enum": [
+              "scientific",
+              "synthetic_contract"
+            ],
+            "title": "Evidence Kind",
+            "type": "string"
+          },
+          "forecast": {
+            "discriminator": {
+              "mapping": {
+                "available": "#/components/schemas/AvailableForecast",
+                "unavailable": "#/components/schemas/UnavailableForecast"
+              },
+              "propertyName": "status"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/AvailableForecast"
+              },
+              {
+                "$ref": "#/components/schemas/UnavailableForecast"
+              }
+            ],
+            "title": "Forecast"
+          },
+          "historical_window": {
+            "$ref": "#/components/schemas/MonthlyWindow"
+          },
+          "mode": {
+            "enum": [
+              "local",
+              "snapshot"
+            ],
+            "title": "Mode",
+            "type": "string"
+          },
+          "projection": {
+            "discriminator": {
+              "mapping": {
+                "available": "#/components/schemas/AvailableProjection",
+                "unavailable": "#/components/schemas/UnavailableProjection"
+              },
+              "propertyName": "status"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/AvailableProjection"
+              },
+              {
+                "$ref": "#/components/schemas/UnavailableProjection"
+              }
+            ],
+            "title": "Projection"
+          },
+          "provenance_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Provenance Id",
+            "type": "string"
+          },
+          "provenance_map": {
+            "additionalProperties": {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+              "type": "string"
+            },
+            "minProperties": 1,
+            "title": "Provenance Map",
+            "type": "object"
+          },
+          "record_length_years": {
+            "exclusiveMinimum": 0,
+            "title": "Record Length Years",
+            "type": "number"
+          },
+          "request": {
+            "$ref": "#/components/schemas/OutlookRequest"
+          },
+          "request_hash": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Request Hash",
+            "type": "string"
+          },
+          "result_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Result Id",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "1.0",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "status": {
+            "const": "completed",
+            "title": "Status",
+            "type": "string"
+          },
+          "warnings": {
+            "items": {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+              "type": "string"
+            },
+            "title": "Warnings",
+            "type": "array"
+          }
+        },
+        "required": [
+          "schema_version",
+          "created_at",
+          "status",
+          "result_id",
+          "request_hash",
+          "data_release_id",
+          "mode",
+          "evidence_kind",
+          "provenance_id",
+          "provenance_map",
+          "warnings",
+          "request",
+          "historical_window",
+          "record_length_years",
+          "projection",
+          "forecast"
+        ],
+        "title": "OutlookResult",
+        "type": "object"
+      },
+      "PairedBootstrap": {
+        "additionalProperties": false,
+        "properties": {
+          "block_months": {
+            "exclusiveMinimum": 0,
+            "title": "Block Months",
+            "type": "integer"
+          },
+          "draws": {
+            "exclusiveMinimum": 0,
+            "title": "Draws",
+            "type": "integer"
+          },
+          "method": {
+            "const": "paired_moving_block_residual_bootstrap",
+            "title": "Method",
+            "type": "string"
+          },
+          "method_version": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Method Version",
+            "type": "string"
+          },
+          "seed": {
+            "minimum": 0,
+            "title": "Seed",
+            "type": "integer"
+          },
+          "validation_report_id": {
+            "anyOf": [
+              {
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Validation Report Id"
+          }
+        },
+        "required": [
+          "method",
+          "method_version",
+          "draws",
+          "block_months",
+          "seed",
+          "validation_report_id"
+        ],
+        "title": "PairedBootstrap",
+        "type": "object"
+      },
+      "PointLocation": {
+        "additionalProperties": false,
+        "properties": {
+          "cell_lat": {
+            "title": "Cell Lat",
+            "type": "number"
+          },
+          "cell_lat_step": {
+            "title": "Cell Lat Step",
+            "type": "number"
+          },
+          "cell_lon": {
+            "title": "Cell Lon",
+            "type": "number"
+          },
+          "cell_lon_step": {
+            "title": "Cell Lon Step",
+            "type": "number"
+          },
+          "requested_lat": {
+            "title": "Requested Lat",
+            "type": "number"
+          },
+          "requested_lon": {
+            "title": "Requested Lon",
+            "type": "number"
+          },
+          "selection": {
+            "const": "nearest_native_cell",
+            "title": "Selection",
+            "type": "string"
+          }
+        },
+        "required": [
+          "requested_lat",
+          "requested_lon",
+          "cell_lat",
+          "cell_lon",
+          "cell_lat_step",
+          "cell_lon_step",
+          "selection"
+        ],
+        "title": "PointLocation",
+        "type": "object"
+      },
+      "PointSeriesResult": {
+        "additionalProperties": false,
+        "properties": {
+          "location": {
+            "$ref": "#/components/schemas/PointLocation"
+          },
+          "schema_version": {
+            "const": "1.0",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "series": {
+            "$ref": "#/components/schemas/Series"
+          },
+          "source": {
+            "$ref": "#/components/schemas/SeriesSource"
+          }
+        },
+        "required": [
+          "schema_version",
+          "series",
+          "location",
+          "source"
+        ],
+        "title": "PointSeriesResult",
+        "type": "object"
+      },
+      "PolygonGeometry": {
+        "additionalProperties": false,
+        "properties": {
+          "coordinates": {
+            "items": {
+              "items": {
+                "maxItems": 2,
+                "minItems": 2,
+                "prefixItems": [
+                  {
+                    "maximum": 180,
+                    "minimum": -180,
+                    "type": "number"
+                  },
+                  {
+                    "maximum": 90,
+                    "minimum": -90,
+                    "type": "number"
+                  }
+                ],
+                "type": "array"
+              },
+              "maxItems": 2000,
+              "minItems": 4,
+              "type": "array"
+            },
+            "maxItems": 50,
+            "minItems": 1,
+            "title": "Coordinates",
+            "type": "array"
+          },
+          "type": {
+            "const": "Polygon",
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "coordinates"
+        ],
+        "title": "PolygonGeometry",
+        "type": "object"
+      },
+      "PolygonRegion": {
+        "additionalProperties": false,
+        "description": "Dateline-crossing rings must arrive split; no implicit complement selection.",
+        "properties": {
+          "dateline": {
+            "enum": [
+              "not_crossing",
+              "split"
+            ],
+            "title": "Dateline",
+            "type": "string"
+          },
+          "geometry": {
+            "discriminator": {
+              "mapping": {
+                "MultiPolygon": "#/components/schemas/MultiPolygonGeometry",
+                "Polygon": "#/components/schemas/PolygonGeometry"
+              },
+              "propertyName": "type"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/PolygonGeometry"
+              },
+              {
+                "$ref": "#/components/schemas/MultiPolygonGeometry"
+              }
+            ],
+            "title": "Geometry"
+          },
+          "interior": {
+            "enum": [
+              "bounded",
+              "complement"
+            ],
+            "title": "Interior",
+            "type": "string"
+          },
+          "kind": {
+            "const": "polygon",
+            "title": "Kind",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "geometry",
+          "dateline",
+          "interior"
+        ],
+        "title": "PolygonRegion",
+        "type": "object"
+      },
+      "PreparedCase": {
+        "additionalProperties": false,
+        "properties": {
+          "request_hash": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Request Hash",
+            "type": "string"
+          },
+          "result_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Result Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "result_id",
+          "request_hash"
+        ],
+        "title": "PreparedCase",
+        "type": "object"
+      },
+      "PresetRegion": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "const": "preset",
+            "title": "Kind",
+            "type": "string"
+          },
+          "preset_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Preset Id",
+            "type": "string"
+          },
+          "version": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "preset_id",
+          "version"
+        ],
+        "title": "PresetRegion",
+        "type": "object"
+      },
+      "ProductCapability": {
+        "additionalProperties": false,
+        "properties": {
+          "binding_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Binding Id",
+            "type": "string"
+          },
+          "variable_id": {
+            "enum": [
+              "V01",
+              "V02",
+              "V03",
+              "V04",
+              "V05",
+              "V06",
+              "V07",
+              "V08",
+              "V09",
+              "V10",
+              "V11",
+              "V12",
+              "V13"
+            ],
+            "title": "Variable Id",
+            "type": "string"
+          },
+          "window": {
+            "$ref": "#/components/schemas/MonthlyWindow"
+          }
+        },
+        "required": [
+          "variable_id",
+          "binding_id",
+          "window"
+        ],
+        "title": "ProductCapability",
+        "type": "object"
+      },
+      "Provenance": {
+        "additionalProperties": false,
+        "properties": {
+          "binding_ids": {
+            "items": {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+              "type": "string"
+            },
+            "title": "Binding Ids",
+            "type": "array"
+          },
+          "code_version": {
+            "pattern": "^[0-9a-f]{7,40}$",
+            "title": "Code Version",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "data_kind": {
+            "enum": [
+              "scientific",
+              "synthetic_contract"
+            ],
+            "title": "Data Kind",
+            "type": "string"
+          },
+          "granule_or_job_ids": {
+            "items": {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+              "type": "string"
+            },
+            "title": "Granule Or Job Ids",
+            "type": "array"
+          },
+          "mask_id": {
+            "anyOf": [
+              {
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mask Id"
+          },
+          "parent_ids": {
+            "items": {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+              "type": "string"
+            },
+            "title": "Parent Ids",
+            "type": "array"
+          },
+          "processing_steps": {
+            "items": {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+              "type": "string"
+            },
+            "title": "Processing Steps",
+            "type": "array"
+          },
+          "provenance_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Provenance Id",
+            "type": "string"
+          },
+          "qa_policy_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Qa Policy Id",
+            "type": "string"
+          },
+          "random_seed": {
+            "anyOf": [
+              {
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Random Seed"
+          },
+          "request_hash": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Request Hash",
+            "type": "string"
+          },
+          "result_hash": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Result Hash",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "1.0",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "software_versions": {
+            "patternProperties": {
+              "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$": {
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+                "type": "string"
+              }
+            },
+            "title": "Software Versions",
+            "type": "object"
+          },
+          "source_artifact_hashes": {
+            "items": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            "title": "Source Artifact Hashes",
+            "type": "array"
+          }
+        },
+        "required": [
+          "schema_version",
+          "created_at",
+          "provenance_id",
+          "data_kind",
+          "binding_ids",
+          "source_artifact_hashes",
+          "granule_or_job_ids",
+          "parent_ids",
+          "code_version",
+          "software_versions",
+          "processing_steps",
+          "mask_id",
+          "qa_policy_id",
+          "request_hash",
+          "result_hash",
+          "random_seed"
+        ],
+        "title": "Provenance",
+        "type": "object"
+      },
+      "Quantiles": {
+        "additionalProperties": false,
+        "properties": {
+          "lower80": {
+            "title": "Lower80",
+            "type": "number"
+          },
+          "lower95": {
+            "title": "Lower95",
+            "type": "number"
+          },
+          "median": {
+            "title": "Median",
+            "type": "number"
+          },
+          "time": {
+            "pattern": "^(?:[1-9][0-9]{3}|0[1-9][0-9]{2}|00[1-9][0-9]|000[1-9])-(?:0[1-9]|1[0-2])$",
+            "title": "Time",
+            "type": "string"
+          },
+          "upper80": {
+            "title": "Upper80",
+            "type": "number"
+          },
+          "upper95": {
+            "title": "Upper95",
+            "type": "number"
+          }
+        },
+        "required": [
+          "time",
+          "lower95",
+          "lower80",
+          "median",
+          "upper80",
+          "upper95"
+        ],
+        "title": "Quantiles",
+        "type": "object"
+      },
+      "Readiness": {
+        "additionalProperties": false,
+        "properties": {
+          "cube_readable": {
+            "title": "Cube Readable",
+            "type": "boolean"
+          },
+          "release_hashes_verified": {
+            "title": "Release Hashes Verified",
+            "type": "boolean"
+          },
+          "schema_compatible": {
+            "title": "Schema Compatible",
+            "type": "boolean"
+          },
+          "sufficient_disk": {
+            "title": "Sufficient Disk",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "schema_compatible",
+          "release_hashes_verified",
+          "cube_readable",
+          "sufficient_disk"
+        ],
+        "title": "Readiness",
+        "type": "object"
+      },
+      "RegionSpec": {
+        "description": "A region specification, not proof of valid topology or scientific support.",
+        "discriminator": {
+          "mapping": {
+            "bbox": "#/components/schemas/BboxRegion",
+            "cell": "#/components/schemas/CellRegion",
+            "global": "#/components/schemas/GlobalRegion",
+            "polygon": "#/components/schemas/PolygonRegion",
+            "preset": "#/components/schemas/PresetRegion"
+          },
+          "propertyName": "kind"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/GlobalRegion"
+          },
+          {
+            "$ref": "#/components/schemas/CellRegion"
+          },
+          {
+            "$ref": "#/components/schemas/BboxRegion"
+          },
+          {
+            "$ref": "#/components/schemas/PolygonRegion"
+          },
+          {
+            "$ref": "#/components/schemas/PresetRegion"
+          }
+        ],
+        "title": "RegionSpec"
+      },
+      "RegionSummary": {
+        "additionalProperties": false,
+        "properties": {
+          "area_km2": {
+            "exclusiveMinimum": 0,
+            "title": "Area Km2",
+            "type": "number"
+          },
+          "cell_count": {
+            "minimum": 0,
+            "title": "Cell Count",
+            "type": "integer"
+          },
+          "coverage": {
+            "items": {
+              "$ref": "#/components/schemas/VariableCoverage"
+            },
+            "title": "Coverage",
+            "type": "array"
+          },
+          "fractions_reason": {
+            "anyOf": [
+              {
+                "enum": [
+                  "missing_observation",
+                  "insufficient_coverage",
+                  "insufficient_record",
+                  "outside_product_domain",
+                  "unknown_coverage",
+                  "unknown_units",
+                  "invalid_variance",
+                  "zero_or_unresolved_slope",
+                  "zero_residual_variance",
+                  "interval_scale_variable",
+                  "index_variable",
+                  "near_zero_mean",
+                  "method_validation_required",
+                  "method_unvalidated_for_gaps",
+                  "insufficient_lag_pairs",
+                  "insufficient_baseline",
+                  "no_forecast_skill",
+                  "insufficient_backtest_origins",
+                  "nonstationary_residuals",
+                  "unsupported_transform",
+                  "snapshot_not_bundled",
+                  "not_implemented",
+                  "not_requested",
+                  "no_fdr_context",
+                  "insufficient_contiguous_blocks",
+                  "no_eligible_tests",
+                  "provider_progress_unknown"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fractions Reason"
+          },
+          "land_fraction": {
+            "anyOf": [
+              {
+                "maximum": 1,
+                "minimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Land Fraction"
+          },
+          "ocean_fraction": {
+            "anyOf": [
+              {
+                "maximum": 1,
+                "minimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ocean Fraction"
+          },
+          "opposite_trends_warning": {
+            "title": "Opposite Trends Warning",
+            "type": "boolean"
+          },
+          "provenance_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Provenance Id",
+            "type": "string"
+          },
+          "region_hash": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Region Hash",
+            "type": "string"
+          }
+        },
+        "required": [
+          "region_hash",
+          "area_km2",
+          "cell_count",
+          "land_fraction",
+          "ocean_fraction",
+          "fractions_reason",
+          "coverage",
+          "opposite_trends_warning",
+          "provenance_id"
+        ],
+        "title": "RegionSummary",
+        "type": "object"
+      },
+      "RegressionDiagnostics": {
+        "additionalProperties": false,
+        "properties": {
+          "adjusted_standard_error": {
+            "anyOf": [
+              {
+                "minimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Adjusted Standard Error"
+          },
+          "effective_n": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Effective N"
+          },
+          "provenance_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Provenance Id",
+            "type": "string"
+          },
+          "r_squared": {
+            "anyOf": [
+              {
+                "maximum": 1,
+                "minimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "R Squared"
+          },
+          "raw_standard_error": {
+            "anyOf": [
+              {
+                "minimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Raw Standard Error"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "enum": [
+                  "missing_observation",
+                  "insufficient_coverage",
+                  "insufficient_record",
+                  "outside_product_domain",
+                  "unknown_coverage",
+                  "unknown_units",
+                  "invalid_variance",
+                  "zero_or_unresolved_slope",
+                  "zero_residual_variance",
+                  "interval_scale_variable",
+                  "index_variable",
+                  "near_zero_mean",
+                  "method_validation_required",
+                  "method_unvalidated_for_gaps",
+                  "insufficient_lag_pairs",
+                  "insufficient_baseline",
+                  "no_forecast_skill",
+                  "insufficient_backtest_origins",
+                  "nonstationary_residuals",
+                  "unsupported_transform",
+                  "snapshot_not_bundled",
+                  "not_implemented",
+                  "not_requested",
+                  "no_fdr_context",
+                  "insufficient_contiguous_blocks",
+                  "no_eligible_tests",
+                  "provider_progress_unknown"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          }
+        },
+        "required": [
+          "r_squared",
+          "reason",
+          "raw_standard_error",
+          "adjusted_standard_error",
+          "effective_n",
+          "provenance_id"
+        ],
+        "title": "RegressionDiagnostics",
+        "type": "object"
+      },
+      "ScanRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "alpha": {
+            "maximum": 0.1,
+            "minimum": 0.01,
+            "title": "Alpha",
+            "type": "number"
+          },
+          "baseline": {
+            "discriminator": {
+              "mapping": {
+                "analysis_window": "#/components/schemas/WindowBaseline",
+                "explicit": "#/components/schemas/ExplicitBaseline"
+              },
+              "propertyName": "kind"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/WindowBaseline"
+              },
+              {
+                "$ref": "#/components/schemas/ExplicitBaseline"
+              }
+            ],
+            "title": "Baseline"
+          },
+          "data_release_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Data Release Id",
+            "type": "string"
+          },
+          "method_profile": {
+            "const": "srs-p0-v1",
+            "title": "Method Profile",
+            "type": "string"
+          },
+          "region": {
+            "$ref": "#/components/schemas/RegionSpec"
+          },
+          "schema_version": {
+            "const": "1.0",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "variable_ids": {
+            "items": {
+              "enum": [
+                "V01",
+                "V02",
+                "V03",
+                "V04",
+                "V05",
+                "V06",
+                "V07",
+                "V08",
+                "V09",
+                "V10",
+                "V11",
+                "V12",
+                "V13"
+              ],
+              "type": "string"
+            },
+            "maxItems": 13,
+            "minItems": 1,
+            "title": "Variable Ids",
+            "type": "array"
+          },
+          "window": {
+            "$ref": "#/components/schemas/MonthlyWindow"
+          },
+          "window_policy": {
+            "default": "shared_intersection",
+            "enum": [
+              "shared_intersection",
+              "per_variable_defaults"
+            ],
+            "title": "Window Policy",
+            "type": "string"
+          }
+        },
+        "required": [
+          "schema_version",
+          "window",
+          "baseline",
+          "alpha",
+          "method_profile",
+          "data_release_id",
+          "variable_ids",
+          "region"
+        ],
+        "title": "ScanRequest",
+        "type": "object"
+      },
+      "ScanResult": {
+        "additionalProperties": false,
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "data_release_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Data Release Id",
+            "type": "string"
+          },
+          "evidence_kind": {
+            "enum": [
+              "scientific",
+              "synthetic_contract"
+            ],
+            "title": "Evidence Kind",
+            "type": "string"
+          },
+          "fdr": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FdrResult"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "fdr_reason": {
+            "anyOf": [
+              {
+                "enum": [
+                  "missing_observation",
+                  "insufficient_coverage",
+                  "insufficient_record",
+                  "outside_product_domain",
+                  "unknown_coverage",
+                  "unknown_units",
+                  "invalid_variance",
+                  "zero_or_unresolved_slope",
+                  "zero_residual_variance",
+                  "interval_scale_variable",
+                  "index_variable",
+                  "near_zero_mean",
+                  "method_validation_required",
+                  "method_unvalidated_for_gaps",
+                  "insufficient_lag_pairs",
+                  "insufficient_baseline",
+                  "no_forecast_skill",
+                  "insufficient_backtest_origins",
+                  "nonstationary_residuals",
+                  "unsupported_transform",
+                  "snapshot_not_bundled",
+                  "not_implemented",
+                  "not_requested",
+                  "no_fdr_context",
+                  "insufficient_contiguous_blocks",
+                  "no_eligible_tests",
+                  "provider_progress_unknown"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fdr Reason"
+          },
+          "mode": {
+            "enum": [
+              "local",
+              "snapshot"
+            ],
+            "title": "Mode",
+            "type": "string"
+          },
+          "provenance_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Provenance Id",
+            "type": "string"
+          },
+          "provenance_map": {
+            "additionalProperties": {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+              "type": "string"
+            },
+            "minProperties": 1,
+            "title": "Provenance Map",
+            "type": "object"
+          },
+          "region_summary": {
+            "$ref": "#/components/schemas/RegionSummary"
+          },
+          "request": {
+            "$ref": "#/components/schemas/ScanRequest"
+          },
+          "request_hash": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Request Hash",
+            "type": "string"
+          },
+          "result_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Result Id",
+            "type": "string"
+          },
+          "rows": {
+            "items": {
+              "discriminator": {
+                "mapping": {
+                  "analysed": "#/components/schemas/AnalysedRow",
+                  "excluded": "#/components/schemas/ExcludedRow"
+                },
+                "propertyName": "status"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/AnalysedRow"
+                },
+                {
+                  "$ref": "#/components/schemas/ExcludedRow"
+                }
+              ]
+            },
+            "title": "Rows",
+            "type": "array"
+          },
+          "schema_version": {
+            "const": "1.0",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "sorting_policy": {
+            "const": "absolute_standardized_slope_desc",
+            "title": "Sorting Policy",
+            "type": "string"
+          },
+          "status": {
+            "const": "completed",
+            "title": "Status",
+            "type": "string"
+          },
+          "warnings": {
+            "items": {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+              "type": "string"
+            },
+            "title": "Warnings",
+            "type": "array"
+          }
+        },
+        "required": [
+          "schema_version",
+          "created_at",
+          "status",
+          "result_id",
+          "request_hash",
+          "data_release_id",
+          "mode",
+          "evidence_kind",
+          "provenance_id",
+          "provenance_map",
+          "warnings",
+          "request",
+          "region_summary",
+          "rows",
+          "fdr",
+          "fdr_reason",
+          "sorting_policy"
+        ],
+        "title": "ScanResult",
+        "type": "object"
+      },
+      "SeasonalMonth": {
+        "additionalProperties": false,
+        "properties": {
+          "month": {
+            "maximum": 12,
+            "minimum": 1,
+            "title": "Month",
+            "type": "integer"
+          },
+          "slope": {
+            "$ref": "#/components/schemas/Estimate"
+          },
+          "test": {
+            "$ref": "#/components/schemas/TestResult"
+          }
+        },
+        "required": [
+          "month",
+          "slope",
+          "test"
+        ],
+        "title": "SeasonalMonth",
+        "type": "object"
+      },
+      "Seasonality": {
+        "additionalProperties": false,
+        "properties": {
+          "fdr": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FdrResult"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "fdr_reason": {
+            "anyOf": [
+              {
+                "enum": [
+                  "missing_observation",
+                  "insufficient_coverage",
+                  "insufficient_record",
+                  "outside_product_domain",
+                  "unknown_coverage",
+                  "unknown_units",
+                  "invalid_variance",
+                  "zero_or_unresolved_slope",
+                  "zero_residual_variance",
+                  "interval_scale_variable",
+                  "index_variable",
+                  "near_zero_mean",
+                  "method_validation_required",
+                  "method_unvalidated_for_gaps",
+                  "insufficient_lag_pairs",
+                  "insufficient_baseline",
+                  "no_forecast_skill",
+                  "insufficient_backtest_origins",
+                  "nonstationary_residuals",
+                  "unsupported_transform",
+                  "snapshot_not_bundled",
+                  "not_implemented",
+                  "not_requested",
+                  "no_fdr_context",
+                  "insufficient_contiguous_blocks",
+                  "no_eligible_tests",
+                  "provider_progress_unknown"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fdr Reason"
+          },
+          "months": {
+            "items": {
+              "$ref": "#/components/schemas/SeasonalMonth"
+            },
+            "maxItems": 12,
+            "minItems": 12,
+            "title": "Months",
+            "type": "array"
+          },
+          "seasonal_kendall": {
+            "$ref": "#/components/schemas/TestResult"
+          }
+        },
+        "required": [
+          "months",
+          "fdr",
+          "fdr_reason",
+          "seasonal_kendall"
+        ],
+        "title": "Seasonality",
+        "type": "object"
+      },
+      "Series": {
+        "additionalProperties": false,
+        "properties": {
+          "binding_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Binding Id",
+            "type": "string"
+          },
+          "branch_id": {
+            "enum": [
+              "raw_monthly",
+              "monthly_anomaly",
+              "log10_monthly_anomaly",
+              "reference_raw_monthly",
+              "reference_annual_anomaly",
+              "annual_layer",
+              "seasonal_month"
+            ],
+            "title": "Branch Id",
+            "type": "string"
+          },
+          "coverage": {
+            "items": {
+              "anyOf": [
+                {
+                  "maximum": 1,
+                  "minimum": 0,
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": "Coverage",
+            "type": "array"
+          },
+          "frequency": {
+            "enum": [
+              "monthly",
+              "annual"
+            ],
+            "title": "Frequency",
+            "type": "string"
+          },
+          "grid_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Grid Id",
+            "type": "string"
+          },
+          "provenance_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Provenance Id",
+            "type": "string"
+          },
+          "reason": {
+            "items": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "missing_observation",
+                    "insufficient_coverage",
+                    "insufficient_record",
+                    "outside_product_domain",
+                    "unknown_coverage",
+                    "unknown_units",
+                    "invalid_variance",
+                    "zero_or_unresolved_slope",
+                    "zero_residual_variance",
+                    "interval_scale_variable",
+                    "index_variable",
+                    "near_zero_mean",
+                    "method_validation_required",
+                    "method_unvalidated_for_gaps",
+                    "insufficient_lag_pairs",
+                    "insufficient_baseline",
+                    "no_forecast_skill",
+                    "insufficient_backtest_origins",
+                    "nonstationary_residuals",
+                    "unsupported_transform",
+                    "snapshot_not_bundled",
+                    "not_implemented",
+                    "not_requested",
+                    "no_fdr_context",
+                    "insufficient_contiguous_blocks",
+                    "no_eligible_tests",
+                    "provider_progress_unknown"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": "Reason",
+            "type": "array"
+          },
+          "schema_version": {
+            "const": "1.0",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "series_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Series Id",
+            "type": "string"
+          },
+          "time": {
+            "items": {
+              "anyOf": [
+                {
+                  "pattern": "^(?:[1-9][0-9]{3}|0[1-9][0-9]{2}|00[1-9][0-9]|000[1-9])-(?:0[1-9]|1[0-2])$",
+                  "type": "string"
+                },
+                {
+                  "pattern": "^(?:[1-9][0-9]{3}|0[1-9][0-9]{2}|00[1-9][0-9]|000[1-9])$",
+                  "type": "string"
+                }
+              ]
+            },
+            "maxItems": 600,
+            "minItems": 1,
+            "title": "Time",
+            "type": "array"
+          },
+          "transform": {
+            "$ref": "#/components/schemas/Transform"
+          },
+          "units": {
+            "anyOf": [
+              {
+                "enum": [
+                  "°C",
+                  "mm/day",
+                  "mm",
+                  "10^15 molecules/cm²",
+                  "dimensionless",
+                  "mg/m³",
+                  "W/m²"
+                ],
+                "type": "string"
+              },
+              {
+                "enum": [
+                  "log10(mg/m³)",
+                  "°C/decade",
+                  "mm/day/decade",
+                  "mm/decade",
+                  "10^15 molecules/cm²/decade",
+                  "dimensionless/decade",
+                  "mg/m³/decade",
+                  "W/m²/decade",
+                  "log10(mg/m³)/decade",
+                  "%/decade",
+                  "sigma/decade",
+                  "years",
+                  "fractional_year",
+                  "km²"
+                ],
+                "type": "string"
+              }
+            ],
+            "title": "Units"
+          },
+          "valid": {
+            "items": {
+              "type": "boolean"
+            },
+            "title": "Valid",
+            "type": "array"
+          },
+          "value": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": "Value",
+            "type": "array"
+          },
+          "variable_id": {
+            "enum": [
+              "V01",
+              "V02",
+              "V03",
+              "V04",
+              "V05",
+              "V06",
+              "V07",
+              "V08",
+              "V09",
+              "V10",
+              "V11",
+              "V12",
+              "V13"
+            ],
+            "title": "Variable Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "schema_version",
+          "series_id",
+          "variable_id",
+          "binding_id",
+          "branch_id",
+          "frequency",
+          "time",
+          "value",
+          "coverage",
+          "valid",
+          "reason",
+          "units",
+          "transform",
+          "grid_id",
+          "provenance_id"
+        ],
+        "title": "Series",
+        "type": "object"
+      },
+      "SeriesRef": {
+        "additionalProperties": false,
+        "properties": {
+          "branch_id": {
+            "enum": [
+              "raw_monthly",
+              "monthly_anomaly",
+              "log10_monthly_anomaly",
+              "reference_raw_monthly",
+              "reference_annual_anomaly",
+              "annual_layer",
+              "seasonal_month"
+            ],
+            "title": "Branch Id",
+            "type": "string"
+          },
+          "provenance_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Provenance Id",
+            "type": "string"
+          },
+          "series_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Series Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "series_id",
+          "branch_id",
+          "provenance_id"
+        ],
+        "title": "SeriesRef",
+        "type": "object"
+      },
+      "SeriesSource": {
+        "additionalProperties": false,
+        "properties": {
+          "acknowledgement": {
+            "maxLength": 500,
+            "title": "Acknowledgement",
+            "type": "string"
+          },
+          "artifact_sha256": {
+            "additionalProperties": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            "title": "Artifact Sha256",
+            "type": "object"
+          },
+          "caveats": {
+            "items": {
+              "maxLength": 300,
+              "minLength": 1,
+              "type": "string"
+            },
+            "title": "Caveats",
+            "type": "array"
+          },
+          "data_kind": {
+            "const": "model",
+            "title": "Data Kind",
+            "type": "string"
+          },
+          "declared_end": {
+            "maxLength": 40,
+            "title": "Declared End",
+            "type": "string"
+          },
+          "field": {
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Field",
+            "type": "string"
+          },
+          "first_month": {
+            "pattern": "^(?:[1-9][0-9]{3}|0[1-9][0-9]{2}|00[1-9][0-9]|000[1-9])-(?:0[1-9]|1[0-2])$",
+            "title": "First Month",
+            "type": "string"
+          },
+          "last_finite_month": {
+            "pattern": "^(?:[1-9][0-9]{3}|0[1-9][0-9]{2}|00[1-9][0-9]|000[1-9])-(?:0[1-9]|1[0-2])$",
+            "title": "Last Finite Month",
+            "type": "string"
+          },
+          "missing_months": {
+            "minimum": 0,
+            "title": "Missing Months",
+            "type": "integer"
+          },
+          "retrieved_at": {
+            "format": "date-time",
+            "title": "Retrieved At",
+            "type": "string"
+          },
+          "scientifically_validated": {
+            "const": false,
+            "title": "Scientifically Validated",
+            "type": "boolean"
+          },
+          "served_from_cache": {
+            "title": "Served From Cache",
+            "type": "boolean"
+          },
+          "source_units": {
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Source Units",
+            "type": "string"
+          },
+          "stale_cache": {
+            "title": "Stale Cache",
+            "type": "boolean"
+          },
+          "store_title": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Store Title",
+            "type": "string"
+          },
+          "store_version": {
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Store Version",
+            "type": "string"
+          },
+          "time_standard": {
+            "enum": [
+              "UTC",
+              "LST"
+            ],
+            "title": "Time Standard",
+            "type": "string"
+          },
+          "units": {
+            "enum": [
+              "°C",
+              "mm/day",
+              "mm",
+              "10^15 molecules/cm²",
+              "dimensionless",
+              "mg/m³",
+              "W/m²"
+            ],
+            "title": "Units",
+            "type": "string"
+          },
+          "variable_id": {
+            "enum": [
+              "V01",
+              "V02",
+              "V03",
+              "V04",
+              "V05",
+              "V06",
+              "V07",
+              "V08",
+              "V09",
+              "V10",
+              "V11",
+              "V12",
+              "V13"
+            ],
+            "title": "Variable Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "variable_id",
+          "store_title",
+          "store_version",
+          "field",
+          "source_units",
+          "units",
+          "time_standard",
+          "data_kind",
+          "first_month",
+          "last_finite_month",
+          "declared_end",
+          "missing_months",
+          "retrieved_at",
+          "served_from_cache",
+          "stale_cache",
+          "artifact_sha256",
+          "acknowledgement",
+          "caveats",
+          "scientifically_validated"
+        ],
+        "title": "SeriesSource",
+        "type": "object"
+      },
+      "SkillMetrics": {
+        "additionalProperties": false,
+        "properties": {
+          "candidate_mae": {
+            "anyOf": [
+              {
+                "minimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Candidate Mae"
+          },
+          "climatology_mae": {
+            "anyOf": [
+              {
+                "minimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Climatology Mae"
+          },
+          "coverage80": {
+            "anyOf": [
+              {
+                "maximum": 1,
+                "minimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Coverage80"
+          },
+          "coverage95": {
+            "anyOf": [
+              {
+                "maximum": 1,
+                "minimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Coverage95"
+          },
+          "decision": {
+            "enum": [
+              "passed",
+              "failed",
+              "unavailable"
+            ],
+            "title": "Decision",
+            "type": "string"
+          },
+          "mase": {
+            "anyOf": [
+              {
+                "minimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mase"
+          },
+          "origins": {
+            "minimum": 0,
+            "title": "Origins",
+            "type": "integer"
+          },
+          "provenance_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Provenance Id",
+            "type": "string"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "enum": [
+                  "missing_observation",
+                  "insufficient_coverage",
+                  "insufficient_record",
+                  "outside_product_domain",
+                  "unknown_coverage",
+                  "unknown_units",
+                  "invalid_variance",
+                  "zero_or_unresolved_slope",
+                  "zero_residual_variance",
+                  "interval_scale_variable",
+                  "index_variable",
+                  "near_zero_mean",
+                  "method_validation_required",
+                  "method_unvalidated_for_gaps",
+                  "insufficient_lag_pairs",
+                  "insufficient_baseline",
+                  "no_forecast_skill",
+                  "insufficient_backtest_origins",
+                  "nonstationary_residuals",
+                  "unsupported_transform",
+                  "snapshot_not_bundled",
+                  "not_implemented",
+                  "not_requested",
+                  "no_fdr_context",
+                  "insufficient_contiguous_blocks",
+                  "no_eligible_tests",
+                  "provider_progress_unknown"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "seasonal_naive_mae": {
+            "anyOf": [
+              {
+                "minimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Seasonal Naive Mae"
+          },
+          "targets": {
+            "minimum": 0,
+            "title": "Targets",
+            "type": "integer"
+          },
+          "window": {
+            "$ref": "#/components/schemas/MonthlyWindow"
+          }
+        },
+        "required": [
+          "decision",
+          "reason",
+          "candidate_mae",
+          "seasonal_naive_mae",
+          "climatology_mae",
+          "mase",
+          "coverage80",
+          "coverage95",
+          "origins",
+          "targets",
+          "window",
+          "provenance_id"
+        ],
+        "title": "SkillMetrics",
+        "type": "object"
+      },
+      "SucceededJob": {
+        "additionalProperties": false,
+        "properties": {
+          "artifact_ids": {
+            "items": {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+              "type": "string"
+            },
+            "title": "Artifact Ids",
+            "type": "array"
+          },
+          "attempt": {
+            "minimum": 0,
+            "title": "Attempt",
+            "type": "integer"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "job_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Job Id",
+            "type": "string"
+          },
+          "provider_job_ids": {
+            "items": {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+              "type": "string"
+            },
+            "title": "Provider Job Ids",
+            "type": "array"
+          },
+          "request_hash": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Request Hash",
+            "type": "string"
+          },
+          "result_ids": {
+            "items": {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+              "type": "string"
+            },
+            "title": "Result Ids",
+            "type": "array"
+          },
+          "schema_version": {
+            "const": "1.0",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "stage": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Stage",
+            "type": "string"
+          },
+          "state": {
+            "const": "succeeded",
+            "title": "State",
+            "type": "string"
+          },
+          "status_url": {
+            "pattern": "^/api/v1/jobs/[A-Za-z0-9._:-]+$",
+            "title": "Status Url",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "schema_version",
+          "created_at",
+          "job_id",
+          "request_hash",
+          "status_url",
+          "updated_at",
+          "stage",
+          "attempt",
+          "provider_job_ids",
+          "state",
+          "result_ids",
+          "artifact_ids"
+        ],
+        "title": "SucceededJob",
+        "type": "object"
+      },
+      "TestResult": {
+        "discriminator": {
+          "mapping": {
+            "available": "#/components/schemas/AvailableTest",
+            "unavailable": "#/components/schemas/UnavailableTest"
+          },
+          "propertyName": "status"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/AvailableTest"
+          },
+          {
+            "$ref": "#/components/schemas/UnavailableTest"
+          }
+        ],
+        "title": "TestResult"
+      },
+      "Transform": {
+        "additionalProperties": false,
+        "properties": {
+          "input_units": {
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Input Units",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "identity",
+              "linear",
+              "log10"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "offset": {
+            "title": "Offset",
+            "type": "number"
+          },
+          "order": {
+            "items": {
+              "enum": [
+                "decode_fill",
+                "qa",
+                "scale_units",
+                "weighted_regional_mean",
+                "log10",
+                "monthly_climatology",
+                "anomaly",
+                "annual_mean"
+              ],
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Order",
+            "type": "array"
+          },
+          "output_units": {
+            "anyOf": [
+              {
+                "enum": [
+                  "°C",
+                  "mm/day",
+                  "mm",
+                  "10^15 molecules/cm²",
+                  "dimensionless",
+                  "mg/m³",
+                  "W/m²"
+                ],
+                "type": "string"
+              },
+              {
+                "enum": [
+                  "log10(mg/m³)",
+                  "°C/decade",
+                  "mm/day/decade",
+                  "mm/decade",
+                  "10^15 molecules/cm²/decade",
+                  "dimensionless/decade",
+                  "mg/m³/decade",
+                  "W/m²/decade",
+                  "log10(mg/m³)/decade",
+                  "%/decade",
+                  "sigma/decade",
+                  "years",
+                  "fractional_year",
+                  "km²"
+                ],
+                "type": "string"
+              }
+            ],
+            "title": "Output Units"
+          },
+          "scale": {
+            "title": "Scale",
+            "type": "number"
+          },
+          "transform_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Transform Id",
+            "type": "string"
+          },
+          "version": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "transform_id",
+          "version",
+          "kind",
+          "input_units",
+          "output_units",
+          "scale",
+          "offset",
+          "order"
+        ],
+        "title": "Transform",
+        "type": "object"
+      },
+      "UnavailableEstimate": {
+        "additionalProperties": false,
+        "properties": {
+          "branch_id": {
+            "enum": [
+              "raw_monthly",
+              "monthly_anomaly",
+              "log10_monthly_anomaly",
+              "reference_raw_monthly",
+              "reference_annual_anomaly",
+              "annual_layer",
+              "seasonal_month"
+            ],
+            "title": "Branch Id",
+            "type": "string"
+          },
+          "ci_high": {
+            "title": "Ci High",
+            "type": "null"
+          },
+          "ci_low": {
+            "title": "Ci Low",
+            "type": "null"
+          },
+          "ci_method": {
+            "title": "Ci Method",
+            "type": "null"
+          },
+          "ci_method_version": {
+            "title": "Ci Method Version",
+            "type": "null"
+          },
+          "ci_reason": {
+            "enum": [
+              "missing_observation",
+              "insufficient_coverage",
+              "insufficient_record",
+              "outside_product_domain",
+              "unknown_coverage",
+              "unknown_units",
+              "invalid_variance",
+              "zero_or_unresolved_slope",
+              "zero_residual_variance",
+              "interval_scale_variable",
+              "index_variable",
+              "near_zero_mean",
+              "method_validation_required",
+              "method_unvalidated_for_gaps",
+              "insufficient_lag_pairs",
+              "insufficient_baseline",
+              "no_forecast_skill",
+              "insufficient_backtest_origins",
+              "nonstationary_residuals",
+              "unsupported_transform",
+              "snapshot_not_bundled",
+              "not_implemented",
+              "not_requested",
+              "no_fdr_context",
+              "insufficient_contiguous_blocks",
+              "no_eligible_tests",
+              "provider_progress_unknown"
+            ],
+            "title": "Ci Reason",
+            "type": "string"
+          },
+          "confidence_level": {
+            "title": "Confidence Level",
+            "type": "null"
+          },
+          "estimator": {
+            "enum": [
+              "sen",
+              "ols",
+              "derived"
+            ],
+            "title": "Estimator",
+            "type": "string"
+          },
+          "estimator_version": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Estimator Version",
+            "type": "string"
+          },
+          "provenance_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Provenance Id",
+            "type": "string"
+          },
+          "quantity": {
+            "enum": [
+              "slope_per_decade",
+              "percent_change_per_decade",
+              "standardized_slope_per_decade",
+              "mean",
+              "residual_sd",
+              "ols_standard_error",
+              "detectability_horizon_years",
+              "emergence_year"
+            ],
+            "title": "Quantity",
+            "type": "string"
+          },
+          "reason": {
+            "enum": [
+              "missing_observation",
+              "insufficient_coverage",
+              "insufficient_record",
+              "outside_product_domain",
+              "unknown_coverage",
+              "unknown_units",
+              "invalid_variance",
+              "zero_or_unresolved_slope",
+              "zero_residual_variance",
+              "interval_scale_variable",
+              "index_variable",
+              "near_zero_mean",
+              "method_validation_required",
+              "method_unvalidated_for_gaps",
+              "insufficient_lag_pairs",
+              "insufficient_baseline",
+              "no_forecast_skill",
+              "insufficient_backtest_origins",
+              "nonstationary_residuals",
+              "unsupported_transform",
+              "snapshot_not_bundled",
+              "not_implemented",
+              "not_requested",
+              "no_fdr_context",
+              "insufficient_contiguous_blocks",
+              "no_eligible_tests",
+              "provider_progress_unknown"
+            ],
+            "title": "Reason",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "unavailable",
+              "unbounded"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "units": {
+            "anyOf": [
+              {
+                "enum": [
+                  "°C",
+                  "mm/day",
+                  "mm",
+                  "10^15 molecules/cm²",
+                  "dimensionless",
+                  "mg/m³",
+                  "W/m²"
+                ],
+                "type": "string"
+              },
+              {
+                "enum": [
+                  "log10(mg/m³)",
+                  "°C/decade",
+                  "mm/day/decade",
+                  "mm/decade",
+                  "10^15 molecules/cm²/decade",
+                  "dimensionless/decade",
+                  "mg/m³/decade",
+                  "W/m²/decade",
+                  "log10(mg/m³)/decade",
+                  "%/decade",
+                  "sigma/decade",
+                  "years",
+                  "fractional_year",
+                  "km²"
+                ],
+                "type": "string"
+              }
+            ],
+            "title": "Units"
+          },
+          "value": {
+            "title": "Value",
+            "type": "null"
+          }
+        },
+        "required": [
+          "quantity",
+          "units",
+          "branch_id",
+          "estimator",
+          "estimator_version",
+          "provenance_id",
+          "status",
+          "value",
+          "reason",
+          "ci_low",
+          "ci_high",
+          "confidence_level",
+          "ci_method",
+          "ci_method_version",
+          "ci_reason"
+        ],
+        "title": "UnavailableEstimate",
+        "type": "object"
+      },
+      "UnavailableForecast": {
+        "additionalProperties": false,
+        "properties": {
+          "label": {
+            "const": "Statistical forecast",
+            "title": "Label",
+            "type": "string"
+          },
+          "provenance_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Provenance Id",
+            "type": "string"
+          },
+          "quantiles": {
+            "title": "Quantiles",
+            "type": "null"
+          },
+          "reason": {
+            "enum": [
+              "missing_observation",
+              "insufficient_coverage",
+              "insufficient_record",
+              "outside_product_domain",
+              "unknown_coverage",
+              "unknown_units",
+              "invalid_variance",
+              "zero_or_unresolved_slope",
+              "zero_residual_variance",
+              "interval_scale_variable",
+              "index_variable",
+              "near_zero_mean",
+              "method_validation_required",
+              "method_unvalidated_for_gaps",
+              "insufficient_lag_pairs",
+              "insufficient_baseline",
+              "no_forecast_skill",
+              "insufficient_backtest_origins",
+              "nonstationary_residuals",
+              "unsupported_transform",
+              "snapshot_not_bundled",
+              "not_implemented",
+              "not_requested",
+              "no_fdr_context",
+              "insufficient_contiguous_blocks",
+              "no_eligible_tests",
+              "provider_progress_unknown"
+            ],
+            "title": "Reason",
+            "type": "string"
+          },
+          "skill": {
+            "$ref": "#/components/schemas/SkillMetrics"
+          },
+          "status": {
+            "const": "unavailable",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "reason",
+          "label",
+          "quantiles",
+          "skill",
+          "provenance_id"
+        ],
+        "title": "UnavailableForecast",
+        "type": "object"
+      },
+      "UnavailableGrade": {
+        "additionalProperties": false,
+        "properties": {
+          "provenance_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Provenance Id",
+            "type": "string"
+          },
+          "reasons": {
+            "items": {
+              "enum": [
+                "missing_observation",
+                "insufficient_coverage",
+                "insufficient_record",
+                "outside_product_domain",
+                "unknown_coverage",
+                "unknown_units",
+                "invalid_variance",
+                "zero_or_unresolved_slope",
+                "zero_residual_variance",
+                "interval_scale_variable",
+                "index_variable",
+                "near_zero_mean",
+                "method_validation_required",
+                "method_unvalidated_for_gaps",
+                "insufficient_lag_pairs",
+                "insufficient_baseline",
+                "no_forecast_skill",
+                "insufficient_backtest_origins",
+                "nonstationary_residuals",
+                "unsupported_transform",
+                "snapshot_not_bundled",
+                "not_implemented",
+                "not_requested",
+                "no_fdr_context",
+                "insufficient_contiguous_blocks",
+                "no_eligible_tests",
+                "provider_progress_unknown"
+              ],
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Reasons",
+            "type": "array"
+          },
+          "status": {
+            "const": "unavailable",
+            "title": "Status",
+            "type": "string"
+          },
+          "value": {
+            "title": "Value",
+            "type": "null"
+          }
+        },
+        "required": [
+          "status",
+          "value",
+          "reasons",
+          "provenance_id"
+        ],
+        "title": "UnavailableGrade",
+        "type": "object"
+      },
+      "UnavailableProjection": {
+        "additionalProperties": false,
+        "properties": {
+          "label": {
+            "const": "Not a prediction",
+            "title": "Label",
+            "type": "string"
+          },
+          "provenance_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Provenance Id",
+            "type": "string"
+          },
+          "quantiles": {
+            "title": "Quantiles",
+            "type": "null"
+          },
+          "reason": {
+            "enum": [
+              "missing_observation",
+              "insufficient_coverage",
+              "insufficient_record",
+              "outside_product_domain",
+              "unknown_coverage",
+              "unknown_units",
+              "invalid_variance",
+              "zero_or_unresolved_slope",
+              "zero_residual_variance",
+              "interval_scale_variable",
+              "index_variable",
+              "near_zero_mean",
+              "method_validation_required",
+              "method_unvalidated_for_gaps",
+              "insufficient_lag_pairs",
+              "insufficient_baseline",
+              "no_forecast_skill",
+              "insufficient_backtest_origins",
+              "nonstationary_residuals",
+              "unsupported_transform",
+              "snapshot_not_bundled",
+              "not_implemented",
+              "not_requested",
+              "no_fdr_context",
+              "insufficient_contiguous_blocks",
+              "no_eligible_tests",
+              "provider_progress_unknown"
+            ],
+            "title": "Reason",
+            "type": "string"
+          },
+          "status": {
+            "const": "unavailable",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "reason",
+          "label",
+          "quantiles",
+          "provenance_id"
+        ],
+        "title": "UnavailableProjection",
+        "type": "object"
+      },
+      "UnavailableTest": {
+        "additionalProperties": false,
+        "properties": {
+          "branch_id": {
+            "enum": [
+              "raw_monthly",
+              "monthly_anomaly",
+              "log10_monthly_anomaly",
+              "reference_raw_monthly",
+              "reference_annual_anomaly",
+              "annual_layer",
+              "seasonal_month"
+            ],
+            "title": "Branch Id",
+            "type": "string"
+          },
+          "df_denominator": {
+            "title": "Df Denominator",
+            "type": "null"
+          },
+          "df_numerator": {
+            "title": "Df Numerator",
+            "type": "null"
+          },
+          "effective_n": {
+            "title": "Effective N",
+            "type": "null"
+          },
+          "lags": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LagParameters"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "method": {
+            "$ref": "#/components/schemas/Method"
+          },
+          "p": {
+            "title": "P",
+            "type": "null"
+          },
+          "provenance_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "title": "Provenance Id",
+            "type": "string"
+          },
+          "reason": {
+            "enum": [
+              "missing_observation",
+              "insufficient_coverage",
+              "insufficient_record",
+              "outside_product_domain",
+              "unknown_coverage",
+              "unknown_units",
+              "invalid_variance",
+              "zero_or_unresolved_slope",
+              "zero_residual_variance",
+              "interval_scale_variable",
+              "index_variable",
+              "near_zero_mean",
+              "method_validation_required",
+              "method_unvalidated_for_gaps",
+              "insufficient_lag_pairs",
+              "insufficient_baseline",
+              "no_forecast_skill",
+              "insufficient_backtest_origins",
+              "nonstationary_residuals",
+              "unsupported_transform",
+              "snapshot_not_bundled",
+              "not_implemented",
+              "not_requested",
+              "no_fdr_context",
+              "insufficient_contiguous_blocks",
+              "no_eligible_tests",
+              "provider_progress_unknown"
+            ],
+            "title": "Reason",
+            "type": "string"
+          },
+          "role": {
+            "enum": [
+              "primary",
+              "secondary",
+              "reference",
+              "seasonal"
+            ],
+            "title": "Role",
+            "type": "string"
+          },
+          "statistic": {
+            "title": "Statistic",
+            "type": "null"
+          },
+          "status": {
+            "const": "unavailable",
+            "title": "Status",
+            "type": "string"
+          },
+          "valid_n": {
+            "minimum": 0,
+            "title": "Valid N",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "branch_id",
+          "role",
+          "method",
+          "valid_n",
+          "provenance_id",
+          "status",
+          "p",
+          "statistic",
+          "df_numerator",
+          "df_denominator",
+          "effective_n",
+          "lags",
+          "reason"
+        ],
+        "title": "UnavailableTest",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      },
+      "VariableCoverage": {
+        "additionalProperties": false,
+        "properties": {
+          "coverage": {
+            "anyOf": [
+              {
+                "maximum": 1,
+                "minimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Coverage"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "enum": [
+                  "missing_observation",
+                  "insufficient_coverage",
+                  "insufficient_record",
+                  "outside_product_domain",
+                  "unknown_coverage",
+                  "unknown_units",
+                  "invalid_variance",
+                  "zero_or_unresolved_slope",
+                  "zero_residual_variance",
+                  "interval_scale_variable",
+                  "index_variable",
+                  "near_zero_mean",
+                  "method_validation_required",
+                  "method_unvalidated_for_gaps",
+                  "insufficient_lag_pairs",
+                  "insufficient_baseline",
+                  "no_forecast_skill",
+                  "insufficient_backtest_origins",
+                  "nonstationary_residuals",
+                  "unsupported_transform",
+                  "snapshot_not_bundled",
+                  "not_implemented",
+                  "not_requested",
+                  "no_fdr_context",
+                  "insufficient_contiguous_blocks",
+                  "no_eligible_tests",
+                  "provider_progress_unknown"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "variable_id": {
+            "enum": [
+              "V01",
+              "V02",
+              "V03",
+              "V04",
+              "V05",
+              "V06",
+              "V07",
+              "V08",
+              "V09",
+              "V10",
+              "V11",
+              "V12",
+              "V13"
+            ],
+            "title": "Variable Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "variable_id",
+          "coverage",
+          "reason"
+        ],
+        "title": "VariableCoverage",
+        "type": "object"
+      },
+      "WindowBaseline": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "const": "analysis_window",
+            "title": "Kind",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind"
+        ],
+        "title": "WindowBaseline",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "description": "F03 contract definitions. Components do not imply implemented endpoints or validated methods.",
+    "title": "Earth Trend Detective contracts",
+    "version": "1.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/v1/field/{variable_id}": {
+      "get": {
+        "operationId": "monthly_field_api_v1_field__variable_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "variable_id",
+            "required": true,
+            "schema": {
+              "title": "Variable Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "month",
+            "required": true,
+            "schema": {
+              "title": "Month",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "lat_min",
+            "required": true,
+            "schema": {
+              "maximum": 90,
+              "minimum": -90,
+              "title": "Lat Min",
+              "type": "number"
+            }
+          },
+          {
+            "in": "query",
+            "name": "lat_max",
+            "required": true,
+            "schema": {
+              "maximum": 90,
+              "minimum": -90,
+              "title": "Lat Max",
+              "type": "number"
+            }
+          },
+          {
+            "in": "query",
+            "name": "lon_min",
+            "required": true,
+            "schema": {
+              "maximum": 180,
+              "minimum": -180,
+              "title": "Lon Min",
+              "type": "number"
+            }
+          },
+          {
+            "in": "query",
+            "name": "lon_max",
+            "required": true,
+            "schema": {
+              "maximum": 180,
+              "minimum": -180,
+              "title": "Lon Max",
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FieldResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Monthly Field"
+      }
+    },
+    "/api/v1/health": {
+      "get": {
+        "operationId": "health_api_v1_health_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Health"
+      }
+    },
+    "/api/v1/series/{variable_id}": {
+      "get": {
+        "operationId": "point_series_api_v1_series__variable_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "variable_id",
+            "required": true,
+            "schema": {
+              "title": "Variable Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "lat",
+            "required": true,
+            "schema": {
+              "maximum": 90,
+              "minimum": -90,
+              "title": "Lat",
+              "type": "number"
+            }
+          },
+          {
+            "in": "query",
+            "name": "lon",
+            "required": true,
+            "schema": {
+              "maximum": 180,
+              "minimum": -180,
+              "title": "Lon",
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PointSeriesResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Point Series"
+      }
+    }
+  },
+  "x-contract-models": [
+    "AnalysisRequest",
+    "AnalysisResult",
+    "Capabilities",
+    "ComparisonRequest",
+    "ComparisonResult",
+    "DatasetBinding",
+    "Error",
+    "Estimate",
+    "FdrResult",
+    "FieldResult",
+    "Job",
+    "JobAccepted",
+    "LayerManifest",
+    "MonthlyWindow",
+    "OutlookRequest",
+    "OutlookResult",
+    "PointSeriesResult",
+    "Provenance",
+    "RegionSpec",
+    "ScanRequest",
+    "ScanResult",
+    "Series",
+    "TestResult",
+    "Transform"
+  ]
+}

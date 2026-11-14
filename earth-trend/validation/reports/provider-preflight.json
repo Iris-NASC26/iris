@@ -1,0 +1,4348 @@
+{
+  "schema_version": "f05-provider-preflight.v2",
+  "status": "TECHNICAL_PREFLIGHT_COMPLETE",
+  "practice_build": true,
+  "scientific_validation": "NOT_ESTABLISHED",
+  "raw_artifacts_relative_path": "artifacts/f05/20261114T060017361060Z",
+  "public_preflight": {
+    "schema_version": "f05-public-preflight.v1",
+    "retrieval_started_utc": "2026-11-14T06:00:17.361060+00:00",
+    "authenticated": false,
+    "provider_jobs_submitted": 0,
+    "science_ready": false,
+    "limits": {
+      "object_bytes": 4194304,
+      "run_bytes": 33554432,
+      "timeout_seconds": 20,
+      "redirects": 0,
+      "retries": 0
+    },
+    "retrieved_body_bytes": 3266649,
+    "free_disk_bytes_at_finish": 113109307392,
+    "power_metadata_size_arithmetic_not_build_measurements": {
+      "V01": {
+        "padded_chunk_uncompressed_bytes": 2116800,
+        "source_values_uncompressed_bytes": 489065472,
+        "global_chunk_count": 260
+      },
+      "V12": {
+        "padded_chunk_uncompressed_bytes": 2818800,
+        "source_values_uncompressed_bytes": 90201600,
+        "global_chunk_count": 32
+      }
+    },
+    "records": [
+      {
+        "label": "V01-metadata",
+        "url": "https://nasa-power.s3.us-west-2.amazonaws.com/merra2/temporal/power_merra2_monthly_temporal_utc.zarr/.zmetadata",
+        "kind": "json",
+        "bytes": 383412,
+        "http_status": 200,
+        "content_type": "binary/octet-stream",
+        "sha256": "4a464ff2b5420ec492e114be64658fb9779ee9ba232420d789e12e9adace6dba",
+        "artifact": "V01-metadata.json",
+        "status": "retrieved_not_scientifically_validated",
+        "elapsed_seconds": 2.1716
+      },
+      {
+        "label": "V01-raw-chunk",
+        "url": "https://nasa-power.s3.us-west-2.amazonaws.com/merra2/temporal/power_merra2_monthly_temporal_utc.zarr/T2M/0.8.4",
+        "kind": "binary",
+        "bytes": 648508,
+        "http_status": 200,
+        "content_type": "binary/octet-stream",
+        "sha256": "e7cbd237c8b1de1a4b34113787d22a1e567060d89b15b86c786c9d4910ae1a11",
+        "artifact": "V01-raw-chunk.bin",
+        "status": "retrieved_not_scientifically_validated",
+        "elapsed_seconds": 2.3016
+      },
+      {
+        "label": "V12-metadata",
+        "url": "https://nasa-power.s3.us-west-2.amazonaws.com/syn1deg/temporal/power_syn1deg_monthly_temporal_lst.zarr/.zmetadata",
+        "kind": "json",
+        "bytes": 734208,
+        "http_status": 200,
+        "content_type": "binary/octet-stream",
+        "sha256": "94de156140172c25f19e5875eb6201cbe2deb253f74b5651e6aa74ee1200202a",
+        "artifact": "V12-metadata.json",
+        "status": "retrieved_not_scientifically_validated",
+        "elapsed_seconds": 2.4012
+      },
+      {
+        "label": "V12-raw-chunk",
+        "url": "https://nasa-power.s3.us-west-2.amazonaws.com/syn1deg/temporal/power_syn1deg_monthly_temporal_lst.zarr/ALLSKY_SFC_SW_DWN/0.2.1",
+        "kind": "binary",
+        "bytes": 1056901,
+        "http_status": 200,
+        "content_type": "binary/octet-stream",
+        "sha256": "c479a17ae643963576bedc10cbc4211a32e1efdfce54b32e46fda81abc795afb",
+        "artifact": "V12-raw-chunk.bin",
+        "status": "retrieved_not_scientifically_validated",
+        "elapsed_seconds": 3.0714
+      },
+      {
+        "label": "POWER-point-2003",
+        "url": "https://power.larc.nasa.gov/api/temporal/monthly/point?parameters=T2M%2CALLSKY_SFC_SW_DWN&community=SB&longitude=-97.5&latitude=37.5&format=JSON&start=2003&end=2003&time-standard=UTC",
+        "kind": "json",
+        "bytes": 1004,
+        "http_status": 200,
+        "content_type": "application/json",
+        "sha256": "94f8ee986716a2ac3c7a112d5ed1279366106b279f10e81054c477f3f9c21cff",
+        "artifact": "POWER-point-2003.json",
+        "status": "retrieved_not_scientifically_validated",
+        "elapsed_seconds": 2.0584
+      },
+      {
+        "label": "GPCPMON-collection",
+        "url": "https://cmr.earthdata.nasa.gov/search/collections.umm_json?concept_id=C3405935516-GES_DISC&page_size=1",
+        "kind": "json",
+        "bytes": 19352,
+        "http_status": 200,
+        "content_type": "application/vnd.nasa.cmr.umm_results+json;version=1.18.6; charset=utf-8",
+        "sha256": "3185c36f5b389a37f2b5f440e5c9cb8aa533db9649634c7836e9189a4629fcfb",
+        "artifact": "GPCPMON-collection.json",
+        "status": "retrieved_not_scientifically_validated",
+        "elapsed_seconds": 0.9129
+      },
+      {
+        "label": "GPCPMON-harmony",
+        "url": "https://harmony.earthdata.nasa.gov/capabilities?collectionId=C3405935516-GES_DISC&version=3",
+        "kind": "json",
+        "bytes": 3804,
+        "http_status": 200,
+        "content_type": "application/json; charset=utf-8",
+        "sha256": "0eb4a09fe337549e440c45da4bad0793d33fbb208c8661f1134e82b679781609",
+        "artifact": "GPCPMON-harmony.json",
+        "status": "retrieved_not_scientifically_validated",
+        "elapsed_seconds": 1.15
+      },
+      {
+        "label": "GPCPMON-granule",
+        "url": "https://cmr.earthdata.nasa.gov/search/granules.umm_json?collection_concept_id=C3405935516-GES_DISC&page_size=1&temporal=2005-01-01T00%3A00%3A00Z%2C2005-01-31T23%3A59%3A59Z",
+        "kind": "json",
+        "bytes": 2129,
+        "http_status": 200,
+        "content_type": "application/vnd.nasa.cmr.umm_results+json;version=1.6.7; charset=utf-8",
+        "sha256": "653ec07011f711c1c3a1d4b3224895317fb52abdf0d629ae7caa9c878ba16245",
+        "artifact": "GPCPMON-granule.json",
+        "status": "retrieved_not_scientifically_validated",
+        "elapsed_seconds": 0.8331
+      },
+      {
+        "label": "GPM_3IMERGM-collection",
+        "url": "https://cmr.earthdata.nasa.gov/search/collections.umm_json?concept_id=C2723754851-GES_DISC&page_size=1",
+        "kind": "json",
+        "bytes": 47881,
+        "http_status": 200,
+        "content_type": "application/vnd.nasa.cmr.umm_results+json;version=1.18.6; charset=utf-8",
+        "sha256": "fc9e5cfd409a1d7f0df73f551ca3fa6decda5986a4bd8185d9d94ae4dce3cadf",
+        "artifact": "GPM_3IMERGM-collection.json",
+        "status": "retrieved_not_scientifically_validated",
+        "elapsed_seconds": 0.7554
+      },
+      {
+        "label": "GPM_3IMERGM-harmony",
+        "url": "https://harmony.earthdata.nasa.gov/capabilities?collectionId=C2723754851-GES_DISC&version=3",
+        "kind": "json",
+        "bytes": 5181,
+        "http_status": 200,
+        "content_type": "application/json; charset=utf-8",
+        "sha256": "b2254703c6a706a12f60e60a391f9994a0f9c9702c8de7cfb6edd0e99cd6f8b7",
+        "artifact": "GPM_3IMERGM-harmony.json",
+        "status": "retrieved_not_scientifically_validated",
+        "elapsed_seconds": 1.2985
+      },
+      {
+        "label": "GPM_3IMERGM-granule",
+        "url": "https://cmr.earthdata.nasa.gov/search/granules.umm_json?collection_concept_id=C2723754851-GES_DISC&page_size=1&temporal=2005-01-01T00%3A00%3A00Z%2C2005-01-31T23%3A59%3A59Z",
+        "kind": "json",
+        "bytes": 2367,
+        "http_status": 200,
+        "content_type": "application/vnd.nasa.cmr.umm_results+json;version=1.6.7; charset=utf-8",
+        "sha256": "711f1a27ee649eb54e0d9b0e889912da92de089c03cdd138e9448c1e34245ac1",
+        "artifact": "GPM_3IMERGM-granule.json",
+        "status": "retrieved_not_scientifically_validated",
+        "elapsed_seconds": 0.7564
+      },
+      {
+        "label": "GLDAS_NOAH025_M-collection",
+        "url": "https://cmr.earthdata.nasa.gov/search/collections.umm_json?concept_id=C1342986036-GES_DISC&page_size=1",
+        "kind": "json",
+        "bytes": 44192,
+        "http_status": 200,
+        "content_type": "application/vnd.nasa.cmr.umm_results+json;version=1.18.6; charset=utf-8",
+        "sha256": "eb296a7c60f483a2a84565104307f2f8a1e49cfcdefd358e1c5c6f770c7ff2ec",
+        "artifact": "GLDAS_NOAH025_M-collection.json",
+        "status": "retrieved_not_scientifically_validated",
+        "elapsed_seconds": 0.9226
+      },
+      {
+        "label": "GLDAS_NOAH025_M-harmony",
+        "url": "https://harmony.earthdata.nasa.gov/capabilities?collectionId=C1342986036-GES_DISC&version=3",
+        "kind": "json",
+        "bytes": 10075,
+        "http_status": 200,
+        "content_type": "application/json; charset=utf-8",
+        "sha256": "68f582c9dfc46193263d69406fdf56bff82946803b52d2cc7942b1f06c198c98",
+        "artifact": "GLDAS_NOAH025_M-harmony.json",
+        "status": "retrieved_not_scientifically_validated",
+        "elapsed_seconds": 1.2338
+      },
+      {
+        "label": "GLDAS_NOAH025_M-granule",
+        "url": "https://cmr.earthdata.nasa.gov/search/granules.umm_json?collection_concept_id=C1342986036-GES_DISC&page_size=1&temporal=2005-01-01T00%3A00%3A00Z%2C2005-01-31T23%3A59%3A59Z",
+        "kind": "json",
+        "bytes": 2214,
+        "http_status": 200,
+        "content_type": "application/vnd.nasa.cmr.umm_results+json;version=1.6.7; charset=utf-8",
+        "sha256": "7939356dc9f8a46d5c1a1387579dffdce4bbc72e27456b0bb1a443e3d05a7cfc",
+        "artifact": "GLDAS_NOAH025_M-granule.json",
+        "status": "retrieved_not_scientifically_validated",
+        "elapsed_seconds": 0.73
+      },
+      {
+        "label": "AIRS3STM-collection",
+        "url": "https://cmr.earthdata.nasa.gov/search/collections.umm_json?concept_id=C1701805662-GES_DISC&page_size=1",
+        "kind": "json",
+        "bytes": 48327,
+        "http_status": 200,
+        "content_type": "application/vnd.nasa.cmr.umm_results+json;version=1.18.6; charset=utf-8",
+        "sha256": "70410e1fc6c9f0def0e06b7656b0195bdc248ad5eb897c50fd298c99e771cbb0",
+        "artifact": "AIRS3STM-collection.json",
+        "status": "retrieved_not_scientifically_validated",
+        "elapsed_seconds": 0.799
+      },
+      {
+        "label": "AIRS3STM-harmony",
+        "url": "https://harmony.earthdata.nasa.gov/capabilities?collectionId=C1701805662-GES_DISC&version=3",
+        "kind": "json",
+        "bytes": 94718,
+        "http_status": 200,
+        "content_type": "application/json; charset=utf-8",
+        "sha256": "756ea72e35fb7a0fb5873c687cd673a513e85adb44e82e6d9a206a76f641b7c1",
+        "artifact": "AIRS3STM-harmony.json",
+        "status": "retrieved_not_scientifically_validated",
+        "elapsed_seconds": 1.5587
+      },
+      {
+        "label": "AIRS3STM-granule",
+        "url": "https://cmr.earthdata.nasa.gov/search/granules.umm_json?collection_concept_id=C1701805662-GES_DISC&page_size=1&temporal=2005-01-01T00%3A00%3A00Z%2C2005-01-31T23%3A59%3A59Z",
+        "kind": "json",
+        "bytes": 2419,
+        "http_status": 200,
+        "content_type": "application/vnd.nasa.cmr.umm_results+json;version=1.6.7; charset=utf-8",
+        "sha256": "616b0d64a9e3d6fa7c728583b3f43246d70661708976e7b4b3bf763437179f24",
+        "artifact": "AIRS3STM-granule.json",
+        "status": "retrieved_not_scientifically_validated",
+        "elapsed_seconds": 0.7499
+      },
+      {
+        "label": "OMNO2d-collection",
+        "url": "https://cmr.earthdata.nasa.gov/search/collections.umm_json?concept_id=C1266136111-GES_DISC&page_size=1",
+        "kind": "json",
+        "bytes": 29079,
+        "http_status": 200,
+        "content_type": "application/vnd.nasa.cmr.umm_results+json;version=1.18.6; charset=utf-8",
+        "sha256": "f5d826db9cc9d966970aa5ec79da91fbc2d18cc207fdbf15e88c3ea9aef34c15",
+        "artifact": "OMNO2d-collection.json",
+        "status": "retrieved_not_scientifically_validated",
+        "elapsed_seconds": 0.683
+      },
+      {
+        "label": "OMNO2d-harmony",
+        "url": "https://harmony.earthdata.nasa.gov/capabilities?collectionId=C1266136111-GES_DISC&version=3",
+        "kind": "json",
+        "bytes": 4300,
+        "http_status": 200,
+        "content_type": "application/json; charset=utf-8",
+        "sha256": "92c2de54b2999f62e649466f8fdde7fdd61937e74e94d104fb1e6358d4627074",
+        "artifact": "OMNO2d-harmony.json",
+        "status": "retrieved_not_scientifically_validated",
+        "elapsed_seconds": 1.1576
+      },
+      {
+        "label": "OMNO2d-granule",
+        "url": "https://cmr.earthdata.nasa.gov/search/granules.umm_json?collection_concept_id=C1266136111-GES_DISC&page_size=1&temporal=2005-01-01T00%3A00%3A00Z%2C2005-01-31T23%3A59%3A59Z",
+        "kind": "json",
+        "bytes": 2857,
+        "http_status": 200,
+        "content_type": "application/vnd.nasa.cmr.umm_results+json;version=1.6.7; charset=utf-8",
+        "sha256": "8d3e79959efabf4f25942ebc5cdd36ffb1582b4f5c33b7f8c9a2127622b43f26",
+        "artifact": "OMNO2d-granule.json",
+        "status": "retrieved_not_scientifically_validated",
+        "elapsed_seconds": 0.7426
+      },
+      {
+        "label": "M2TMNXAER-collection",
+        "url": "https://cmr.earthdata.nasa.gov/search/collections.umm_json?concept_id=C1276812866-GES_DISC&page_size=1",
+        "kind": "json",
+        "bytes": 43177,
+        "http_status": 200,
+        "content_type": "application/vnd.nasa.cmr.umm_results+json;version=1.18.6; charset=utf-8",
+        "sha256": "7a9d53d9f222e42f92bc739e7f959ab850e34337102963d658bcdda2c7e6a11c",
+        "artifact": "M2TMNXAER-collection.json",
+        "status": "retrieved_not_scientifically_validated",
+        "elapsed_seconds": 0.8948
+      },
+      {
+        "label": "M2TMNXAER-harmony",
+        "url": "https://harmony.earthdata.nasa.gov/capabilities?collectionId=C1276812866-GES_DISC&version=3",
+        "kind": "json",
+        "bytes": 21037,
+        "http_status": 200,
+        "content_type": "application/json; charset=utf-8",
+        "sha256": "61996c2c9b43c4e4c4d1c0e89a2a98db19b34357addd2904398f9045c701041f",
+        "artifact": "M2TMNXAER-harmony.json",
+        "status": "retrieved_not_scientifically_validated",
+        "elapsed_seconds": 1.0305
+      },
+      {
+        "label": "M2TMNXAER-granule",
+        "url": "https://cmr.earthdata.nasa.gov/search/granules.umm_json?collection_concept_id=C1276812866-GES_DISC&page_size=1&temporal=2005-01-01T00%3A00%3A00Z%2C2005-01-31T23%3A59%3A59Z",
+        "kind": "json",
+        "bytes": 2255,
+        "http_status": 200,
+        "content_type": "application/vnd.nasa.cmr.umm_results+json;version=1.6.7; charset=utf-8",
+        "sha256": "69f06fc415aa9cdfdeebc0293416ebc11638d7fb73bd8db74047dba803694fd9",
+        "artifact": "M2TMNXAER-granule.json",
+        "status": "retrieved_not_scientifically_validated",
+        "elapsed_seconds": 0.677
+      },
+      {
+        "label": "MODISA_L3m_CHL-collection",
+        "url": "https://cmr.earthdata.nasa.gov/search/collections.umm_json?concept_id=C3380709133-OB_CLOUD&page_size=1",
+        "kind": "json",
+        "bytes": 8344,
+        "http_status": 200,
+        "content_type": "application/vnd.nasa.cmr.umm_results+json;version=1.18.6; charset=utf-8",
+        "sha256": "e971c9285444897e34d9ca689bd03d1e942e3a7eaf0dab1581a90ab1e63cb1ff",
+        "artifact": "MODISA_L3m_CHL-collection.json",
+        "status": "retrieved_not_scientifically_validated",
+        "elapsed_seconds": 0.651
+      },
+      {
+        "label": "MODISA_L3m_CHL-harmony",
+        "url": "https://harmony.earthdata.nasa.gov/capabilities?collectionId=C3380709133-OB_CLOUD&version=3",
+        "kind": "json",
+        "bytes": 582,
+        "http_status": 200,
+        "content_type": "application/json; charset=utf-8",
+        "sha256": "67941bcf77b7d28e675cb132575552fb04429183e8befcfc4a10a4a0a051d012",
+        "artifact": "MODISA_L3m_CHL-harmony.json",
+        "status": "retrieved_not_scientifically_validated",
+        "elapsed_seconds": 0.8805
+      },
+      {
+        "label": "MODISA_L3m_CHL-granule",
+        "url": "https://cmr.earthdata.nasa.gov/search/granules.umm_json?collection_concept_id=C3380709133-OB_CLOUD&page_size=1&temporal=2005-01-01T00%3A00%3A00Z%2C2005-01-31T23%3A59%3A59Z",
+        "kind": "json",
+        "bytes": 2456,
+        "http_status": 200,
+        "content_type": "application/vnd.nasa.cmr.umm_results+json;version=1.6.7; charset=utf-8",
+        "sha256": "6498c094faf1434806e93d26246ae531f24fdd99712684632a4ea972ebd65527",
+        "artifact": "MODISA_L3m_CHL-granule.json",
+        "status": "retrieved_not_scientifically_validated",
+        "elapsed_seconds": 0.7874
+      },
+      {
+        "label": "SeaWiFS_L3m_CHL-collection",
+        "url": "https://cmr.earthdata.nasa.gov/search/collections.umm_json?concept_id=C3113254690-OB_CLOUD&page_size=1",
+        "kind": "json",
+        "bytes": 7758,
+        "http_status": 200,
+        "content_type": "application/vnd.nasa.cmr.umm_results+json;version=1.18.6; charset=utf-8",
+        "sha256": "c844e3a095dd412585c7864e83b669ad09812aa352240e4de2c709946778e26b",
+        "artifact": "SeaWiFS_L3m_CHL-collection.json",
+        "status": "retrieved_not_scientifically_validated",
+        "elapsed_seconds": 0.786
+      },
+      {
+        "label": "SeaWiFS_L3m_CHL-harmony",
+        "url": "https://harmony.earthdata.nasa.gov/capabilities?collectionId=C3113254690-OB_CLOUD&version=3",
+        "kind": "json",
+        "bytes": 583,
+        "http_status": 200,
+        "content_type": "application/json; charset=utf-8",
+        "sha256": "3a4b8954ff72472fb46010e962088a7620a5bf0bffce31783d5894e5d81863c4",
+        "artifact": "SeaWiFS_L3m_CHL-harmony.json",
+        "status": "retrieved_not_scientifically_validated",
+        "elapsed_seconds": 1.0881
+      },
+      {
+        "label": "SeaWiFS_L3m_CHL-granule",
+        "url": "https://cmr.earthdata.nasa.gov/search/granules.umm_json?collection_concept_id=C3113254690-OB_CLOUD&page_size=1&temporal=2005-01-01T00%3A00%3A00Z%2C2005-01-31T23%3A59%3A59Z",
+        "kind": "json",
+        "bytes": 2500,
+        "http_status": 200,
+        "content_type": "application/vnd.nasa.cmr.umm_results+json;version=1.6.7; charset=utf-8",
+        "sha256": "e550d124cc036b29ba6175c0160c2df2d0a1bf82dc4d2a969a957768ecbd5eef",
+        "artifact": "SeaWiFS_L3m_CHL-granule.json",
+        "status": "retrieved_not_scientifically_validated",
+        "elapsed_seconds": 0.7302
+      },
+      {
+        "label": "Giovanni-variables",
+        "url": "https://api.giovanni.earthdata.nasa.gov/configured-variables/",
+        "kind": "json",
+        "bytes": 28975,
+        "http_status": 200,
+        "content_type": "application/json",
+        "sha256": "b7fce83e82211f1f2fb9eed6bd93517a3905c557229cb1d862e9fad68c66d8f8",
+        "artifact": "Giovanni-variables.json",
+        "status": "retrieved_not_scientifically_validated",
+        "elapsed_seconds": 1.3685
+      },
+      {
+        "label": "AppEEARS-MOD13A3",
+        "url": "https://appeears.earthdatacloud.nasa.gov/api/product/MOD13A3.061",
+        "kind": "json",
+        "bytes": 6054,
+        "http_status": 200,
+        "content_type": "application/json",
+        "sha256": "6db022f95baae707ca8e00433a1631760a4ffc0732b84a019a56fd1313e3a8aa",
+        "artifact": "AppEEARS-MOD13A3.json",
+        "status": "retrieved_not_scientifically_validated",
+        "elapsed_seconds": 0.7986
+      }
+    ]
+  },
+  "public_followups": [
+    {
+      "label": "MODISA_L3m_CHL-exact-month",
+      "url": "https://cmr.earthdata.nasa.gov/search/granules.umm_json?collection_concept_id=C3380709133-OB_CLOUD&producer_granule_id=AQUA_MODIS.20050101_20050131.L3m.MO.CHL.chlor_a.9km.nc&page_size=1",
+      "kind": "json",
+      "bytes": 2400,
+      "http_status": 200,
+      "content_type": "application/vnd.nasa.cmr.umm_results+json;version=1.6.7; charset=utf-8",
+      "sha256": "af880b4b3dc8864169d6b033dbdde709d72232b382af729011e2325e76ab7cda",
+      "artifact": "MODISA_L3m_CHL-exact-month.json",
+      "status": "retrieved_not_scientifically_validated",
+      "elapsed_seconds": 1.605
+    },
+    {
+      "label": "SeaWiFS_L3m_CHL-exact-month",
+      "url": "https://cmr.earthdata.nasa.gov/search/granules.umm_json?collection_concept_id=C3113254690-OB_CLOUD&producer_granule_id=SEASTAR_SEAWIFS_GAC.20050101_20050131.L3m.MO.CHL.chlor_a.9km.nc&page_size=1",
+      "kind": "json",
+      "bytes": 2537,
+      "http_status": 200,
+      "content_type": "application/vnd.nasa.cmr.umm_results+json;version=1.6.7; charset=utf-8",
+      "sha256": "f4803ee8ec9f5c970b57b46f8a3d5bfc72b64934998817242e9c22c112be9963",
+      "artifact": "SeaWiFS_L3m_CHL-exact-month.json",
+      "status": "retrieved_not_scientifically_validated",
+      "elapsed_seconds": 0.8388
+    },
+    {
+      "label": "AIRS3STM-exact-month",
+      "url": "https://cmr.earthdata.nasa.gov/search/granules.umm_json?collection_concept_id=C1701805662-GES_DISC&producer_granule_id=AIRS.2005.01.01.L3.RetStd_IR031.v7.0.3.0.G20218151030.hdf&page_size=1",
+      "kind": "json",
+      "bytes": 31,
+      "http_status": 200,
+      "content_type": "application/vnd.nasa.cmr.umm_results+json;version=1.6.7; charset=utf-8",
+      "sha256": "b10f3b354f5379eb1b945e73ca377fd9d224d92d87628ec1e2ac857c98335296",
+      "artifact": "AIRS3STM-exact-month.json",
+      "status": "retrieved_not_scientifically_validated",
+      "elapsed_seconds": 0.7903
+    },
+    {
+      "label": "AIRS3STM-month-pattern",
+      "url": "https://cmr.earthdata.nasa.gov/search/granules.umm_json?collection_concept_id=C1701805662-GES_DISC&producer_granule_id=AIRS.2005.01.01.L3.RetStd_IR031.v7.%2A.hdf&options%5Bproducer_granule_id%5D%5Bpattern%5D=true&page_size=1",
+      "kind": "json",
+      "bytes": 2419,
+      "http_status": 200,
+      "content_type": "application/vnd.nasa.cmr.umm_results+json;version=1.6.7; charset=utf-8",
+      "sha256": "d043908563804aa4fa00f1aae55da942b3bf05caf7ca54ce762ecff52fbfda21",
+      "artifact": "AIRS3STM-month-pattern.json",
+      "status": "retrieved_not_scientifically_validated",
+      "elapsed_seconds": 0.9679
+    }
+  ],
+  "initial_range_checks": [
+    {
+      "product": "GPCPMON",
+      "source_url": "https://data.gesdisc.earthdata.nasa.gov/data/GPCP/GPCPMON.3.3/2005/GPCPMON_L3_200501_V3.3.nc4",
+      "requested_range": "bytes=0-65535",
+      "retrieval_utc": "2026-11-14T06:05:05.880763+00:00",
+      "credentials_sent_to_source": true,
+      "http_status": 303,
+      "status": "redirect_not_followed",
+      "redirect_host": "d2b3c3wh8s6en5.cloudfront.net",
+      "elapsed_seconds": 3.3754
+    },
+    {
+      "product": "GPM_3IMERGM",
+      "source_url": "https://data.gesdisc.earthdata.nasa.gov/data/GPM_L3/GPM_3IMERGM.07/2005/3B-MO.MS.MRG.3IMERG.20050101-S000000-E235959.01.V07B.HDF5",
+      "requested_range": "bytes=0-65535",
+      "retrieval_utc": "2026-11-14T06:05:09.757419+00:00",
+      "credentials_sent_to_source": true,
+      "http_status": 303,
+      "status": "redirect_not_followed",
+      "redirect_host": "d2b3c3wh8s6en5.cloudfront.net",
+      "elapsed_seconds": 2.8087
+    },
+    {
+      "product": "GLDAS_NOAH025_M",
+      "source_url": "https://data.gesdisc.earthdata.nasa.gov/data/GLDAS/GLDAS_NOAH025_M.2.1/2005/GLDAS_NOAH025_M.A200501.021.nc4",
+      "requested_range": "bytes=0-65535",
+      "retrieval_utc": "2026-11-14T06:05:13.067269+00:00",
+      "credentials_sent_to_source": true,
+      "http_status": 303,
+      "status": "redirect_not_followed",
+      "redirect_host": "d2b3c3wh8s6en5.cloudfront.net",
+      "elapsed_seconds": 5.9547
+    },
+    {
+      "product": "AIRS3STM",
+      "source_url": "https://data.gesdisc.earthdata.nasa.gov/data/Aqua_AIRS_Level3/AIRS3STM.7.0/2005/AIRS.2005.01.01.L3.RetStd_IR031.v7.0.3.0.G20217151253.hdf",
+      "requested_range": "bytes=0-65535",
+      "retrieval_utc": "2026-11-14T06:05:19.524112+00:00",
+      "credentials_sent_to_source": true,
+      "http_status": 303,
+      "status": "redirect_not_followed",
+      "redirect_host": "d2b3c3wh8s6en5.cloudfront.net",
+      "elapsed_seconds": 3.7726
+    },
+    {
+      "product": "OMNO2d",
+      "source_url": "https://data.gesdisc.earthdata.nasa.gov/data/Aura_OMI_Level3/OMNO2d.003/2005/OMI-Aura_L3-OMNO2d_2005m0101_v003-2019m1120t182907.he5",
+      "requested_range": "bytes=0-65535",
+      "retrieval_utc": "2026-11-14T06:05:23.797910+00:00",
+      "credentials_sent_to_source": true,
+      "http_status": 303,
+      "status": "redirect_not_followed",
+      "redirect_host": "d2b3c3wh8s6en5.cloudfront.net",
+      "elapsed_seconds": 2.7614
+    },
+    {
+      "product": "M2TMNXAER",
+      "source_url": "https://data.gesdisc.earthdata.nasa.gov/data/MERRA2_MONTHLY/M2TMNXAER.5.12.4/2005/MERRA2_300.tavgM_2d_aer_Nx.200501.nc4",
+      "requested_range": "bytes=0-65535",
+      "retrieval_utc": "2026-11-14T06:05:27.060341+00:00",
+      "credentials_sent_to_source": true,
+      "http_status": 303,
+      "status": "redirect_not_followed",
+      "redirect_host": "d2b3c3wh8s6en5.cloudfront.net",
+      "elapsed_seconds": 2.8666
+    },
+    {
+      "product": "MODISA_L3m_CHL",
+      "source_url": "https://obdaac-tea.earthdatacloud.nasa.gov/ob-cumulus-prod-public/AQUA_MODIS.20050101_20050131.L3m.MO.CHL.chlor_a.9km.nc",
+      "requested_range": "bytes=0-65535",
+      "retrieval_utc": "2026-11-14T06:05:30.428288+00:00",
+      "credentials_sent_to_source": false,
+      "http_status": 302,
+      "status": "redirect_not_followed",
+      "redirect_host": "urs.earthdata.nasa.gov",
+      "elapsed_seconds": 1.5161
+    },
+    {
+      "product": "SeaWiFS_L3m_CHL",
+      "source_url": "https://obdaac-tea.earthdatacloud.nasa.gov/ob-cumulus-prod-public/SEASTAR_SEAWIFS_GAC.20050101_20050131.L3m.MO.CHL.chlor_a.9km.nc",
+      "requested_range": "bytes=0-65535",
+      "retrieval_utc": "2026-11-14T06:05:32.445574+00:00",
+      "credentials_sent_to_source": false,
+      "http_status": 302,
+      "status": "redirect_not_followed",
+      "redirect_host": "urs.earthdata.nasa.gov",
+      "elapsed_seconds": 1.0312
+    }
+  ],
+  "protected_range_checks": [
+    {
+      "product": "GPCPMON",
+      "source_url": "https://data.gesdisc.earthdata.nasa.gov/data/GPCP/GPCPMON.3.3/2005/GPCPMON_L3_200501_V3.3.nc4",
+      "retrieval_utc": "2026-11-14T06:06:28.561026+00:00",
+      "requested_range": "bytes=0-65535",
+      "redirect_credential_forwarding": false,
+      "redirect_host": "d2b3c3wh8s6en5.cloudfront.net",
+      "http_status": 206,
+      "content_range": "bytes 0-65535/7810159",
+      "received_bytes": 65536,
+      "sha256": "1c3ff574688cc2c54d2d554e9065250db8161d7eccf7138090fa6afd180f9d73",
+      "signature": "HDF5",
+      "status": "header_range_retrieved_not_decoded",
+      "elapsed_seconds": 4.9944
+    },
+    {
+      "product": "GPM_3IMERGM",
+      "source_url": "https://data.gesdisc.earthdata.nasa.gov/data/GPM_L3/GPM_3IMERGM.07/2005/3B-MO.MS.MRG.3IMERG.20050101-S000000-E235959.01.V07B.HDF5",
+      "retrieval_utc": "2026-11-14T06:06:34.056402+00:00",
+      "requested_range": "bytes=0-65535",
+      "redirect_credential_forwarding": false,
+      "redirect_host": "d2b3c3wh8s6en5.cloudfront.net",
+      "http_status": 206,
+      "content_range": "bytes 0-65535/18028945",
+      "received_bytes": 65536,
+      "sha256": "ba905324ea837ec8f4b422bb66f9d020f248857f750a19b8715d61e56e979d4a",
+      "signature": "HDF5",
+      "status": "header_range_retrieved_not_decoded",
+      "elapsed_seconds": 5.5652
+    },
+    {
+      "product": "GLDAS_NOAH025_M",
+      "source_url": "https://data.gesdisc.earthdata.nasa.gov/data/GLDAS/GLDAS_NOAH025_M.2.1/2005/GLDAS_NOAH025_M.A200501.021.nc4",
+      "retrieval_utc": "2026-11-14T06:06:40.122107+00:00",
+      "requested_range": "bytes=0-65535",
+      "redirect_credential_forwarding": false,
+      "redirect_host": "d2b3c3wh8s6en5.cloudfront.net",
+      "http_status": 206,
+      "content_range": "bytes 0-65535/25075859",
+      "received_bytes": 65536,
+      "sha256": "8f4f504cf850d4bf609f16c7b36d8d61d028b99dae05796bc0663fe51ef48e41",
+      "signature": "HDF5",
+      "status": "header_range_retrieved_not_decoded",
+      "elapsed_seconds": 4.295
+    },
+    {
+      "product": "AIRS3STM",
+      "source_url": "https://data.gesdisc.earthdata.nasa.gov/data/Aqua_AIRS_Level3/AIRS3STM.7.0/2005/AIRS.2005.01.01.L3.RetStd_IR031.v7.0.3.0.G20217151253.hdf",
+      "retrieval_utc": "2026-11-14T06:06:44.917592+00:00",
+      "requested_range": "bytes=0-65535",
+      "redirect_credential_forwarding": false,
+      "redirect_host": "d2b3c3wh8s6en5.cloudfront.net",
+      "http_status": 206,
+      "content_range": "bytes 0-65535/211131480",
+      "received_bytes": 65536,
+      "sha256": "aae9dcbb30e9a767231303df950a21acb8c0dd8dcbd2d0a918ef57ebf746d665",
+      "signature": "HDF4",
+      "status": "header_range_retrieved_not_decoded",
+      "elapsed_seconds": 4.1807
+    },
+    {
+      "product": "OMNO2d",
+      "source_url": "https://data.gesdisc.earthdata.nasa.gov/data/Aura_OMI_Level3/OMNO2d.003/2005/OMI-Aura_L3-OMNO2d_2005m0101_v003-2019m1120t182907.he5",
+      "retrieval_utc": "2026-11-14T06:06:49.599412+00:00",
+      "requested_range": "bytes=0-65535",
+      "redirect_credential_forwarding": false,
+      "redirect_host": "d2b3c3wh8s6en5.cloudfront.net",
+      "http_status": 206,
+      "content_range": "bytes 0-65535/13979976",
+      "received_bytes": 65536,
+      "sha256": "ff6d69229f5e9a3ba5d5d42875cb8181935bea8afd74d0e98dc53c5345fbba1b",
+      "signature": "HDF5",
+      "status": "header_range_retrieved_not_decoded",
+      "elapsed_seconds": 4.4772
+    },
+    {
+      "product": "M2TMNXAER",
+      "source_url": "https://data.gesdisc.earthdata.nasa.gov/data/MERRA2_MONTHLY/M2TMNXAER.5.12.4/2005/MERRA2_300.tavgM_2d_aer_Nx.200501.nc4",
+      "retrieval_utc": "2026-11-14T06:06:54.578595+00:00",
+      "requested_range": "bytes=0-65535",
+      "redirect_credential_forwarding": false,
+      "redirect_host": "d2b3c3wh8s6en5.cloudfront.net",
+      "http_status": 206,
+      "content_range": "bytes 0-65535/61984211",
+      "received_bytes": 65536,
+      "sha256": "e73468cdba8097ed5501a00839438c9a14aefd00286915c8e42f141b56d02d55",
+      "signature": "HDF5",
+      "status": "header_range_retrieved_not_decoded",
+      "elapsed_seconds": 4.3134
+    },
+    {
+      "product": "MODISA_L3m_CHL",
+      "source_url": "https://obdaac-tea.earthdatacloud.nasa.gov/ob-cumulus-prod-public/AQUA_MODIS.20050101_20050131.L3m.MO.CHL.chlor_a.9km.nc",
+      "retrieval_utc": "2026-11-14T06:08:03.641240+00:00",
+      "requested_range": "bytes=0-65535",
+      "redirect_credential_forwarding": false,
+      "redirect_host": "dwgofd1fffpxv.cloudfront.net",
+      "http_status": 206,
+      "content_range": "bytes 0-65535/16042275",
+      "received_bytes": 65536,
+      "sha256": "83046933c75cf73cfb9f5b8585bbc9ef9204e51694e30932007fb1be597d06f0",
+      "signature": "HDF5",
+      "status": "header_range_retrieved_not_decoded",
+      "elapsed_seconds": 3.9505
+    },
+    {
+      "product": "SeaWiFS_L3m_CHL",
+      "source_url": "https://obdaac-tea.earthdatacloud.nasa.gov/ob-cumulus-prod-public/SEASTAR_SEAWIFS_GAC.20050101_20050131.L3m.MO.CHL.chlor_a.9km.nc",
+      "retrieval_utc": "2026-11-14T06:08:08.092274+00:00",
+      "requested_range": "bytes=0-65535",
+      "redirect_credential_forwarding": false,
+      "redirect_host": "dwgofd1fffpxv.cloudfront.net",
+      "http_status": 206,
+      "content_range": "bytes 0-65535/13657238",
+      "received_bytes": 65536,
+      "sha256": "d7c1a2df0e9f4151cdc75e7e96660a7eb7f85ec96ea67feaeeb809c6cf6f6fc6",
+      "signature": "HDF5",
+      "status": "header_range_retrieved_not_decoded",
+      "elapsed_seconds": 3.5778
+    }
+  ],
+  "giovanni_quota_recheck": {
+    "retrieval_utc": "2026-11-14T06:09:02.109758+00:00",
+    "endpoint": "https://api.giovanni.earthdata.nasa.gov/quota",
+    "secrets_persisted": false,
+    "jobs_submitted": 0,
+    "http_status": 200,
+    "fraction_used": 0,
+    "submission_allowed_by_reserve": true
+  },
+  "giovanni_series_attempt": {
+    "provider": "Harmony-Giovanni",
+    "submitted_utc": "2026-11-14T06:11:12.067882+00:00",
+    "quota_before": 0,
+    "request_url": "https://harmony.earthdata.nasa.gov/C1342986036-GES_DISC/ogc-api-coverages/1.0.0/GLDAS_NOAH025_M_2_1_SoilMoi0_10cm_inst/coverage/rangeset?subset=lat%2835%3A40%29&subset=lon%28-100%3A-95%29&subset=time%28%222005-01-01T00%3A00%3A00Z%22%3A%222005-01-31T23%3A59%3A59Z%22%29&format=text%2Fcsv&average=area&maxResults=1&forceAsync=true&skipPreview=true&ignoreErrors=false&label=earth-trend-f05-b01-one-month",
+    "max_input_granules": 1,
+    "max_output_download_bytes": 4194304,
+    "result": "transport_or_response_failure_no_resubmit"
+  },
+  "giovanni_reconciliation": {
+    "checked_utc": "2026-11-14T06:12:07.763997+00:00",
+    "job_label": "earth-trend-f05-b01-one-month",
+    "resubmitted": false,
+    "acceptance": "not_found_in_first_ten_no_resubmit",
+    "http_status": 200,
+    "matching_jobs": []
+  },
+  "appeears_authentication": {
+    "http_status": 200,
+    "bearer_issued": true,
+    "token_saved": false,
+    "task_submitted": true,
+    "exact_check_time_not_recorded": true
+  },
+  "power": {
+    "V01": {
+      "version": "POWER Version 10.0.0",
+      "time_standard": "Universal Time Coordinated (UTC)",
+      "metadata_end_not_observed_data_end": "2029-12-31T00:00:00",
+      "field": "T2M",
+      "attributes": {
+        "long_name": "Temperature at 2 Meters",
+        "standard_name": "Temperature_at_2_Meters",
+        "definition": "The average air (dry bulb) temperature at 2 meters above the surface of the earth.",
+        "base": "float32",
+        "units": "C",
+        "valid_min": -125.0,
+        "valid_max": 80.0,
+        "significant_digits": 2,
+        "cell_methods": "time: mean",
+        "status": "official",
+        "_ARRAY_DIMENSIONS": [
+          "time",
+          "lat",
+          "lon"
+        ]
+      },
+      "array": {
+        "shape": [
+          588,
+          361,
+          576
+        ],
+        "chunks": [
+          588,
+          30,
+          30
+        ],
+        "dtype": "<f4",
+        "fill_value": "NaN",
+        "order": "C",
+        "filters": [
+          {
+            "id": "fixedscaleoffset",
+            "scale": 100,
+            "offset": 1000,
+            "dtype": "<f4",
+            "astype": "<f4"
+          }
+        ],
+        "dimension_separator": ".",
+        "compressor": {
+          "id": "blosc",
+          "cname": "zstd",
+          "clevel": 3,
+          "shuffle": 1,
+          "blocksize": 0
+        },
+        "zarr_format": 2
+      },
+      "compressed_sample_chunk_bytes": 648508,
+      "sample_chunk_times_all_chunks_estimate_bytes": 168612080,
+      "global_observed_record_complete": false,
+      "decoded": false
+    },
+    "V12": {
+      "version": "POWER Version 10.0.0",
+      "time_standard": "Local Solar Time (LST)",
+      "metadata_end_not_observed_data_end": "2029-12-31T00:00:00",
+      "field": "ALLSKY_SFC_SW_DWN",
+      "attributes": {
+        "_ARRAY_DIMENSIONS": [
+          "time",
+          "lat",
+          "lon"
+        ],
+        "base": "float32",
+        "cell_methods": "time: mean",
+        "definition": "The total solar irradiance incident (direct plus diffuse) on a horizontal plane at the surface of the earth under all sky conditions. An alternative term for the total solar irradiance is the \"Global Horizontal Irradiance\" or GHI.",
+        "long_name": "All Sky Surface Shortwave Downward Irradiance",
+        "significant_digits": 2,
+        "standard_name": "All_Sky_Surface_Shortwave_Downward_Irradiance",
+        "status": "official",
+        "units": "W m-2",
+        "valid_max": 1500.0,
+        "valid_min": 0.0
+      },
+      "array": {
+        "chunks": [
+          348,
+          45,
+          45
+        ],
+        "compressor": {
+          "blocksize": 0,
+          "clevel": 3,
+          "cname": "zstd",
+          "id": "blosc",
+          "shuffle": 2
+        },
+        "dtype": "<f4",
+        "fill_value": "NaN",
+        "filters": [
+          {
+            "astype": "<f4",
+            "dtype": "<f4",
+            "id": "fixedscaleoffset",
+            "offset": 1000,
+            "scale": 100
+          }
+        ],
+        "order": "C",
+        "shape": [
+          348,
+          180,
+          360
+        ],
+        "zarr_format": 2
+      },
+      "compressed_sample_chunk_bytes": 1056901,
+      "sample_chunk_times_all_chunks_estimate_bytes": 33820832,
+      "global_observed_record_complete": false,
+      "decoded": false
+    }
+  },
+  "collections": [
+    {
+      "concept_id": "C3405935516-GES_DISC",
+      "short_name": "GPCPMON",
+      "version": "3.3",
+      "doi": {
+        "DOI": "10.5067/MEASURES/GPCP/DATA306"
+      },
+      "granule_concept_id": "G3412825894-GES_DISC",
+      "granule_ur": "GPCPMON.3.3:GPCPMON_L3_200501_V3.3.nc4",
+      "granule_temporal_extent": {
+        "RangeDateTime": {
+          "BeginningDateTime": "2005-01-01T00:00:00.000Z",
+          "EndingDateTime": "2005-01-31T23:59:59.000Z"
+        }
+      },
+      "whole_sample_source_file_bytes_from_content_range": 7810159,
+      "raw_252_file_size_illustration_bytes": 1968160068,
+      "size_illustration_is_not_valid_for_daily_OMI_or_all_P0_windows": true,
+      "harmony_summary": {
+        "subsetting": {
+          "bbox": true,
+          "dimension": true,
+          "shape": true,
+          "temporal": true,
+          "variable": true
+        },
+        "reprojection": {
+          "supported": false,
+          "supportedProjections": [],
+          "interpolationMethods": []
+        },
+        "averaging": {
+          "time": false,
+          "area": false
+        },
+        "concatenation": false,
+        "outputFormats": [
+          {
+            "name": "NETCDF-4",
+            "mimeType": "application/netcdf"
+          },
+          {
+            "name": "NETCDF-4 (OPeNDAP URL)",
+            "mimeType": "application/x-netcdf4;profile=opendap_url"
+          }
+        ]
+      },
+      "harmony_service_names": [
+        "sds/HOSS-geographic",
+        "sds/hoss-opendap-url"
+      ],
+      "source_header_inspected": true,
+      "scientific_binding_admitted": false,
+      "production_variables_ingested": false,
+      "numeric_sample_decoded": false
+    },
+    {
+      "concept_id": "C2723754851-GES_DISC",
+      "short_name": "GPM_3IMERGM",
+      "version": "07",
+      "doi": {
+        "DOI": "10.5067/GPM/IMERG/3B-MONTH/07"
+      },
+      "granule_concept_id": "G2823464479-GES_DISC",
+      "granule_ur": "GPM_3IMERGM.07:3B-MO.MS.MRG.3IMERG.20050101-S000000-E235959.01.V07B.HDF5",
+      "granule_temporal_extent": {
+        "RangeDateTime": {
+          "BeginningDateTime": "2005-01-01T00:00:00.000Z",
+          "EndingDateTime": "2005-01-31T23:59:59.999Z"
+        }
+      },
+      "whole_sample_source_file_bytes_from_content_range": 18028945,
+      "raw_252_file_size_illustration_bytes": 4543294140,
+      "size_illustration_is_not_valid_for_daily_OMI_or_all_P0_windows": true,
+      "harmony_summary": {
+        "subsetting": {
+          "bbox": true,
+          "dimension": true,
+          "shape": true,
+          "temporal": true,
+          "variable": true
+        },
+        "reprojection": {
+          "supported": true,
+          "supportedProjections": [
+            {
+              "name": "Geographic",
+              "crs": "EPSG:4326"
+            }
+          ],
+          "interpolationMethods": []
+        },
+        "averaging": {
+          "time": true,
+          "area": true
+        },
+        "concatenation": false,
+        "outputFormats": [
+          {
+            "name": "CSV",
+            "mimeType": "text/csv"
+          },
+          {
+            "name": "GEOTIFF",
+            "mimeType": "image/tiff"
+          },
+          {
+            "name": "NETCDF-4",
+            "mimeType": "application/netcdf"
+          },
+          {
+            "name": "NETCDF-4 (OPeNDAP URL)",
+            "mimeType": "application/x-netcdf4;profile=opendap_url"
+          }
+        ]
+      },
+      "harmony_service_names": [
+        "giovanni-time-series-adapter",
+        "sds/HOSS-geographic",
+        "sds/HOSS-regridder-reformatter",
+        "sds/hoss-opendap-url",
+        "giovanni-averaging-service"
+      ],
+      "source_header_inspected": true,
+      "scientific_binding_admitted": false,
+      "production_variables_ingested": false,
+      "numeric_sample_decoded": false
+    },
+    {
+      "concept_id": "C1342986036-GES_DISC",
+      "short_name": "GLDAS_NOAH025_M",
+      "version": "2.1",
+      "doi": {
+        "DOI": "10.5067/SXAVCZFAQLNO"
+      },
+      "granule_concept_id": "G1413723174-GES_DISC",
+      "granule_ur": "GLDAS_NOAH025_M.2.1:GLDAS_NOAH025_M.A200501.021.nc4",
+      "granule_temporal_extent": {
+        "RangeDateTime": {
+          "BeginningDateTime": "2005-01-01T00:00:00.000Z",
+          "EndingDateTime": "2005-01-31T23:59:59.000Z"
+        }
+      },
+      "whole_sample_source_file_bytes_from_content_range": 25075859,
+      "raw_252_file_size_illustration_bytes": 6319116468,
+      "size_illustration_is_not_valid_for_daily_OMI_or_all_P0_windows": true,
+      "harmony_summary": {
+        "subsetting": {
+          "bbox": true,
+          "dimension": true,
+          "shape": true,
+          "temporal": true,
+          "variable": true
+        },
+        "reprojection": {
+          "supported": true,
+          "supportedProjections": [
+            {
+              "name": "Geographic",
+              "crs": "EPSG:4326"
+            }
+          ],
+          "interpolationMethods": []
+        },
+        "averaging": {
+          "time": true,
+          "area": true
+        },
+        "concatenation": false,
+        "outputFormats": [
+          {
+            "name": "CSV",
+            "mimeType": "text/csv"
+          },
+          {
+            "name": "GEOTIFF",
+            "mimeType": "image/tiff"
+          },
+          {
+            "name": "NETCDF-4",
+            "mimeType": "application/netcdf"
+          },
+          {
+            "name": "NETCDF-4 (OPeNDAP URL)",
+            "mimeType": "application/x-netcdf4;profile=opendap_url"
+          }
+        ]
+      },
+      "harmony_service_names": [
+        "giovanni-time-series-adapter",
+        "sds/HOSS-geographic",
+        "sds/HOSS-regridder-reformatter",
+        "sds/hoss-opendap-url",
+        "giovanni-averaging-service"
+      ],
+      "source_header_inspected": true,
+      "scientific_binding_admitted": false,
+      "production_variables_ingested": false,
+      "numeric_sample_decoded": true
+    },
+    {
+      "concept_id": "C1701805662-GES_DISC",
+      "short_name": "AIRS3STM",
+      "version": "7.0",
+      "doi": {
+        "DOI": "10.5067/UBENJB9D3T2H"
+      },
+      "granule_concept_id": "G1920804940-GES_DISC",
+      "granule_ur": "AIRS3STM.7.0:AIRS.2005.01.01.L3.RetStd_IR031.v7.0.3.0.G20217151253.hdf",
+      "granule_temporal_extent": {
+        "RangeDateTime": {
+          "BeginningDateTime": "2005-01-01T00:00:00.000Z",
+          "EndingDateTime": "2005-02-01T00:00:00.000Z"
+        }
+      },
+      "whole_sample_source_file_bytes_from_content_range": 211131480,
+      "raw_252_file_size_illustration_bytes": 53205132960,
+      "size_illustration_is_not_valid_for_daily_OMI_or_all_P0_windows": true,
+      "harmony_summary": {
+        "subsetting": {
+          "bbox": true,
+          "dimension": true,
+          "shape": true,
+          "temporal": true,
+          "variable": true
+        },
+        "reprojection": {
+          "supported": false,
+          "supportedProjections": [],
+          "interpolationMethods": []
+        },
+        "averaging": {
+          "time": true,
+          "area": true
+        },
+        "concatenation": false,
+        "outputFormats": [
+          {
+            "name": "CSV",
+            "mimeType": "text/csv"
+          },
+          {
+            "name": "GEOTIFF",
+            "mimeType": "image/tiff"
+          },
+          {
+            "name": "NETCDF-4",
+            "mimeType": "application/netcdf"
+          },
+          {
+            "name": "NETCDF-4 (OPeNDAP URL)",
+            "mimeType": "application/x-netcdf4;profile=opendap_url"
+          }
+        ]
+      },
+      "harmony_service_names": [
+        "giovanni-time-series-adapter",
+        "sds/HOSS-geographic",
+        "sds/hoss-opendap-url",
+        "giovanni-averaging-service"
+      ],
+      "source_header_inspected": true,
+      "scientific_binding_admitted": false,
+      "production_variables_ingested": false,
+      "numeric_sample_decoded": true
+    },
+    {
+      "concept_id": "C1266136111-GES_DISC",
+      "short_name": "OMNO2d",
+      "version": "003",
+      "doi": {
+        "DOI": "10.5067/Aura/OMI/DATA3007"
+      },
+      "granule_concept_id": "G1664891438-GES_DISC",
+      "granule_ur": "OMNO2d.003:OMI-Aura_L3-OMNO2d_2005m0101_v003-2019m1120t182907.he5",
+      "granule_temporal_extent": {
+        "RangeDateTime": {
+          "BeginningDateTime": "2005-01-01T00:00:00.000Z",
+          "EndingDateTime": "2005-01-01T23:59:59.000Z"
+        }
+      },
+      "whole_sample_source_file_bytes_from_content_range": 13979976,
+      "raw_252_file_size_illustration_bytes": 3522953952,
+      "size_illustration_is_not_valid_for_daily_OMI_or_all_P0_windows": true,
+      "harmony_summary": {
+        "subsetting": {
+          "bbox": true,
+          "dimension": true,
+          "shape": true,
+          "temporal": true,
+          "variable": true
+        },
+        "reprojection": {
+          "supported": false,
+          "supportedProjections": [],
+          "interpolationMethods": []
+        },
+        "averaging": {
+          "time": true,
+          "area": true
+        },
+        "concatenation": false,
+        "outputFormats": [
+          {
+            "name": "CSV",
+            "mimeType": "text/csv"
+          },
+          {
+            "name": "GEOTIFF",
+            "mimeType": "image/tiff"
+          },
+          {
+            "name": "NETCDF-4",
+            "mimeType": "application/netcdf"
+          },
+          {
+            "name": "NETCDF-4 (OPeNDAP URL)",
+            "mimeType": "application/x-netcdf4;profile=opendap_url"
+          }
+        ]
+      },
+      "harmony_service_names": [
+        "giovanni-time-series-adapter",
+        "sds/HOSS-geographic",
+        "sds/hoss-opendap-url",
+        "giovanni-averaging-service"
+      ],
+      "source_header_inspected": true,
+      "scientific_binding_admitted": false,
+      "production_variables_ingested": false,
+      "numeric_sample_decoded": false
+    },
+    {
+      "concept_id": "C1276812866-GES_DISC",
+      "short_name": "M2TMNXAER",
+      "version": "5.12.4",
+      "doi": {
+        "DOI": "10.5067/FH9A0MLJPC7N"
+      },
+      "granule_concept_id": "G1277981573-GES_DISC",
+      "granule_ur": "M2TMNXAER.5.12.4:MERRA2_300.tavgM_2d_aer_Nx.200501.nc4",
+      "granule_temporal_extent": {
+        "RangeDateTime": {
+          "BeginningDateTime": "2005-01-01T00:00:00.000Z",
+          "EndingDateTime": "2005-01-31T23:59:59.000Z"
+        }
+      },
+      "whole_sample_source_file_bytes_from_content_range": 61984211,
+      "raw_252_file_size_illustration_bytes": 15620021172,
+      "size_illustration_is_not_valid_for_daily_OMI_or_all_P0_windows": true,
+      "harmony_summary": {
+        "subsetting": {
+          "bbox": true,
+          "dimension": true,
+          "shape": true,
+          "temporal": true,
+          "variable": true
+        },
+        "reprojection": {
+          "supported": false,
+          "supportedProjections": [],
+          "interpolationMethods": []
+        },
+        "averaging": {
+          "time": true,
+          "area": true
+        },
+        "concatenation": false,
+        "outputFormats": [
+          {
+            "name": "CSV",
+            "mimeType": "text/csv"
+          },
+          {
+            "name": "GEOTIFF",
+            "mimeType": "image/tiff"
+          },
+          {
+            "name": "NETCDF-4",
+            "mimeType": "application/netcdf"
+          },
+          {
+            "name": "NETCDF-4 (OPeNDAP URL)",
+            "mimeType": "application/x-netcdf4;profile=opendap_url"
+          }
+        ]
+      },
+      "harmony_service_names": [
+        "giovanni-time-series-adapter",
+        "sds/HOSS-geographic",
+        "sds/hoss-opendap-url",
+        "giovanni-averaging-service"
+      ],
+      "source_header_inspected": true,
+      "scientific_binding_admitted": false,
+      "production_variables_ingested": false,
+      "numeric_sample_decoded": false
+    },
+    {
+      "concept_id": "C3380709133-OB_CLOUD",
+      "short_name": "MODISA_L3m_CHL",
+      "version": "2022.0",
+      "doi": {
+        "DOI": "10.5067/AQUA/MODIS/L3M/CHL/2022.0",
+        "Authority": "https://doi.org"
+      },
+      "granule_concept_id": "G3509008864-OB_CLOUD",
+      "granule_ur": "MODISA_L3m_CHL_AQUA_MODIS.20050101_20050131.L3m.MO.CHL.chlor_a.9km.nc_2022.0",
+      "granule_temporal_extent": {
+        "RangeDateTime": {
+          "EndingDateTime": "2005-01-31T23:59:59Z",
+          "BeginningDateTime": "2005-01-01T00:00:00Z"
+        }
+      },
+      "whole_sample_source_file_bytes_from_content_range": 16042275,
+      "raw_252_file_size_illustration_bytes": 4042653300,
+      "size_illustration_is_not_valid_for_daily_OMI_or_all_P0_windows": true,
+      "harmony_summary": {
+        "subsetting": {
+          "bbox": false,
+          "dimension": false,
+          "shape": false,
+          "temporal": false,
+          "variable": false
+        },
+        "reprojection": {
+          "supported": false,
+          "supportedProjections": [],
+          "interpolationMethods": []
+        },
+        "averaging": {
+          "time": false,
+          "area": false
+        },
+        "concatenation": false,
+        "outputFormats": []
+      },
+      "harmony_service_names": [],
+      "source_header_inspected": true,
+      "scientific_binding_admitted": false,
+      "production_variables_ingested": false,
+      "numeric_sample_decoded": false
+    },
+    {
+      "concept_id": "C3113254690-OB_CLOUD",
+      "short_name": "SeaWiFS_L3m_CHL",
+      "version": "2022.0",
+      "doi": {
+        "DOI": "10.5067/ORBVIEW-2/SeaWiFS/L3M/CHL/2022.0",
+        "Authority": "https://doi.org"
+      },
+      "granule_concept_id": "G3461390425-OB_CLOUD",
+      "granule_ur": "SeaWiFS_L3m_CHL_SEASTAR_SEAWIFS_GAC.20050101_20050131.L3m.MO.CHL.chlor_a.9km.nc_2022.0",
+      "granule_temporal_extent": {
+        "RangeDateTime": {
+          "EndingDateTime": "2005-01-31T23:59:59Z",
+          "BeginningDateTime": "2005-01-01T00:00:00Z"
+        }
+      },
+      "whole_sample_source_file_bytes_from_content_range": 13657238,
+      "raw_252_file_size_illustration_bytes": 3441623976,
+      "size_illustration_is_not_valid_for_daily_OMI_or_all_P0_windows": true,
+      "harmony_summary": {
+        "subsetting": {
+          "bbox": false,
+          "dimension": false,
+          "shape": false,
+          "temporal": false,
+          "variable": false
+        },
+        "reprojection": {
+          "supported": false,
+          "supportedProjections": [],
+          "interpolationMethods": []
+        },
+        "averaging": {
+          "time": false,
+          "area": false
+        },
+        "concatenation": false,
+        "outputFormats": []
+      },
+      "harmony_service_names": [],
+      "source_header_inspected": true,
+      "scientific_binding_admitted": false,
+      "production_variables_ingested": false,
+      "numeric_sample_decoded": false
+    }
+  ],
+  "bulk_build_approved": false,
+  "open_acceptance": [
+    "Human domain review and independent rerun; no scientific signoff inferred from merge authorization",
+    "Per-binding release admission: QA/support, grids/masks, complete windows and citations in D01/D04-D16",
+    "AIRS/OMI monthly-map throughput feasibility before bulk acquisition; PERF-5 not passed",
+    "F04 method gates and release licensing audit remain separate"
+  ],
+  "manifest_hashes": {
+    "manifest.json": "ced7f9c257c047844cf0f24b41d4aaec70c63ed521396d549ad5d673844f65da",
+    "followup-manifest.json": "389e2e06be2109cad06413b524dd819d3c0050310529946ddad8b3f01425f2f9",
+    "airs-followup-manifest.json": "b4339c0b95d789c3aa756bdb1145a379292b48a3f40298b17a296adc70676be6",
+    "range-access-manifest.json": "9e6d26c11d7c09e3f7e77df0a42e3ab273436c29545c89637f2735fe8e8251c6",
+    "authenticated-range-manifest.json": "dfdb2562868785022dc5b2b83cde8f335081d59c3cd9ec3aefd53788277f40a6",
+    "obdaac-range-manifest.json": "a03e34abd6940c9f5e0ce984d330ffe26cfdc3791a0d9920363a58f6dab6c233",
+    "giovanni-recheck.json": "cb2d83e4265c2a05c34107faa600e7b8f4f0f1771a3714cf2c77e3e69ed2f86a",
+    "giovanni-series-job.json": "3039fb8cc04545749097391a9f793ff464bac6487d85c053cc0f72bada1e064f",
+    "giovanni-job-reconciliation.json": "e19ffd5e73a8a56f6d51709bb85fb17b9fb5b6b6891e595231f1bb5e5704b820"
+  },
+  "human_signoff": "PENDING",
+  "updated_utc": "2026-11-14T07:55:45.698245+00:00",
+  "merge_authorization": "User explicitly requested merge after task completion; scientific/release approval is not inferred.",
+  "bulk_build_feasibility": "NOT_PASSED",
+  "power_decoded_inspection": {
+    "retrieved_utc": "2026-11-14T07:52:42.968801+00:00",
+    "sources": [
+      {
+        "variable": "V01",
+        "field": "T2M",
+        "source_chunk_sha256": "e7cbd237c8b1de1a4b34113787d22a1e567060d89b15b86c786c9d4910ae1a11",
+        "coordinate_artifacts": {
+          "time": {
+            "url": "https://nasa-power.s3.us-west-2.amazonaws.com/merra2/temporal/power_merra2_monthly_temporal_utc.zarr/time/0",
+            "bytes": 994,
+            "sha256": "d9dbb537af238abb2316c6d2eb2b57e3c070806e72c336716da273e733db15d2"
+          },
+          "lat": {
+            "url": "https://nasa-power.s3.us-west-2.amazonaws.com/merra2/temporal/power_merra2_monthly_temporal_utc.zarr/lat/0",
+            "bytes": 564,
+            "sha256": "888d8dbe32c0a7b721389bbf2d834aca096c270f949c5a2fcf0a4570bb7f2eb1"
+          },
+          "lon": {
+            "url": "https://nasa-power.s3.us-west-2.amazonaws.com/merra2/temporal/power_merra2_monthly_temporal_utc.zarr/lon/0",
+            "bytes": 1125,
+            "sha256": "421771ee11ee162703d6ecab505b66692a1f8f73fa340c73e43a93582947a595"
+          }
+        },
+        "source_time_attributes": {
+          "axis": "T",
+          "long_name": "Time",
+          "standard_name": "Time",
+          "units": "days since 1981-01-31 00:00:00",
+          "calendar": "proleptic_gregorian",
+          "_ARRAY_DIMENSIONS": [
+            "time"
+          ]
+        },
+        "source_time_standard": "Universal Time Coordinated (UTC)",
+        "shape": [
+          588,
+          30,
+          30
+        ],
+        "finite_values_in_sample_chunk": 494100,
+        "missing_values_in_sample_chunk": 35100,
+        "finite_values_outside_declared_range": 0,
+        "selected_native_point": {
+          "latitude": 37.5,
+          "longitude": -97.5
+        },
+        "first_valid_sample_month": "1981-01",
+        "last_valid_sample_month_not_global_completeness": "2026-09",
+        "sample_2003_comparison": [
+          {
+            "month": "200301",
+            "zarr_sample": -0.45001220703125,
+            "rest_sample": -0.45,
+            "difference": -1.2207031249988898e-05
+          },
+          {
+            "month": "200302",
+            "zarr_sample": 0.71002197265625,
+            "rest_sample": 0.71,
+            "difference": 2.1972656250035527e-05
+          },
+          {
+            "month": "200303",
+            "zarr_sample": 6.69000244140625,
+            "rest_sample": 6.69,
+            "difference": 2.4414062496092015e-06
+          },
+          {
+            "month": "200304",
+            "zarr_sample": 13.97998046875,
+            "rest_sample": 13.98,
+            "difference": -1.9531250000426326e-05
+          },
+          {
+            "month": "200305",
+            "zarr_sample": 18.66998291015625,
+            "rest_sample": 18.67,
+            "difference": -1.7089843751705303e-05
+          },
+          {
+            "month": "200306",
+            "zarr_sample": 22.71002197265625,
+            "rest_sample": 22.71,
+            "difference": 2.197265624914735e-05
+          },
+          {
+            "month": "200307",
+            "zarr_sample": 29.6199951171875,
+            "rest_sample": 29.62,
+            "difference": -4.88281250099476e-06
+          },
+          {
+            "month": "200308",
+            "zarr_sample": 29.15997314453125,
+            "rest_sample": 29.16,
+            "difference": -2.685546875014211e-05
+          },
+          {
+            "month": "200309",
+            "zarr_sample": 19.0999755859375,
+            "rest_sample": 19.1,
+            "difference": -2.4414062501421085e-05
+          },
+          {
+            "month": "200310",
+            "zarr_sample": 14.739990234375,
+            "rest_sample": 14.74,
+            "difference": -9.765625000213163e-06
+          },
+          {
+            "month": "200311",
+            "zarr_sample": 7.0,
+            "rest_sample": 7.0,
+            "difference": 0.0
+          },
+          {
+            "month": "200312",
+            "zarr_sample": 1.72998046875,
+            "rest_sample": 1.73,
+            "difference": -1.9531249999982236e-05
+          }
+        ],
+        "comparison_valid_for_equality": true,
+        "global_complete_month_verified": false
+      },
+      {
+        "variable": "V12",
+        "field": "ALLSKY_SFC_SW_DWN",
+        "source_chunk_sha256": "c479a17ae643963576bedc10cbc4211a32e1efdfce54b32e46fda81abc795afb",
+        "coordinate_artifacts": {
+          "time": {
+            "url": "https://nasa-power.s3.us-west-2.amazonaws.com/syn1deg/temporal/power_syn1deg_monthly_temporal_lst.zarr/time/0",
+            "bytes": 643,
+            "sha256": "5852b3ed43665b4eaa38d043c88ad2bc81c9730c3df8820f759594d527b3634c"
+          },
+          "lat": {
+            "url": "https://nasa-power.s3.us-west-2.amazonaws.com/syn1deg/temporal/power_syn1deg_monthly_temporal_lst.zarr/lat/0",
+            "bytes": 378,
+            "sha256": "0e3754b2550f0e3f754d0cee8b14c00d8c4c84f08837f833230da9a1e51295ef"
+          },
+          "lon": {
+            "url": "https://nasa-power.s3.us-west-2.amazonaws.com/syn1deg/temporal/power_syn1deg_monthly_temporal_lst.zarr/lon/0",
+            "bytes": 588,
+            "sha256": "b267389ba5b98fd8bba070e816c9b962089aa91a495d7ed812c6a6c67a71c841"
+          }
+        },
+        "source_time_attributes": {
+          "_ARRAY_DIMENSIONS": [
+            "time"
+          ],
+          "axis": "T",
+          "calendar": "proleptic_gregorian",
+          "long_name": "Time",
+          "standard_name": "Time",
+          "units": "days since 2001-01-31 00:00:00"
+        },
+        "source_time_standard": "Local Solar Time (LST)",
+        "shape": [
+          348,
+          45,
+          45
+        ],
+        "finite_values_in_sample_chunk": 621675,
+        "missing_values_in_sample_chunk": 83025,
+        "finite_values_outside_declared_range": 0,
+        "selected_native_point": {
+          "latitude": 37.5,
+          "longitude": -97.5
+        },
+        "first_valid_sample_month": "2001-01",
+        "last_valid_sample_month_not_global_completeness": "2026-07",
+        "sample_2003_comparison": [
+          {
+            "month": "200301",
+            "zarr_sample": 111.25,
+            "rest_sample": 111.25,
+            "difference": 0.0
+          },
+          {
+            "month": "200302",
+            "zarr_sample": 105.989990234375,
+            "rest_sample": 105.99,
+            "difference": -9.765624994884092e-06
+          },
+          {
+            "month": "200303",
+            "zarr_sample": 180.71002197265625,
+            "rest_sample": 180.68,
+            "difference": 0.03002197265624318
+          },
+          {
+            "month": "200304",
+            "zarr_sample": 235.1400146484375,
+            "rest_sample": 235.1,
+            "difference": 0.040014648437505684
+          },
+          {
+            "month": "200305",
+            "zarr_sample": 254.59002685546875,
+            "rest_sample": 254.46,
+            "difference": 0.13002685546874204
+          },
+          {
+            "month": "200306",
+            "zarr_sample": 261.53997802734375,
+            "rest_sample": 261.47,
+            "difference": 0.06997802734372272
+          },
+          {
+            "month": "200307",
+            "zarr_sample": 314.42999267578125,
+            "rest_sample": 314.59,
+            "difference": -0.160007324218725
+          },
+          {
+            "month": "200308",
+            "zarr_sample": 246.69000244140625,
+            "rest_sample": 246.79,
+            "difference": -0.09999755859374204
+          },
+          {
+            "month": "200309",
+            "zarr_sample": 202.45001220703125,
+            "rest_sample": 202.47,
+            "difference": -0.019987792968748863
+          },
+          {
+            "month": "200310",
+            "zarr_sample": 163.95001220703125,
+            "rest_sample": 163.95,
+            "difference": 1.2207031261368684e-05
+          },
+          {
+            "month": "200311",
+            "zarr_sample": 102.82000732421875,
+            "rest_sample": 102.82,
+            "difference": 7.32421875682121e-06
+          },
+          {
+            "month": "200312",
+            "zarr_sample": 93.1199951171875,
+            "rest_sample": 93.12,
+            "difference": -4.8828125045474735e-06
+          }
+        ],
+        "comparison_valid_for_equality": false,
+        "global_complete_month_verified": false
+      }
+    ]
+  },
+  "actual_source_headers": {
+    "GPCPMON": {
+      "product": "GPCPMON",
+      "source_url": "https://data.gesdisc.earthdata.nasa.gov/data/GPCP/GPCPMON.3.3/2005/GPCPMON_L3_200501_V3.3.nc4",
+      "status": "actual_headers_read_not_scientifically_admitted",
+      "fields": {
+        "sat_gauge_precip": {
+          "shape": [
+            1,
+            360,
+            720
+          ],
+          "dtype": "float32",
+          "attributes": {
+            "units": "mm/day",
+            "long_name": "combined satellite-gauge precipitation",
+            "_FillValue": [
+              -99999.0
+            ],
+            "valid_range": [
+              0.0,
+              100.0
+            ],
+            "cell_methods": "time: mean"
+          }
+        },
+        "quality_index": {
+          "shape": [
+            1,
+            360,
+            720
+          ],
+          "dtype": "float32",
+          "attributes": {
+            "units": "1",
+            "long_name": "quality index",
+            "_FillValue": [
+              -99999.0
+            ],
+            "valid_range": [
+              0.0,
+              700.0
+            ],
+            "cell_methods": "time: mean"
+          }
+        }
+      },
+      "root_names": [
+        "lon",
+        "lat",
+        "time",
+        "bnds",
+        "sat_gauge_precip",
+        "sat_gauge_random_error",
+        "sat_gauge_absolute_bias_error",
+        "satellite_precip",
+        "satellite_source",
+        "gauge_precip",
+        "probability_liquid_phase",
+        "gauge_relative_weight",
+        "quality_index",
+        "time_bnds"
+      ],
+      "coordinates": {
+        "time": {
+          "shape": [
+            1
+          ],
+          "attributes": {
+            "long_name": "Time",
+            "units": "minutes since 1979-01-01 00:00:00",
+            "bounds": "time_bnds",
+            "calendar": "standard"
+          }
+        },
+        "lat": {
+          "shape": [
+            360
+          ],
+          "attributes": {
+            "long_name": "Latitude",
+            "units": "degrees_north"
+          }
+        },
+        "lon": {
+          "shape": [
+            720
+          ],
+          "attributes": {
+            "long_name": "Longitude",
+            "units": "degrees_east"
+          }
+        }
+      },
+      "range_bytes": 65536,
+      "range_requests": 1,
+      "range_hashes": [
+        {
+          "start": 0,
+          "end": 65535,
+          "sha256": "1c3ff574688cc2c54d2d554e9065250db8161d7eccf7138090fa6afd180f9d73"
+        }
+      ]
+    },
+    "GPM_3IMERGM": {
+      "product": "GPM_3IMERGM",
+      "source_url": "https://data.gesdisc.earthdata.nasa.gov/data/GPM_L3/GPM_3IMERGM.07/2005/3B-MO.MS.MRG.3IMERG.20050101-S000000-E235959.01.V07B.HDF5",
+      "status": "actual_headers_read_not_scientifically_admitted",
+      "fields": {
+        "Grid/precipitation": {
+          "shape": [
+            1,
+            3600,
+            1800
+          ],
+          "dtype": "float32",
+          "attributes": {
+            "units": "mm/hr",
+            "coordinates": "time lon lat",
+            "_FillValue": -9999.900390625
+          }
+        }
+      },
+      "root_names": [
+        "Grid"
+      ],
+      "coordinates": {
+        "Grid/time": {
+          "shape": [
+            1
+          ],
+          "attributes": {
+            "units": "seconds since 1980-01-06 00:00:00 UTC",
+            "standard_name": "time",
+            "bounds": "time_bnds",
+            "calendar": "julian"
+          }
+        },
+        "Grid/lat": {
+          "shape": [
+            1800
+          ],
+          "attributes": {
+            "units": "degrees_north",
+            "standard_name": "latitude",
+            "bounds": "lat_bnds"
+          }
+        },
+        "Grid/lon": {
+          "shape": [
+            3600
+          ],
+          "attributes": {
+            "units": "degrees_east",
+            "standard_name": "longitude",
+            "bounds": "lon_bnds"
+          }
+        }
+      },
+      "range_bytes": 137617,
+      "range_requests": 3,
+      "range_hashes": [
+        {
+          "start": 0,
+          "end": 65535,
+          "sha256": "ba905324ea837ec8f4b422bb66f9d020f248857f750a19b8715d61e56e979d4a"
+        },
+        {
+          "start": 17367040,
+          "end": 17432575,
+          "sha256": "360eaa12097818cad41a325268c1a1e7e1294d61823f4d7ffd082d1d4a66aef5"
+        },
+        {
+          "start": 18022400,
+          "end": 18028944,
+          "sha256": "4892300c379ae431b3dbec805ee94654700856b4c35ed1b639533fa1fe1c4f24"
+        }
+      ]
+    },
+    "GLDAS_NOAH025_M": {
+      "product": "GLDAS_NOAH025_M",
+      "source_url": "https://data.gesdisc.earthdata.nasa.gov/data/GLDAS/GLDAS_NOAH025_M.2.1/2005/GLDAS_NOAH025_M.A200501.021.nc4",
+      "status": "actual_headers_read_not_scientifically_admitted",
+      "fields": {
+        "SoilMoi0_10cm_inst": {
+          "shape": [
+            1,
+            600,
+            1440
+          ],
+          "dtype": "float32",
+          "attributes": {
+            "standard_name": "soil_moisture_content",
+            "long_name": "Soil moisture",
+            "units": "kg m-2",
+            "_FillValue": [
+              -9999.0
+            ],
+            "missing_value": [
+              -9999.0
+            ],
+            "cell_methods": "time: mean"
+          }
+        },
+        "Evap_tavg": {
+          "shape": [
+            1,
+            600,
+            1440
+          ],
+          "dtype": "float32",
+          "attributes": {
+            "standard_name": "water_evaporation_flux",
+            "long_name": "Evapotranspiration",
+            "units": "kg m-2 s-1",
+            "_FillValue": [
+              -9999.0
+            ],
+            "missing_value": [
+              -9999.0
+            ],
+            "cell_methods": "time: mean"
+          }
+        },
+        "Qs_acc": {
+          "shape": [
+            1,
+            600,
+            1440
+          ],
+          "dtype": "float32",
+          "attributes": {
+            "standard_name": "surface_runoff_amount",
+            "long_name": "Storm surface runoff",
+            "units": "kg m-2",
+            "_FillValue": [
+              -9999.0
+            ],
+            "missing_value": [
+              -9999.0
+            ],
+            "cell_methods": "time: mean"
+          }
+        },
+        "SWE_inst": {
+          "shape": [
+            1,
+            600,
+            1440
+          ],
+          "dtype": "float32",
+          "attributes": {
+            "standard_name": "surface_snow_amount",
+            "long_name": "Snow depth water equivalent",
+            "units": "kg m-2",
+            "_FillValue": [
+              -9999.0
+            ],
+            "missing_value": [
+              -9999.0
+            ],
+            "cell_methods": "time: mean"
+          }
+        }
+      },
+      "root_names": [
+        "time",
+        "bnds",
+        "time_bnds",
+        "lon",
+        "lat",
+        "Swnet_tavg",
+        "Lwnet_tavg",
+        "Qle_tavg",
+        "Qh_tavg",
+        "Qg_tavg",
+        "Snowf_tavg",
+        "Rainf_tavg",
+        "Evap_tavg",
+        "Qs_acc",
+        "Qsb_acc",
+        "Qsm_acc",
+        "AvgSurfT_inst",
+        "Albedo_inst",
+        "SWE_inst",
+        "SnowDepth_inst",
+        "SoilMoi0_10cm_inst",
+        "SoilMoi10_40cm_inst",
+        "SoilMoi40_100cm_inst",
+        "SoilMoi100_200cm_inst",
+        "SoilTMP0_10cm_inst",
+        "SoilTMP10_40cm_inst",
+        "SoilTMP40_100cm_inst",
+        "SoilTMP100_200cm_inst",
+        "PotEvap_tavg",
+        "ECanop_tavg",
+        "Tveg_tavg",
+        "ESoil_tavg",
+        "RootMoist_inst",
+        "CanopInt_inst",
+        "Wind_f_inst",
+        "Rainf_f_tavg",
+        "Tair_f_inst",
+        "Qair_f_inst",
+        "Psurf_f_inst",
+        "SWdown_f_tavg",
+        "LWdown_f_tavg"
+      ],
+      "coordinates": {
+        "time": {
+          "shape": [
+            1
+          ],
+          "attributes": {
+            "standard_name": "time",
+            "long_name": "time",
+            "bounds": "time_bnds",
+            "units": "days since 2000-01-01 00:00:00",
+            "calendar": "standard"
+          }
+        },
+        "lat": {
+          "shape": [
+            600
+          ],
+          "attributes": {
+            "standard_name": "latitude",
+            "long_name": "latitude",
+            "units": "degrees_north"
+          }
+        },
+        "lon": {
+          "shape": [
+            1440
+          ],
+          "attributes": {
+            "standard_name": "longitude",
+            "long_name": "longitude",
+            "units": "degrees_east"
+          }
+        }
+      },
+      "range_bytes": 196608,
+      "range_requests": 3,
+      "range_hashes": [
+        {
+          "start": 0,
+          "end": 65535,
+          "sha256": "8f4f504cf850d4bf609f16c7b36d8d61d028b99dae05796bc0663fe51ef48e41"
+        },
+        {
+          "start": 65536,
+          "end": 131071,
+          "sha256": "ae8e8cf7c0bc9d0bfb0f7a11091b402be4028c2a3e4fba1bf425d75db8f04faa"
+        },
+        {
+          "start": 131072,
+          "end": 196607,
+          "sha256": "8fad6cdd29b2b012275c36d9d3ce9bda1912e99d4d95a0776e9cda4f1417dd1f"
+        }
+      ]
+    },
+    "M2TMNXAER": {
+      "product": "M2TMNXAER",
+      "source_url": "https://data.gesdisc.earthdata.nasa.gov/data/MERRA2_MONTHLY/M2TMNXAER.5.12.4/2005/MERRA2_300.tavgM_2d_aer_Nx.200501.nc4",
+      "status": "actual_headers_read_not_scientifically_admitted",
+      "fields": {
+        "TOTEXTTAU": {
+          "shape": [
+            1,
+            361,
+            576
+          ],
+          "dtype": "float32",
+          "attributes": {
+            "long_name": "Total Aerosol Extinction AOT [550 nm]",
+            "units": "1",
+            "_FillValue": [
+              999999986991104.0
+            ],
+            "missing_value": [
+              999999986991104.0
+            ],
+            "valid_range": [
+              -999999986991104.0,
+              999999986991104.0
+            ]
+          }
+        }
+      },
+      "root_names": [
+        "lon",
+        "lat",
+        "time",
+        "BCANGSTR",
+        "BCCMASS",
+        "BCEXTTAU",
+        "BCFLUXU",
+        "BCFLUXV",
+        "BCSCATAU",
+        "BCSMASS",
+        "DMSCMASS",
+        "DMSSMASS",
+        "DUANGSTR",
+        "DUCMASS",
+        "DUCMASS25",
+        "DUEXTT25",
+        "DUEXTTAU",
+        "DUFLUXU",
+        "DUFLUXV",
+        "DUSCAT25",
+        "DUSCATAU",
+        "DUSMASS",
+        "DUSMASS25",
+        "OCANGSTR",
+        "OCCMASS",
+        "OCEXTTAU",
+        "OCFLUXU",
+        "OCFLUXV",
+        "OCSCATAU",
+        "OCSMASS",
+        "SO2CMASS",
+        "SO2SMASS",
+        "SO4CMASS",
+        "SO4SMASS",
+        "SSANGSTR",
+        "SSCMASS",
+        "SSCMASS25",
+        "SSEXTT25",
+        "SSEXTTAU",
+        "SSFLUXU",
+        "SSFLUXV",
+        "SSSCAT25",
+        "SSSCATAU",
+        "SSSMASS",
+        "SSSMASS25",
+        "SUANGSTR",
+        "SUEXTTAU",
+        "SUFLUXU",
+        "SUFLUXV",
+        "SUSCATAU",
+        "TOTANGSTR",
+        "TOTEXTTAU",
+        "TOTSCATAU",
+        "Var_BCANGSTR",
+        "Var_BCCMASS",
+        "Var_BCEXTTAU",
+        "Var_BCFLUXU",
+        "Var_BCFLUXV",
+        "Var_BCSCATAU",
+        "Var_BCSMASS",
+        "Var_DMSCMASS",
+        "Var_DMSSMASS",
+        "Var_DUANGSTR",
+        "Var_DUCMASS",
+        "Var_DUCMASS25",
+        "Var_DUEXTT25",
+        "Var_DUEXTTAU",
+        "Var_DUFLUXU",
+        "Var_DUFLUXV",
+        "Var_DUSCAT25",
+        "Var_DUSCATAU",
+        "Var_DUSMASS",
+        "Var_DUSMASS25",
+        "Var_OCANGSTR",
+        "Var_OCCMASS",
+        "Var_OCEXTTAU",
+        "Var_OCFLUXU",
+        "Var_OCFLUXV",
+        "Var_OCSCATAU",
+        "Var_OCSMASS",
+        "Var_SO2CMASS",
+        "Var_SO2SMASS",
+        "Var_SO4CMASS",
+        "Var_SO4SMASS",
+        "Var_SSANGSTR",
+        "Var_SSCMASS",
+        "Var_SSCMASS25",
+        "Var_SSEXTT25",
+        "Var_SSEXTTAU",
+        "Var_SSFLUXU",
+        "Var_SSFLUXV",
+        "Var_SSSCAT25",
+        "Var_SSSCATAU",
+        "Var_SSSMASS",
+        "Var_SSSMASS25",
+        "Var_SUANGSTR",
+        "Var_SUEXTTAU",
+        "Var_SUFLUXU",
+        "Var_SUFLUXV",
+        "Var_SUSCATAU",
+        "Var_TOTANGSTR",
+        "Var_TOTEXTTAU",
+        "Var_TOTSCATAU"
+      ],
+      "coordinates": {
+        "time": {
+          "shape": [
+            1
+          ],
+          "attributes": {
+            "long_name": "time",
+            "units": "minutes since 2005-01-01 00:30:00",
+            "valid_range": [
+              -999999986991104.0,
+              999999986991104.0
+            ]
+          }
+        },
+        "lat": {
+          "shape": [
+            361
+          ],
+          "attributes": {
+            "long_name": "latitude",
+            "units": "degrees_north",
+            "valid_range": [
+              -999999986991104.0,
+              999999986991104.0
+            ]
+          }
+        },
+        "lon": {
+          "shape": [
+            576
+          ],
+          "attributes": {
+            "long_name": "longitude",
+            "units": "degrees_east",
+            "valid_range": [
+              -999999986991104.0,
+              999999986991104.0
+            ]
+          }
+        }
+      },
+      "range_bytes": 393216,
+      "range_requests": 6,
+      "range_hashes": [
+        {
+          "start": 0,
+          "end": 65535,
+          "sha256": "e73468cdba8097ed5501a00839438c9a14aefd00286915c8e42f141b56d02d55"
+        },
+        {
+          "start": 196608,
+          "end": 262143,
+          "sha256": "08b71d47a73052b9a6718454308058e60f86941171336a7c3e78d1364421377a"
+        },
+        {
+          "start": 327680,
+          "end": 393215,
+          "sha256": "69ca827a4d7067e03d33e93bf79405d376653bac9fc72d1906f50545b3227a70"
+        },
+        {
+          "start": 65536,
+          "end": 131071,
+          "sha256": "3b5dec42e51e22538ee7d1d1450df262efb0a06c34a6b6954f62d6a815528848"
+        },
+        {
+          "start": 131072,
+          "end": 196607,
+          "sha256": "3ed99a20bb8e45bcd2b4865dd93335538832014db32d18c8ad8e48e6ef5b8f0f"
+        },
+        {
+          "start": 262144,
+          "end": 327679,
+          "sha256": "08bb993ac196af5e1b7cca9ead8fcbce4f8490356a7e1c2a6b7a385170a13dbf"
+        }
+      ]
+    },
+    "MODISA_L3m_CHL": {
+      "product": "MODISA_L3m_CHL",
+      "source_url": "https://obdaac-tea.earthdatacloud.nasa.gov/ob-cumulus-prod-public/AQUA_MODIS.20050101_20050131.L3m.MO.CHL.chlor_a.9km.nc",
+      "status": "actual_headers_read_not_scientifically_admitted",
+      "fields": {
+        "chlor_a": {
+          "shape": [
+            2160,
+            4320
+          ],
+          "dtype": "float32",
+          "attributes": {
+            "long_name": "Chlorophyll Concentration, OCI Algorithm",
+            "units": "mg m^-3",
+            "standard_name": "mass_concentration_of_chlorophyll_in_sea_water",
+            "_FillValue": [
+              -32767.0
+            ],
+            "valid_min": [
+              0.0010000000474974513
+            ],
+            "valid_max": [
+              100.0
+            ]
+          }
+        }
+      },
+      "root_names": [
+        "processing_control",
+        "chlor_a",
+        "lat",
+        "lon",
+        "rgb",
+        "eightbitcolor",
+        "palette"
+      ],
+      "coordinates": {
+        "lat": {
+          "shape": [
+            2160
+          ],
+          "attributes": {
+            "long_name": "Latitude",
+            "units": "degrees_north",
+            "standard_name": "latitude",
+            "_FillValue": [
+              -999.0
+            ],
+            "valid_min": [
+              -90.0
+            ],
+            "valid_max": [
+              90.0
+            ]
+          }
+        },
+        "lon": {
+          "shape": [
+            4320
+          ],
+          "attributes": {
+            "long_name": "Longitude",
+            "units": "degrees_east",
+            "standard_name": "longitude",
+            "_FillValue": [
+              -999.0
+            ],
+            "valid_min": [
+              -180.0
+            ],
+            "valid_max": [
+              180.0
+            ]
+          }
+        }
+      },
+      "range_bytes": 65536,
+      "range_requests": 1,
+      "range_hashes": [
+        {
+          "start": 0,
+          "end": 65535,
+          "sha256": "83046933c75cf73cfb9f5b8585bbc9ef9204e51694e30932007fb1be597d06f0"
+        }
+      ]
+    },
+    "SeaWiFS_L3m_CHL": {
+      "product": "SeaWiFS_L3m_CHL",
+      "source_url": "https://obdaac-tea.earthdatacloud.nasa.gov/ob-cumulus-prod-public/SEASTAR_SEAWIFS_GAC.20050101_20050131.L3m.MO.CHL.chlor_a.9km.nc",
+      "status": "actual_headers_read_not_scientifically_admitted",
+      "fields": {
+        "chlor_a": {
+          "shape": [
+            2160,
+            4320
+          ],
+          "dtype": "float32",
+          "attributes": {
+            "long_name": "Chlorophyll Concentration, OCI Algorithm",
+            "units": "mg m^-3",
+            "standard_name": "mass_concentration_of_chlorophyll_in_sea_water",
+            "_FillValue": [
+              -32767.0
+            ],
+            "valid_min": [
+              0.0010000000474974513
+            ],
+            "valid_max": [
+              100.0
+            ]
+          }
+        }
+      },
+      "root_names": [
+        "processing_control",
+        "chlor_a",
+        "lat",
+        "lon",
+        "rgb",
+        "eightbitcolor",
+        "palette"
+      ],
+      "coordinates": {
+        "lat": {
+          "shape": [
+            2160
+          ],
+          "attributes": {
+            "long_name": "Latitude",
+            "units": "degrees_north",
+            "standard_name": "latitude",
+            "_FillValue": [
+              -999.0
+            ],
+            "valid_min": [
+              -90.0
+            ],
+            "valid_max": [
+              90.0
+            ]
+          }
+        },
+        "lon": {
+          "shape": [
+            4320
+          ],
+          "attributes": {
+            "long_name": "Longitude",
+            "units": "degrees_east",
+            "standard_name": "longitude",
+            "_FillValue": [
+              -999.0
+            ],
+            "valid_min": [
+              -180.0
+            ],
+            "valid_max": [
+              180.0
+            ]
+          }
+        }
+      },
+      "range_bytes": 65536,
+      "range_requests": 1,
+      "range_hashes": [
+        {
+          "start": 0,
+          "end": 65535,
+          "sha256": "d7c1a2df0e9f4151cdc75e7e96660a7eb7f85ec96ea67feaeeb809c6cf6f6fc6"
+        }
+      ]
+    },
+    "OMNO2d": {
+      "product": "OMNO2d",
+      "source_url": "https://data.gesdisc.earthdata.nasa.gov/data/Aura_OMI_Level3/OMNO2d.003/2005/OMI-Aura_L3-OMNO2d_2005m0101_v003-2019m1120t182907.he5",
+      "status": "actual_headers_read_not_scientifically_admitted",
+      "fields": {
+        "ColumnAmountNO2TropCloudScreened": {
+          "actual_path": "HDFEOS/GRIDS/ColumnAmountNO2/Data Fields/ColumnAmountNO2TropCloudScreened",
+          "shape": [
+            720,
+            1440
+          ],
+          "dtype": "float32",
+          "attributes": {
+            "MissingValue": [
+              -1.2676506002282294e+30
+            ],
+            "Offset": [
+              0.0
+            ],
+            "ScaleFactor": [
+              1.0
+            ],
+            "Title": "NO2 tropospheric column density, screened for CloudFraction < 30%",
+            "Units": "molec/cm2",
+            "_FillValue": [
+              -1.2676506002282294e+30
+            ]
+          }
+        }
+      },
+      "root_names": [
+        "HDFEOS",
+        "HDFEOS INFORMATION"
+      ],
+      "range_bytes": 393216,
+      "range_requests": 6,
+      "range_hashes": [
+        {
+          "start": 0,
+          "end": 65535,
+          "sha256": "ff6d69229f5e9a3ba5d5d42875cb8181935bea8afd74d0e98dc53c5345fbba1b"
+        },
+        {
+          "start": 5177344,
+          "end": 5242879,
+          "sha256": "eec97ba69429bd2cb496555725918227ab7e72bc3f285b7f4f8acf8b0b7debb9"
+        },
+        {
+          "start": 2949120,
+          "end": 3014655,
+          "sha256": "f92848649eed29e2a7d7bb69ebe61793927e082f8cd080d841c17963eff4ee0a"
+        },
+        {
+          "start": 8454144,
+          "end": 8519679,
+          "sha256": "89917dd434bd779aac5b91a8042c54be9ac240d3fdadd830ff7be9643c22ba15"
+        },
+        {
+          "start": 10813440,
+          "end": 10878975,
+          "sha256": "6ed7e07ce302ab39f41f756374b02daa795b5c1011f76ca271a04e75dfe73918"
+        },
+        {
+          "start": 13893632,
+          "end": 13959167,
+          "sha256": "1cdd2ed45f1012176b5f98eb4c368b4e7667342a7aded10942116aba9115c779"
+        }
+      ]
+    }
+  },
+  "confirmed_gpcp_field": "sat_gauge_precip",
+  "giovanni_series_corrected_request": {
+    "provider": "Harmony-Giovanni",
+    "submitted_utc": "2026-11-14T07:03:41.193117+00:00",
+    "quota_before": 0,
+    "request_url": "https://harmony.earthdata.nasa.gov/C1342986036-GES_DISC/ogc-api-coverages/1.0.0/collections/parameter_vars/coverage/rangeset?subset=lat%2835%3A40%29&subset=lon%28-100%3A-95%29&subset=time%28%222005-01-01T00%3A00%3A00%22%3A%222005-01-31T23%3A59%3A59%22%29&variable=GLDAS_NOAH025_M_2_1_SoilMoi0_10cm_inst&format=text%2Fcsv&average=area&maxResults=1&forceAsync=true&skipPreview=true&ignoreErrors=false&label=earth-trend-f05-b01-one-month",
+    "max_input_granules": 1,
+    "max_output_download_bytes": 4194304,
+    "result": "http_failure_no_retry",
+    "http_status": 303,
+    "final_resolution": "Relative 303 was reconciled by label to the unique successful series job. The original parser result is preserved; no duplicate submission occurred."
+  },
+  "giovanni_series_output": {
+    "job_id": "1054ac36-33f1-48f5-b6da-778f6e9daa2c",
+    "retrieved_utc": "2026-11-14T07:26:16.619178+00:00",
+    "status": "successful_output_retrieved",
+    "artifact": "giovanni-b01-soilmo-200501.csv",
+    "bytes": 221,
+    "sha256": "ffeb57a657caf5b560cd87a5050130d8a29fd1ff551a8a250694881c20896492",
+    "row_count": 7,
+    "credentials_forwarded_to_cdn": false,
+    "output_host": "dqzb5lcolc8fj.cloudfront.net",
+    "created_utc": "2026-11-14T07:03:43.131Z",
+    "completed_utc": "2026-11-14T07:16:32.515Z",
+    "header_keys": [
+      "User Start Date:",
+      "User End Date:",
+      "User Bounding Box:",
+      "Fill Value:",
+      "",
+      "time"
+    ],
+    "date_rows": [
+      [
+        "2005-01-01T00:00:00",
+        "28.96609"
+      ]
+    ]
+  },
+  "giovanni_map_request": {
+    "submitted_utc": "2026-11-14T07:21:39.248026+00:00",
+    "quota_before": 8e-09,
+    "request_url": "https://harmony.earthdata.nasa.gov/C1701805662-GES_DISC/ogc-api-coverages/1.0.0/collections/parameter_vars/coverage/rangeset?subset=lat%28-90%3A90%29&subset=lon%28-180%3A180%29&subset=time%28%222005-01-01T00%3A00%3A00%22%3A%222005-01-31T23%3A59%3A59%22%29&variable=AIRS3STM_7_0_TotH2OVap_A&granuleId=G1920804940-GES_DISC&format=image%2Ftiff&average=time&maxResults=1&forceAsync=true&skipPreview=true&ignoreErrors=false&label=earth-trend-f05-airs-map-200501",
+    "max_input_granules": 1,
+    "max_output_download_bytes": 4194304,
+    "acceptance": "accepted_job_redirect",
+    "submission_concurrency": 1,
+    "http_status": 303,
+    "job_id": "aabb96d9-d9de-48a7-8cc8-8be80054c34a"
+  },
+  "giovanni_map_output": {
+    "job_id": "aabb96d9-d9de-48a7-8cc8-8be80054c34a",
+    "retrieved_utc": "2026-11-14T07:31:41.431377+00:00",
+    "status": "successful_map_retrieved",
+    "bytes": 260864,
+    "sha256": "038197488db8a216e1943ac3fcbbd0ad037fcfe253800ad9b5169f3bf16fdc7d",
+    "artifact": "giovanni-airs-200501.tif",
+    "credentials_forwarded_to_cdn": false,
+    "created_utc": "2026-11-14T07:21:41.942Z",
+    "completed_utc": "2026-11-14T07:25:54.971Z",
+    "num_input_granules": 1
+  },
+  "giovanni_map_inspection": {
+    "file": "giovanni-airs-200501.tif",
+    "sha256": "038197488db8a216e1943ac3fcbbd0ad037fcfe253800ad9b5169f3bf16fdc7d",
+    "size": [
+      360,
+      180
+    ],
+    "mode": "F",
+    "nodata": "-9999",
+    "finite_nonfill_count": 64800,
+    "total_cells": 64800,
+    "data_range": [
+      0.565185546875,
+      61.8515625
+    ],
+    "pixel_scale": [
+      1.0,
+      1.0,
+      0.0
+    ],
+    "tiepoint": [
+      0.0,
+      0.0,
+      0.0,
+      -180.0,
+      90.0,
+      0.0
+    ],
+    "geokey_directory": [
+      1,
+      1,
+      0,
+      7,
+      1024,
+      0,
+      1,
+      2,
+      1025,
+      0,
+      1,
+      1,
+      2048,
+      0,
+      1,
+      4326,
+      2049,
+      34737,
+      7,
+      0,
+      2054,
+      0,
+      1,
+      9102,
+      2057,
+      34736,
+      1,
+      1,
+      2059,
+      34736,
+      1,
+      0
+    ],
+    "gdal_metadata": {
+      "cell_methods": "time: mean",
+      "Conventions": "CF-1.10",
+      "DOI": "10.5067/UBENJB9D3T2H",
+      "history_json": "{'time': '2026-11-14 07:25:53', 'program': 'CloudGiovanniAveragingService', 'version': 'v1.1.14', 'parameters': 'bbox=[-180, -90, 180, 90], start_time=2005-01-01 00:00:00.000000, end_time=2005-01-31 23:59:59.000000', '$schema': 'https://wiki.earthdata.nasa.gov/display/TRT/Formal+Schema+for+history_json'}",
+      "latitude_resolution": "1",
+      "longitude_resolution": "1",
+      "long_name": "Total Column Water Vapor (Daytime/Ascending, AIRS-only)",
+      "product_short_name": "AIRS3STM",
+      "product_version": "7.0",
+      "units": "kg/m2",
+      "userenddate": "2005-01-31T23:59:59.000Z",
+      "userstartdate": "2005-01-01T00:00:00.000Z",
+      "DESCRIPTION": "Total Column Water Vapor (Daytime/Ascending, AIRS-only)"
+    },
+    "qa_counts_included": false,
+    "scientific_admission": false
+  },
+  "independent_gldas_reference": {
+    "source_url": "https://data.gesdisc.earthdata.nasa.gov/data/GLDAS/GLDAS_NOAH025_M.2.1/2005/GLDAS_NOAH025_M.A200501.021.nc4",
+    "variable": "SoilMoi0_10cm_inst",
+    "source_units": "b'kg m-2'",
+    "bbox": [
+      -100,
+      35,
+      -95,
+      40
+    ],
+    "grid_center_bounds": [
+      -99.875,
+      35.125,
+      -95.125,
+      39.875
+    ],
+    "shape": [
+      20,
+      20
+    ],
+    "valid_count": 400,
+    "weighted_mean": 28.966091398112653,
+    "unweighted_mean": 28.97052543401718,
+    "giovanni_csv_mean": 28.96609,
+    "absolute_difference": 1.3981126514295283e-06,
+    "lat_lon_units_preserved": true,
+    "method": "One aligned rectangular January 2005 probe: float64 sum(cos(latitude)*value)/sum(cos(latitude)), excluding actual fill; no interpolation or inference. Not a general geometry validation.",
+    "range_bytes": 1048576,
+    "range_requests": 16,
+    "range_hashes": [
+      {
+        "start": 0,
+        "end": 65535,
+        "sha256": "8f4f504cf850d4bf609f16c7b36d8d61d028b99dae05796bc0663fe51ef48e41"
+      },
+      {
+        "start": 65536,
+        "end": 131071,
+        "sha256": "ae8e8cf7c0bc9d0bfb0f7a11091b402be4028c2a3e4fba1bf425d75db8f04faa"
+      },
+      {
+        "start": 131072,
+        "end": 196607,
+        "sha256": "8fad6cdd29b2b012275c36d9d3ce9bda1912e99d4d95a0776e9cda4f1417dd1f"
+      },
+      {
+        "start": 10223616,
+        "end": 10289151,
+        "sha256": "317f373c690d85e507d145da88c86c9a1bf809e4e1f1030c5c9195b8a42c08b2"
+      },
+      {
+        "start": 10289152,
+        "end": 10354687,
+        "sha256": "1fa6d7fbac142d54c966e511d193250e82c96f7faeb2164f706e5c631d58bc30"
+      },
+      {
+        "start": 10354688,
+        "end": 10420223,
+        "sha256": "b80a5faae8e919e5cb3c8f4dc1a0c8662d3d944d28941ec19f08b7454621c31d"
+      },
+      {
+        "start": 10420224,
+        "end": 10485759,
+        "sha256": "e97c93da08ae5adbf48c4ecc26852eb249fd07166334c37a1db793fd2cf2d683"
+      },
+      {
+        "start": 10485760,
+        "end": 10551295,
+        "sha256": "4b8357b2401481f85e577dcc59b6b28289ad6adb6fd7a31468927abeec2d4083"
+      },
+      {
+        "start": 10551296,
+        "end": 10616831,
+        "sha256": "9a4685a324c1983779b1d479a238803af9ab5aef702011390a4972265a9e682b"
+      },
+      {
+        "start": 10616832,
+        "end": 10682367,
+        "sha256": "cca8462296d3494dea8041c30e5cb781f5ee4ff9ba7f27433c1ac08bb51de7bb"
+      },
+      {
+        "start": 10682368,
+        "end": 10747903,
+        "sha256": "7039229056a3a5d9bb4774781f0221b060a769bcf4efdd79d85be1007d7f3438"
+      },
+      {
+        "start": 10747904,
+        "end": 10813439,
+        "sha256": "c7120be5700467f77b78cd74d6170906eef43f500fa4f76497e32cc86c580cf9"
+      },
+      {
+        "start": 10813440,
+        "end": 10878975,
+        "sha256": "da84ee61315503ae711f14b20a1d094e801113f78b832fa3f1eeb5c982f023fb"
+      },
+      {
+        "start": 10878976,
+        "end": 10944511,
+        "sha256": "e5f6c4aef30fe343d8e805a3031c7d0fe484b474a657f326e84f6d38b6cb0f4b"
+      },
+      {
+        "start": 10944512,
+        "end": 11010047,
+        "sha256": "aca64ef17605bc60e7699076f0fc65d60d47f66c48b4d29ba929f7d43ddbbf7f"
+      },
+      {
+        "start": 11010048,
+        "end": 11075583,
+        "sha256": "1cb535d4cbe9d37f2b2dedd4b769e8b6100b66b97497906a0f5c514db592a078"
+      }
+    ],
+    "decoded_subset_sha256": "d1fcb81c71f8c823e624b7320967b744da2e0ac8f1efbe2e55fc9288685e3945"
+  },
+  "hoss_gldas": {
+    "request": {
+      "submitted_utc": "2026-11-14T07:36:30.045730+00:00",
+      "request_url": "https://harmony.earthdata.nasa.gov/C1342986036-GES_DISC/ogc-api-coverages/1.0.0/collections/SoilMoi0_10cm_inst/coverage/rangeset?subset=lat%2835%3A40%29&subset=lon%28-100%3A-95%29&granuleId=G1413723174-GES_DISC&format=application%2Fnetcdf&maxResults=1&forceAsync=true&skipPreview=true&ignoreErrors=false&label=earth-trend-f05-gldas-hoss-200501",
+      "max_input_granules": 1,
+      "max_output_download_bytes": 4194304,
+      "acceptance": "accepted_job_redirect",
+      "http_status": 303,
+      "job_id": "60538c0c-0c79-4a3d-8fc8-1086b87ded7c"
+    },
+    "status": {
+      "checked_utc": "2026-11-14T07:42:48.733766+00:00",
+      "status": "successful",
+      "progress": 100,
+      "jobID": "60538c0c-0c79-4a3d-8fc8-1086b87ded7c",
+      "numInputGranules": 1,
+      "createdAt": "2026-11-14T07:36:31.830Z",
+      "updatedAt": "2026-11-14T07:36:37.136Z",
+      "serviceName": "sds/HOSS-geographic"
+    },
+    "output": {
+      "job_id": "60538c0c-0c79-4a3d-8fc8-1086b87ded7c",
+      "artifact": "hoss-gldas-soilmo-b01-200501.nc4",
+      "bytes": 36958,
+      "sha256": "1cb203e829a023680f6e423f7feb3ec54cbea5ae4445c29ef400b8d9f5cb3b21",
+      "credential_forwarding": false,
+      "created_utc": "2026-11-14T07:36:31.830Z",
+      "completed_utc": "2026-11-14T07:36:37.136Z",
+      "num_input_granules": 1
+    },
+    "inspection": {
+      "field": "SoilMoi0_10cm_inst",
+      "shape": [
+        1,
+        20,
+        20
+      ],
+      "units": "b'kg m-2'",
+      "lat_bounds": [
+        35.125,
+        39.875
+      ],
+      "lon_bounds": [
+        -99.875,
+        -95.125
+      ],
+      "decoded_sha256": "d1fcb81c71f8c823e624b7320967b744da2e0ac8f1efbe2e55fc9288685e3945",
+      "matches_independent_provider_subset_bytes": true,
+      "root_names": [
+        "lon",
+        "time",
+        "lat",
+        "bnds",
+        "SoilMoi0_10cm_inst",
+        "time_bnds"
+      ]
+    }
+  },
+  "hoss_airs_failed_probe": {
+    "submitted_utc": "2026-11-14T07:34:28.160508+00:00",
+    "request_url": "https://harmony.earthdata.nasa.gov/C1701805662-GES_DISC/ogc-api-coverages/1.0.0/collections/parameter_vars/coverage/rangeset?subset=lat%2835%3A40%29&subset=lon%28-100%3A-95%29&subset=time%28%222005-01-01T00%3A00%3A00%22%3A%222005-01-31T23%3A59%3A59%22%29&variable=V3939926423-GES_DISC%2CV3939926458-GES_DISC&granuleId=G1920804940-GES_DISC&format=application%2Fnetcdf&maxResults=1&forceAsync=true&skipPreview=true&ignoreErrors=false&label=earth-trend-f05-airs-hoss-200501",
+    "max_input_granules": 1,
+    "max_output_download_bytes": 4194304,
+    "acceptance": "failed_no_retry",
+    "route": "HOSS variable/bbox subset, not Giovanni averaging",
+    "http_status": 400,
+    "limitation": "HTTP 400 body not retained; cause unknown. This does not prove the advertised operation is unsupported. No automatic retry; approved Giovanni AIRS map succeeded."
+  },
+  "giovanni_label_reconciliation": {
+    "checked_utc": "2026-11-14T07:02:15.993333+00:00",
+    "job_label": "earth-trend-f05-b01-one-month",
+    "resubmitted": false,
+    "http_status": 200,
+    "total_matching_jobs": 0,
+    "matching_jobs": []
+  },
+  "giovanni_final_quota": {
+    "checked_utc": "2026-11-14T07:42:53.888826+00:00",
+    "fraction_used": 1.304e-06,
+    "reserved_stop_threshold": 0.9,
+    "jobs_submitted_during_check": 0
+  },
+  "appeears_tasks": [
+    {
+      "benchmark": "B01",
+      "request": {
+        "submitted_utc": "2026-11-14T07:05:07.193375+00:00",
+        "request": {
+          "task_type": "area",
+          "task_name": "earth-trend-f05-b01-200501",
+          "params": {
+            "dates": [
+              {
+                "startDate": "01-01-2005",
+                "endDate": "01-31-2005"
+              }
+            ],
+            "layers": [
+              {
+                "product": "MOD13A3.061",
+                "layer": "_1_km_monthly_NDVI"
+              },
+              {
+                "product": "MOD13A3.061",
+                "layer": "_1_km_monthly_VI_Quality"
+              },
+              {
+                "product": "MOD13A3.061",
+                "layer": "_1_km_monthly_pixel_reliability"
+              }
+            ],
+            "geo": {
+              "type": "FeatureCollection",
+              "features": [
+                {
+                  "type": "Feature",
+                  "properties": {
+                    "id": "B01"
+                  },
+                  "geometry": {
+                    "type": "Polygon",
+                    "coordinates": [
+                      [
+                        [
+                          -100,
+                          35
+                        ],
+                        [
+                          -95,
+                          35
+                        ],
+                        [
+                          -95,
+                          40
+                        ],
+                        [
+                          -100,
+                          40
+                        ],
+                        [
+                          -100,
+                          35
+                        ]
+                      ]
+                    ]
+                  }
+                }
+              ]
+            },
+            "output": {
+              "format": {
+                "type": "geotiff"
+              },
+              "projection": "geographic"
+            }
+          }
+        },
+        "max_download_object_bytes": 4194304,
+        "no_automatic_resubmit": true,
+        "http_status": 202,
+        "task_id": "60d7e7fe-e49c-45ab-88b6-8ac2bd99d11e",
+        "status": "pending"
+      },
+      "downloads": [
+        {
+          "file_id": "5113b63d-a4cd-488c-9fa6-587da1ccc592",
+          "file_name": "MOD13A3.061_2005001_to_2005031/MOD13A3.061__1_km_monthly_NDVI_doy2005001000000_aid0001.tif",
+          "file_size": 1023651,
+          "file_type": "tif",
+          "sha256": "061e4b27bfc4dc6be0d5ba2b5742b93803003d215948f5767d7921d71e5c6dd0",
+          "local_artifact": "B01-5113b63d-a4cd-488c-9fa6-587da1ccc592.tif",
+          "verified_size_and_sha256": true,
+          "credentials_forwarded_to_cdn": false
+        },
+        {
+          "file_id": "ce18399c-263d-41cb-9c25-62e0f6b55cba",
+          "file_name": "MOD13A3.061_2005001_to_2005031/MOD13A3.061__1_km_monthly_VI_Quality_doy2005001000000_aid0001.tif",
+          "file_size": 90687,
+          "file_type": "tif",
+          "sha256": "9d4d89e624013f9db07e7ffbc686b84da4c69e3b8601b7845ff00b9e831c9056",
+          "local_artifact": "B01-ce18399c-263d-41cb-9c25-62e0f6b55cba.tif",
+          "verified_size_and_sha256": true,
+          "credentials_forwarded_to_cdn": false
+        },
+        {
+          "file_id": "b17c0105-a649-488e-acd0-f09fbbc7fa4a",
+          "file_name": "MOD13A3.061_2005001_to_2005031/MOD13A3.061__1_km_monthly_pixel_reliability_doy2005001000000_aid0001.tif",
+          "file_size": 61194,
+          "file_type": "tif",
+          "sha256": "d2b7019389c78650fac0dc40445afa070569a010d82dd86c421a6f9e78c2f8f7",
+          "local_artifact": "B01-b17c0105-a649-488e-acd0-f09fbbc7fa4a.tif",
+          "verified_size_and_sha256": true,
+          "credentials_forwarded_to_cdn": false
+        },
+        {
+          "file_id": "617ad5d4-4f07-4f16-9974-9502b3f7ca99",
+          "file_name": "MOD13A3-061-1-km-monthly-VI-Quality-lookup.csv",
+          "file_size": 21484,
+          "file_type": "csv",
+          "sha256": "754419d458e6d5366ef73a2f194e3c5c56f05fe3235f3db0ce3786e7befb464e",
+          "local_artifact": "B01-617ad5d4-4f07-4f16-9974-9502b3f7ca99.csv",
+          "verified_size_and_sha256": true,
+          "credentials_forwarded_to_cdn": false
+        },
+        {
+          "file_id": "8f5e61c2-fe93-4d63-92f0-c1571a55f722",
+          "file_name": "MOD13A3-061-1-km-monthly-pixel-reliability-lookup.csv",
+          "file_size": 205,
+          "file_type": "csv",
+          "sha256": "b9b2508a953924e4f406a2e4cf4f8185eaa1f4eedcd2b7db996272b649a877ae",
+          "local_artifact": "B01-8f5e61c2-fe93-4d63-92f0-c1571a55f722.csv",
+          "verified_size_and_sha256": true,
+          "credentials_forwarded_to_cdn": false
+        },
+        {
+          "file_id": "7cccd8bd-befb-4cc3-85d7-accb5e05b7be",
+          "file_name": "MOD13A3-061-1-km-monthly-VI-Quality-Statistics-QA.csv",
+          "file_size": 1563,
+          "file_type": "csv",
+          "sha256": "0ab6a11ec4701cf3b56d833d50c493cadec50f45e4b77ada01dd3bf224443a83",
+          "local_artifact": "B01-7cccd8bd-befb-4cc3-85d7-accb5e05b7be.csv",
+          "verified_size_and_sha256": true,
+          "credentials_forwarded_to_cdn": false
+        },
+        {
+          "file_id": "20218785-2430-4c1f-ac1f-30e9b681f26e",
+          "file_name": "MOD13A3-061-1-km-monthly-pixel-reliability-Statistics-QA.csv",
+          "file_size": 137,
+          "file_type": "csv",
+          "sha256": "a178455b6b87b5b23a94e948987cee37c909ad6dcfdebd1a3c32a8b20b57de48",
+          "local_artifact": "B01-20218785-2430-4c1f-ac1f-30e9b681f26e.csv",
+          "verified_size_and_sha256": true,
+          "credentials_forwarded_to_cdn": false
+        },
+        {
+          "file_id": "018948ff-c86d-4d6a-b6ca-9cd90b480d82",
+          "file_name": "MOD13A3-061-Statistics.csv",
+          "file_size": 349,
+          "file_type": "csv",
+          "sha256": "c9d6eed7f944a18a13531a312aacfd6a7fb7ff4791d6407f3b75281e72ed8add",
+          "local_artifact": "B01-018948ff-c86d-4d6a-b6ca-9cd90b480d82.csv",
+          "verified_size_and_sha256": true,
+          "credentials_forwarded_to_cdn": false
+        },
+        {
+          "file_id": "759650e0-ff38-4d29-8e5c-42058b56b933",
+          "file_name": "earth-trend-f05-b01-200501-MOD13A3-061-metadata.xml",
+          "file_size": 22049,
+          "file_type": "xml",
+          "sha256": "113121196523ef5535025bb4a0677a4868310a1167a6dd10ac9ccbeba5a2c86d",
+          "local_artifact": "B01-759650e0-ff38-4d29-8e5c-42058b56b933.xml",
+          "verified_size_and_sha256": true,
+          "credentials_forwarded_to_cdn": false
+        }
+      ],
+      "inspection": {
+        "benchmark": "B01",
+        "tool": "Pillow",
+        "tool_version": "13.0.0",
+        "rasters": [
+          {
+            "file_name": "MOD13A3.061_2005001_to_2005031/MOD13A3.061__1_km_monthly_NDVI_doy2005001000000_aid0001.tif",
+            "source_sha256": "061e4b27bfc4dc6be0d5ba2b5742b93803003d215948f5767d7921d71e5c6dd0",
+            "size": [
+              601,
+              601
+            ],
+            "image_mode": "I",
+            "bits_per_sample": [
+              16
+            ],
+            "sample_format": [
+              2
+            ],
+            "pixel_count": 361201,
+            "nodata": -3000.0,
+            "finite_nonfill_count": 359883,
+            "raw_range": [
+              -2000,
+              7644
+            ],
+            "pixel_scale": [
+              0.008333333332579684,
+              0.008333333332579684,
+              0.0
+            ],
+            "tiepoint": [
+              0.0,
+              0.0,
+              0.0,
+              -100.0083333242888,
+              40.008333329715065,
+              0.0
+            ],
+            "gdal_metadata": {
+              "add_offset": "0.0",
+              "scale_factor": "0.0001",
+              "units": "NA",
+              "OFFSET": "0",
+              "SCALE": "0.000100000000000000005"
+            }
+          },
+          {
+            "file_name": "MOD13A3.061_2005001_to_2005031/MOD13A3.061__1_km_monthly_VI_Quality_doy2005001000000_aid0001.tif",
+            "source_sha256": "9d4d89e624013f9db07e7ffbc686b84da4c69e3b8601b7845ff00b9e831c9056",
+            "size": [
+              601,
+              601
+            ],
+            "image_mode": "I;16",
+            "bits_per_sample": [
+              16
+            ],
+            "sample_format": [
+              1
+            ],
+            "pixel_count": 361201,
+            "nodata": 65535.0,
+            "finite_nonfill_count": 360000,
+            "raw_range": [
+              2061,
+              57343
+            ],
+            "pixel_scale": [
+              0.008333333332579684,
+              0.008333333332579684,
+              0.0
+            ],
+            "tiepoint": [
+              0.0,
+              0.0,
+              0.0,
+              -100.0083333242888,
+              40.008333329715065,
+              0.0
+            ],
+            "gdal_metadata": {
+              "add_offset": "0",
+              "scale_factor": "1",
+              "units": "NA"
+            }
+          },
+          {
+            "file_name": "MOD13A3.061_2005001_to_2005031/MOD13A3.061__1_km_monthly_pixel_reliability_doy2005001000000_aid0001.tif",
+            "source_sha256": "d2b7019389c78650fac0dc40445afa070569a010d82dd86c421a6f9e78c2f8f7",
+            "size": [
+              601,
+              601
+            ],
+            "image_mode": "I",
+            "bits_per_sample": [
+              32
+            ],
+            "sample_format": [
+              2
+            ],
+            "pixel_count": 361201,
+            "nodata": -1.0,
+            "finite_nonfill_count": 359883,
+            "raw_range": [
+              0,
+              3
+            ],
+            "pixel_scale": [
+              0.008333333332579684,
+              0.008333333332579684,
+              0.0
+            ],
+            "tiepoint": [
+              0.0,
+              0.0,
+              0.0,
+              -100.0083333242888,
+              40.008333329715065,
+              0.0
+            ],
+            "gdal_metadata": {
+              "add_offset": "0",
+              "scale_factor": "1",
+              "units": "NA"
+            }
+          }
+        ],
+        "csv_headers": [
+          {
+            "file_name": "MOD13A3-061-1-km-monthly-VI-Quality-lookup.csv",
+            "header": [
+              "Value",
+              "MODLAND",
+              "VI Usefulness",
+              "Aerosol Quantity",
+              "Adjacent cloud detected",
+              "Atmosphere BRDF Correction",
+              "Mixed Clouds",
+              "Land/Water Mask",
+              "Possible snow/ice",
+              "Possible shadow"
+            ],
+            "data_rows": 175
+          },
+          {
+            "file_name": "MOD13A3-061-1-km-monthly-pixel-reliability-lookup.csv",
+            "header": [
+              "Value",
+              "MODLAND"
+            ],
+            "data_rows": 4
+          },
+          {
+            "file_name": "MOD13A3-061-1-km-monthly-VI-Quality-Statistics-QA.csv",
+            "header": [
+              "File",
+              "aid",
+              "Date",
+              "2061",
+              "2062",
+              "2065",
+              "2066",
+              "2112",
+              "2116",
+              "2118",
+              "2120",
+              "2122",
+              "2181",
+              "2185",
+              "2186",
+              "2189",
+              "2190",
+              "2257",
+              "2258",
+              "2261",
+              "2262",
+              "2321",
+              "2322",
+              "2325",
+              "2326",
+              "2372",
+              "2376",
+              "2378",
+              "2380",
+              "2441",
+              "2445",
+              "2446",
+              "2449",
+              "2513",
+              "2517",
+              "2518",
+              "2521",
+              "3098",
+              "3102",
+              "3150",
+              "3154",
+              "3158",
+              "3218",
+              "3222",
+              "3226",
+              "3294",
+              "3298",
+              "3414",
+              "3482",
+              "3554",
+              "4106",
+              "4109",
+              "4110",
+              "4114",
+              "4160",
+              "4164",
+              "4166",
+              "4168",
+              "4170",
+              "4233",
+              "4237",
+              "4365",
+              "4369",
+              "4370",
+              "4373",
+              "4374",
+              "5146",
+              "5202",
+              "5206",
+              "5270",
+              "5406",
+              "6153",
+              "6154",
+              "6157",
+              "6158",
+              "6161",
+              "6162",
+              "6208",
+              "6212",
+              "6216",
+              "6281",
+              "6282",
+              "6413",
+              "6417",
+              "6418",
+              "6421",
+              "6422",
+              "7190",
+              "7194",
+              "7198",
+              "7250",
+              "7254",
+              "7318",
+              "7454",
+              "7654",
+              "18449",
+              "18450",
+              "18453",
+              "18713",
+              "19486",
+              "19490",
+              "20497",
+              "20498",
+              "20501",
+              "20757",
+              "20761",
+              "22545",
+              "22546",
+              "22549",
+              "22550",
+              "22600",
+              "22669",
+              "22805",
+              "22809",
+              "23582",
+              "23586",
+              "23842",
+              "34837",
+              "34842",
+              "34888",
+              "34892",
+              "34896",
+              "34957",
+              "34961",
+              "34965",
+              "35033",
+              "35144",
+              "35148",
+              "35152",
+              "35156",
+              "35213",
+              "35217",
+              "35221",
+              "35225",
+              "35289",
+              "35293",
+              "35297",
+              "36070",
+              "36134",
+              "36258",
+              "36326",
+              "36330",
+              "36886",
+              "36890",
+              "36936",
+              "36940",
+              "36944",
+              "37009",
+              "37141",
+              "37145",
+              "37146",
+              "37192",
+              "37978",
+              "37982",
+              "38182",
+              "38929",
+              "38933",
+              "38938",
+              "38988",
+              "39057",
+              "39189",
+              "39193",
+              "39194",
+              "39197",
+              "39970",
+              "40026",
+              "40226",
+              "40230",
+              "51229",
+              "51489",
+              "53273",
+              "53533",
+              "53537",
+              "55295",
+              "55325",
+              "55581",
+              "55585",
+              "57343"
+            ],
+            "data_rows": 1
+          },
+          {
+            "file_name": "MOD13A3-061-1-km-monthly-pixel-reliability-Statistics-QA.csv",
+            "header": [
+              "File",
+              "aid",
+              "Date",
+              "0",
+              "1",
+              "2",
+              "3"
+            ],
+            "data_rows": 1
+          },
+          {
+            "file_name": "MOD13A3-061-Statistics.csv",
+            "header": [
+              "File Name",
+              "Dataset",
+              "aid",
+              "Date",
+              "Count",
+              "Minimum",
+              "Maximum",
+              "Range",
+              "Mean",
+              "Standard Deviation",
+              "Variance",
+              "Upper Quartile",
+              "Upper 1.5 IQR",
+              "Median",
+              "Lower 1.5 IQR",
+              "Lower Quartile"
+            ],
+            "data_rows": 1
+          }
+        ],
+        "scientific_admission": false,
+        "production_qa_policy_selected": false,
+        "ndvi_physical_range": [
+          -0.2,
+          0.7644000000000001
+        ],
+        "scale_applied_once_to_raster_only": 0.0001,
+        "unweighted_all_nonfill_mean": 0.3324495597180195,
+        "reliability_counts_within_nonfill_ndvi": {
+          "0": 205937,
+          "1": 145261,
+          "2": 3982,
+          "3": 4703
+        },
+        "modland_low_two_bit_counts_within_nonfill_ndvi": {
+          "0": 323871,
+          "1": 31309,
+          "2": 4703
+        },
+        "nonfill_ndvi_with_missing_quality": 0,
+        "nonfill_ndvi_with_missing_reliability": 0,
+        "csv_count": 359883.0,
+        "csv_mean_already_scaled": 0.3324496,
+        "csv_vs_raw_nonfill_mean_absolute_difference": 4.02819805289667e-08,
+        "csv_count_equals_nonfill_raster_count": true,
+        "csv_mean_matches_unfiltered_raster_at_reported_precision": true,
+        "csv_only_ingestion_admitted": false,
+        "reason": "Service CSV alone does not establish QA-filtered area-weighted support; retain QA rasters and calculate locally in D12/D14. Geographic output has edge cells; no claim that raw pixel count equals eligible area."
+      }
+    },
+    {
+      "benchmark": "B02",
+      "request": {
+        "submitted_utc": "2026-11-14T07:15:41.680688+00:00",
+        "request": {
+          "task_type": "area",
+          "task_name": "earth-trend-f05-b02-200501",
+          "params": {
+            "dates": [
+              {
+                "startDate": "01-01-2005",
+                "endDate": "01-31-2005"
+              }
+            ],
+            "layers": [
+              {
+                "product": "MOD13A3.061",
+                "layer": "_1_km_monthly_NDVI"
+              },
+              {
+                "product": "MOD13A3.061",
+                "layer": "_1_km_monthly_VI_Quality"
+              },
+              {
+                "product": "MOD13A3.061",
+                "layer": "_1_km_monthly_pixel_reliability"
+              }
+            ],
+            "geo": {
+              "type": "FeatureCollection",
+              "features": [
+                {
+                  "type": "Feature",
+                  "properties": {
+                    "id": "B02"
+                  },
+                  "geometry": {
+                    "type": "Polygon",
+                    "coordinates": [
+                      [
+                        [
+                          -91,
+                          42
+                        ],
+                        [
+                          -86,
+                          42
+                        ],
+                        [
+                          -86,
+                          47
+                        ],
+                        [
+                          -91,
+                          47
+                        ],
+                        [
+                          -91,
+                          42
+                        ]
+                      ]
+                    ]
+                  }
+                }
+              ]
+            },
+            "output": {
+              "format": {
+                "type": "geotiff"
+              },
+              "projection": "geographic"
+            }
+          }
+        },
+        "max_download_object_bytes": 4194304,
+        "no_automatic_resubmit": true,
+        "http_status": 202,
+        "task_id": "995b87c2-b86b-4f7e-8090-372e42aaae50",
+        "status": "pending"
+      },
+      "downloads": [
+        {
+          "file_id": "f9413252-5d10-4858-99b4-d8356496264d",
+          "file_name": "MOD13A3.061_2005001_to_2005031/MOD13A3.061__1_km_monthly_NDVI_doy2005001000000_aid0001.tif",
+          "file_size": 994453,
+          "file_type": "tif",
+          "sha256": "23af46dc12342b48a92b390adef83ebf6584a239848e23dfdd4fd73c34ac323d",
+          "local_artifact": "B02-f9413252-5d10-4858-99b4-d8356496264d.tif",
+          "verified_size_and_sha256": true,
+          "credentials_forwarded_to_cdn": false
+        },
+        {
+          "file_id": "8bdb60f9-9de4-43cc-8b22-8d760cd8ff37",
+          "file_name": "MOD13A3.061_2005001_to_2005031/MOD13A3.061__1_km_monthly_VI_Quality_doy2005001000000_aid0001.tif",
+          "file_size": 291698,
+          "file_type": "tif",
+          "sha256": "65ea9316e484d1321dac267ec8ea21ef179e87fbf71284ecf8f572f91a5ace29",
+          "local_artifact": "B02-8bdb60f9-9de4-43cc-8b22-8d760cd8ff37.tif",
+          "verified_size_and_sha256": true,
+          "credentials_forwarded_to_cdn": false
+        },
+        {
+          "file_id": "28d4b920-0bbc-4fb1-b893-3d7fc369d6c2",
+          "file_name": "MOD13A3.061_2005001_to_2005031/MOD13A3.061__1_km_monthly_pixel_reliability_doy2005001000000_aid0001.tif",
+          "file_size": 113583,
+          "file_type": "tif",
+          "sha256": "30367ce152f7ecd4843e94a28f13576cb3bdea7359d880e7efec3d07a2568e6d",
+          "local_artifact": "B02-28d4b920-0bbc-4fb1-b893-3d7fc369d6c2.tif",
+          "verified_size_and_sha256": true,
+          "credentials_forwarded_to_cdn": false
+        },
+        {
+          "file_id": "b6504206-4441-4e05-a718-fc2309d28375",
+          "file_name": "MOD13A3-061-1-km-monthly-VI-Quality-lookup.csv",
+          "file_size": 34460,
+          "file_type": "csv",
+          "sha256": "a2ee19940e920efa7a65c7ef27e86b9a057be183e8927c0ea6895b76b0ea6647",
+          "local_artifact": "B02-b6504206-4441-4e05-a718-fc2309d28375.csv",
+          "verified_size_and_sha256": true,
+          "credentials_forwarded_to_cdn": false
+        },
+        {
+          "file_id": "f89e1660-f757-4f8c-8f06-fdb33b2b4aca",
+          "file_name": "MOD13A3-061-1-km-monthly-pixel-reliability-lookup.csv",
+          "file_size": 205,
+          "file_type": "csv",
+          "sha256": "b9b2508a953924e4f406a2e4cf4f8185eaa1f4eedcd2b7db996272b649a877ae",
+          "local_artifact": "B02-f89e1660-f757-4f8c-8f06-fdb33b2b4aca.csv",
+          "verified_size_and_sha256": true,
+          "credentials_forwarded_to_cdn": false
+        },
+        {
+          "file_id": "3d4f6b15-8e54-4735-b91a-c46ee3049a57",
+          "file_name": "MOD13A3-061-1-km-monthly-VI-Quality-Statistics-QA.csv",
+          "file_size": 2626,
+          "file_type": "csv",
+          "sha256": "41e6d29c2f94c919565dc6a04bd63f3d4fcf6b3025a696f2502d225fedd1b4ed",
+          "local_artifact": "B02-3d4f6b15-8e54-4735-b91a-c46ee3049a57.csv",
+          "verified_size_and_sha256": true,
+          "credentials_forwarded_to_cdn": false
+        },
+        {
+          "file_id": "396c2027-085b-41e0-be5e-8a5a9257ab5e",
+          "file_name": "MOD13A3-061-1-km-monthly-pixel-reliability-Statistics-QA.csv",
+          "file_size": 137,
+          "file_type": "csv",
+          "sha256": "0aac55ba447b27eb43158223d2a26d041398486a3aca75b2f9a9f43d9e5a10f1",
+          "local_artifact": "B02-396c2027-085b-41e0-be5e-8a5a9257ab5e.csv",
+          "verified_size_and_sha256": true,
+          "credentials_forwarded_to_cdn": false
+        },
+        {
+          "file_id": "c8905dc5-9e1b-488c-af8c-d00ed9278e0f",
+          "file_name": "MOD13A3-061-Statistics.csv",
+          "file_size": 341,
+          "file_type": "csv",
+          "sha256": "39c79add30d0e9c3b2489ee5288c806d22c97144b8450c404c8ad4170f34e5bb",
+          "local_artifact": "B02-c8905dc5-9e1b-488c-af8c-d00ed9278e0f.csv",
+          "verified_size_and_sha256": true,
+          "credentials_forwarded_to_cdn": false
+        },
+        {
+          "file_id": "e62ff5b0-7424-44d1-a7dc-98cd391f5790",
+          "file_name": "earth-trend-f05-b02-200501-MOD13A3-061-metadata.xml",
+          "file_size": 22048,
+          "file_type": "xml",
+          "sha256": "0a8897966aebbd8bee86a0faa5970e413634a0e53cf4ee02ef0ad73632e17513",
+          "local_artifact": "B02-e62ff5b0-7424-44d1-a7dc-98cd391f5790.xml",
+          "verified_size_and_sha256": true,
+          "credentials_forwarded_to_cdn": false
+        }
+      ],
+      "inspection": {
+        "benchmark": "B02",
+        "tool": "Pillow",
+        "tool_version": "13.0.0",
+        "rasters": [
+          {
+            "file_name": "MOD13A3.061_2005001_to_2005031/MOD13A3.061__1_km_monthly_NDVI_doy2005001000000_aid0001.tif",
+            "source_sha256": "23af46dc12342b48a92b390adef83ebf6584a239848e23dfdd4fd73c34ac323d",
+            "size": [
+              601,
+              601
+            ],
+            "image_mode": "I",
+            "bits_per_sample": [
+              16
+            ],
+            "sample_format": [
+              2
+            ],
+            "pixel_count": 361201,
+            "nodata": -3000.0,
+            "finite_nonfill_count": 348603,
+            "raw_range": [
+              -2000,
+              10000
+            ],
+            "pixel_scale": [
+              0.00833333333258679,
+              0.00833333333258679,
+              0.0
+            ],
+            "tiepoint": [
+              0.0,
+              0.0,
+              0.0,
+              -91.00833332518033,
+              47.00833332912208,
+              0.0
+            ],
+            "gdal_metadata": {
+              "add_offset": "0.0",
+              "scale_factor": "0.0001",
+              "units": "NA",
+              "OFFSET": "0",
+              "SCALE": "0.000100000000000000005"
+            }
+          },
+          {
+            "file_name": "MOD13A3.061_2005001_to_2005031/MOD13A3.061__1_km_monthly_VI_Quality_doy2005001000000_aid0001.tif",
+            "source_sha256": "65ea9316e484d1321dac267ec8ea21ef179e87fbf71284ecf8f572f91a5ace29",
+            "size": [
+              601,
+              601
+            ],
+            "image_mode": "I;16",
+            "bits_per_sample": [
+              16
+            ],
+            "sample_format": [
+              1
+            ],
+            "pixel_count": 361201,
+            "nodata": 65535.0,
+            "finite_nonfill_count": 360000,
+            "raw_range": [
+              2061,
+              61439
+            ],
+            "pixel_scale": [
+              0.00833333333258679,
+              0.00833333333258679,
+              0.0
+            ],
+            "tiepoint": [
+              0.0,
+              0.0,
+              0.0,
+              -91.00833332518033,
+              47.00833332912208,
+              0.0
+            ],
+            "gdal_metadata": {
+              "add_offset": "0",
+              "scale_factor": "1",
+              "units": "NA"
+            }
+          },
+          {
+            "file_name": "MOD13A3.061_2005001_to_2005031/MOD13A3.061__1_km_monthly_pixel_reliability_doy2005001000000_aid0001.tif",
+            "source_sha256": "30367ce152f7ecd4843e94a28f13576cb3bdea7359d880e7efec3d07a2568e6d",
+            "size": [
+              601,
+              601
+            ],
+            "image_mode": "I",
+            "bits_per_sample": [
+              32
+            ],
+            "sample_format": [
+              2
+            ],
+            "pixel_count": 361201,
+            "nodata": -1.0,
+            "finite_nonfill_count": 348603,
+            "raw_range": [
+              0,
+              3
+            ],
+            "pixel_scale": [
+              0.00833333333258679,
+              0.00833333333258679,
+              0.0
+            ],
+            "tiepoint": [
+              0.0,
+              0.0,
+              0.0,
+              -91.00833332518033,
+              47.00833332912208,
+              0.0
+            ],
+            "gdal_metadata": {
+              "add_offset": "0",
+              "scale_factor": "1",
+              "units": "NA"
+            }
+          }
+        ],
+        "csv_headers": [
+          {
+            "file_name": "MOD13A3-061-1-km-monthly-VI-Quality-lookup.csv",
+            "header": [
+              "Value",
+              "MODLAND",
+              "VI Usefulness",
+              "Aerosol Quantity",
+              "Adjacent cloud detected",
+              "Atmosphere BRDF Correction",
+              "Mixed Clouds",
+              "Land/Water Mask",
+              "Possible snow/ice",
+              "Possible shadow"
+            ],
+            "data_rows": 275
+          },
+          {
+            "file_name": "MOD13A3-061-1-km-monthly-pixel-reliability-lookup.csv",
+            "header": [
+              "Value",
+              "MODLAND"
+            ],
+            "data_rows": 4
+          },
+          {
+            "file_name": "MOD13A3-061-1-km-monthly-VI-Quality-Statistics-QA.csv",
+            "header": [
+              "File",
+              "aid",
+              "Date",
+              "2061",
+              "2062",
+              "2065",
+              "2066",
+              "2118",
+              "2122",
+              "2185",
+              "2186",
+              "2189",
+              "2190",
+              "2257",
+              "2258",
+              "2261",
+              "2262",
+              "2321",
+              "2322",
+              "2325",
+              "2326",
+              "2378",
+              "2382",
+              "2445",
+              "2446",
+              "2449",
+              "2450",
+              "2517",
+              "2518",
+              "2521",
+              "2522",
+              "3098",
+              "3102",
+              "3154",
+              "3222",
+              "3226",
+              "3294",
+              "3298",
+              "3358",
+              "3362",
+              "3414",
+              "3482",
+              "3486",
+              "3554",
+              "3558",
+              "4109",
+              "4110",
+              "4113",
+              "4114",
+              "4164",
+              "4166",
+              "4170",
+              "4237",
+              "4309",
+              "4369",
+              "4370",
+              "4373",
+              "4374",
+              "5146",
+              "5150",
+              "5202",
+              "5206",
+              "5274",
+              "5406",
+              "5410",
+              "6157",
+              "6158",
+              "6161",
+              "6162",
+              "6212",
+              "6214",
+              "6216",
+              "6218",
+              "6281",
+              "6285",
+              "6353",
+              "6354",
+              "6357",
+              "6417",
+              "6418",
+              "6421",
+              "6422",
+              "6541",
+              "6545",
+              "6613",
+              "6614",
+              "6617",
+              "7194",
+              "7198",
+              "7254",
+              "7390",
+              "7394",
+              "7454",
+              "7458",
+              "7650",
+              "7654",
+              "18449",
+              "18450",
+              "18453",
+              "18454",
+              "18504",
+              "18573",
+              "18645",
+              "18649",
+              "18706",
+              "18709",
+              "18710",
+              "18713",
+              "18768",
+              "18905",
+              "18909",
+              "19486",
+              "19490",
+              "19742",
+              "20497",
+              "20498",
+              "20501",
+              "20502",
+              "20552",
+              "20754",
+              "20757",
+              "20761",
+              "21530",
+              "21534",
+              "21538",
+              "21790",
+              "21794",
+              "21798",
+              "22545",
+              "22546",
+              "22549",
+              "22550",
+              "22600",
+              "22805",
+              "22806",
+              "22809",
+              "22810",
+              "23582",
+              "23586",
+              "23842",
+              "23846",
+              "34837",
+              "34838",
+              "34841",
+              "34842",
+              "34961",
+              "34962",
+              "34965",
+              "34966",
+              "35033",
+              "35034",
+              "35037",
+              "35038",
+              "35093",
+              "35094",
+              "35097",
+              "35098",
+              "35101",
+              "35102",
+              "35156",
+              "35218",
+              "35221",
+              "35222",
+              "35225",
+              "35226",
+              "35293",
+              "35294",
+              "35297",
+              "35298",
+              "35874",
+              "35878",
+              "35998",
+              "36070",
+              "36074",
+              "36126",
+              "36130",
+              "36134",
+              "36138",
+              "36254",
+              "36258",
+              "36330",
+              "36334",
+              "36885",
+              "36886",
+              "36889",
+              "36890",
+              "36940",
+              "36946",
+              "37013",
+              "37142",
+              "37145",
+              "37146",
+              "37149",
+              "37150",
+              "37922",
+              "37926",
+              "37978",
+              "37982",
+              "38050",
+              "38178",
+              "38182",
+              "38186",
+              "38933",
+              "38934",
+              "38937",
+              "38938",
+              "38988",
+              "38992",
+              "39057",
+              "39129",
+              "39130",
+              "39133",
+              "39189",
+              "39190",
+              "39193",
+              "39194",
+              "39197",
+              "39198",
+              "39317",
+              "39389",
+              "39390",
+              "39393",
+              "39394",
+              "39970",
+              "39974",
+              "40094",
+              "40166",
+              "40222",
+              "40226",
+              "40230",
+              "40234",
+              "40426",
+              "40430",
+              "51225",
+              "51229",
+              "51421",
+              "51425",
+              "51477",
+              "51481",
+              "51482",
+              "51485",
+              "51489",
+              "51544",
+              "51609",
+              "51613",
+              "51681",
+              "51685",
+              "53273",
+              "53277",
+              "53278",
+              "53328",
+              "53525",
+              "53529",
+              "53530",
+              "53533",
+              "53537",
+              "54566",
+              "54570",
+              "54574",
+              "55295",
+              "55321",
+              "55322",
+              "55325",
+              "55326",
+              "55380",
+              "55577",
+              "55578",
+              "55581",
+              "55582",
+              "55585",
+              "55586",
+              "55781",
+              "56358",
+              "56614",
+              "56618",
+              "56622",
+              "57343",
+              "61439"
+            ],
+            "data_rows": 1
+          },
+          {
+            "file_name": "MOD13A3-061-1-km-monthly-pixel-reliability-Statistics-QA.csv",
+            "header": [
+              "File",
+              "aid",
+              "Date",
+              "0",
+              "1",
+              "2",
+              "3"
+            ],
+            "data_rows": 1
+          },
+          {
+            "file_name": "MOD13A3-061-Statistics.csv",
+            "header": [
+              "File Name",
+              "Dataset",
+              "aid",
+              "Date",
+              "Count",
+              "Minimum",
+              "Maximum",
+              "Range",
+              "Mean",
+              "Standard Deviation",
+              "Variance",
+              "Upper Quartile",
+              "Upper 1.5 IQR",
+              "Median",
+              "Lower 1.5 IQR",
+              "Lower Quartile"
+            ],
+            "data_rows": 1
+          }
+        ],
+        "scientific_admission": false,
+        "production_qa_policy_selected": false,
+        "ndvi_physical_range": [
+          -0.2,
+          1.0
+        ],
+        "scale_applied_once_to_raster_only": 0.0001,
+        "unweighted_all_nonfill_mean": 0.08833256024761693,
+        "reliability_counts_within_nonfill_ndvi": {
+          "0": 190,
+          "1": 40882,
+          "2": 187427,
+          "3": 120104
+        },
+        "modland_low_two_bit_counts_within_nonfill_ndvi": {
+          "0": 267,
+          "1": 228232,
+          "2": 120104
+        },
+        "nonfill_ndvi_with_missing_quality": 0,
+        "nonfill_ndvi_with_missing_reliability": 0,
+        "csv_count": 348603.0,
+        "csv_mean_already_scaled": 0.0883326,
+        "csv_vs_raw_nonfill_mean_absolute_difference": 3.975238306586082e-08,
+        "csv_count_equals_nonfill_raster_count": true,
+        "csv_mean_matches_unfiltered_raster_at_reported_precision": true,
+        "csv_only_ingestion_admitted": false,
+        "reason": "Service CSV alone does not establish QA-filtered area-weighted support; retain QA rasters and calculate locally in D12/D14. Geographic output has edge cells; no claim that raw pixel count equals eligible area."
+      }
+    }
+  ],
+  "appeears_terminal_states": [
+    {
+      "name": "appeears-b01",
+      "checked_utc": "2026-11-14T07:15:04.727634+00:00",
+      "status": "done",
+      "task_id": "60d7e7fe-e49c-45ab-88b6-8ac2bd99d11e",
+      "estimate": {
+        "request_size": 7174646.779826124,
+        "request_tier": 0,
+        "request_memory": 1
+      },
+      "created": "2026-11-14T07:05:07.903533",
+      "updated": "2026-11-14T07:14:20.221533"
+    },
+    {
+      "name": "appeears-b02",
+      "checked_utc": "2026-11-14T07:30:43.150479+00:00",
+      "status": "done",
+      "task_id": "995b87c2-b86b-4f7e-8090-372e42aaae50",
+      "estimate": {
+        "request_size": 6891931.470455579,
+        "request_tier": 0,
+        "request_memory": 1
+      },
+      "created": "2026-11-14T07:15:42.399092",
+      "updated": "2026-11-14T07:18:27.524995"
+    }
+  ],
+  "preflight_dependency_inventory": [
+    {
+      "name": "h5py",
+      "version": "3.15.1",
+      "license_expression": "BSD-3-Clause",
+      "license_field": null,
+      "license_classifiers": []
+    },
+    {
+      "name": "numcodecs",
+      "version": "0.16.3",
+      "license_expression": "MIT",
+      "license_field": null,
+      "license_classifiers": []
+    },
+    {
+      "name": "numpy",
+      "version": "2.5.4",
+      "license_expression": "BSD-3-Clause AND 0BSD AND MIT AND Zlib AND CC0-1.0",
+      "license_field": null,
+      "license_classifiers": []
+    },
+    {
+      "name": "pillow",
+      "version": "13.0.0",
+      "license_expression": "MIT-CMU",
+      "license_field": null,
+      "license_classifiers": []
+    },
+    {
+      "name": "typing_extensions",
+      "version": "4.16.0",
+      "license_expression": "PSF-2.0",
+      "license_field": null,
+      "license_classifiers": []
+    }
+  ],
+  "measured_provider_job_seconds": {
+    "giovanni_one_month_series": 769.384,
+    "giovanni_one_month_global_airs_map": 253.029,
+    "hoss_one_granule_gldas_subset": 5.306
+  },
+  "capacity_sizing_scenarios_not_verified_releases": [
+    {
+      "variables": [
+        "V01"
+      ],
+      "start": "1981-01",
+      "end": "2026-09",
+      "month_count": 549,
+      "availability_status": "Sample-point last finite month only; global completeness unverified",
+      "analysis_values_float32_uncompressed_bytes": 456627456,
+      "includes_qa_coverage_flags_or_staging": false
+    },
+    {
+      "variables": [
+        "V02"
+      ],
+      "start": "1983-01",
+      "end": "2024-09",
+      "month_count": 501,
+      "availability_status": "Approved fixed cutoff; whole-window granule completeness unverified",
+      "analysis_values_float32_uncompressed_bytes": 519436800,
+      "includes_qa_coverage_flags_or_staging": false,
+      "sample_whole_source_file_times_period_count_bytes": 3912889659,
+      "source_file_count_illustration": 501,
+      "sample_compression_varies": true
+    },
+    {
+      "variables": [
+        "V03"
+      ],
+      "start": "2001-01",
+      "end": "2025-09",
+      "month_count": 297,
+      "availability_status": "Approved fixed cutoff; whole-window granule completeness unverified",
+      "analysis_values_float32_uncompressed_bytes": 307929600,
+      "includes_qa_coverage_flags_or_staging": false,
+      "sample_whole_source_file_times_period_count_bytes": 5354596665,
+      "source_file_count_illustration": 297,
+      "sample_compression_varies": true
+    },
+    {
+      "variables": [
+        "V04",
+        "V05",
+        "V06",
+        "V07"
+      ],
+      "start": "2001-03",
+      "end": "2026-07",
+      "month_count": 305,
+      "availability_status": "End is a sizing assumption, not verified availability",
+      "analysis_values_float32_uncompressed_bytes": 1054080000,
+      "includes_qa_coverage_flags_or_staging": false,
+      "sample_whole_source_file_times_period_count_bytes": 7648136995,
+      "source_file_count_illustration": 305,
+      "sample_compression_varies": true
+    },
+    {
+      "variables": [
+        "V08"
+      ],
+      "start": "2002-09",
+      "end": "2026-07",
+      "month_count": 287,
+      "availability_status": "End is a sizing assumption, not verified availability",
+      "analysis_values_float32_uncompressed_bytes": 74390400,
+      "includes_qa_coverage_flags_or_staging": false,
+      "sample_whole_source_file_times_period_count_bytes": 60594734760,
+      "source_file_count_illustration": 287,
+      "sample_compression_varies": true,
+      "actual_map_sample_bytes_times_months": 74867968,
+      "observed_cold_serial_map_seconds_times_months": 72619.323,
+      "throughput_limitation": "One cold job, not sustained or parallel throughput; do not claim event build can finish from this estimate."
+    },
+    {
+      "variables": [
+        "V09"
+      ],
+      "start": "2005-01",
+      "end": "2026-07",
+      "month_count": 259,
+      "availability_status": "End is a sizing assumption; source is daily, output monthly",
+      "analysis_values_float32_uncompressed_bytes": 268531200,
+      "includes_qa_coverage_flags_or_staging": false,
+      "sample_whole_source_file_times_period_count_bytes": 110190170832,
+      "source_file_count_illustration": 7882,
+      "sample_compression_varies": true
+    },
+    {
+      "variables": [
+        "V10"
+      ],
+      "start": "2002-01",
+      "end": "2026-07",
+      "month_count": 295,
+      "availability_status": "Demo-start sizing scenario; end unverified",
+      "analysis_values_float32_uncompressed_bytes": 245364480,
+      "includes_qa_coverage_flags_or_staging": false,
+      "sample_whole_source_file_times_period_count_bytes": 18285342245,
+      "source_file_count_illustration": 295,
+      "sample_compression_varies": true
+    },
+    {
+      "variables": [
+        "V11"
+      ],
+      "start": "2002-07",
+      "end": "2026-07",
+      "month_count": 289,
+      "availability_status": "End is a sizing assumption, not verified availability",
+      "analysis_values_float32_uncompressed_bytes": 299635200,
+      "includes_qa_coverage_flags_or_staging": false,
+      "sample_whole_source_file_times_period_count_bytes": 4636217475,
+      "source_file_count_illustration": 289,
+      "sample_compression_varies": true
+    },
+    {
+      "variables": [
+        "V12"
+      ],
+      "start": "2001-01",
+      "end": "2026-07",
+      "month_count": 307,
+      "availability_status": "Sample-point last finite month only; global completeness unverified",
+      "analysis_values_float32_uncompressed_bytes": 79574400,
+      "includes_qa_coverage_flags_or_staging": false
+    }
+  ],
+  "scenario_values_total_bytes": 3305569536,
+  "scenario_values_plus_coverage_flags_2_to_3x_bytes": [
+    6611139072,
+    9916708608
+  ],
+  "case_v13_projection": {
+    "actual_two_probe_download_bytes": 2680870,
+    "hypothetical_252_months_both_benchmarks_bytes": 675579240,
+    "whole_window_not_submitted": true,
+    "final_presets_not_selected": true,
+    "qa_filtered_month_eligibility_not_established": true,
+    "queue_time_not_linear_in_month_count": true
+  },
+  "case_seawifs_projection": {
+    "candidate_months": 120,
+    "sample_whole_file_times_120_bytes": 1638868560,
+    "not_a_box_subset_transfer_measurement": true,
+    "paper_reproduction_not_run": true
+  },
+  "code_hash_normalization": "CRLF normalized to LF",
+  "tool_source_sha256": {
+    "scripts/provider_preflight.py": "a7fba3e0d8a1477eed183a81320b286b19d01044e2d42d8983029f77b6e4aa77",
+    "scripts/tests/test_preflight_ranges.py": "9a4bf279f887474f9b49a40b06c1add5749dcb0ac93c1d9bae807b408013d419",
+    "scripts/tests/test_provider_preflight.py": "5e4fb395c8ae752d4f3346506790d8dcb4df6e4005b1eb20ab049d1f377c7c71",
+    "validation/preflight/inspect_appeears.py": "133cd641b5f7003db6ccab2a89dd90c31dd15f0e3ebe0203065030c196c84386",
+    "validation/preflight/inspect_power.py": "547f89b5f933a3f4587598567c778b6413597c61a3fa2b12fac8661996d2f0a6",
+    "validation/preflight/inspect_sources.py": "5c9680f8dfaa6fadfb3b5435062ba265e08527d2a1f73513ddc49c01f1ab8096",
+    "validation/preflight/tests/test_inspections.py": "0140323dbe44b13daa776141abe73b8d979e6a04421044c72a9489354f631d44",
+    "validation/preflight/pyproject.toml": "c64af16257590e13a2335cebc19dda0d959f93782897de5ceadb11c872d97f26",
+    "validation/preflight/uv.lock": "9600a64e0c68eb09d17b2faa3574ad6346e266bc28ef7851b50710eb48848abd",
+    "validation/preflight/.python-version": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14"
+  },
+  "retained_artifact_hashes": {
+    "airs-followup-manifest.json": "b4339c0b95d789c3aa756bdb1145a379292b48a3f40298b17a296adc70676be6",
+    "AIRS3STM-authenticated-header.bin": "aae9dcbb30e9a767231303df950a21acb8c0dd8dcbd2d0a918ef57ebf746d665",
+    "AIRS3STM-collection.json": "70410e1fc6c9f0def0e06b7656b0195bdc248ad5eb897c50fd298c99e771cbb0",
+    "AIRS3STM-exact-month.json": "b10f3b354f5379eb1b945e73ca377fd9d224d92d87628ec1e2ac857c98335296",
+    "AIRS3STM-granule.json": "616b0d64a9e3d6fa7c728583b3f43246d70661708976e7b4b3bf763437179f24",
+    "AIRS3STM-harmony.json": "756ea72e35fb7a0fb5873c687cd673a513e85adb44e82e6d9a206a76f641b7c1",
+    "AIRS3STM-month-pattern.json": "d043908563804aa4fa00f1aae55da942b3bf05caf7ca54ce762ecff52fbfda21",
+    "appeears-b01-bundle.json": "76156e624d34a98e1a8a71e84f362da7a7d74f2495575018d25bb06ded4b366f",
+    "appeears-b01-downloads.json": "77488b3804b7dc9d66d9617942853188a36f23923968dd17c60149a520e6ad89",
+    "appeears-b01-inspection.json": "6754fbcffda0c083adffcfac829d5ff62decb61e9eef73720d6dc51a7e2933b6",
+    "appeears-b01-request.json": "46f41d8e36ec44863c7222e262bf8c56706aac96f3b305fb95886f99aaa6d8ed",
+    "appeears-b02-bundle.json": "5c8e027f67f784f8a7a025b7a11a5c5422125d6875f91a7b8a01871f987ac745",
+    "appeears-b02-downloads.json": "4b15ea166d1edabf6d7cd8ab7799ae8544af5b03fbfd1a3d1f172313b89f6e33",
+    "appeears-b02-inspection.json": "b0a1dc895feef2ff53c9a800aeff8bc1bddaac49b2b0b5126e33a176a15bcc57",
+    "appeears-b02-request.json": "b3de580a47ea701341234039fe1a724fe033610ffd0359b33a58f946e309ce23",
+    "AppEEARS-MOD13A3.json": "6db022f95baae707ca8e00433a1631760a4ffc0732b84a019a56fd1313e3a8aa",
+    "authenticated-range-manifest.json": "dfdb2562868785022dc5b2b83cde8f335081d59c3cd9ec3aefd53788277f40a6",
+    "B01-018948ff-c86d-4d6a-b6ca-9cd90b480d82.csv": "c9d6eed7f944a18a13531a312aacfd6a7fb7ff4791d6407f3b75281e72ed8add",
+    "B01-20218785-2430-4c1f-ac1f-30e9b681f26e.csv": "a178455b6b87b5b23a94e948987cee37c909ad6dcfdebd1a3c32a8b20b57de48",
+    "B01-5113b63d-a4cd-488c-9fa6-587da1ccc592.tif": "061e4b27bfc4dc6be0d5ba2b5742b93803003d215948f5767d7921d71e5c6dd0",
+    "B01-617ad5d4-4f07-4f16-9974-9502b3f7ca99.csv": "754419d458e6d5366ef73a2f194e3c5c56f05fe3235f3db0ce3786e7befb464e",
+    "B01-759650e0-ff38-4d29-8e5c-42058b56b933.xml": "113121196523ef5535025bb4a0677a4868310a1167a6dd10ac9ccbeba5a2c86d",
+    "B01-7cccd8bd-befb-4cc3-85d7-accb5e05b7be.csv": "0ab6a11ec4701cf3b56d833d50c493cadec50f45e4b77ada01dd3bf224443a83",
+    "B01-8f5e61c2-fe93-4d63-92f0-c1571a55f722.csv": "b9b2508a953924e4f406a2e4cf4f8185eaa1f4eedcd2b7db996272b649a877ae",
+    "B01-b17c0105-a649-488e-acd0-f09fbbc7fa4a.tif": "d2b7019389c78650fac0dc40445afa070569a010d82dd86c421a6f9e78c2f8f7",
+    "B01-ce18399c-263d-41cb-9c25-62e0f6b55cba.tif": "9d4d89e624013f9db07e7ffbc686b84da4c69e3b8601b7845ff00b9e831c9056",
+    "B02-28d4b920-0bbc-4fb1-b893-3d7fc369d6c2.tif": "30367ce152f7ecd4843e94a28f13576cb3bdea7359d880e7efec3d07a2568e6d",
+    "B02-396c2027-085b-41e0-be5e-8a5a9257ab5e.csv": "0aac55ba447b27eb43158223d2a26d041398486a3aca75b2f9a9f43d9e5a10f1",
+    "B02-3d4f6b15-8e54-4735-b91a-c46ee3049a57.csv": "41e6d29c2f94c919565dc6a04bd63f3d4fcf6b3025a696f2502d225fedd1b4ed",
+    "B02-8bdb60f9-9de4-43cc-8b22-8d760cd8ff37.tif": "65ea9316e484d1321dac267ec8ea21ef179e87fbf71284ecf8f572f91a5ace29",
+    "B02-b6504206-4441-4e05-a718-fc2309d28375.csv": "a2ee19940e920efa7a65c7ef27e86b9a057be183e8927c0ea6895b76b0ea6647",
+    "B02-c8905dc5-9e1b-488c-af8c-d00ed9278e0f.csv": "39c79add30d0e9c3b2489ee5288c806d22c97144b8450c404c8ad4170f34e5bb",
+    "B02-e62ff5b0-7424-44d1-a7dc-98cd391f5790.xml": "0a8897966aebbd8bee86a0faa5970e413634a0e53cf4ee02ef0ad73632e17513",
+    "B02-f89e1660-f757-4f8c-8f06-fdb33b2b4aca.csv": "b9b2508a953924e4f406a2e4cf4f8185eaa1f4eedcd2b7db996272b649a877ae",
+    "B02-f9413252-5d10-4858-99b4-d8356496264d.tif": "23af46dc12342b48a92b390adef83ebf6584a239848e23dfdd4fd73c34ac323d",
+    "followup-manifest.json": "389e2e06be2109cad06413b524dd819d3c0050310529946ddad8b3f01425f2f9",
+    "giovanni-airs-200501.tif": "038197488db8a216e1943ac3fcbbd0ad037fcfe253800ad9b5169f3bf16fdc7d",
+    "giovanni-b01-soilmo-200501.csv": "ffeb57a657caf5b560cd87a5050130d8a29fd1ff551a8a250694881c20896492",
+    "giovanni-corrected-reconciliation.json": "2a889e29b65c8373f1217e574ca04bb32e8c4e5af1c38bb6a518119ba05c6fcc",
+    "giovanni-final-quota.json": "d1033cdcdf87f4ac0ef417a8fc6ac3c1c3163ea2b715e022422483120a66def5",
+    "giovanni-job-reconciliation.json": "e19ffd5e73a8a56f6d51709bb85fb17b9fb5b6b6891e595231f1bb5e5704b820",
+    "giovanni-label-reconciliation.json": "203c3cb94235141212c61f66a2f3bcea5d0072c4d20980ee38cf36fce86ab175",
+    "giovanni-map-inspection.json": "7bf1cd672cb9988a8ef521d0b08e52c2e9423d299cb78f12e2f7d9116d590a7f",
+    "giovanni-map-job.json": "fda480497c64fb3c563d1607b334f20d35da8c878a08ac672dbe1f0cdf17b837",
+    "giovanni-map-output.json": "93dee6788dcde10e2aa5f9f4e1b7e01b7a3256355806b58489e1aa0a1b80b50d",
+    "giovanni-progress-3.json": "3bab157a92410c7e694c82dac6c040875cb5512c63a906d1ef2a88f1c5b8f2d7",
+    "giovanni-recheck.json": "cb2d83e4265c2a05c34107faa600e7b8f4f0f1771a3714cf2c77e3e69ed2f86a",
+    "giovanni-series-corrected.json": "cd6c3c0c5b6b2d92cc5255b51958fed1b62f23b572dea2d8479e277bf1bf832a",
+    "giovanni-series-job.json": "3039fb8cc04545749097391a9f793ff464bac6487d85c053cc0f72bada1e064f",
+    "giovanni-series-output.json": "890f1013c463a19668ebce3e4b22238b51fba330904805e6d5c941ad4b938432",
+    "Giovanni-variables.json": "b7fce83e82211f1f2fb9eed6bd93517a3905c557229cb1d862e9fad68c66d8f8",
+    "gldas-giovanni-reference.json": "efae3f8245420da7d3238cd402415b70f229695e49b2cd02427f3c8db2464a73",
+    "GLDAS_NOAH025_M-authenticated-header.bin": "8f4f504cf850d4bf609f16c7b36d8d61d028b99dae05796bc0663fe51ef48e41",
+    "GLDAS_NOAH025_M-collection.json": "eb296a7c60f483a2a84565104307f2f8a1e49cfcdefd358e1c5c6f770c7ff2ec",
+    "GLDAS_NOAH025_M-granule.json": "7939356dc9f8a46d5c1a1387579dffdce4bbc72e27456b0bb1a443e3d05a7cfc",
+    "GLDAS_NOAH025_M-harmony.json": "68f582c9dfc46193263d69406fdf56bff82946803b52d2cc7942b1f06c198c98",
+    "GPCPMON-authenticated-header.bin": "1c3ff574688cc2c54d2d554e9065250db8161d7eccf7138090fa6afd180f9d73",
+    "GPCPMON-collection.json": "3185c36f5b389a37f2b5f440e5c9cb8aa533db9649634c7836e9189a4629fcfb",
+    "GPCPMON-granule.json": "653ec07011f711c1c3a1d4b3224895317fb52abdf0d629ae7caa9c878ba16245",
+    "GPCPMON-harmony.json": "0eb4a09fe337549e440c45da4bad0793d33fbb208c8661f1134e82b679781609",
+    "GPM_3IMERGM-authenticated-header.bin": "ba905324ea837ec8f4b422bb66f9d020f248857f750a19b8715d61e56e979d4a",
+    "GPM_3IMERGM-collection.json": "fc9e5cfd409a1d7f0df73f551ca3fa6decda5986a4bd8185d9d94ae4dce3cadf",
+    "GPM_3IMERGM-granule.json": "711f1a27ee649eb54e0d9b0e889912da92de089c03cdd138e9448c1e34245ac1",
+    "GPM_3IMERGM-harmony.json": "b2254703c6a706a12f60e60a391f9994a0f9c9702c8de7cfb6edd0e99cd6f8b7",
+    "hoss-airs-subset-job.json": "722dbdbce7b51f06408be73d7cac38641ceb6cb5d15bde54d56eefdd30a327fb",
+    "hoss-gldas-inspection.json": "f34958854f24253343ba61d4be87bdb5b4df8400f2a90b803c776e3f326c6a0d",
+    "hoss-gldas-output.json": "6a2b45a4263456b487af8d6bb02daadfb5ae49502a9da548a5983922fa5e3d2a",
+    "hoss-gldas-progress.json": "9735b8ab6ba412b597040116a0e4bade6f21bbdfebf8964b1f3ea685035844cf",
+    "hoss-gldas-soilmo-b01-200501.nc4": "1cb203e829a023680f6e423f7feb3ec54cbea5ae4445c29ef400b8d9f5cb3b21",
+    "hoss-gldas-subset-job.json": "2ed2614ec133d357b365d9b194d4101e2784cc0b78e2d8bb594f329414d7a0e7",
+    "jobs-progress-1.json": "3b909faf08cb8169e78f514c47f26355cea9ff5aab4c8a8222288fb474fd6739",
+    "jobs-progress-2.json": "954b6a1ae13bfd914db6df4646001b4f3f2b29c44bb8ccecd9a519c51ef3ea00",
+    "jobs-progress-4.json": "de0fd2bd6486423b242b66643196bc571fe70b449434cdcf68531e86b8968a99",
+    "M2TMNXAER-authenticated-header.bin": "e73468cdba8097ed5501a00839438c9a14aefd00286915c8e42f141b56d02d55",
+    "M2TMNXAER-collection.json": "7a9d53d9f222e42f92bc739e7f959ab850e34337102963d658bcdda2c7e6a11c",
+    "M2TMNXAER-granule.json": "69f06fc415aa9cdfdeebc0293416ebc11638d7fb73bd8db74047dba803694fd9",
+    "M2TMNXAER-harmony.json": "61996c2c9b43c4e4c4d1c0e89a2a98db19b34357addd2904398f9045c701041f",
+    "manifest.json": "ced7f9c257c047844cf0f24b41d4aaec70c63ed521396d549ad5d673844f65da",
+    "MODISA_L3m_CHL-authenticated-header.bin": "83046933c75cf73cfb9f5b8585bbc9ef9204e51694e30932007fb1be597d06f0",
+    "MODISA_L3m_CHL-collection.json": "e971c9285444897e34d9ca689bd03d1e942e3a7eaf0dab1581a90ab1e63cb1ff",
+    "MODISA_L3m_CHL-exact-month.json": "af880b4b3dc8864169d6b033dbdde709d72232b382af729011e2325e76ab7cda",
+    "MODISA_L3m_CHL-granule.json": "6498c094faf1434806e93d26246ae531f24fdd99712684632a4ea972ebd65527",
+    "MODISA_L3m_CHL-harmony.json": "67941bcf77b7d28e675cb132575552fb04429183e8befcfc4a10a4a0a051d012",
+    "obdaac-range-manifest.json": "a03e34abd6940c9f5e0ce984d330ffe26cfdc3791a0d9920363a58f6dab6c233",
+    "OMNO2d-authenticated-header.bin": "ff6d69229f5e9a3ba5d5d42875cb8181935bea8afd74d0e98dc53c5345fbba1b",
+    "OMNO2d-collection.json": "f5d826db9cc9d966970aa5ec79da91fbc2d18cc207fdbf15e88c3ea9aef34c15",
+    "OMNO2d-granule.json": "8d3e79959efabf4f25942ebc5cdd36ffb1582b4f5c33b7f8c9a2127622b43f26",
+    "OMNO2d-harmony.json": "92c2de54b2999f62e649466f8fdde7fdd61937e74e94d104fb1e6358d4627074",
+    "power-decoded-inspection.json": "6d4d01dc6875cf30f5655924d113b956d60bb0c02efaf4f37066d4ccb79caa3f",
+    "POWER-point-2003.json": "94f8ee986716a2ac3c7a112d5ed1279366106b279f10e81054c477f3f9c21cff",
+    "preflight-dependencies.json": "29c69ba8c47d9b4058c9fd3cd1fcdced2f48a22b612d19b6389e13935e7d0b68",
+    "range-access-manifest.json": "9e6d26c11d7c09e3f7e77df0a42e3ab273436c29545c89637f2735fe8e8251c6",
+    "SeaWiFS_L3m_CHL-authenticated-header.bin": "d7c1a2df0e9f4151cdc75e7e96660a7eb7f85ec96ea67feaeeb809c6cf6f6fc6",
+    "SeaWiFS_L3m_CHL-collection.json": "c844e3a095dd412585c7864e83b669ad09812aa352240e4de2c709946778e26b",
+    "SeaWiFS_L3m_CHL-exact-month.json": "f4803ee8ec9f5c970b57b46f8a3d5bfc72b64934998817242e9c22c112be9963",
+    "SeaWiFS_L3m_CHL-granule.json": "e550d124cc036b29ba6175c0160c2df2d0a1bf82dc4d2a969a957768ecbd5eef",
+    "SeaWiFS_L3m_CHL-harmony.json": "3a4b8954ff72472fb46010e962088a7620a5bf0bffce31783d5894e5d81863c4",
+    "source-header-inspection-GPCPMON.json": "bfc5d3153dbbc6ef744b7b8369f86eb089cceabbda7377d1edcff3d7ad8e1999",
+    "source-header-inspection-OMNO2d.json": "3da08986285aadb943e4b2c7198b5ad7779c1b6cbabebbd38b79437a6c87441a",
+    "source-header-inspection.json": "8547de338c36a4dd69d5003cc859bf9322169fdf15a04f25b80f68381a22d68f",
+    "V01-lat.bin": "888d8dbe32c0a7b721389bbf2d834aca096c270f949c5a2fcf0a4570bb7f2eb1",
+    "V01-lon.bin": "421771ee11ee162703d6ecab505b66692a1f8f73fa340c73e43a93582947a595",
+    "V01-metadata.json": "4a464ff2b5420ec492e114be64658fb9779ee9ba232420d789e12e9adace6dba",
+    "V01-raw-chunk.bin": "e7cbd237c8b1de1a4b34113787d22a1e567060d89b15b86c786c9d4910ae1a11",
+    "V01-time.bin": "d9dbb537af238abb2316c6d2eb2b57e3c070806e72c336716da273e733db15d2",
+    "V12-lat.bin": "0e3754b2550f0e3f754d0cee8b14c00d8c4c84f08837f833230da9a1e51295ef",
+    "V12-lon.bin": "b267389ba5b98fd8bba070e816c9b962089aa91a495d7ed812c6a6c67a71c841",
+    "V12-metadata.json": "94de156140172c25f19e5875eb6201cbe2deb253f74b5651e6aa74ee1200202a",
+    "V12-raw-chunk.bin": "c479a17ae643963576bedc10cbc4211a32e1efdfce54b32e46fda81abc795afb",
+    "V12-time.bin": "5852b3ed43665b4eaa38d043c88ad2bc81c9730c3df8820f759594d527b3634c"
+  },
+  "software_verification": {
+    "transport_tests_passed": 32,
+    "isolated_format_tests_passed": 7,
+    "existing_backend_tests_passed": 156,
+    "vitest_tests_passed": 7,
+    "generator_tests_passed": 6,
+    "f04_reference_tests_passed": 71,
+    "f04_fixture_and_report_drift": "PASS, no writes",
+    "local_chromium_health_and_keyboard_recovery": "PASS",
+    "scientific_method_validation_conferred": false,
+    "limited_secret_scan": {
+      "paths_scanned": 130,
+      "findings": 0,
+      "full_AC32_certification": false
+    }
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "fixture_kind": "synthetic_contract",
+  "fixture_id": "region-polygon",
+  "model": "RegionSpec",
+  "disclosure": "STRUCTURAL TEST ONLY. Invented values and IDs; no NASA observations, method validation or scientific findings. Never bundle as product data.",
+  "payload": {
+    "kind": "polygon",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            -99,
+            36
+          ],
+          [
+            -96,
+            36
+          ],
+          [
+            -97,
+            39
+          ],
+          [
+            -99,
+            38
+          ],
+          [
+            -99,
+            36
+          ]
+        ]
+      ]
+    },
+    "dateline": "not_crossing",
+    "interior": "bounded"
+  }
+}
