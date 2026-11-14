@@ -147,6 +147,15 @@ export function summary(data: Datum[]) {
     return { count: finite.length, missing: data.length - finite.length, mean: values.reduce((a, b) => a + b, 0) / values.length,
         min: values.reduce((a, b) => Math.min(a, b)), max: values.reduce((a, b) => Math.max(a, b)), first: finite[0], last: finite.at(-1)!, change: finite.at(-1)!.value - finite[0].value };
 }
+export function deviation(data: Datum[]): number | null {
+    const finite = data.filter((r): r is Datum & {
+        value: number;
+    } => r.value !== null);
+    if (finite.length < 2)
+        return null;
+    const mean = finite.reduce((a, r) => a + r.value, 0) / finite.length;
+    return Math.sqrt(finite.reduce((s, r) => s + (r.value - mean) ** 2, 0) / (finite.length - 1));
+}
 export function hasGap(a: number, b: number, cadence: string): boolean {
     const x = new Date(a), y = new Date(b), months = (y.getUTCFullYear() - x.getUTCFullYear()) * 12 + y.getUTCMonth() - x.getUTCMonth();
     if (cadence === "Monthly")
