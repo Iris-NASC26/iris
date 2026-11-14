@@ -78,14 +78,69 @@ def make_store(units: str = "C", hole: bool = True) -> dict[str, bytes]:
     }
 
 
-def client_for(files: dict[str, bytes], calls: list[str] | None = None) -> httpx.Client:
+SPATIAL_BASE = "/merra2/spatial/power_merra2_monthly_spatial_utc.zarr/"
+
+
+def make_spatial_store(values: np.ndarray | None = None) -> dict[str, bytes]:
+    """TEST-ONLY spatial store: chunks [1, nlat, nlon], one whole month per object."""
+    if values is None:
+        values = np.stack(
+            [np.full((4, 4), 10 + t, dtype=np.float32) for t in range(5)], axis=0
+        )
+    scale = {
+        "id": "fixedscaleoffset",
+        "scale": 100,
+        "offset": 1000,
+        "dtype": "<f4",
+        "astype": "<f4",
+    }
+    attrs = {
+        "units": "C",
+        "valid_min": -125.0,
+        "valid_max": 80.0,
+        "_ARRAY_DIMENSIONS": ["time", "lat", "lon"],
+    }
+    root = {
+        "title": "Test-only spatial store",
+        "version": "TEST 0",
+        "acknowledgement": "Test acknowledgement",
+        "time_standard": "Universal Time Coordinated (UTC)",
+    }
+    files = {
+        ".zattrs": json.dumps(root).encode(),
+        "T2M/.zarray": zarray([5, 4, 4], [1, 4, 4], "<f4", [scale]),
+        "T2M/.zattrs": json.dumps(attrs).encode(),
+        "time/.zarray": zarray([5], [5], "<i8"),
+        "time/.zattrs": json.dumps(
+            {"units": "days since 1981-01-31 00:00:00", "calendar": "proleptic_gregorian"}
+        ).encode(),
+        "time/0": pack([0, 28, 59, 89, 120], "<i8"),
+        "lat/.zarray": zarray([4], [4], "<f8"),
+        "lat/0": pack(LAT, "<f8"),
+        "lon/.zarray": zarray([4], [4], "<f8"),
+        "lon/0": pack(LON, "<f8"),
+    }
+    for t in range(5):
+        plane = values[t].astype("<f4")
+        encoded = numcodecs.FixedScaleOffset(offset=1000, scale=100, dtype="<f4", astype="<f4").encode(
+            plane.ravel()
+        )
+        files[f"T2M/{t}.0.0"] = bytes(
+            numcodecs.get_codec(BLOSC).encode(np.asarray(encoded).tobytes())
+        )
+    return files
+
+
+def client_for(
+    files: dict[str, bytes], calls: list[str] | None = None, base: str = BASE
+) -> httpx.Client:
     def handle(request: httpx.Request) -> httpx.Response:
         if calls is not None:
             calls.append(request.url.path)
-        name = request.url.path.removeprefix(BASE)
+        name = request.url.path.removeprefix(base)
         return (
             httpx.Response(200, content=files[name])
-            if request.url.path.startswith(BASE) and name in files
+            if request.url.path.startswith(base) and name in files
             else httpx.Response(404)
         )
 
