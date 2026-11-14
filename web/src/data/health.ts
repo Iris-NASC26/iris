@@ -1,0 +1,25 @@
+/** F02 liveness contract only; F03 owns the future scientific API contracts. */
+export interface Health {
+  schema_version: 'health.v1';
+  status: 'ok';
+  mode: 'local';
+  analysis_ready: false;
+}
+
+export async function fetchHealth(signal: AbortSignal): Promise<Health> {
+  const response = await fetch('/api/v1/health', {
+    signal: AbortSignal.any([signal, AbortSignal.timeout(5000)]),
+    cache: 'no-store',
+    credentials: 'omit',
+  });
+  if (!response.ok) throw new Error('The local server is unavailable.');
+  const value: unknown = await response.json();
+  if (
+    typeof value !== 'object' || value === null ||
+    !('schema_version' in value) || value.schema_version !== 'health.v1' ||
+    !('status' in value) || value.status !== 'ok' ||
+    !('mode' in value) || value.mode !== 'local' ||
+    !('analysis_ready' in value) || value.analysis_ready !== false
+  ) throw new Error('The local server returned an incompatible health response.');
+  return value as Health;
+}
