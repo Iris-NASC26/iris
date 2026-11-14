@@ -2,14 +2,21 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { Globe, MoreHorizontal, ExternalLink, BookOpen, Layers, X } from "lucide-react";
+import { Globe, MoreHorizontal, ExternalLink, BookOpen, Layers, X, Maximize, Minimize } from "lucide-react";
 
 interface ImmersiveHeaderProps {
+  altitudeKm?: number;
+  isFallbackData?: boolean;
   onExit?: () => void;
 }
 
-export function ImmersiveHeader({ onExit }: ImmersiveHeaderProps) {
+export function ImmersiveHeader({
+  altitudeKm = 14800,
+  isFallbackData = false,
+  onExit,
+}: ImmersiveHeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -24,6 +31,26 @@ export function ImmersiveHeader({ onExit }: ImmersiveHeaderProps) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isMenuOpen]);
 
+  useEffect(() => {
+    function onFullscreenChange() {
+      setIsFullscreen(Boolean(document.fullscreenElement));
+    }
+    document.addEventListener("fullscreenchange", onFullscreenChange);
+    return () => document.removeEventListener("fullscreenchange", onFullscreenChange);
+  }, []);
+
+  const toggleFullscreen = async () => {
+    try {
+      if (!document.fullscreenElement) {
+        await document.documentElement.requestFullscreen();
+      } else {
+        await document.exitFullscreen();
+      }
+    } catch (err) {
+      console.warn("Fullscreen toggle failed:", err);
+    }
+  };
+
   return (
     <header className="iris-immersive-header">
       {/* Brand & Page Identity */}
@@ -34,15 +61,64 @@ export function ImmersiveHeader({ onExit }: ImmersiveHeaderProps) {
         <span className="iris-brand-text">Iris</span>
         <div className="iris-header-divider" />
         <span className="iris-title-text">Immersive Earth</span>
+
+        {/* Dynamic Altitude Indicator */}
+        <div
+          style={{
+            marginLeft: "18px",
+            fontSize: "12px",
+            color: "var(--iris-text-muted)",
+            background: "rgba(255, 255, 255, 0.04)",
+            border: "1px solid rgba(255, 255, 255, 0.08)",
+            padding: "3px 10px",
+            borderRadius: "14px",
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+          }}
+        >
+          <span>Altitude:</span>
+          <strong style={{ color: "var(--iris-accent-bright)", fontWeight: "600" }}>
+            {altitudeKm.toLocaleString()} km
+          </strong>
+        </div>
       </div>
 
-      {/* Right Controls: NASA Data pill & Overflow Menu */}
+      {/* Right Controls: NASA Data pill, Fullscreen & Overflow Menu */}
       <div className="iris-header-right" ref={menuRef}>
-        <div className="iris-nasa-badge" title="NASA GIBS WMTS Blue Marble & NASA POWER Zarr live streams">
-          <span className="iris-status-dot" />
-          <span>NASA Earth Data</span>
+        <div
+          className="iris-nasa-badge"
+          style={{
+            borderColor: isFallbackData ? "rgba(245, 177, 75, 0.4)" : undefined,
+          }}
+          title={
+            isFallbackData
+              ? "NASA POWER MERRA-2 1981-2010 Verified Climatological Baseline Normals"
+              : "NASA GIBS WMTS Blue Marble & NASA POWER Zarr live streams"
+          }
+        >
+          <span
+            className="iris-status-dot"
+            style={{
+              background: isFallbackData ? "#f5b14b" : "#2fffe0",
+              boxShadow: isFallbackData ? "0 0 8px #f5b14b" : "0 0 10px #2fffe0",
+            }}
+          />
+          <span>{isFallbackData ? "NASA Earth Data (Baseline)" : "NASA Earth Data (Live)"}</span>
         </div>
 
+        {/* Fullscreen Button */}
+        <button
+          aria-label={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
+          className="iris-overflow-btn"
+          onClick={toggleFullscreen}
+          title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
+          type="button"
+        >
+          {isFullscreen ? <Minimize size={17} /> : <Maximize size={17} />}
+        </button>
+
+        {/* Overflow Menu */}
         <button
           aria-label="Additional actions"
           className="iris-overflow-btn"
@@ -55,7 +131,9 @@ export function ImmersiveHeader({ onExit }: ImmersiveHeaderProps) {
         {isMenuOpen && (
           <div className="iris-flyout-panel" style={{ top: "68px", right: "48px", width: "230px" }}>
             <div className="iris-drawer-header" style={{ marginBottom: "12px" }}>
-              <span style={{ fontSize: "12px", color: "var(--iris-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Options</span>
+              <span style={{ fontSize: "12px", color: "var(--iris-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                Options
+              </span>
               <button className="iris-drawer-close" onClick={() => setIsMenuOpen(false)}>
                 <X size={15} />
               </button>

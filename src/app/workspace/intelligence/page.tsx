@@ -374,16 +374,43 @@ export default function SystemIntelligencePage() {
                         );
                       })}
                     </div>
-                    <button
-                      className="si-result-action"
-                      onClick={() => router.push("/workspace/data-selection")}
-                      type="button"
-                    >
-                      {turn.productsCount > 0
-                        ? `Review ${turn.productsCount} datasets`
-                        : "Open Data Selection"}
-                      <Icon name="arrow" size={14} />
-                    </button>
+                    <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                      <button
+                        className="si-result-action"
+                        onClick={() => router.push("/workspace/data-selection")}
+                        type="button"
+                      >
+                        {turn.productsCount > 0
+                          ? `Review ${turn.productsCount} datasets`
+                          : "Open Data Selection"}
+                        <Icon name="arrow" size={14} />
+                      </button>
+
+                      {discoveryResult?.intent?.inferred_region_name && (
+                        <button
+                          className="si-result-action"
+                          style={{
+                            background: "rgba(19, 224, 192, 0.12)",
+                            borderColor: "rgba(19, 224, 192, 0.3)",
+                            color: "var(--iris-accent-bright, #2fffe0)",
+                          }}
+                          onClick={() => {
+                            const r = discoveryResult.intent.inferred_region_name;
+                            const center = discoveryResult.intent.inferred_Center;
+                            const q = r
+                              ? `place=${encodeURIComponent(r)}`
+                              : center
+                              ? `lat=${center[0]}&lon=${center[1]}`
+                              : "";
+                            router.push(`/workspace/globe${q ? `?${q}` : ""}`);
+                          }}
+                          type="button"
+                        >
+                          <Icon name="globe" size={14} />
+                          View on Living Globe
+                        </button>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>

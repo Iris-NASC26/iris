@@ -7,6 +7,7 @@ import { TIMELINE_MONTHS } from "./data/demoScenes";
 interface EarthTimelineProps {
   selectedDate: string;
   isPlaying: boolean;
+  playbackSpeed?: number;
   onDateChange: (date: string) => void;
   onTogglePlay: () => void;
 }
@@ -14,6 +15,7 @@ interface EarthTimelineProps {
 export function EarthTimeline({
   selectedDate,
   isPlaying,
+  playbackSpeed = 1.0,
   onDateChange,
   onTogglePlay,
 }: EarthTimelineProps) {
@@ -68,16 +70,17 @@ export function EarthTimeline({
     };
   }, [isScrubbing, updateFromPosition]);
 
-  // Automated playback timer (600ms per frame)
+  // Automated playback timer based on playbackSpeed
   useEffect(() => {
     if (!isPlaying) return;
+    const intervalMs = Math.max(120, Math.round(650 / playbackSpeed));
     const interval = setInterval(() => {
       const nextIndex = (currentIndex + 1) % TIMELINE_MONTHS.length;
       onDateChange(TIMELINE_MONTHS[nextIndex]);
-    }, 650);
+    }, intervalMs);
 
     return () => clearInterval(interval);
-  }, [isPlaying, currentIndex, onDateChange]);
+  }, [isPlaying, currentIndex, onDateChange, playbackSpeed]);
 
   return (
     <footer aria-label="Environmental Change Timeline" className="iris-timeline-dock">
@@ -100,80 +103,89 @@ export function EarthTimeline({
           type="button"
         >
           <span>{selectedDate}</span>
-          <ChevronDown size={16} />
+          <ChevronDown size={14} style={{ opacity: 0.8 }} />
         </button>
 
         {dropdownOpen && (
           <div
             className="iris-flyout-panel"
             style={{
-              bottom: "60px",
-              left: "0",
-              width: "160px",
-              maxHeight: "220px",
+              position: "absolute",
+              bottom: "calc(100% + 12px)",
+              left: 0,
+              width: "220px",
+              maxHeight: "260px",
               overflowY: "auto",
               padding: "8px",
+              display: "flex",
+              flexDirection: "column",
+              gap: "2px",
             }}
           >
-            {["Jan 2018", "Jan 2020", "Jan 2022", "Jan 2024", "Jul 2024", "Dec 2024"].map((d) => (
+            {TIMELINE_MONTHS.map((m) => (
               <button
-                key={d}
-                className="iris-quick-pill"
-                style={{
-                  height: "34px",
-                  fontSize: "13px",
-                  width: "100%",
-                  justifyContent: "flex-start",
-                  padding: "0 10px",
-                  marginBottom: "4px",
-                }}
+                key={m}
                 onClick={() => {
-                  onDateChange(d);
+                  onDateChange(m);
                   setDropdownOpen(false);
                 }}
+                style={{
+                  textAlign: "left",
+                  padding: "6px 10px",
+                  fontSize: "12px",
+                  borderRadius: "6px",
+                  border: "none",
+                  background: m === selectedDate ? "rgba(19, 224, 192, 0.16)" : "transparent",
+                  color: m === selectedDate ? "var(--iris-accent-bright)" : "var(--iris-text-primary)",
+                  cursor: "pointer",
+                }}
               >
-                {d}
+                {m}
               </button>
             ))}
           </div>
         )}
       </div>
 
-      {/* Timeline Start Date */}
-      <span className="iris-date-start-label">Jan 2018</span>
+      {/* Start Year Label */}
+      <span className="iris-timeline-endpoint">Jan 2018</span>
 
-      {/* Timeline Interactive Track */}
+      {/* Interactive Scrubbing Track */}
       <div
-        className="iris-timeline-track-wrap"
+        className="iris-timeline-track-wrapper"
         onMouseDown={handleMouseDown}
         ref={trackRef}
-        role="slider"
-        aria-valuemin={0}
-        aria-valuemax={TIMELINE_MONTHS.length - 1}
-        aria-valuenow={currentIndex}
-        aria-valuetext={selectedDate}
-        tabIndex={0}
       >
-        <div className="iris-timeline-track" />
-        <div className="iris-timeline-progress" style={{ width: `${progressPercent}%` }} />
+        <div className="iris-timeline-rail">
+          {/* Active Highlight Fill */}
+          <div
+            className="iris-timeline-fill"
+            style={{ width: `${progressPercent}%` }}
+          />
 
-        {/* Milestone ticks */}
-        <div className="iris-track-ticks">
+          {/* Key Milestone Dots */}
           {milestoneIndices.map((idx) => {
-            const isPassed = currentIndex >= idx;
-            return <div key={idx} className={`iris-track-tick ${isPassed ? "active" : ""}`} />;
+            const pct = (idx / Math.max(1, TIMELINE_MONTHS.length - 1)) * 100;
+            const isPassed = idx <= currentIndex;
+            return (
+              <div
+                key={idx}
+                className={`iris-timeline-dot ${isPassed ? "active" : ""}`}
+                style={{ left: `${pct}%` }}
+              />
+            );
           })}
-        </div>
 
-        {/* Thumb */}
-        <div
-          className="iris-timeline-thumb"
-          style={{ left: `${progressPercent}%` }}
-        />
+          {/* Draggable Scrubber Thumb */}
+          <div
+            className="iris-timeline-thumb"
+            style={{ left: `${progressPercent}%` }}
+          />
+        </div>
       </div>
 
-      {/* Timeline End Date */}
-      <span className="iris-date-end-label">Dec 2024</span>
+      {/* End Year Label */}
+      <span className="iris-timeline-endpoint">Dec 2024</span>
     </footer>
   );
 }

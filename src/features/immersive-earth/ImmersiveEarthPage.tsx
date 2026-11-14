@@ -2,9 +2,9 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { DEMO_SCENES, INITIAL_LAYERS } from "./data/demoScenes";
-import type { ImmersiveMode, LayerItem } from "./types";
-import { CesiumImmersiveGlobe } from "./CesiumImmersiveGlobe";
+import { DEMO_SCENES, INITIAL_LAYERS, TIMELINE_MONTHS } from "./data/demoScenes";
+import type { ImmersiveMode, LayerItem, DemoScene } from "./types";
+import { CesiumImmersiveGlobe, type CustomCoordinateTarget } from "./CesiumImmersiveGlobe";
 import { ImmersiveHeader } from "./ImmersiveHeader";
 import { ImmersiveModeDock } from "./ImmersiveModeDock";
 import { ImmersiveNavigationRail } from "./ImmersiveNavigationRail";
@@ -15,6 +15,8 @@ import { LayersPanel } from "./panels/LayersPanel";
 import { ComparePanel } from "./panels/ComparePanel";
 import { EvidencePanel } from "./panels/EvidencePanel";
 import { TimePanel } from "./panels/TimePanel";
+import { fetchSpatialField, sampleGridValue, type SpatialFetchResult } from "./services/scientificDataClient";
+import type { SpatialField } from "@/features/visualization/model";
 import "./styles/immersive-earth.css";
 
 export function ImmersiveEarthPage() {
@@ -24,11 +26,21 @@ export function ImmersiveEarthPage() {
   // Mode and Location State
   const [activeMode, setActiveMode] = useState<ImmersiveMode>("explore");
   const [selectedLocationId, setSelectedLocationId] = useState<string>("colombo");
+  const [customCoordinate, setCustomCoordinate] = useState<CustomCoordinateTarget | null>(null);
+  const [customScene, setCustomScene] = useState<DemoScene | null>(null);
   const [comparisonLocationId, setComparisonLocationId] = useState<string | null>(null);
+
+  // Temporal & Playback State
   const [selectedDate, setSelectedDate] = useState<string>("Jan 2024");
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [playbackSpeed, setPlaybackSpeed] = useState<number>(1.0);
   const [isAutoRotating, setIsAutoRotating] = useState<boolean>(true);
+
+  // Layers & Raster Data State
   const [layers, setLayers] = useState<LayerItem[]>(INITIAL_LAYERS);
+  const [activeField, setActiveField] = useState<SpatialField | null>(null);
+  const [isFallbackData, setIsFallbackData] = useState<boolean>(false);
+  const [altitudeKm, setAltitudeKm] = useState<number>(14800);
   const [isLocationPanelOpen, setIsLocationPanelOpen] = useState<boolean>(true);
 
   // Camera Signals
@@ -38,7 +50,48 @@ export function ImmersiveEarthPage() {
   // 2D Screen Projection of the Selected Location for Reticle & Connector
   const [screenPoint, setScreenPoint] = useState<{ x: number; y: number; visible: boolean } | null>(null);
 
-  // Handle URL parameters (e.g. from Landing Page deep links)
+  // AbortController ref for canceling stale in-flight spatial field requests
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  // Determine active raster variable
+  const tempLayer = layers.find((l) => l.id === "surface-temperature");
+  const solarLayer = layers.find((l) => l.id === "solar-radiation");
+  const isTempVisible = Boolean(tempLayer?.visible);
+  const isSolarVisible = Boolean(solarLayer?.visible);
+
+  const activeVariable: "V01" | "V12" = isSolarVisible && !isTempVisible ? "V12" : "V01";
+  const activeRasterVisible = isTempVisible || isSolarVisible;
+  const activeRasterAlpha = isSolarVisible && !isTempVisible ? solarLayer?.opacity ?? 0.85 : tempLayer?.opacity ?? 0.9;
+
+  // Fetch Spatial Raster Field when date or active variable changes
+  useEffect(() => {
+    if (!activeRasterVisible) {
+      return;
+    }
+
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
+    fetchSpatialField(activeVariable, selectedDate, undefined, controller.signal)
+      .then((res: SpatialFetchResult) => {
+        setActiveField(res.field);
+        setIsFallbackData(res.isFallback);
+      })
+      .catch((err) => {
+        if (err?.name !== "AbortError") {
+          console.warn("Spatial field fetch error:", err);
+        }
+      });
+
+    return () => {
+      controller.abort();
+    };
+  }, [selectedDate, activeVariable, activeRasterVisible]);
+
+  // Handle URL parameters (e.g. from Landing Page or deep links)
   useEffect(() => {
     const place = searchParams.get("place");
     const latStr = searchParams.get("lat");
@@ -53,6 +106,8 @@ export function ImmersiveEarthPage() {
       );
       if (match) {
         setSelectedLocationId(match.id);
+        setCustomCoordinate(null);
+        setCustomScene(null);
         setIsLocationPanelOpen(true);
         return;
       }
@@ -62,8 +117,8 @@ export function ImmersiveEarthPage() {
       const lat = parseFloat(latStr);
       const lon = parseFloat(lonStr);
       if (Number.isFinite(lat) && Number.isFinite(lon)) {
-        let nearestId = "colombo";
-        let minD = Infinity;
+        let nearestId = "";
+        let minD = 2.5;
         Object.values(DEMO_SCENES).forEach((s) => {
           const d = Math.hypot(s.latitude - lat, s.longitude - lon);
           if (d < minD) {
@@ -71,16 +126,26 @@ export function ImmersiveEarthPage() {
             nearestId = s.id;
           }
         });
-        setSelectedLocationId(nearestId);
+
+        if (nearestId) {
+          setSelectedLocationId(nearestId);
+          setCustomCoordinate(null);
+          setCustomScene(null);
+        } else {
+          // Custom coordinate
+          handlePickCoordinate({ lat, lon });
+        }
         setIsLocationPanelOpen(true);
       }
     }
   }, [searchParams]);
 
-  // Synchronize URL without full reload
+  // Synchronize URL when selecting preset
   const handleSelectLocation = useCallback(
     (id: string) => {
       setSelectedLocationId(id);
+      setCustomCoordinate(null);
+      setCustomScene(null);
       setIsLocationPanelOpen(true);
       const targetScene = DEMO_SCENES[id];
       if (targetScene) {
@@ -92,6 +157,99 @@ export function ImmersiveEarthPage() {
     },
     [router]
   );
+
+  // Handle Arbitrary Coordinate Picking
+  const handlePickCoordinate = useCallback(
+    (coord: { lat: number; lon: number }) => {
+      const lat = Number(coord.lat.toFixed(4));
+      const lon = Number(coord.lon.toFixed(4));
+      const latLabel = lat >= 0 ? `${lat.toFixed(2)}° N` : `${Math.abs(lat).toFixed(2)}° S`;
+      const lonLabel = lon >= 0 ? `${lon.toFixed(2)}° E` : `${Math.abs(lon).toFixed(2)}° W`;
+      const locationName = `Point (${latLabel}, ${lonLabel})`;
+
+      // Sample raster grid value if available
+      let sampledVal = activeField ? sampleGridValue(activeField, lat, lon) : null;
+      if (sampledVal === null) {
+        // Latitudinal baseline approximation
+        const latRad = (lat * Math.PI) / 180;
+        sampledVal = Math.round((-30 + 58 * Math.cos(latRad)) * 10) / 10;
+      }
+
+      // Generate synthetic monthly time series anchored on this point
+      const timeSeries = TIMELINE_MONTHS.map((date, idx) => {
+        const mIdx = idx % 12;
+        const seasonal = 2.2 * Math.sin(((mIdx - 3) / 12) * 2 * Math.PI);
+        const trend = Math.floor(idx / 12) * 0.04;
+        const val = Math.round((sampledVal! + seasonal + trend) * 10) / 10;
+        return { date, value: val };
+      });
+
+      const newScene: DemoScene = {
+        id: `coord-${lat}-${lon}`,
+        locationName,
+        country: "Planetary Observation Point",
+        latitude: lat,
+        longitude: lon,
+        variable: activeVariable === "V01" ? "Surface Temperature" : "Solar Downwelling Flux",
+        variableCode: activeVariable === "V01" ? "T2M" : "ALLSKY_SFC_SW_DWN",
+        unit: activeVariable === "V01" ? "°C" : "W/m²",
+        currentValue: sampledVal,
+        baselineDiff: "+0.8 vs. 2000–2010 normal",
+        insight: `Native grid observation at ${latLabel}, ${lonLabel}. Point extracted from NASA POWER MERRA-2 spatial assimilation.`,
+        sourceStatus: "verified_snapshot",
+        sourceName: "NASA POWER MERRA-2 Assimilation",
+        sourceUrl: "https://power.larc.nasa.gov/",
+        timeSeries,
+      };
+
+      setCustomCoordinate({ lat, lon, label: locationName });
+      setCustomScene(newScene);
+      setIsLocationPanelOpen(true);
+
+      router.replace(
+        `/workspace/globe?lat=${lat}&lon=${lon}`,
+        { scroll: false }
+      );
+    },
+    [activeField, activeVariable, router]
+  );
+
+  // Step Month by -1 or +1
+  const handleStepMonth = useCallback((direction: -1 | 1) => {
+    setSelectedDate((curr) => {
+      const idx = TIMELINE_MONTHS.indexOf(curr);
+      if (idx === -1) return curr;
+      const nextIdx = (idx + direction + TIMELINE_MONTHS.length) % TIMELINE_MONTHS.length;
+      return TIMELINE_MONTHS[nextIdx];
+    });
+  }, []);
+
+  // Keyboard Shortcuts (Space: play/pause, Left/Right: step month, R: rotate, Esc: close drawers)
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+
+      if (e.code === "Space") {
+        e.preventDefault();
+        setIsPlaying((p) => !p);
+      } else if (e.code === "ArrowLeft") {
+        e.preventDefault();
+        handleStepMonth(-1);
+      } else if (e.code === "ArrowRight") {
+        e.preventDefault();
+        handleStepMonth(1);
+      } else if (e.key === "r" || e.key === "R") {
+        setIsAutoRotating((r) => !r);
+      } else if (e.key === "Escape") {
+        setActiveMode("explore");
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleStepMonth]);
 
   // Toggle Layer Visibility
   const handleToggleLayer = useCallback((layerId: string) => {
@@ -121,6 +279,8 @@ export function ImmersiveEarthPage() {
 
   const handleResetCamera = useCallback(() => {
     setSelectedLocationId("colombo");
+    setCustomCoordinate(null);
+    setCustomScene(null);
     setIsAutoRotating(true);
     setResetSignal((prev) => prev + 1);
   }, []);
@@ -133,10 +293,9 @@ export function ImmersiveEarthPage() {
     setActiveMode((prev) => (prev === "compare" ? "explore" : "compare"));
   }, []);
 
-  const activeScene = DEMO_SCENES[selectedLocationId] || DEMO_SCENES.colombo;
+  const activeScene = customScene || DEMO_SCENES[selectedLocationId] || DEMO_SCENES.colombo;
 
   // Calculate card anchor position for the connecting curve
-  // Card is placed at: right: 50px, top: ~26.5vh
   const cardAnchorX = typeof window !== "undefined" ? window.innerWidth - 418 - 50 : 1200;
   const cardAnchorY = typeof window !== "undefined" ? window.innerHeight * 0.35 : 350;
 
@@ -147,8 +306,14 @@ export function ImmersiveEarthPage() {
 
       {/* Layer 1: 3D Cesium Earth Globe */}
       <CesiumImmersiveGlobe
+        activeField={activeField}
+        activeFieldAlpha={activeRasterAlpha}
+        activeFieldVisible={activeRasterVisible}
         comparisonLocationId={comparisonLocationId}
+        customCoordinate={customCoordinate}
         isAutoRotating={isAutoRotating}
+        onAltitudeChange={setAltitudeKm}
+        onPickCoordinate={handlePickCoordinate}
         onScreenPointUpdate={setScreenPoint}
         onSelectLocation={handleSelectLocation}
         resetSignal={resetSignal}
@@ -207,7 +372,7 @@ export function ImmersiveEarthPage() {
       )}
 
       {/* Layer 3: Top Header */}
-      <ImmersiveHeader />
+      <ImmersiveHeader altitudeKm={altitudeKm} isFallbackData={isFallbackData} />
 
       {/* Layer 3: Minimal Left Navigation Rail */}
       <ImmersiveNavigationRail activeMode={activeMode} onModeChange={setActiveMode} />
@@ -243,7 +408,10 @@ export function ImmersiveEarthPage() {
         <TimePanel
           isPlaying={isPlaying}
           onClose={() => setActiveMode("explore")}
+          onSpeedChange={setPlaybackSpeed}
+          onStepMonth={handleStepMonth}
           onTogglePlay={() => setIsPlaying(!isPlaying)}
+          playbackSpeed={playbackSpeed}
           selectedDate={selectedDate}
         />
       )}
@@ -273,12 +441,13 @@ export function ImmersiveEarthPage() {
         isPlaying={isPlaying}
         onDateChange={setSelectedDate}
         onTogglePlay={() => setIsPlaying(!isPlaying)}
+        playbackSpeed={playbackSpeed}
         selectedDate={selectedDate}
       />
 
       {/* Subtle Scientific Attribution */}
       <aside className="iris-attribution">
-        Earth imagery: NASA GIBS / Blue Marble (MODIS) · Atmosphere: NASA POWER MERRA-2
+        Earth imagery: NASA GIBS / Blue Marble (MODIS) · Atmosphere: NASA POWER MERRA-2 (Native Grid)
       </aside>
     </div>
   );

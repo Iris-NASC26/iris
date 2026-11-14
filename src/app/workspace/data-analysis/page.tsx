@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Icon } from "@/components/ui/Icon";
 import { useDashboard } from "@/context/DashboardContext";
 import type { SignalMode } from "@/lib/dashboardData";
@@ -34,6 +34,7 @@ const ANALYSIS_METHODS: Array<{ id: AnalysisMethod; label: string; detail: strin
 ];
 
 export default function DataAnalysisPage() {
+  const searchParams = useSearchParams();
   const {
     autoRunCase,
     dataset,
@@ -43,6 +44,8 @@ export default function DataAnalysisPage() {
     location,
     setAutoRunCase,
     setEndYear,
+    setLocation,
+    setExtractionConfig,
     setSignalMode,
     setStartYear,
     signalMode,
@@ -56,6 +59,28 @@ export default function DataAnalysisPage() {
   const [selectedMethods, setSelectedMethods] = useState<AnalysisMethod[]>([]);
   const requestController = useRef<AbortController | null>(null);
   const toastTimer = useRef<number | undefined>(undefined);
+
+  // Sync incoming search parameters from Living Globe
+  useEffect(() => {
+    const place = searchParams.get("place");
+    const lat = searchParams.get("lat");
+    const lon = searchParams.get("lon");
+    if (place) {
+      setLocation(place);
+    }
+    if (lat && lon) {
+      const pLat = parseFloat(lat);
+      const pLon = parseFloat(lon);
+      if (Number.isFinite(pLat) && Number.isFinite(pLon)) {
+        setExtractionConfig((prev) => ({
+          ...prev,
+          region_name: place || prev.region_name,
+          point_lat: pLat,
+          point_lon: pLon,
+        }));
+      }
+    }
+  }, [searchParams, setLocation, setExtractionConfig]);
 
   useEffect(
     () => () => {

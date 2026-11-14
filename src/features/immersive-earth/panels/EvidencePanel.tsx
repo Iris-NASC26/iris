@@ -1,8 +1,10 @@
 "use client";
 
+import { useMemo } from "react";
 import Link from "next/link";
-import { X, FlaskConical, ExternalLink, ShieldCheck, AlertCircle } from "lucide-react";
+import { X, FlaskConical, ExternalLink, ShieldCheck, AlertCircle, TrendingUp } from "lucide-react";
 import type { DemoScene } from "../types";
+import { computeSensSlope } from "../services/scientificDataClient";
 
 interface EvidencePanelProps {
   scene: DemoScene;
@@ -10,8 +12,32 @@ interface EvidencePanelProps {
 }
 
 export function EvidencePanel({ scene, onClose }: EvidencePanelProps) {
+  const stats = useMemo(() => {
+    const vals = scene.timeSeries.map((s) => s.value);
+    return computeSensSlope(vals);
+  }, [scene]);
+
+  // Sparkline coordinates
+  const sparkline = useMemo(() => {
+    const vals = scene.timeSeries.map((s) => s.value);
+    const minVal = Math.min(...vals);
+    const maxVal = Math.max(...vals);
+    const width = 270;
+    const height = 48;
+
+    const points = vals
+      .map((v, i) => {
+        const x = (i / (vals.length - 1)) * width;
+        const y = height - ((v - minVal) / (maxVal - minVal || 1)) * (height - 8) - 4;
+        return `${x.toFixed(1)},${y.toFixed(1)}`;
+      })
+      .join(" ");
+
+    return { points, width, height, minVal, maxVal };
+  }, [scene]);
+
   return (
-    <div className="iris-flyout-panel iris-evidence-drawer">
+    <div className="iris-flyout-panel iris-evidence-drawer" style={{ width: "340px" }}>
       <div className="iris-drawer-header">
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           <FlaskConical size={18} className="text-emerald-400" />
@@ -32,30 +58,24 @@ export function EvidencePanel({ scene, onClose }: EvidencePanelProps) {
         <div
           style={{
             background: "rgba(255, 255, 255, 0.03)",
-            padding: "12px",
+            padding: "10px 12px",
             borderRadius: "12px",
             border: "1px solid rgba(255, 255, 255, 0.06)",
           }}
         >
-          <div style={{ fontSize: "11px", color: "var(--iris-text-muted)", textTransform: "uppercase" }}>
+          <div style={{ fontSize: "10px", color: "var(--iris-text-muted)", textTransform: "uppercase" }}>
             Target Investigation
           </div>
-          <div style={{ fontSize: "16px", fontWeight: "650", marginTop: "2px" }}>
+          <div style={{ fontSize: "15px", fontWeight: "650", marginTop: "2px" }}>
             {scene.locationName}, {scene.country}
           </div>
-          <div style={{ fontSize: "12px", color: "var(--iris-text-secondary)", marginTop: "2px" }}>
+          <div style={{ fontSize: "11px", color: "var(--iris-text-secondary)", marginTop: "2px" }}>
             Coordinates: {scene.latitude.toFixed(4)}° N, {scene.longitude.toFixed(4)}° E
           </div>
         </div>
 
         {/* Statistical Metrics */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: "8px",
-          }}
-        >
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
           <div
             style={{
               background: "rgba(16, 185, 129, 0.08)",
@@ -65,10 +85,10 @@ export function EvidencePanel({ scene, onClose }: EvidencePanelProps) {
             }}
           >
             <div style={{ fontSize: "11px", color: "#34d399", fontWeight: "600" }}>Sen&apos;s Slope</div>
-            <div style={{ fontSize: "18px", fontWeight: "700", marginTop: "2px", color: "#ffffff" }}>
-              +0.041 °C/yr
+            <div style={{ fontSize: "17px", fontWeight: "700", marginTop: "2px", color: "#ffffff" }}>
+              {stats.slopePerYear > 0 ? `+${stats.slopePerYear}` : stats.slopePerYear} {scene.unit}/yr
             </div>
-            <div style={{ fontSize: "11px", color: "var(--iris-text-muted)" }}>Robust Rank Estimator</div>
+            <div style={{ fontSize: "10px", color: "var(--iris-text-muted)" }}>Robust Rank Estimator</div>
           </div>
 
           <div
@@ -80,15 +100,40 @@ export function EvidencePanel({ scene, onClose }: EvidencePanelProps) {
             }}
           >
             <div style={{ fontSize: "11px", color: "#38bdf8", fontWeight: "600" }}>Mann–Kendall p</div>
-            <div style={{ fontSize: "18px", fontWeight: "700", marginTop: "2px", color: "#ffffff" }}>
-              &lt; 0.001
+            <div style={{ fontSize: "17px", fontWeight: "700", marginTop: "2px", color: "#ffffff" }}>
+              {stats.pValue < 0.001 ? "< 0.001" : stats.pValue}
             </div>
-            <div style={{ fontSize: "11px", color: "var(--iris-text-muted)" }}>Hamed–Rao Corrected</div>
+            <div style={{ fontSize: "10px", color: "var(--iris-text-muted)" }}>Hamed–Rao Corrected</div>
           </div>
         </div>
 
+        {/* Time Series Sparkline */}
+        {sparkline && (
+          <div
+            style={{
+              background: "rgba(0, 0, 0, 0.28)",
+              padding: "10px 12px",
+              borderRadius: "12px",
+              border: "1px solid rgba(255, 255, 255, 0.06)",
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "10px", color: "var(--iris-text-muted)", marginBottom: "4px" }}>
+              <span>2018-01 ({sparkline.minVal} {scene.unit})</span>
+              <span>2024-12 ({sparkline.maxVal} {scene.unit})</span>
+            </div>
+            <svg width="100%" height={sparkline.height} viewBox={`0 0 ${sparkline.width} ${sparkline.height}`}>
+              <polyline
+                points={sparkline.points}
+                fill="none"
+                stroke="var(--iris-accent-bright)"
+                strokeWidth="1.8"
+              />
+            </svg>
+          </div>
+        )}
+
         {/* Provenance and Integrity */}
-        <div style={{ display: "flex", alignItems: "flex-start", gap: "8px", fontSize: "12px", color: "var(--iris-text-secondary)" }}>
+        <div style={{ display: "flex", alignItems: "flex-start", gap: "8px", fontSize: "11px", color: "var(--iris-text-secondary)" }}>
           <ShieldCheck size={16} className="text-emerald-400 flex-shrink-0 mt-0.5" />
           <span>
             Source verified via <strong>{scene.sourceName}</strong>. Spatial native grid sampling with zero artificial interpolation.
@@ -96,30 +141,29 @@ export function EvidencePanel({ scene, onClose }: EvidencePanelProps) {
         </div>
 
         {/* Caveat */}
-        <div style={{ display: "flex", alignItems: "flex-start", gap: "8px", fontSize: "12px", color: "var(--iris-text-muted)" }}>
+        <div style={{ display: "flex", alignItems: "flex-start", gap: "8px", fontSize: "11px", color: "var(--iris-text-muted)" }}>
           <AlertCircle size={16} className="flex-shrink-0 mt-0.5" />
           <span>
-            Coarse reanalysis spatial footprint (~0.5° × 0.625°). Local urban canopy gradients may differ.
+            MERRA-2 assimilation model output; 2-meter air temperature is not directly assimilated by surface satellites.
           </span>
         </div>
 
-        {/* Action Link */}
+        {/* Action Link to Full Case File */}
         <Link
           className="iris-quick-pill"
-          href={`/workspace/data-analysis?place=${encodeURIComponent(
-            scene.locationName
-          )}&lat=${scene.latitude}&lon=${scene.longitude}`}
+          href={`/workspace/data-analysis?place=${encodeURIComponent(scene.locationName)}&lat=${scene.latitude}&lon=${scene.longitude}&variable=${scene.variableCode}`}
           style={{
-            width: "100%",
+            height: "38px",
+            fontSize: "12px",
             justifyContent: "center",
-            height: "40px",
             textDecoration: "none",
-            background: "linear-gradient(135deg, rgba(16, 185, 129, 0.85) 0%, rgba(5, 150, 105, 0.95) 100%)",
-            color: "#ffffff",
+            background: "rgba(19, 224, 192, 0.12)",
+            color: "var(--iris-accent-bright)",
+            borderColor: "rgba(19, 224, 192, 0.3)",
           }}
         >
-          <span>Examine Full Case File in Data Analysis</span>
-          <ExternalLink size={15} />
+          <span>Open Full Case File Analysis</span>
+          <ExternalLink size={14} />
         </Link>
       </div>
     </div>

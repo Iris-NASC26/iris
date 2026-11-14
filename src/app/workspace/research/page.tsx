@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { Icon } from "@/components/ui/Icon";
 import { useDashboard } from "@/context/DashboardContext";
 import type {
@@ -33,6 +34,7 @@ const SOURCE_OPTIONS: Array<{
 ];
 
 export default function ResearchPage() {
+  const searchParams = useSearchParams();
   const { extractedPreview } = useDashboard();
 
   const [query, setQuery] = useState("");
@@ -153,6 +155,15 @@ export default function ResearchPage() {
     },
     [perSourceLimit, query, retrievedDatasetContext, selectedSources, sortOrder],
   );
+
+  // Sync incoming search query from Living Globe
+  useEffect(() => {
+    const q = searchParams.get("query");
+    if (q && q.trim()) {
+      setQuery(q);
+      void executeSearch("manual");
+    }
+  }, [searchParams, executeSearch]);
 
   const handleManualSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();

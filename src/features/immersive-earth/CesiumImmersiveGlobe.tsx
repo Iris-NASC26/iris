@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState } from "react";
 import type * as CesiumTypes from "cesium";
 import { DEMO_SCENES } from "./data/demoScenes";
+import type { SpatialField } from "@/features/visualization/model";
+import { fieldRectangle, fieldToRgba } from "@/features/visualization/fieldRaster";
 
 type CesiumNS = typeof CesiumTypes;
 let CesiumInstance: CesiumNS | null = null;
@@ -15,12 +17,24 @@ const LOCAL_BASEMAP_URL = "/visualization/basemap-2048x1024.jpg";
 
 const CESIUM_BUNDLE_URL = "/cesium/index.js";
 
+export interface CustomCoordinateTarget {
+  lat: number;
+  lon: number;
+  label: string;
+}
+
 interface CesiumImmersiveGlobeProps {
   selectedLocationId: string;
+  customCoordinate: CustomCoordinateTarget | null;
   comparisonLocationId: string | null;
   isAutoRotating: boolean;
+  activeField: SpatialField | null;
+  activeFieldAlpha: number;
+  activeFieldVisible: boolean;
   onSelectLocation: (id: string) => void;
+  onPickCoordinate?: (coord: { lat: number; lon: number }) => void;
   onScreenPointUpdate?: (point: { x: number; y: number; visible: boolean } | null) => void;
+  onAltitudeChange?: (altitudeKm: number) => void;
   onEngineReady?: () => void;
   resetSignal: number;
   zoomSignal: number;
@@ -28,10 +42,16 @@ interface CesiumImmersiveGlobeProps {
 
 export function CesiumImmersiveGlobe({
   selectedLocationId,
+  customCoordinate,
   comparisonLocationId,
   isAutoRotating,
+  activeField,
+  activeFieldAlpha,
+  activeFieldVisible,
   onSelectLocation,
+  onPickCoordinate,
   onScreenPointUpdate,
+  onAltitudeChange,
   onEngineReady,
   resetSignal,
   zoomSignal,
@@ -40,11 +60,34 @@ export function CesiumImmersiveGlobe({
   const viewerRef = useRef<CesiumTypes.Viewer | null>(null);
   const pointsCollectionRef = useRef<CesiumTypes.PointPrimitiveCollection | null>(null);
   const arcEntityRef = useRef<CesiumTypes.Entity | null>(null);
+  const fieldLayerRef = useRef<CesiumTypes.ImageryLayer | null>(null);
   const lastUserInteractionTime = useRef<number>(Date.now());
   const isDragging = useRef(false);
   const [engineReady, setEngineReady] = useState(false);
 
-  // Initialize Cesium Viewer
+  // Mutable refs for continuous frame update without destroying the Cesium viewer
+  const isAutoRotatingRef = useRef(isAutoRotating);
+  isAutoRotatingRef.current = isAutoRotating;
+
+  const onSelectLocationRef = useRef(onSelectLocation);
+  onSelectLocationRef.current = onSelectLocation;
+
+  const onPickCoordinateRef = useRef(onPickCoordinate);
+  onPickCoordinateRef.current = onPickCoordinate;
+
+  const onScreenPointUpdateRef = useRef(onScreenPointUpdate);
+  onScreenPointUpdateRef.current = onScreenPointUpdate;
+
+  const onAltitudeChangeRef = useRef(onAltitudeChange);
+  onAltitudeChangeRef.current = onAltitudeChange;
+
+  const selectedLocationIdRef = useRef(selectedLocationId);
+  selectedLocationIdRef.current = selectedLocationId;
+
+  const customCoordinateRef = useRef(customCoordinate);
+  customCoordinateRef.current = customCoordinate;
+
+  // Initialize Cesium Viewer ONCE on mount
   useEffect(() => {
     let disposed = false;
     const container = containerRef.current;
@@ -158,7 +201,7 @@ export function CesiumImmersiveGlobe({
           lastUserInteractionTime.current = Date.now();
           const picked = viewer.scene.pick(event.position);
           if (picked && picked.id && typeof picked.id === "string") {
-            onSelectLocation(picked.id);
+            onSelectLocationRef.current(picked.id);
             return;
           }
 
@@ -169,9 +212,9 @@ export function CesiumImmersiveGlobe({
           const lat = Cesium.Math.toDegrees(c.latitude);
           const lon = Cesium.Math.toDegrees(c.longitude);
 
-          // Find closest demo location within threshold (~5 degrees)
+          // Find closest demo location within threshold (~2.5 degrees)
           let closestId = "";
-          let minDistance = 6.0;
+          let minDistance = 2.8;
           Object.values(DEMO_SCENES).forEach((sceneItem) => {
             const dist = Math.hypot(sceneItem.latitude - lat, sceneItem.longitude - lon);
             if (dist < minDistance) {
@@ -179,45 +222,72 @@ export function CesiumImmersiveGlobe({
               closestId = sceneItem.id;
             }
           });
+
           if (closestId) {
-            onSelectLocation(closestId);
+            onSelectLocationRef.current(closestId);
+          } else if (onPickCoordinateRef.current) {
+            // User clicked arbitrary location on Earth
+            onPickCoordinateRef.current({ lat, lon });
           }
         }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
-        // Frame update listener: handles slow auto-rotation and 2D reticle coordinate projection
+        // Frame update listener: handles slow auto-rotation, altitude tracking, and 2D reticle projection
+        let lastReportedAlt = 0;
         const onPreUpdate = () => {
           const now = Date.now();
 
           // Auto-rotation when idle
           const idleTime = now - lastUserInteractionTime.current;
-          if (isAutoRotating && !isDragging.current && idleTime > 8000) {
-            // ~1 revolution every 5 minutes (0.00035 rad/s)
+          if (isAutoRotatingRef.current && !isDragging.current && idleTime > 8000) {
             viewer.camera.rotate(Cesium.Cartesian3.UNIT_Z, -0.00035);
           }
 
+          // Track camera altitude
+          if (onAltitudeChangeRef.current) {
+            const height = viewer.camera.positionCartographic.height;
+            const altKm = Math.round(height / 1000);
+            if (Math.abs(altKm - lastReportedAlt) >= 25) {
+              lastReportedAlt = altKm;
+              onAltitudeChangeRef.current(altKm);
+            }
+          }
+
           // Compute selected point screen position for the reticle and curved connector
-          if (onScreenPointUpdate) {
-            const selScene = DEMO_SCENES[selectedLocationId];
-            if (selScene) {
-              const pos3d = Cesium.Cartesian3.fromDegrees(selScene.longitude, selScene.latitude, 0);
+          if (onScreenPointUpdateRef.current) {
+            let targetPos3d: CesiumTypes.Cartesian3 | null = null;
+
+            if (customCoordinateRef.current) {
+              targetPos3d = Cesium.Cartesian3.fromDegrees(
+                customCoordinateRef.current.lon,
+                customCoordinateRef.current.lat,
+                0
+              );
+            } else {
+              const selScene = DEMO_SCENES[selectedLocationIdRef.current];
+              if (selScene) {
+                targetPos3d = Cesium.Cartesian3.fromDegrees(selScene.longitude, selScene.latitude, 0);
+              }
+            }
+
+            if (targetPos3d) {
               // Check if point is on visible hemisphere
               const cameraPos = viewer.camera.position;
               const dot = Cesium.Cartesian3.dot(
-                Cesium.Cartesian3.normalize(pos3d, new Cesium.Cartesian3()),
+                Cesium.Cartesian3.normalize(targetPos3d, new Cesium.Cartesian3()),
                 Cesium.Cartesian3.normalize(cameraPos, new Cesium.Cartesian3())
               );
-              if (dot > 0.1) {
-                const screenPos = Cesium.SceneTransforms.worldToWindowCoordinates(scene, pos3d);
+              if (dot > 0.05) {
+                const screenPos = Cesium.SceneTransforms.worldToWindowCoordinates(scene, targetPos3d);
                 if (screenPos) {
-                  onScreenPointUpdate({ x: screenPos.x, y: screenPos.y, visible: true });
+                  onScreenPointUpdateRef.current({ x: screenPos.x, y: screenPos.y, visible: true });
                 } else {
-                  onScreenPointUpdate({ x: 0, y: 0, visible: false });
+                  onScreenPointUpdateRef.current({ x: 0, y: 0, visible: false });
                 }
               } else {
-                onScreenPointUpdate({ x: 0, y: 0, visible: false });
+                onScreenPointUpdateRef.current({ x: 0, y: 0, visible: false });
               }
             } else {
-              onScreenPointUpdate(null);
+              onScreenPointUpdateRef.current(null);
             }
           }
         };
@@ -246,17 +316,18 @@ export function CesiumImmersiveGlobe({
         if (cleanup) cleanup();
       });
     };
-  }, [onSelectLocation, onScreenPointUpdate, onEngineReady, isAutoRotating, selectedLocationId]);
+  }, []); // Run once on mount!
 
-  // Update Points / Markers whenever selectedLocationId changes
+  // Update Points / Markers whenever selection or custom coordinate changes
   useEffect(() => {
     if (!engineReady || !CesiumInstance || !viewerRef.current || !pointsCollectionRef.current) return;
     const Cesium = CesiumInstance;
     const points = pointsCollectionRef.current;
     points.removeAll();
 
+    // 1. Add preset markers
     Object.values(DEMO_SCENES).forEach((sceneItem) => {
-      const isSelected = sceneItem.id === selectedLocationId;
+      const isSelected = !customCoordinate && sceneItem.id === selectedLocationId;
       const isComparison = sceneItem.id === comparisonLocationId;
 
       points.add({
@@ -274,7 +345,19 @@ export function CesiumImmersiveGlobe({
         outlineWidth: isSelected ? 2.5 : 1.2,
       });
     });
-  }, [engineReady, selectedLocationId, comparisonLocationId]);
+
+    // 2. Add custom coordinate point if present
+    if (customCoordinate) {
+      points.add({
+        id: "custom-target",
+        position: Cesium.Cartesian3.fromDegrees(customCoordinate.lon, customCoordinate.lat, 6000),
+        pixelSize: 13,
+        color: Cesium.Color.fromCssColorString("#2fffe0"),
+        outlineColor: Cesium.Color.fromCssColorString("#ffffff"),
+        outlineWidth: 2.5,
+      });
+    }
+  }, [engineReady, selectedLocationId, comparisonLocationId, customCoordinate]);
 
   // Comparison Arc rendering
   useEffect(() => {
@@ -288,7 +371,9 @@ export function CesiumImmersiveGlobe({
     }
 
     if (comparisonLocationId && comparisonLocationId !== selectedLocationId) {
-      const loc1 = DEMO_SCENES[selectedLocationId];
+      const loc1 = customCoordinate
+        ? { longitude: customCoordinate.lon, latitude: customCoordinate.lat }
+        : DEMO_SCENES[selectedLocationId];
       const loc2 = DEMO_SCENES[comparisonLocationId];
       if (loc1 && loc2) {
         arcEntityRef.current = viewer.entities.add({
@@ -310,29 +395,88 @@ export function CesiumImmersiveGlobe({
         });
       }
     }
-  }, [engineReady, selectedLocationId, comparisonLocationId]);
+  }, [engineReady, selectedLocationId, comparisonLocationId, customCoordinate]);
 
-  // Smooth Fly-To when selectedLocationId updates
+  // NASA Spatial Raster Grid Overlay Management
   useEffect(() => {
     if (!engineReady || !CesiumInstance || !viewerRef.current) return;
     const Cesium = CesiumInstance;
     const viewer = viewerRef.current;
-    const targetScene = DEMO_SCENES[selectedLocationId];
-    if (!targetScene) return;
+
+    // Clean up existing raster layer
+    if (fieldLayerRef.current) {
+      viewer.imageryLayers.remove(fieldLayerRef.current, true);
+      fieldLayerRef.current = null;
+    }
+
+    if (!activeField || !activeFieldVisible) {
+      return;
+    }
+
+    try {
+      const { width, height, data } = fieldToRgba(activeField, 1.0);
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+
+      ctx.putImageData(new ImageData(data, width, height), 0, 0);
+      const rect = fieldRectangle(activeField);
+
+      const provider = new Cesium.SingleTileImageryProvider({
+        url: canvas.toDataURL("image/png"),
+        tileWidth: width,
+        tileHeight: height,
+        rectangle: Cesium.Rectangle.fromDegrees(rect.west, rect.south, rect.east, rect.north),
+        credit: `NASA POWER ${activeField.variable_id} — ${activeField.month}`,
+      });
+
+      const layer = viewer.imageryLayers.addImageryProvider(provider, 1);
+      layer.alpha = activeFieldAlpha;
+      layer.show = activeFieldVisible;
+      layer.magnificationFilter = Cesium.TextureMagnificationFilter.NEAREST;
+      layer.minificationFilter = Cesium.TextureMinificationFilter.LINEAR;
+      fieldLayerRef.current = layer;
+    } catch (err) {
+      console.error("Failed to render spatial raster grid:", err);
+    }
+  }, [engineReady, activeField, activeFieldAlpha, activeFieldVisible]);
+
+  // Smooth Fly-To when selection or custom coordinate changes
+  useEffect(() => {
+    if (!engineReady || !CesiumInstance || !viewerRef.current) return;
+    const Cesium = CesiumInstance;
+    const viewer = viewerRef.current;
 
     lastUserInteractionTime.current = Date.now();
 
-    // Fly to location smoothly
+    if (customCoordinate) {
+      viewer.camera.flyTo({
+        destination: Cesium.Cartesian3.fromDegrees(
+          customCoordinate.lon,
+          customCoordinate.lat,
+          6.5e6
+        ),
+        duration: 1.8,
+        easingFunction: Cesium.EasingFunction.QUADRATIC_IN_OUT,
+      });
+      return;
+    }
+
+    const targetScene = DEMO_SCENES[selectedLocationId];
+    if (!targetScene) return;
+
     viewer.camera.flyTo({
       destination: Cesium.Cartesian3.fromDegrees(
         targetScene.longitude,
         targetScene.latitude,
-        6.5e6 // Maintain comfortable regional altitude
+        6.5e6
       ),
       duration: 1.8,
       easingFunction: Cesium.EasingFunction.QUADRATIC_IN_OUT,
     });
-  }, [engineReady, selectedLocationId]);
+  }, [engineReady, selectedLocationId, customCoordinate]);
 
   // Handle Zoom Signal
   useEffect(() => {
@@ -360,5 +504,68 @@ export function CesiumImmersiveGlobe({
     });
   }, [resetSignal]);
 
-  return <div className="iris-globe-stage" ref={containerRef} />;
+  return (
+    <div className="iris-globe-stage" ref={containerRef}>
+      {/* Floating Scientific Color Legend */}
+      {activeField && activeFieldVisible && (
+        <aside
+          aria-label="Scientific Layer Legend"
+          className="iris-scientific-legend"
+          style={{
+            position: "absolute",
+            bottom: "84px",
+            left: "48px",
+            zIndex: 15,
+            background: "rgba(5, 14, 25, 0.78)",
+            backdropFilter: "blur(16px)",
+            WebkitBackdropFilter: "blur(16px)",
+            border: "1px solid rgba(255, 255, 255, 0.12)",
+            borderRadius: "12px",
+            padding: "10px 14px",
+            color: "#ffffff",
+            boxShadow: "0 8px 32px rgba(0, 0, 0, 0.4)",
+            display: "flex",
+            flexDirection: "column",
+            gap: "6px",
+            width: "220px",
+          }}
+        >
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span style={{ fontSize: "11px", fontWeight: "600", letterSpacing: "0.04em", color: "var(--iris-accent-bright)" }}>
+              {activeField.variable_id === "V01" ? "2m Air Temperature" : "Solar Downwelling Flux"}
+            </span>
+            <span style={{ fontSize: "10px", color: "var(--iris-text-muted)" }}>
+              {activeField.units}
+            </span>
+          </div>
+
+          {/* Color Ramp Bar */}
+          <div
+            style={{
+              height: "8px",
+              borderRadius: "4px",
+              background:
+                activeField.variable_id === "V01"
+                  ? "linear-gradient(to right, #233d8e, #2999cb, #d8ece9, #f5b14b, #d44a44)"
+                  : "linear-gradient(to right, #282b70, #6345a4, #e2a243, #ffd86b)",
+              boxShadow: "inset 0 1px 2px rgba(0,0,0,0.4)",
+            }}
+          />
+
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              fontSize: "10px",
+              color: "var(--iris-text-secondary)",
+            }}
+          >
+            <span>{activeField.variable_id === "V01" ? "-55°C" : "0 W/m²"}</span>
+            <span>{activeField.variable_id === "V01" ? "0°C" : "225 W/m²"}</span>
+            <span>{activeField.variable_id === "V01" ? "+45°C" : "450 W/m²"}</span>
+          </div>
+        </aside>
+      )}
+    </div>
+  );
 }
