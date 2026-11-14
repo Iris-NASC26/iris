@@ -52,9 +52,9 @@ test("unknown panel ids and non-object layouts are stripped", () => {
     const { prefs, recovered } = parsePrefs(raw);
     assert.equal(recovered, "ok");
     assert.equal(prefs.layout, null);
-    assert.deepEqual(prefs.hidden, ["source"]);
+    assert.deepEqual(prefs.hidden, []);
     assert.deepEqual(defaultPrefs().version, LAYOUT_VERSION);
-    assert.equal(STORAGE_KEY.includes("v3"), true);
+    assert.equal(STORAGE_KEY.includes("v4"), true);
 });
 
 test("layoutPanels reports only known panels from a saved layout", () => {

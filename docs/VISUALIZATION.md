@@ -1,6 +1,6 @@
 # Visualization workspace
 
-The current Plot & Visualize experience uses the approved immersive Landscape design, with the Evidence preset and linked 2D views. See [IMMERSIVE_VISUALIZATION.md](IMMERSIVE_VISUALIZATION.md) for its controls, Data Analysis handoff, scientific boundaries and verification. The acquisition drawer now starts collapsed and layout preferences use v3.
+The current Plot & Visualize experience uses the approved immersive Landscape design, with linked 2D views and trend evidence. See [IMMERSIVE_VISUALIZATION.md](IMMERSIVE_VISUALIZATION.md) for its controls, Data Analysis handoff, scientific boundaries and verification. The acquisition drawer starts collapsed and layout preferences use v4. The toolbar has data controls and exports; Compare and Observations tabs and workspace-management controls have been removed.
 
 This is a focused addition to the fresh Iris baseline `dcffc86`. It keeps the existing site layout, SI workflow and original scientific-analysis component. It does not consolidate the older application or replace the backend. The user explicitly authorized an additive genuine-grid endpoint without editing existing backend files.
 
@@ -32,7 +32,7 @@ The baseline imports EODAG unconditionally but omits it from `backend/requiremen
 2. Search for datasets using the same discovery endpoint used by SI, or use products already selected in SI. Suggestions may prefill coordinates and dates, but observations load only on an explicit action.
 3. Confirm a location, date range and supported cadence. This retrieval uses the existing point extraction API. A region name does not imply a polygon average. The geocoder returns its top match; users review the filled coordinates before retrieval.
 4. Load datasets, then select a second location and load again to compare. Keep up to six in-memory series. Native navigation between the two visualization routes preserves loaded series; a full refresh restores a supplied `jobId` through the real backend job endpoint.
-5. Choose time series, area, observation bars, seasonal profile, monthly anomaly heatmap, distribution or paired scatter. Use the observation table to inspect precise values/QA, and export source/display values with metadata.
+5. Choose time series, area, observation bars, seasonal profile, monthly anomaly heatmap, distribution or paired scatter. Export precise source/display values, QA and metadata through CSV/JSON.
 6. On the globe, follow the Dataset -> Spatial extent -> Date -> Load layer flow. Extent presets include the entire globe, a documented Europe bounding box `[34, 72, -25, 45]` (south, north, west, east — a rectangle, not a continental polygon), smaller region presets, an ordered custom box, and a drag-drawn box on the 2D map. Native-sized extents load through `/field`; the globe and larger extents load through `/overview`, which may return documented coarser output cells. Inspect cells in the right-hand inspector, focus the camera, restyle the field, reorder layers or switch to a 2D fallback.
 6b. From the landing page, the illustrative COBE globe's study-location markers open `/workspace/globe` with `?place&lat&lon`. These set the location used by “Use box around selected location” without fetching observations. Point time series are requested separately in the studio.
 7. Scientific analysis is an explicit separate action on the selected immutable source job. The original scientific interface is preserved. No analysis is triggered by loading a chart, selecting a method, or opening a job link.
@@ -59,7 +59,7 @@ MERRA-2 fields use the existing UTC monthly temporal/native and spatial/overview
 
 All listed variables support both bounded native fields and whole-globe/Europe overviews. Missing source cells remain transparent, including undefined land-variable cells. Changing variables clears the old layer, stops playback/linkage and resets variable-specific display styling. Colour ranges are presentation choices (values beyond them clamp to endpoint colours), not NASA validity limits or inferred trends. Snow depth has a blue–cyan–white palette. No extra credentials are required for these public stores.
 
-The checked-in `shared/` catalogue must ship alongside `backend/` when packaging the Python service. Existing V01/V12 IDs and response schema versions remain compatible. Studio layout preferences move to v2; v1 arrangements containing the removed globe panel recover to a chart-only preset.
+The checked-in `shared/` catalogue must ship alongside `backend/` when packaging the Python service. Existing V01/V12 IDs and response schema versions remain compatible. Studio layout preferences use v4; older arrangements containing removed panels recover to the default Landscape arrangement.
 
 Live source verification on 2026-11-15 read January 2024 for all 11 variables at a small native extent (48–49°N, 2–3°E) and for the entire globe. The returned source version was POWER 10.0.0. MERRA-2 global overviews contained 13,104 output cells; the CERES sunlight overview contained 16,200. Snow depth and root-zone wetness retained missing cells (4,474 valid output cells each). A separate request through the running Next/FastAPI overview endpoint confirmed snow depth in cm. These are source/transport checks, not independent validation of climate inference or forecast skill.
 
@@ -184,38 +184,31 @@ Remote coordination note: `origin/viz_2d_maps` also modifies `src/app/workspace/
 
 ## Iris Visualization Studio (docked panels)
 
-`/workspace/visualize` hosts the studio: a `dockview-react@8.8.3` (MIT) desktop
-dock with three curated presets (Explore, Compare and Seasonal).
-Outlook remains on Data Analysis. Panels are thin views over `StudioContext` (`studio/state.tsx`), the
-shared investigation state built by `Workspace.tsx` — panel lifecycles never own
-loaded data, so preset switches, closes and reopens are lossless.
+`/workspace/visualize` hosts the immersive Landscape studio, using
+`dockview-react@8.8.3` (MIT) for resizable/dockable desktop views. The toolbar
+contains Data controls and CSV/JSON exports. Workspace-management controls,
+Compare and Observations tabs are removed. Remaining tabs stay available
+without close actions or a Reopen control. Data Analysis remains accessible
+through the workspace navigation; Outlook stays on that page.
 
-- `studio/presets.ts` — preset trees serialized to dockview layouts; unplaced
-  panels become tabs on the first group so every panel stays reachable.
-- `studio/layoutPersistence.ts` — versioned `iris.studio.layout.v2` record
-  (preset, grid, closed panels, focus). Corrupt JSON, unsupported versions and
-  removed panel ids fall back to a preset with an on-screen note. Only
-  presentation state is stored — never observations or analysis payloads.
-- `studio/panels.tsx` — TimeSeries, Seasonal (year-by-month heatmap + yearly
-  profile), Relationship (explicit X/Y pickers, exact-timestamp pairing),
-  Observations table, Source & selection inspector and Compare (descriptive
-  stats + matching submitted-trend block). Neither Globe nor Outlook is a
-  studio panel. Stored layouts referencing removed panels recover to a preset.
-- `hooks/useScientificAnalysis.ts` — extracted Case File controller: user-run
-  submissions bound to `job|variable|region|dates` identity; superseded
-  requests abort; late results are dropped; changing the source invalidates
-  the binding.
-- `adapters/analysisResult.ts` — runtime validation of the fields panels read.
-  `ci_low/ci_high` are reported as returned bounds, never as calibrated
-  prediction intervals; failed skill gates suppress short-term rendering with
-  the supplied reason.
-- `MapWorkspace.tsx` — the map workspace used by the dedicated
-  `/workspace/globe` route. The studio Earth panel and Earth + Time preset
-  have been removed; map renderers do not mount in Plot & Visualize.
-- Charts publish semantic selections (`SelectEvent`: time/month/pair with real
-  timestamps) instead of inferring timestamps from a numeric threshold;
-  heatmap cells resolve to their actual year+month. The committed selection is
-  shown as a mark line and mirrored in the table and inspector.
-- Narrow viewports (≤900px) get a deliberate single-panel tab layout instead
-  of the dock; the dock returns on wider screens. Focus mode collapses the
-  data drawer within the route only and is reversible.
+- `studio/presets.ts` defines serialized arrangements and the current panel
+  registry. The studio opens the Landscape arrangement; there is no preset picker.
+- `studio/layoutPersistence.ts` stores the versioned `iris.studio.layout.v4`
+  presentation record. Older, incomplete or removed-panel layouts fall back
+  safely to the default. Legacy hidden/focus state is ignored. Observations
+  and analysis payloads are never stored in these preferences.
+- `studio/panels.tsx` contains time series, seasonal profile/heatmap,
+  relationship and source/selection views. `LandscapePanel.tsx` and
+  `EvidencePanel.tsx` add the seasonal 3D scene, linked heatmap, scientific
+  evidence and trend intervals. Exact values and QA remain available in exports.
+- `adapters/analysisBinding.ts` binds completed Data Analysis results to the
+  immutable extracted source and submitted settings. Visualization never
+  reruns analysis automatically or reuses another source's results.
+- The geographic renderer remains exclusive to `/workspace/globe`.
+- Charts publish exact-timestamp selections shared across views and the
+  source inspector. Missing/excluded observations remain gaps.
+- Narrow viewports (up to 900px) use one selected view at a time; the mobile
+  selector excludes removed panels. The desktop dock returns on wider screens.
+
+See [IMMERSIVE_VISUALIZATION.md](IMMERSIVE_VISUALIZATION.md) for the complete
+rendering, data handoff, scientific-boundary and verification notes.

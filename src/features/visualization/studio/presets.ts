@@ -1,6 +1,6 @@
 // Curated studio arrangements. Layouts are plain serialized-dockview trees so
 // they can be persisted, validated, and restored without a live DockviewApi.
-export type PanelId = 'landscape' | 'heatmap' | 'evidence' | 'rates' | 'timeseries' | 'seasonal' | 'relationship' | 'table' | 'source' | 'comparison';
+export type PanelId = 'landscape' | 'heatmap' | 'evidence' | 'rates' | 'timeseries' | 'seasonal' | 'relationship' | 'source';
 export interface PanelDef {
     id: PanelId;
     title: string;
@@ -13,9 +13,7 @@ export const PANEL_DEFS: PanelDef[] = [
     { id: 'timeseries', title: 'Time series' },
     { id: 'seasonal', title: 'Seasonal cycles' },
     { id: 'relationship', title: 'Relationship' },
-    { id: 'table', title: 'Observations' },
     { id: 'source', title: 'Source & selection' },
-    { id: 'comparison', title: 'Compare' },
 ];
 export const PANEL_IDS = PANEL_DEFS.map(p => p.id);
 
@@ -33,9 +31,8 @@ export interface Preset {
 }
 export const PRESETS: Preset[] = [
     { id: 'landscape', label: 'Landscape', hint: 'An immersive seasonal landscape with a linked timeline, heatmap and source-bound scientific evidence.', root: row(weighted(70, col(leaf(67, 'landscape'), leaf(33, 'timeseries'))), weighted(30, col(leaf(52, 'evidence'), leaf(48, 'heatmap')))) },
-    { id: 'evidence', label: 'Evidence', hint: 'A clear timeline, seasonal heatmap, trend intervals and a source-bound scientific summary.', root: row(weighted(65, col(leaf(60, 'timeseries'), leaf(40, 'rates', 'comparison'))), weighted(35, col(leaf(50, 'heatmap'), leaf(50, 'evidence', 'source')))) },
+    { id: 'evidence', label: 'Evidence', hint: 'A clear timeline, seasonal heatmap, trend intervals and a source-bound scientific summary.', root: row(weighted(65, col(leaf(60, 'timeseries'), leaf(40, 'rates'))), weighted(35, col(leaf(50, 'heatmap'), leaf(50, 'evidence', 'source')))) },
     { id: 'explore', label: 'Explore', hint: 'Time series with a supporting seasonal heatmap and a compact source inspector.', root: row(leaf(68, 'timeseries'), col(leaf(58, 'seasonal'), leaf(42, 'source'))) },
-    { id: 'compare', label: 'Compare', hint: 'Coordinated series, an aligned-pair relationship view, and a comparison summary.', root: row(col(leaf(62, 'timeseries'), leaf(38, 'comparison')), col(leaf(60, 'relationship'), leaf(40, 'source'))) },
     { id: 'seasonal', label: 'Seasonal', hint: 'Year-by-month heatmap with the seasonal profile and the full record alongside.', root: row(leaf(62, 'seasonal'), col(leaf(55, 'timeseries'), leaf(45, 'source'))) },
 ];
 export const DEFAULT_PRESET = PRESETS[0].id;

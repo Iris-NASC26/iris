@@ -181,7 +181,6 @@
 .viz-table-scroll tr[data-selected] td {background:rgba(0,169,129,.12);}
 .viz-table-scroll tbody tr {cursor:pointer;}
 .viz-table-scroll tbody tr:hover td {background:rgba(0,169,129,.07);}
-.viz-layout[data-studio][data-focus] {grid-template-columns:1fr;}
 @media(max-width:900px){.viz-studio-dock{display:none;}.viz-layout[data-studio]{grid-template-columns:1fr;}.viz-layout[data-studio] .viz-controls{max-width:none;}}
 .viz-panel .viz-empty-hero {min-height:0;flex:1;padding:30px 16px;}
 .viz-panel .viz-empty-hero h3 {font-size:16px;}

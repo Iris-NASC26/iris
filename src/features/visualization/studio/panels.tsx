@@ -4,7 +4,7 @@
 import { useMemo, useState } from "react";
 import type { IDockviewPanelProps } from "dockview-react";
 import { DataChart, ChartCanvas, type ChartKind, type SelectEvent } from "../Charts";
-import { calendar, deviation, format, lineData, MONTHS, monthlyCells, paired, scale, summary, type VisualSeries } from "../model";
+import { calendar, format, lineData, MONTHS, monthlyCells, paired, scale, summary, type VisualSeries } from "../model";
 import { useStudioTheme as useTheme } from './display';
 import { useStudio, type StudioState } from "./state";
 
@@ -136,17 +136,6 @@ export function RelationshipPanel(_p: P) {
     </div>;
 }
 
-export function ObservationTablePanel(_p: P) {
-    const s = useStudio();
-    if (!s.primary) return <EmptyData />;
-    const rows = s.primaryRows;
-    return <div className="viz-panel">
-        <div className="viz-panel-tools"><span className="viz-muted">Source values and QA flags — nothing interpolated.</span><button className="viz-button" onClick={() => s.exportData('csv')}>Export CSV</button><button className="viz-button" onClick={() => s.exportData('json')}>Export JSON</button></div>
-        <div className="viz-table-scroll"><table><caption>Observation data for {s.primary.label}</caption><thead><tr><th>Timestamp</th><th>Source value ({s.primary.preview.summary_stats.unit})</th><th>Plotted value</th><th>Source QA</th><th>Selected</th></tr></thead><tbody>{rows.slice(s.tablePage * 50, s.tablePage * 50 + 50).map(r => <tr key={r.timestamp} data-selected={s.selection?.seriesId === s.primary!.id && s.selection.time === r.time || undefined} onClick={() => { const i = rows.indexOf(r); if (i >= 0) commitIndex(s, i); }}><td>{r.timestamp}</td><td>{format(r.sourceValue ?? null, 4)}</td><td>{format(r.value, 4)}</td><td>{r.qa}</td><td>{s.selection?.time === r.time ? '●' : ''}</td></tr>)}</tbody></table></div>
-        <div className="viz-table-pages"><button disabled={s.tablePage === 0} onClick={() => s.setTablePage(p => p - 1)}>Previous rows</button><span>Page {s.tablePage + 1} of {Math.max(1, Math.ceil(rows.length / 50))}</span><button disabled={(s.tablePage + 1) * 50 >= rows.length} onClick={() => s.setTablePage(p => p + 1)}>Next rows</button></div>
-    </div>;
-}
-
 export function SourceInspectorPanel(_p: P) {
     const s = useStudio();
     if (!s.primary) return <EmptyData />;
@@ -156,7 +145,7 @@ export function SourceInspectorPanel(_p: P) {
     return <div className="viz-panel viz-panel-scroll">
         <section className="viz-control-section"><span className="viz-step">SELECTION</span>
             {s.selection && selRow ? <dl className="viz-kv"><dt>Timestamp</dt><dd>{s.selection.timestamp}</dd><dt>Value</dt><dd>{format(selRow.value)} {p.summary_stats.unit} (QA: {selRow.qa})</dd><dt>Series</dt><dd>{s.primary.label}</dd></dl>
-                : <p className="viz-muted">Click a chart point, heatmap cell, aligned pair, or table row to commit a selection shared across panels.</p>}
+                : <p className="viz-muted">Click a chart point, heatmap cell or aligned pair to commit a selection shared across panels.</p>}
         </section>
         <section className="viz-control-section"><span className="viz-step">DISPLAY</span>
             <div className="viz-filter-row"><label>From<input type="date" value={s.filterStart} onChange={e => s.setFilterStart(e.target.value)}/></label><label>To<input type="date" value={s.filterEnd} onChange={e => s.setFilterEnd(e.target.value)}/></label></div>
@@ -168,23 +157,5 @@ export function SourceInspectorPanel(_p: P) {
             {p.product.source_url && <a href={p.product.source_url} rel="noreferrer" target="_blank">Source documentation</a>}
         </section>
         <section className="viz-control-section"><span className="viz-step">SERIES</span>{s.series.map(v => <article key={v.id} className="viz-series-row"><label><input type="checkbox" checked={!s.hidden.includes(v.id)} onChange={e => s.toggleHidden(v.id, e.target.checked)}/><i style={{ background: v.color }}/>{v.label}</label><button onClick={() => s.removeSeries(v.id)}>Remove</button></article>)}</section>
-    </div>;
-}
-
-export function ComparisonPanel(_p: P) {
-    const s = useStudio();
-    if (!s.primary) return <EmptyData />;
-    const visible = s.entries;
-    const trendBinding = s.analysis.binding;
-    const trendOk = trendBinding && trendBinding.submission.methods.some(m => m === 'sen_slope' || m === 'ols') && trendBinding.inputKey === s.analysis.inputKey;
-    return <div className="viz-panel viz-panel-scroll">
-        <table className="viz-compare"><caption>Visible series over the shared display window — descriptive values only.</caption>
-            <thead><tr><th>Series</th><th>Usable</th><th>Mean</th><th>Range</th><th>Std dev</th><th>First→last</th></tr></thead>
-            <tbody>{visible.map(v => { const rows = s.data.get(v.id) ?? []; const st = summary(rows); const sd = deviation(rows); return <tr key={v.id}><td><i className="viz-swatch" style={{ background: v.color }}/>{v.label}</td><td>{st.count}</td><td>{format(st.mean)} {v.preview.summary_stats.unit}</td><td>{format(st.min)}–{format(st.max)}</td><td>{sd === null ? 'Unavailable' : sd === 0 ? '0 (zero variance)' : format(sd)}</td><td>{format(st.change)}</td></tr>; })}</tbody>
-        </table>
-        {trendOk ? <div className="viz-control-section"><span className="viz-step">SUBMITTED TREND ESTIMATE</span>
-            <dl className="viz-kv">{trendBinding.submission.methods.includes('sen_slope') && <><dt>Sen slope</dt><dd>{format(trendBinding.result.sens_slope_decadal)} {trendBinding.result.unit}/decade · 95% CI {format(trendBinding.result.sens_ci_low)} to {format(trendBinding.result.sens_ci_high)}</dd></>}{trendBinding.submission.methods.includes('ols') && <><dt>OLS slope</dt><dd>{format(trendBinding.result.ols_slope_decadal)} {trendBinding.result.unit}/decade · 95% CI {format(trendBinding.result.ols_ci_low_decadal)} to {format(trendBinding.result.ols_ci_high_decadal)}</dd></>}<dt>Bound to</dt><dd>{trendBinding.result.dataset_name} · {trendBinding.result.start_year}–{trendBinding.result.end_year} · methods {trendBinding.submission.methods.join(', ')}</dd></dl>
-            <p className="viz-muted">Intervals are this submission’s estimates only; no cross-dataset trend comparison is implied.</p></div>
-            : <p className="viz-muted">Trend estimates appear here only for a matching submitted analysis on the primary series — run the selected methods on Data Analysis. Endpoint differences above are descriptive, not trend estimates.</p>}
     </div>;
 }

@@ -47,7 +47,7 @@ export function ChartCanvas({ option, label, onSelect, resetable }: {
             observer = new ResizeObserver(() => instance.resize());
             observer.observe(node.current);
         }).catch(() => { if (!disposed)
-            setError("Chart renderer unavailable. The observation table and exports remain available."); });
+            setError("Chart renderer unavailable. CSV and JSON exports remain available."); });
         return () => { disposed = true; observer?.disconnect(); chart.current?.dispose(); chart.current = null; };
     }, []);
     useEffect(() => { chart.current?.setOption(option, { notMerge: true }); }, [option]);
@@ -142,6 +142,6 @@ export function DataChart({ kind, entries, primary, data, normalized, markTime, 
   {normalized && ['line', 'area', 'bars'].includes(kind) && <p className="viz-note">Each series is standardized independently using its selected-period mean and sample standard deviation. Absolute magnitudes and units are not comparable in this view.</p>}
   {zeroVariance && <p className="viz-note" role="alert">At least one visible series has zero variance in the selected period — standardization is undefined for it and it is drawn flat at zero. Do not read a signal into it.</p>}
   {kind === 'scatter' && entries.length < 2 ? <div className="viz-empty">Load a second dataset or location to compare observations.</div> :
-            <ChartCanvas option={option} label={`${CHARTS.find(c => c.id === kind)?.label} for ${primary.label}. Exact values are available in the observation table.`} onSelect={handleSelect} resetable={['line', 'area', 'bars', 'heatmap'].includes(kind)}/>}
+            <ChartCanvas option={option} label={`${CHARTS.find(c => c.id === kind)?.label} for ${primary.label}. Exact values are available in CSV and JSON exports.`} onSelect={handleSelect} resetable={['line', 'area', 'bars', 'heatmap'].includes(kind)}/>}
  </>;
 }

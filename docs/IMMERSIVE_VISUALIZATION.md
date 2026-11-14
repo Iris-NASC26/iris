@@ -1,13 +1,13 @@
 # Immersive trend visualization
 
-The approved B concept is the default **Landscape** experience. A's readable timeline, heatmap, evidence summary and location interval comparison are available alongside it and through the **Evidence** preset. Concept C is excluded. Plot & Visualize contains neither Outlook nor a geographic globe; those remain on Data Analysis and Living Globe respectively.
+The approved B concept is the default **Landscape** experience. A's readable timeline, heatmap, evidence summary and location interval comparison are available alongside it and through the remaining tabs. Concept C is excluded. Plot & Visualize contains neither Outlook nor a geographic globe; those remain on Data Analysis and Living Globe respectively.
 
 ## Use
 
 1. Continue from SI → Data Selection → Data Analysis. The extracted preview is shared automatically. After explicitly running chosen analysis methods, select **Explore in Visualization Studio** (or use Plot & Visualize in the sidebar).
 2. Orbit/zoom the seasonal landscape, choose surface/columns/heatmap, and select observed values, calendar-month departures or standardized values. Scene settings control perspective/orthographic projection, vertical emphasis, mesh and camera reset. No automatic spin is used. Colour and height represent the same quantity, with numeric legends and source/display units.
 3. Click a month/point to select the exact source timestamp across landscape, heatmap, timeline, inspector and table. Timeline brush zoom is local; Source & selection has shared date/QA display filters. Neither action reruns inference. Choose line, area, bars, distribution, seasonal profile or exact-pair scatter for complementary questions.
-4. Use **Evidence** for timeline, heatmap, rate intervals and scientific context. Each compared location needs a separately completed analysis. Dock, resize, maximize, close/reopen panels or use focus mode. Mobile uses one selected panel at a time. Midnight/Daylight affects only this studio.
+4. Use **Trend evidence** and **Trend intervals** for scientific context and uncertainty. Each compared location needs a separately completed analysis. Views remain dockable/resizable and cannot be closed accidentally. Mobile uses one selected view at a time. The toolbar contains data controls and CSV/JSON exports; environment, preset, panel reopening, maximize, focus, workspace reset and the duplicate scientific-analysis shortcut have been removed. The Compare and Observations tabs are removed; precise source/display values and QA remain available in exports, with scientific analysis accessible from the main navigation.
 5. **Data controls** opens the optional acquisition drawer, initially collapsed. Existing job links restore an authentic backend preview after reload. Loading observations never automatically runs statistical tests.
 
 ## Scientific boundaries
@@ -37,9 +37,9 @@ Data Analysis publishes only non-aborted, source-matched extraction-backed resul
 
 ## Reliability and dependencies
 
-- Existing ECharts 6 renders the 2D views. Pinned `echarts-gl@2.1.0` is loaded only when a populated 3D panel needs it; it declares ECharts 5/6 compatibility. No overlapping chart engine or CDN runtime is added. WebGL absence, context loss or renderer failure switches to the equivalent heatmap; the observation table/exports remain available. The probe context is released immediately and device pixel ratio is capped at 2.
+- Existing ECharts 6 renders the 2D views. Pinned `echarts-gl@2.1.0` is loaded only when a populated 3D panel needs it; it declares ECharts 5/6 compatibility. No overlapping chart engine or CDN runtime is added. WebGL absence, context loss or renderer failure switches to the equivalent heatmap; data exports remain available. The probe context is released immediately and device pixel ratio is capped at 2.
 - The published ECharts GL package carries a **BSD-3-Clause LICENSE** (npm metadata says MIT). Its full packaged notice is preserved in [licenses/echarts-gl-2.1.0-BSD-3-Clause.txt](licenses/echarts-gl-2.1.0-BSD-3-Clause.txt). Upstream: https://github.com/ecomfe/echarts-gl.
-- Layout preferences are version 3 and safely discard unsupported arrangements, including removed globe/Outlook panels. Display preferences use a separate validated v1 key. Storage denial is nonfatal; SSR never accesses `window`.
+- Layout preferences are version 4 and safely discard unsupported/incomplete arrangements, including removed globe, Outlook, Compare and Observations panels. Legacy hidden/focus state cannot hide the remaining views or data controls. Display preferences use a separate validated v1 key. Storage denial is nonfatal; SSR never accesses `window`.
 - There are no backend/provider changes, new credentials or synthetic production observations in this task. Test fixtures are explicitly synthetic and restricted to `tests/`.
 
 ## Verification
@@ -54,3 +54,5 @@ npx playwright test -c playwright.visualization.config.ts immersive.spec.ts stud
 Pure tests use hand-computable references for departures/sample standardization and inspect surface patch membership around absent months/years. Binding tests reject wrong identities, submitted settings, invalid probabilities/intervals and stale source keys. Browser tests exercise real WebGL rendering, 2D denial fallback, scene controls, mobile sizing, legacy layout recovery and the Data Analysis → Visualize handoff without duplicate analysis requests. Browser transport fixtures never establish NASA authenticity or scientific validity.
 
 Verification on 2026-11-15: **80 unit tests passed**, TypeScript checking and the production build passed. The full production browser run had 32 passed / 3 skipped; two skips were opt-in live-provider tests and one was an existing graphics-capability gate. The graphics-gated globe degradation/recovery test then passed in isolation, giving **33 distinct browser checks verified**. Manual rendering through the actual backend also used the existing NASA POWER GWETROOT job `job-6cc93cdfef` (2015–2025, 132 monthly rows, 127 usable and five absent/excluded cells). Surface and column screenshots were inspected; no client exceptions were recorded. This source/rendering check is not an independent scientific validation of the backend trend algorithms.
+
+UI cleanup verification: 80 unit checks and 12 relevant browser checks passed, together with TypeScript checking and the production build. Browser coverage includes the simplified toolbar, removed desktop/mobile tabs, prevention of accidental tab closure, legacy layout recovery, exports and the Data Analysis handoff. The updated workspace was also inspected using the existing NASA POWER record described above.

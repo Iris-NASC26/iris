@@ -32,7 +32,7 @@ function VisualizationWorkspaceContent({ initialView }: { initialView: 'charts' 
     const [place, setPlace] = useState(dashboard.extractionConfig.region_name), [lat, setLat] = useState(String(dashboard.extractionConfig.point_lat ?? 6.9355)), [lon, setLon] = useState(String(dashboard.extractionConfig.point_lon ?? 79.8487));
     const [start, setStart] = useState(dashboard.extractionConfig.start_date), [end, setEnd] = useState(dashboard.extractionConfig.end_date), [frequency, setFrequency] = useState('Monthly');
     const [primaryId, setPrimaryId] = useState(''), [hidden, setHidden] = useState<string[]>([]), [filterStart, setFilterStart] = useState(''), [filterEnd, setFilterEnd] = useState('');
-    const [includeFlagged, setIncludeFlagged] = useState(false), [normalized, setNormalized] = useState(false), [timeIndex, setTimeIndex] = useState(0), [playing, setPlaying] = useState(false), [tablePage, setTablePage] = useState(0);
+    const [includeFlagged, setIncludeFlagged] = useState(false), [normalized, setNormalized] = useState(false), [timeIndex, setTimeIndex] = useState(0), [playing, setPlaying] = useState(false);
     const [selection, setSelection] = useState<StudioSelection | null>(null);
     const [fieldVariable, setFieldVariable] = useState<SpatialVariableId>('V01'), [fieldMonth, setFieldMonth] = useState('2024-01'), [fieldBox, setFieldBox] = useState(['4', '16', '76', '86']);
     const [field, setField] = useState<SpatialField | null>(null), [fieldBusy, setFieldBusy] = useState(false), [fieldError, setFieldError] = useState('');
@@ -43,7 +43,6 @@ function VisualizationWorkspaceContent({ initialView }: { initialView: 'charts' 
     const [inspection, setInspection] = useState<CellInspection | null>(null);
     const [drawMode, setDrawMode] = useState(false), [cellClearSignal, setCellClearSignal] = useState(0), [applied, setApplied] = useState<{ variable: string; month: string; box: ExtentBox } | null>(null);
     const [drawerOpen, setDrawerOpen] = useState(false);
-    const [focus, setFocus] = useState(false);
     // Whether this session has a loaded field — survives the transient null
     // while a reload is in flight, so playback/steppers keep driving requests.
     const spatialSession = useRef(false);
@@ -107,7 +106,7 @@ function VisualizationWorkspaceContent({ initialView }: { initialView: 'charts' 
             router.replace(`/workspace/globe?${params.toString()}`);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
-    useEffect(() => { setTimeIndex(0); setTablePage(0); setPlaying(false); setSelection(null); }, [primary?.id, filterStart, filterEnd, includeFlagged]);
+    useEffect(() => { setTimeIndex(0); setPlaying(false); setSelection(null); }, [primary?.id, filterStart, filterEnd, includeFlagged]);
     useEffect(() => { if (!playing || times.length < 2)
         return; const id = window.setInterval(() => setTimeIndex(i => (i + 1) % times.length), 650); return () => clearInterval(id); }, [playing, times.length]);
     useEffect(() => () => { request.current?.abort(); fieldRequest.current?.abort(); searchRequest.current?.abort(); geoRequest.current?.abort(); }, []);
@@ -379,8 +378,6 @@ function VisualizationWorkspaceContent({ initialView }: { initialView: 'charts' 
         selection, select: setSelection,
         timeIndex, setTimeIndex,
         playing, setPlaying,
-        tablePage, setTablePage,
-        focus, setFocus,
         analysis, exportData, openAnalysis: analyze,
     };
     const controls = <aside className="viz-controls" aria-label="Visualization controls">
@@ -422,15 +419,14 @@ function VisualizationWorkspaceContent({ initialView }: { initialView: 'charts' 
     return <StudioContext.Provider value={studio}><div className="viz-workbench viz-immersive dashboard-page-inner" data-environment={display.dark ? 'dark' : 'light'}>
   <header className="viz-heading"><div><span className="viz-eyebrow">IRIS / EARTH SYSTEM OBSERVATORY</span><h2>Make the change visible.</h2><p>Explore the shape of the record. Follow the evidence behind the trend.</p></div><Link className="viz-button" href="/workspace/intelligence"><Icon name="sparkles" size={16}/> Open SI discovery</Link></header>
   {primary && <section className="viz-context-strip" aria-label="Selected record"><div><span>WHAT</span><strong>{primary.preview.product.variable_name}</strong><small>{primary.preview.summary_stats.unit} · {primary.preview.product.source_api}</small></div><div><span>WHERE</span><strong>{primary.preview.extraction_config.region_name}</strong><small>{primary.preview.spatial_semantics_applied || 'Point sample; not a regional mean'}</small></div><div><span>WHEN</span><strong>{primary.preview.extraction_config.start_date} → {primary.preview.extraction_config.end_date}</strong><small>{primary.preview.extraction_config.target_frequency} · {stats.count} visible usable observations</small></div><div><span>ANALYSIS</span><strong>{binding ? 'Matching result attached' : 'Not yet attached'}</strong><small>{binding ? `${binding.result.start_year}–${binding.result.end_year} · display filters do not retest` : 'Complete selected methods on Data Analysis'}</small></div></section>}
-  <div className="viz-layout" data-studio data-drawer={drawerOpen || undefined} data-focus={focus || undefined}>
-   {drawerOpen && !focus && controls}
+  <div className="viz-layout" data-studio data-drawer={drawerOpen || undefined}>
+   {drawerOpen && controls}
    <section className="viz-results" aria-label="Visualization studio" aria-busy={loading}>
     {error && <div className="viz-error" role="alert"><strong>Could not complete this request</strong><p>{error}</p></div>}{notice && <p className="viz-notice" role="status">{notice}</p>}
     <StudioShell>
       <button className="viz-button" aria-pressed={drawerOpen} onClick={() => setDrawerOpen(o => !o)}>{drawerOpen ? 'Hide data controls' : 'Data controls'}</button>
       {primary && <button className="viz-button" onClick={() => exportData('csv')}>Export CSV</button>}
       {primary && <button className="viz-button" onClick={() => exportData('json')}>Export JSON</button>}
-      {primary && <button className="viz-button" onClick={analyze}>Scientific analysis</button>}
     </StudioShell>
     {timeStrip}
    </section>

@@ -40,7 +40,7 @@ export function LandscapeChart({ model, display, reset, selectedTime, onSelect, 
             node.current.addEventListener('webglcontextlost', lost, true);
             observer = new ResizeObserver(() => chart.resize()); observer.observe(node.current);
             setReady(true);
-        }).catch(() => { if (!disposed) latest.current.onUnavailable('The 3D renderer could not load. The 2D heatmap and observation table remain available.'); });
+        }).catch(() => { if (!disposed) latest.current.onUnavailable('The 3D renderer could not load. The 2D heatmap and data exports remain available.'); });
         return () => { disposed = true; mount?.removeEventListener('webglcontextlost', lost, true); observer?.disconnect(); instance.current?.dispose(); instance.current = null; };
     }, []);
     useEffect(() => {
@@ -73,7 +73,7 @@ export function LandscapeChart({ model, display, reset, selectedTime, onSelect, 
         // Camera events stay in a ref: linked selections preserve orbit/zoom and
         // hover never updates React. The explicit reset remounts this component.
     }, [model, display, reset, selectedTime, ready]);
-    return <div className="viz-landscape-canvas" role="img" aria-label={`Interactive 3D seasonal landscape. ${model.cells.length} monthly values; ${model.unit}. Drag to orbit, scroll to zoom. Equivalent values are available in the heatmap and observation table.`}>
+    return <div className="viz-landscape-canvas" role="img" aria-label={`Interactive 3D seasonal landscape. ${model.cells.length} monthly values; ${model.unit}. Drag to orbit, scroll to zoom. Equivalent values are available in the heatmap and data exports.`}>
         <div ref={node} style={{ position: 'absolute', inset: 0 }}/>
         {!ready && <span className="viz-render-status" role="status">Preparing the 3D landscape…</span>}
     </div>;

@@ -7,10 +7,10 @@ test.beforeEach(async ({ page }) => {
     await page.route('**/api/v1/timeseries/jobs/*/preview?*', route => route.fulfill({ json: fixture() }));
 });
 
-test('landscape is the default; 3D, heatmap, themes and quantities use the selected record', async ({ page }) => {
+test('landscape is the default; 3D, heatmap and quantities use the selected record', async ({ page }) => {
     const errors: string[] = []; page.on('pageerror', e => errors.push(e.message));
     await new VisualizationPage(page).open('/workspace/visualize?jobId=job-test');
-    await expect(page.getByLabel('Preset', { exact: true })).toHaveValue('landscape');
+    await expect(page.getByRole('tab', { name: 'Seasonal landscape', exact: true })).toBeVisible();
     await expect(page.getByLabel('Selected record')).toContainText('Test air temperature');
     await expect(page.locator('.viz-landscape-canvas canvas').first()).toBeVisible();
     await expect(page.getByRole('img', { name: /Interactive 3D seasonal landscape/ })).toHaveAttribute('aria-label', /4 monthly values/);
@@ -20,8 +20,6 @@ test('landscape is the default; 3D, heatmap, themes and quantities use the selec
     await expect(page.locator('.viz-landscape-canvas')).toHaveCount(0);
     await page.getByLabel('Landscape quantity').selectOption('departure');
     await expect(page.locator('.viz-landscape-panel .viz-panel-foot')).toContainText('not a climate normal');
-    await page.getByLabel('Environment', { exact: true }).selectOption('light');
-    await expect(page.locator('.viz-immersive')).toHaveAttribute('data-environment', 'light');
     await expect(page.getByRole('tab', { name: 'Outlook', exact: true })).toHaveCount(0);
     await expect(page.locator('.viz-three-mount')).toHaveCount(0);
     expect(errors).toEqual([]);
@@ -47,7 +45,8 @@ test('completed Data Analysis binds evidence and fitted values across navigation
         return route.fulfill({ json: analysisFixture(route.request().postDataJSON().analysis_methods) });
     });
     const ui = new VisualizationPage(page); await ui.open('/workspace/visualize?jobId=job-test');
-    await page.getByRole('button', { name: 'Scientific analysis', exact: true }).click();
+    await expect(page.getByLabel('Selected record')).toContainText('Test air temperature');
+    await page.getByRole('link', { name: 'Data Analysis', exact: true }).click();
     await page.getByRole('checkbox', { name: /Sen.*s slope/ }).check();
     await page.getByRole('checkbox', { name: /Mann.*Kendall trend test/ }).check();
     await page.getByRole('button', { name: /Run selected analysis/ }).click();
@@ -58,7 +57,7 @@ test('completed Data Analysis binds evidence and fitted values across navigation
     await expect(page.locator('.viz-evidence')).toContainText('Hamed–Rao Mann–Kendall');
     await page.getByLabel('Signal', { exact: true }).selectOption('analysis');
     await expect(page.getByRole('img', { name: /Submitted analysis-adjusted observations/ })).toBeVisible();
-    await page.getByLabel('Preset', { exact: true }).selectOption('evidence');
+    await page.getByRole('tab', { name: 'Trend intervals', exact: true }).click();
     await expect(page.getByRole('img', { name: /Trend estimates and 95% confidence intervals/ })).toBeVisible();
     expect(requests).toBe(1);
     // A different immutable job must not reuse this analysis.

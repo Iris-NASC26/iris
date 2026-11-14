@@ -17,16 +17,14 @@ test('does not fetch data on mount and discovers, selects and retrieves on expli
  await ui.load();expect(requested?.variable_id).toBe('T2M');expect(requested?.spatial_Submode).toBe('point');
  await expect(page.getByRole('img',{name:/Time series for Test air temperature/})).toBeVisible();
  for(const name of ['Area','Bars']){
-  await page.getByRole('button',{name,exact:true}).click();await expect(page.getByRole('img',{name:/Exact values are available in the observation table/}).first()).toBeVisible();
+  await page.getByRole('button',{name,exact:true}).click();await expect(page.getByRole('img',{name:/Exact values are available in CSV and JSON exports/}).first()).toBeVisible();
  }
  await page.getByRole('tab',{name:'Seasonal cycles',exact:true}).click();await expect(page.getByRole('img',{name:/Monthly heatmap/})).toBeVisible();
  await page.getByRole('button',{name:'Seasonal profile',exact:true}).click();await expect(page.getByRole('img',{name:/Seasonal profile for/})).toBeVisible();
- await page.getByRole('tab',{name:'Observations',exact:true}).click();
- await expect(page.getByRole('table')).toContainText('Missing');await expect(page.getByRole('table')).toContainText('Flagged');
- await expect(page.getByRole('row',{name:/2021-02/})).toContainText('18');await expect(page.getByRole('row',{name:/2021-02/})).toContainText('Unavailable');
  await page.getByRole('tab',{name:'Source & selection',exact:true}).click();
+ await expect(page.getByText('4 (2 missing/excluded)',{exact:true})).toBeVisible();
  await page.getByRole('checkbox',{name:'Include provider-flagged values'}).check();
- await page.getByRole('tab',{name:'Observations',exact:true}).click();await expect(page.getByRole('row',{name:/2021-02/})).not.toContainText('Unavailable');
+ await expect(page.getByText('5 (1 missing/excluded)',{exact:true})).toBeVisible();
  const download=page.waitForEvent('download');await page.getByRole('toolbar',{name:'Studio controls'}).getByRole('button',{name:'Export JSON',exact:true}).click();expect((await download).suggestedFilename()).toBe('iris-T2M.json');
  await ui.noOverflow();
 });
@@ -36,8 +34,8 @@ test('direct job links restore the real source and scientific analysis remains o
  await new VisualizationPage(page).open('/workspace/visualize?jobId=job-test');
  await expect(page.getByRole('button',{name:'Export CSV',exact:true})).toBeVisible();expect(analysis).toBe(0);
  await page.reload();await expect(page.getByRole('button',{name:'Export CSV',exact:true})).toBeVisible();
- await page.getByRole('button',{name:'Scientific analysis',exact:true}).click();
- await expect(page).toHaveURL(/\/workspace\/data-analysis\?jobId=job-test/);
+ await page.getByRole('link',{name:'Data Analysis',exact:true}).click();
+ await expect(page).toHaveURL(/\/workspace\/data-analysis/);
  await expect(page.getByRole('heading',{name:'Scientific Case File',exact:true})).toBeVisible();expect(analysis).toBe(0);
 });
 
