@@ -151,3 +151,40 @@ Last live run on this machine measured: engine ready ~1.7-4.7 s, 5-12 basemap ti
 The full opt-in live browser journey passed: real catalog selection, a 24-month T2M point result, interactive chart and both spatial layers. Live-test durable results were preserved only in ignored artifacts, and the baseline tracked durable store was restored after testing. The baseline currently tracks that runtime JSON; normal future usage may modify it again. Do not commit generated observation stores as source changes.
 
 Remote coordination note: `origin/viz_2d_maps` also modifies `src/app/workspace/layout.tsx` and the separate data-selection/2D-map files. This branch leaves that work intact and changes only the small provider/header integration in the shared layout. Review those shared-file edits together before merging; no teammate branch is automatically merged or overwritten.
+
+## Iris Visualization Studio (docked panels)
+
+`/workspace/visualize` hosts the studio: a `dockview-react@8.8.3` (MIT) desktop
+dock with five curated presets (Explore, Earth + Time, Compare, Seasonal,
+Outlook). Panels are thin views over `StudioContext` (`studio/state.tsx`), the
+shared investigation state built by `Workspace.tsx` — panel lifecycles never own
+loaded data, so preset switches, closes and reopens are lossless.
+
+- `studio/presets.ts` — preset trees serialized to dockview layouts; unplaced
+  panels become tabs on the first group so every panel stays reachable.
+- `studio/layoutPersistence.ts` — versioned `iris.studio.layout.v1` record
+  (preset, grid, closed panels, focus). Corrupt JSON, unsupported versions and
+  removed panel ids fall back to a preset with an on-screen note. Only
+  presentation state is stored — never observations or analysis payloads.
+- `studio/panels.tsx` — TimeSeries, Seasonal (year-by-month heatmap + yearly
+  profile), Relationship (explicit X/Y pickers, exact-timestamp pairing),
+  Observations table, Source & selection inspector, Living Earth (the full
+  `MapWorkspace`), Compare (descriptive stats + submitted-trend block), and
+  Outlook (explicit, submitted analysis only).
+- `hooks/useScientificAnalysis.ts` — extracted Case File controller: user-run
+  submissions bound to `job|variable|region|dates` identity; superseded
+  requests abort; late results are dropped; changing the source invalidates
+  the binding.
+- `adapters/analysisResult.ts` — runtime validation of the fields panels read.
+  `ci_low/ci_high` are reported as returned bounds, never as calibrated
+  prediction intervals; failed skill gates suppress short-term rendering with
+  the supplied reason.
+- `MapWorkspace.tsx` — the whole map workspace extracted into one component
+  shared by `/workspace/globe` and the Earth panel; a single Cesium lifecycle.
+- Charts publish semantic selections (`SelectEvent`: time/month/pair with real
+  timestamps) instead of inferring timestamps from a numeric threshold;
+  heatmap cells resolve to their actual year+month. The committed selection is
+  shown as a mark line and mirrored in the table and inspector.
+- Narrow viewports (≤900px) get a deliberate single-panel tab layout instead
+  of the dock; the dock returns on wider screens. Focus mode collapses the
+  data drawer within the route only and is reversible.
