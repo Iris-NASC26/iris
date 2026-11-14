@@ -43,6 +43,7 @@ export default function PlatformPage() {
       section="The platform"
       title="One workspace for the entire investigation"
     >
+      <p className="prototype-disclosure">Design illustrations and proposed investigations only. No scientific finding or confidence is computed here.</p>
       <section className="platform-showcase">
         <div className="platform-browser">
           <div className="platform-browser-bar">
@@ -76,22 +77,22 @@ export default function PlatformPage() {
                 <Icon name="arrow" size={18} />
                 <div>
                   <small>Detective verdict</small>
-                  <strong>Significant warming trend detected</strong>
+                  <strong>Trend analysis awaiting validation</strong>
                 </div>
-                <b>99.86%</b>
+                <b>Not computed</b>
               </div>
               <div className="platform-mini-metrics">
                 <span>
                   <small>Decadal rate</small>
-                  <b>+0.42°C</b>
+                  <b>Not computed</b>
                 </span>
                 <span>
                   <small>Total change</small>
-                  <b>+0.84°C</b>
+                  <b>Not computed</b>
                 </span>
                 <span>
                   <small>MK p-value</small>
-                  <b>0.0014</b>
+                  <b>Not computed</b>
                 </span>
               </div>
               <div className="platform-mini-chart">

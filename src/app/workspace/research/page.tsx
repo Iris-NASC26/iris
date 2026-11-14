@@ -39,19 +39,19 @@ export default function ResearchPage() {
 
   return (
     <div className="research-page dashboard-page-inner">
-      <section className="research-context dashboard-card">
+      <p className="prototype-disclosure">Prototype reading list: citations and relevance have not been verified. This list is not connected to the current preview selection.</p><section className="research-context dashboard-card">
         <span className="research-context-icon">
           <Icon name="file" size={22} />
         </span>
         <div>
-          <small>Research matched to the active variable</small>
+          <small>Prototype topic (not the preview selection)</small>
           <h2>{dataset.name}</h2>
           <p>
             {dataset.code} · {dataset.source}
           </p>
         </div>
         <span className="research-match">
-          {researchPapers.filter((paper) => paper.datasetIds.includes(dataset.id)).length} direct
+          {researchPapers.filter((paper) => paper.datasetIds.includes(dataset.id)).length} prototype
           matches
         </span>
       </section>

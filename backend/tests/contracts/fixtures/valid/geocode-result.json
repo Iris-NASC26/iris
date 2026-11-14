@@ -1,0 +1,33 @@
+{
+  "fixture_kind": "synthetic_contract",
+  "fixture_id": "geocode-result",
+  "model": "GeocodeResult",
+  "disclosure": "STRUCTURAL TEST ONLY. Invented values and IDs; no NASA observations, method validation or scientific findings; no real geocoding output. Never bundle as product data.",
+  "payload": {
+    "schema_version": "1.0",
+    "query": "colombo",
+    "candidates": [
+      {
+        "name": "Colombo",
+        "country": "Sri Lanka",
+        "admin1": "Western Province",
+        "lat": 6.93,
+        "lon": 79.85
+      }
+    ],
+    "source": {
+      "provider": "open-meteo-geocoding",
+      "retrieved_at": "2003-01-01T00:00:00Z",
+      "served_from_cache": false,
+      "stale_cache": false,
+      "artifact_sha256": {
+        "synthetic": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "acknowledgement": "Synthetic fixture",
+      "caveats": [
+        "Structural test only."
+      ],
+      "scientifically_validated": false
+    }
+  }
+}

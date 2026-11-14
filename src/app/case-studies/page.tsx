@@ -11,8 +11,8 @@ const publicCaseStudies = [
     title: "Two decades of urban warming",
     location: "Los Angeles County, USA",
     phenomenon: "Extreme heat",
-    finding: "+0.42 °C / decade",
-    confidence: "99.86%",
+    finding: "Not computed",
+    confidence: "Not evaluated",
     years: "2005–2025",
     icon: "thermometer" as IconName,
     tone: "heat",
@@ -24,8 +24,8 @@ const publicCaseStudies = [
     title: "The signature of a historic drought",
     location: "Central Valley, USA",
     phenomenon: "Drought",
-    finding: "−18.7 mm / decade",
-    confidence: "98.2%",
+    finding: "Not computed",
+    confidence: "Not evaluated",
     years: "2001–2024",
     icon: "activity" as IconName,
     tone: "drought",
@@ -37,8 +37,8 @@ const publicCaseStudies = [
     title: "Forest resilience under pressure",
     location: "Amazon Basin, Brazil",
     phenomenon: "Vegetation",
-    finding: "−0.08 NDVI / decade",
-    confidence: "95.4%",
+    finding: "Not computed",
+    confidence: "Not evaluated",
     years: "2003–2024",
     icon: "layers" as IconName,
     tone: "forest",
@@ -50,8 +50,8 @@ const publicCaseStudies = [
     title: "Arctic amplification in focus",
     location: "Svalbard, Norway",
     phenomenon: "Extreme heat",
-    finding: "+1.12 °C / decade",
-    confidence: "99.97%",
+    finding: "Not computed",
+    confidence: "Not evaluated",
     years: "2000–2024",
     icon: "globe" as IconName,
     tone: "ice",
@@ -63,8 +63,8 @@ const publicCaseStudies = [
     title: "A greening Sahel",
     location: "Sahel Region, Africa",
     phenomenon: "Vegetation",
-    finding: "+0.05 NDVI / decade",
-    confidence: "94.8%",
+    finding: "Not computed",
+    confidence: "Not evaluated",
     years: "2002–2023",
     icon: "sparkles" as IconName,
     tone: "sahel",
@@ -76,8 +76,8 @@ const publicCaseStudies = [
     title: "Monsoon variability",
     location: "Western Ghats, India",
     phenomenon: "Drought",
-    finding: "Inconclusive",
-    confidence: "72.1%",
+    finding: "Not computed",
+    confidence: "Not evaluated",
     years: "2000–2024",
     icon: "alert" as IconName,
     tone: "monsoon",
@@ -100,10 +100,11 @@ export default function CaseStudiesPage() {
           Start an investigation <Icon name="arrow" size={16} />
         </Link>
       }
-      description="Explore completed investigations that turn decades of satellite and climate data into clear, statistically defensible findings."
+      description="Explore proposed investigations. These design examples have no computed findings; authentic raw observations are available in Data Preview."
       section="Case library"
       title="Evidence from a changing planet"
     >
+      <p className="prototype-disclosure">Design illustrations and proposed investigations only. No scientific finding or confidence is computed here.</p>
       <section className="featured-case">
         <div className="featured-map">
           <div className="map-grid" />
@@ -132,13 +133,13 @@ export default function CaseStudiesPage() {
           <div className="featured-stats">
             <div>
               <small>Detected trend</small>
-              <strong>+0.42 °C</strong>
+              <strong>Not computed</strong>
               <span>per decade</span>
             </div>
             <div>
               <small>Confidence</small>
-              <strong>99.86%</strong>
-              <span>p = 0.0014</span>
+              <strong>Not computed</strong>
+              <span>p = Not computed</span>
             </div>
           </div>
           <Link className="text-link" href="/workspace">

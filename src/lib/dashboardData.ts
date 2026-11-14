@@ -114,8 +114,8 @@ export const caseStudies: CaseStudy[] = [
     datasetId: "temperature",
     startYear: 2005,
     endYear: 2025,
-    finding: "+0.42 °C / decade",
-    confidence: "99.86%",
+    finding: "Not computed",
+    confidence: "Not evaluated",
     source: "NASA POWER / MERRA-2",
   },
   {
@@ -128,8 +128,8 @@ export const caseStudies: CaseStudy[] = [
     datasetId: "soil-moisture",
     startYear: 2001,
     endYear: 2024,
-    finding: "−0.07 index / decade",
-    confidence: "98.2%",
+    finding: "Not computed",
+    confidence: "Not evaluated",
     source: "NASA POWER / MERRA-2",
   },
   {
@@ -142,8 +142,8 @@ export const caseStudies: CaseStudy[] = [
     datasetId: "vegetation",
     startYear: 2003,
     endYear: 2024,
-    finding: "−0.08 NDVI / decade",
-    confidence: "95.4%",
+    finding: "Not computed",
+    confidence: "Not evaluated",
     source: "MODIS MOD13C2",
   },
   {
@@ -156,8 +156,8 @@ export const caseStudies: CaseStudy[] = [
     datasetId: "snow",
     startYear: 2001,
     endYear: 2024,
-    finding: "−3.8% cover / decade",
-    confidence: "97.7%",
+    finding: "Not computed",
+    confidence: "Not evaluated",
     source: "MODIS MOD10C1",
   },
 ];
@@ -174,7 +174,7 @@ export const researchPapers: ResearchPaper[] = [
     summary:
       "Foundational description and evaluation of the MERRA-2 reanalysis used by several Iris variables.",
     doi: "https://doi.org/10.1175/JCLI-D-16-0758.1",
-    verified: true,
+    verified: false,
   },
   {
     id: "paper-2",
@@ -187,7 +187,7 @@ export const researchPapers: ResearchPaper[] = [
     summary:
       "Mission overview for the satellite precipitation observations used to characterize rainfall extremes.",
     doi: "https://doi.org/10.1175/BAMS-D-13-00164.1",
-    verified: true,
+    verified: false,
   },
   {
     id: "paper-3",
@@ -200,7 +200,7 @@ export const researchPapers: ResearchPaper[] = [
     summary:
       "Early technical foundation for normalized vegetation-index analysis and interpretation.",
     doi: "https://ntrs.nasa.gov/citations/19740022614",
-    verified: true,
+    verified: false,
   },
   {
     id: "paper-4",
@@ -213,7 +213,7 @@ export const researchPapers: ResearchPaper[] = [
     summary:
       "Peer-reviewed validation of MODIS NDSI snow cover mapping across alpine and seasonal snow regimes.",
     doi: "https://doi.org/10.1002/hyp.6715",
-    verified: true,
+    verified: false,
   },
 ];
 

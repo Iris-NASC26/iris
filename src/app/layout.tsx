@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
 import { ThemeProvider } from "@/context/ThemeContext";
 import "./globals.css";
+import '@/styles/earth-data.css';
+import { PreferencesProvider } from '@/state/preferences';
+import { RuntimeBanner } from '@/components/dashboard/RuntimeBanner';
 
 export const metadata: Metadata = {
   title: "Iris | Earth System Trend Detective",
   description:
-    "Interactive AI-guided geospatial investigation platform turning decades of NASA and satellite Earth observations into statistically defensible evidence.",
+    "Local NASA data investigation workspace. Raw retrieval is available; scientific inference requires review.",
   icons: {
     icon: "/favicon.png",
   },
@@ -19,7 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider><PreferencesProvider><RuntimeBanner />{children}</PreferencesProvider></ThemeProvider>
       </body>
     </html>
   );

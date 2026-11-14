@@ -1,0 +1,1297 @@
+{
+  "source_commit": "84d941f8aefc4d7c99a0c068fd364c4cc5ebcb21",
+  "iris_baseline": "0d8a96639611803bacd65873b6768323805d9b59",
+  "files": [
+    {
+      "source_path": ".gitignore",
+      "git_blob": "e86e39ec07baa401c3c4df4990ab2f1aac8dfdfc",
+      "destination": ".gitignore",
+      "disposition": "merged/adapted into single-root project; exact original retained by source archive tag"
+    },
+    {
+      "source_path": ".markdownlint.json",
+      "git_blob": "0225be0de46d0c81ee7f75edacee3f1f4bca7452",
+      "destination": ".markdownlint.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": ".node-version",
+      "git_blob": "60ade1ae01e833a5c291c47883bf26fb031f7727",
+      "destination": ".node-version",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": ".python-version",
+      "git_blob": "4de75f8d77a3e872d8883636a5d65deefb47fbe6",
+      "destination": ".python-version",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "README.md",
+      "git_blob": "c832e465ef0609b5ee250f9932d1ddd01ca11acc",
+      "destination": "docs/CHALLENGE_AND_SOURCE_README.md",
+      "disposition": "merged/adapted into single-root project; exact original retained by source archive tag"
+    },
+    {
+      "source_path": "backend/pyproject.toml",
+      "git_blob": "b95eba57a9efae4bc0bc772410d6badc43776c82",
+      "destination": "backend/pyproject.toml",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/src/earth_trend/__init__.py",
+      "git_blob": "6155a90aaccf431fe9586cafdd46f775bebed04c",
+      "destination": "backend/src/earth_trend/__init__.py",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/src/earth_trend/api/__init__.py",
+      "git_blob": "6a24a2e0bcd9786853344ade693eada52b9d5cc5",
+      "destination": "backend/src/earth_trend/api/__init__.py",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/src/earth_trend/api/app.py",
+      "git_blob": "41e5a3b6281cd5ddd709f80ed364289a99b81573",
+      "destination": "backend/src/earth_trend/api/app.py",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/src/earth_trend/api/geocode.py",
+      "git_blob": "4fd5218dae4b0e67c1e8a0a9a1186719237ccea1",
+      "destination": "backend/src/earth_trend/api/geocode.py",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/src/earth_trend/api/schemas/__init__.py",
+      "git_blob": "220818198d3ad9e77aa5c128cbe83e9e833500c7",
+      "destination": "backend/src/earth_trend/api/schemas/__init__.py",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/src/earth_trend/api/schemas/common.py",
+      "git_blob": "7403869e04da8bfa0bbc0de0f84e629deaaa18c9",
+      "destination": "backend/src/earth_trend/api/schemas/common.py",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/src/earth_trend/api/schemas/data.py",
+      "git_blob": "d70408c60fb55b0a2731303dd67041ad3104542e",
+      "destination": "backend/src/earth_trend/api/schemas/data.py",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/src/earth_trend/api/schemas/export.py",
+      "git_blob": "d393b1ebe984ec4c15a6d09de1637b8ea66a45e6",
+      "destination": "backend/src/earth_trend/api/schemas/export.py",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/src/earth_trend/api/schemas/geocoding.py",
+      "git_blob": "b6c0c65a76650dd9d71ecfc4ebf9414a98799cf9",
+      "destination": "backend/src/earth_trend/api/schemas/geocoding.py",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/src/earth_trend/api/schemas/layers.py",
+      "git_blob": "3852ac844e37e92b41f70f01d7a7ea8d5d1e2407",
+      "destination": "backend/src/earth_trend/api/schemas/layers.py",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/src/earth_trend/api/schemas/operations.py",
+      "git_blob": "2c78ea34626d767076bbe10564ee37a5e818f3fb",
+      "destination": "backend/src/earth_trend/api/schemas/operations.py",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/src/earth_trend/api/schemas/regions.py",
+      "git_blob": "0d264ec08976351847554603d64f5066c738672f",
+      "destination": "backend/src/earth_trend/api/schemas/regions.py",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/src/earth_trend/api/schemas/requests.py",
+      "git_blob": "b83771b33e656e5e684827effb5b8e3c6416fa66",
+      "destination": "backend/src/earth_trend/api/schemas/requests.py",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/src/earth_trend/api/schemas/results.py",
+      "git_blob": "1c861b22df8a381a3a5eefe2351d68c2adb1ee70",
+      "destination": "backend/src/earth_trend/api/schemas/results.py",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/src/earth_trend/api/schemas/scientific.py",
+      "git_blob": "8d9df204c89c5e2ee35381ab1eabaeb7283024d4",
+      "destination": "backend/src/earth_trend/api/schemas/scientific.py",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/src/earth_trend/api/schemas/source_series.py",
+      "git_blob": "2a7f24f57a4bea90b9b6790a21df1af68fed7467",
+      "destination": "backend/src/earth_trend/api/schemas/source_series.py",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/src/earth_trend/api/series.py",
+      "git_blob": "494f10508d8fb74b5394af11c0b8af9a95fe8882",
+      "destination": "backend/src/earth_trend/api/series.py",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/src/earth_trend/cli.py",
+      "git_blob": "277240db73698dd4a27599d766104821901a54a8",
+      "destination": "backend/src/earth_trend/cli.py",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/src/earth_trend/sources/__init__.py",
+      "git_blob": "a5ce8dfc018cb04ecf7bd096310964e5495a4799",
+      "destination": "backend/src/earth_trend/sources/__init__.py",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/src/earth_trend/sources/geocoder.py",
+      "git_blob": "694a0f0c8663405e7957fe2aae6f62cfb2cc8ce2",
+      "destination": "backend/src/earth_trend/sources/geocoder.py",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/src/earth_trend/sources/power_zarr.py",
+      "git_blob": "77e6f3658b65886b9a63d6c93ad98b3324073f1b",
+      "destination": "backend/src/earth_trend/sources/power_zarr.py",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/tests/contracts/fixtures/README.md",
+      "git_blob": "a92b5e2406c9b6ec6c730c47e38a3314c8621a18",
+      "destination": "backend/tests/contracts/fixtures/README.md",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/tests/contracts/fixtures/invalid.json",
+      "git_blob": "e22aef55c61c0b4e9fe200197c0b83f600c9a49a",
+      "destination": "backend/tests/contracts/fixtures/invalid.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/tests/contracts/fixtures/valid/analysis-in-scan-context.json",
+      "git_blob": "7a4349fa5040920df1f19c2a397a868c2ae252ec",
+      "destination": "backend/tests/contracts/fixtures/valid/analysis-in-scan-context.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/tests/contracts/fixtures/valid/analysis-request.json",
+      "git_blob": "2a57c2ea8d2bf55f8658bce93bd96c864e05520f",
+      "destination": "backend/tests/contracts/fixtures/valid/analysis-request.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/tests/contracts/fixtures/valid/analysis-with-seasonal-family.json",
+      "git_blob": "f946aec647ce029599d507a516444a3c3ecada4e",
+      "destination": "backend/tests/contracts/fixtures/valid/analysis-with-seasonal-family.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/tests/contracts/fixtures/valid/available-estimate.json",
+      "git_blob": "4b847b5ba2838cb18f7788fc2ccbe7a5b2610b4f",
+      "destination": "backend/tests/contracts/fixtures/valid/available-estimate.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/tests/contracts/fixtures/valid/available-test.json",
+      "git_blob": "1c5c5c40ffbd644829dd22af4c92a374218013c8",
+      "destination": "backend/tests/contracts/fixtures/valid/available-test.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/tests/contracts/fixtures/valid/cancelled-job.json",
+      "git_blob": "80304621add632fd97a32beffecfbaf2d0967f65",
+      "destination": "backend/tests/contracts/fixtures/valid/cancelled-job.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/tests/contracts/fixtures/valid/comparison-request.json",
+      "git_blob": "3b0fe079357ed2d97654f5c3185b7221d20ac299",
+      "destination": "backend/tests/contracts/fixtures/valid/comparison-request.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/tests/contracts/fixtures/valid/comparison-result.json",
+      "git_blob": "bb0cc7ebae363cc3ab57e46538199ade0a6895dc",
+      "destination": "backend/tests/contracts/fixtures/valid/comparison-result.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/tests/contracts/fixtures/valid/completed-analysis.json",
+      "git_blob": "5ce0028786d99a30e0fa27c37fa003d4374482ee",
+      "destination": "backend/tests/contracts/fixtures/valid/completed-analysis.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/tests/contracts/fixtures/valid/completed-outlook.json",
+      "git_blob": "cbd896cee89c22cc2001f3d528308b6cecc6ea08",
+      "destination": "backend/tests/contracts/fixtures/valid/completed-outlook.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/tests/contracts/fixtures/valid/dataset-binding.json",
+      "git_blob": "120921fa16e860458b44c59b2de32645df46173f",
+      "destination": "backend/tests/contracts/fixtures/valid/dataset-binding.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/tests/contracts/fixtures/valid/explicit-baseline.json",
+      "git_blob": "501c61349c1b63dcab891fa6c73d9ec5576c5fb4",
+      "destination": "backend/tests/contracts/fixtures/valid/explicit-baseline.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/tests/contracts/fixtures/valid/failed-job.json",
+      "git_blob": "b231a99fb364eac7a6092e7994053634d9a11a41",
+      "destination": "backend/tests/contracts/fixtures/valid/failed-job.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/tests/contracts/fixtures/valid/fdr-family.json",
+      "git_blob": "3cb5511e3b1674a5f15da4185aa131444747d4a4",
+      "destination": "backend/tests/contracts/fixtures/valid/fdr-family.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/tests/contracts/fixtures/valid/field-result.json",
+      "git_blob": "9a68b16f98f4c725bc93ca56dd0c42cd65118918",
+      "destination": "backend/tests/contracts/fixtures/valid/field-result.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/tests/contracts/fixtures/valid/geocode-result.json",
+      "git_blob": "999cb68c19a2a32f55d819c52e387598b6c9b8c7",
+      "destination": "backend/tests/contracts/fixtures/valid/geocode-result.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/tests/contracts/fixtures/valid/invalid-request-problem.json",
+      "git_blob": "1ce4beb10331b2a4ac72fe4f0efc015566492f4b",
+      "destination": "backend/tests/contracts/fixtures/valid/invalid-request-problem.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/tests/contracts/fixtures/valid/job-accepted.json",
+      "git_blob": "860148a34e8b6b354586d667cfceec669330d977",
+      "destination": "backend/tests/contracts/fixtures/valid/job-accepted.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/tests/contracts/fixtures/valid/layer-manifest.json",
+      "git_blob": "36660f4032a97d0691a5c09d48f09c4663e38a7b",
+      "destination": "backend/tests/contracts/fixtures/valid/layer-manifest.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/tests/contracts/fixtures/valid/local-unready-capabilities.json",
+      "git_blob": "a46212ed93a4b0bf2361240d5f2a2451e2aeb66e",
+      "destination": "backend/tests/contracts/fixtures/valid/local-unready-capabilities.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/tests/contracts/fixtures/valid/monthly-window.json",
+      "git_blob": "646811ffeb7eab14e9d34f724b800f1854d6abab",
+      "destination": "backend/tests/contracts/fixtures/valid/monthly-window.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/tests/contracts/fixtures/valid/outlook-request.json",
+      "git_blob": "3ea956ad4d79cd47fd4933f5532ae0009196acfb",
+      "destination": "backend/tests/contracts/fixtures/valid/outlook-request.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/tests/contracts/fixtures/valid/pending-method-test.json",
+      "git_blob": "1608401cfc8ba71561352c1306b0a392ff34929b",
+      "destination": "backend/tests/contracts/fixtures/valid/pending-method-test.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/tests/contracts/fixtures/valid/point-series-result.json",
+      "git_blob": "262ae419cd852e50784d25ac24c0ffc2d5fd8975",
+      "destination": "backend/tests/contracts/fixtures/valid/point-series-result.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/tests/contracts/fixtures/valid/provenance.json",
+      "git_blob": "feedc7cdaa748148c2a29343e30ba06568a4c4e0",
+      "destination": "backend/tests/contracts/fixtures/valid/provenance.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/tests/contracts/fixtures/valid/queued-job.json",
+      "git_blob": "d38e7547284c97176c0e3745e5d6c7f29fde395b",
+      "destination": "backend/tests/contracts/fixtures/valid/queued-job.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/tests/contracts/fixtures/valid/region-bbox.json",
+      "git_blob": "82c82b7aaa05596993f7a5ffcc1ea06b7bef8f1e",
+      "destination": "backend/tests/contracts/fixtures/valid/region-bbox.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/tests/contracts/fixtures/valid/region-cell.json",
+      "git_blob": "1426844539f9cbf78aab22655e3db798e9469c14",
+      "destination": "backend/tests/contracts/fixtures/valid/region-cell.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/tests/contracts/fixtures/valid/region-dateline-bbox.json",
+      "git_blob": "cda708becc2bb7d7c259aff3bf01468ee524d3f7",
+      "destination": "backend/tests/contracts/fixtures/valid/region-dateline-bbox.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/tests/contracts/fixtures/valid/region-global.json",
+      "git_blob": "08d4146d6062f431de1a31231ee96302355a27a4",
+      "destination": "backend/tests/contracts/fixtures/valid/region-global.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/tests/contracts/fixtures/valid/region-multipolygon.json",
+      "git_blob": "bebdf3e5db8687d14f745aba4763275cda229446",
+      "destination": "backend/tests/contracts/fixtures/valid/region-multipolygon.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/tests/contracts/fixtures/valid/region-polygon.json",
+      "git_blob": "4572832f5b19feebb838d9ad5d95471e39049b2f",
+      "destination": "backend/tests/contracts/fixtures/valid/region-polygon.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/tests/contracts/fixtures/valid/region-preset.json",
+      "git_blob": "0fe8b9d28a3900e0157564454fce482979887218",
+      "destination": "backend/tests/contracts/fixtures/valid/region-preset.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/tests/contracts/fixtures/valid/regional-series-result.json",
+      "git_blob": "fec4789eae10f56a9560e4bfca9144c00a69e7d9",
+      "destination": "backend/tests/contracts/fixtures/valid/regional-series-result.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/tests/contracts/fixtures/valid/scan-explicit-different-windows.json",
+      "git_blob": "8ccacb7efae82a015c7e28f81a7ab350fc24a4a4",
+      "destination": "backend/tests/contracts/fixtures/valid/scan-explicit-different-windows.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/tests/contracts/fixtures/valid/scan-request.json",
+      "git_blob": "20067cf272843634e4ccf2b10c513d9b8dd51d11",
+      "destination": "backend/tests/contracts/fixtures/valid/scan-request.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/tests/contracts/fixtures/valid/scan-with-excluded-variable.json",
+      "git_blob": "d5b06aa8b68790600d4cb652e8b6fe1886561a22",
+      "destination": "backend/tests/contracts/fixtures/valid/scan-with-excluded-variable.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/tests/contracts/fixtures/valid/series-with-missing-month.json",
+      "git_blob": "9ca429251cb456e84783585b76a70d8e5da954ed",
+      "destination": "backend/tests/contracts/fixtures/valid/series-with-missing-month.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/tests/contracts/fixtures/valid/snapshot-capabilities.json",
+      "git_blob": "d16c0995d1c34f7c7c59f09e41e356191164d38f",
+      "destination": "backend/tests/contracts/fixtures/valid/snapshot-capabilities.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/tests/contracts/fixtures/valid/snapshot-limitation-problem.json",
+      "git_blob": "7add0afe93dfe01491cb658350c5fb7a2c30f4ca",
+      "destination": "backend/tests/contracts/fixtures/valid/snapshot-limitation-problem.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/tests/contracts/fixtures/valid/snapshot-prepared-analysis.json",
+      "git_blob": "2ff21f8959c9f3b6ae02fdce5ce830f9327362e9",
+      "destination": "backend/tests/contracts/fixtures/valid/snapshot-prepared-analysis.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/tests/contracts/fixtures/valid/succeeded-job.json",
+      "git_blob": "1de1eaa82d3e85cc3f11678940a9483859a8d422",
+      "destination": "backend/tests/contracts/fixtures/valid/succeeded-job.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/tests/contracts/fixtures/valid/transform.json",
+      "git_blob": "d4ada2feb70c47e3ae8d79583a325c46b1fb7da2",
+      "destination": "backend/tests/contracts/fixtures/valid/transform.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/tests/contracts/fixtures/valid/unavailable-analysis.json",
+      "git_blob": "428c9588d1657106b52451f07d45cbe42bcad6b8",
+      "destination": "backend/tests/contracts/fixtures/valid/unavailable-analysis.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/tests/contracts/fixtures/valid/unavailable-outlook.json",
+      "git_blob": "d90286c847825512421cdc585a244941f5e4c0a1",
+      "destination": "backend/tests/contracts/fixtures/valid/unavailable-outlook.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/tests/contracts/fixtures/valid/unavailable-percent-temperature.json",
+      "git_blob": "9cd32dc4cfd3edd46d11eee4b0ca3637613b68cc",
+      "destination": "backend/tests/contracts/fixtures/valid/unavailable-percent-temperature.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/tests/contracts/fixtures/valid/unbounded-horizon.json",
+      "git_blob": "729cbfd00ab2cff9c9390f0301a299e3368e2b23",
+      "destination": "backend/tests/contracts/fixtures/valid/unbounded-horizon.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/tests/contracts/fixtures/valid/waiting-provider-job.json",
+      "git_blob": "d93bbc3736a55039b2cf6a863100e2886e72581f",
+      "destination": "backend/tests/contracts/fixtures/valid/waiting-provider-job.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/tests/contracts/test_contracts.py",
+      "git_blob": "d9325b6d171c84887fd230ea2810705b73ac6b18",
+      "destination": "backend/tests/contracts/test_contracts.py",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/tests/unit/test_geocoder.py",
+      "git_blob": "3ded6d53972bd4b1f0d201fbc68e076a5c5bc046",
+      "destination": "backend/tests/unit/test_geocoder.py",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/tests/unit/test_health.py",
+      "git_blob": "632d7ba155db67eaa48283183342c2d937089b47",
+      "destination": "backend/tests/unit/test_health.py",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/tests/unit/test_power_series.py",
+      "git_blob": "493ea0fad55cb3b54633b8f7226c962921452f14",
+      "destination": "backend/tests/unit/test_power_series.py",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "backend/uv.lock",
+      "git_blob": "ef63d7e15c5d00152be21346ad3beb275be8eee1",
+      "destination": "backend/uv.lock",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "contracts/openapi.json",
+      "git_blob": "db0f6000d7a1283b5a39649a187bb547c18dd1fa",
+      "destination": "contracts/openapi.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "docs/CONTRACTS.md",
+      "git_blob": "fb8fcc24ce669624eb9793e601327cebf724e09c",
+      "destination": "docs/CONTRACTS.md",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "docs/DEPENDENCY_LICENSES.md",
+      "git_blob": "559600c1d949bfb0848d5675f0917abfe73dc883",
+      "destination": "docs/DEPENDENCY_LICENSES.md",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "docs/DEVELOPMENT.md",
+      "git_blob": "85d8f5f2861b92349a4c9b31c3a3fad018eb4776",
+      "destination": "docs/DEVELOPMENT.md",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "docs/EXECUTION_STATUS.md",
+      "git_blob": "1f9e823ad3e3eda5b54d7da8f3e4545995f3e89d",
+      "destination": "docs/EXECUTION_STATUS.md",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "docs/IMPLEMENTATION_PLAN.md",
+      "git_blob": "c8bf58098fd6ad33c8ad739bb5de2bf3c9a914eb",
+      "destination": "docs/IMPLEMENTATION_PLAN.md",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "docs/IRIS_PORTING.md",
+      "git_blob": "882dc544b9b39edf7a0fc3061fd68f79bb6dcb88",
+      "destination": "docs/IRIS_PORTING.md",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "docs/NAVIDA_INTEGRATION.md",
+      "git_blob": "763a177fb65d8873f03f8408a3dcab54110eb445",
+      "destination": "docs/NAVIDA_INTEGRATION.md",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "docs/SRS.md",
+      "git_blob": "874c83d0331d4ca987c879b831b77507f858be93",
+      "destination": "docs/SRS.md",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "docs/TECHNICAL_DESIGN.md",
+      "git_blob": "9af08c0d91777500d9a288a12f7bda79d1096cf2",
+      "destination": "docs/TECHNICAL_DESIGN.md",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "docs/decisions/0001-nextjs.md",
+      "git_blob": "ebcc50d29b2b8fc541560142bfd3e943010132b4",
+      "destination": "docs/decisions/0001-nextjs.md",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "docs/third-party/caniuse-lite-LICENSE.txt",
+      "git_blob": "06c608dcf4552094bc86dc48aaa90addb2886049",
+      "destination": "docs/third-party/caniuse-lite-LICENSE.txt",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "package.json",
+      "git_blob": "3f70bced6e2fa22ae1c0d951d87a284f186917a7",
+      "destination": "package.json",
+      "disposition": "merged/adapted into single-root project; exact original retained by source archive tag"
+    },
+    {
+      "source_path": "pnpm-lock.yaml",
+      "git_blob": "5b41f666dea9aeb31d9504162dc6678d1d84260e",
+      "destination": "pnpm-lock.yaml",
+      "disposition": "merged/adapted into single-root project; exact original retained by source archive tag"
+    },
+    {
+      "source_path": "pnpm-workspace.yaml",
+      "git_blob": "6930fc1054c9ed97d5113c0ccadd0d8bada2a039",
+      "destination": null,
+      "disposition": "retained in source archive tag; superseded by Navida root UI or root project configuration"
+    },
+    {
+      "source_path": "scripts/dev.py",
+      "git_blob": "c1c0f17d2de3134e7ebb31a0e32bf9c9db93924c",
+      "destination": "scripts/dev.py",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "scripts/provider_preflight.py",
+      "git_blob": "2ee3c79a40a0ccd728b630b6815eb3a1bf060932",
+      "destination": "scripts/provider_preflight.py",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "scripts/tests/test_dev_runtime.py",
+      "git_blob": "c85bed6b7579a77073830324d6ce35851312e60b",
+      "destination": "scripts/tests/test_dev_runtime.py",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "scripts/tests/test_preflight_ranges.py",
+      "git_blob": "761d6b254b2e305862ac7f6d57fb4694e5d412f1",
+      "destination": "scripts/tests/test_preflight_ranges.py",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "scripts/tests/test_private_token_file.py",
+      "git_blob": "7d1eb91fccd7073f02e1dd12cc48d7005f398886",
+      "destination": "scripts/tests/test_private_token_file.py",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "scripts/tests/test_provider_preflight.py",
+      "git_blob": "d8b31f7f54f973ecff1f05527b374a96bbecdddc",
+      "destination": "scripts/tests/test_provider_preflight.py",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "validation/DEPENDENCY_LICENSES.md",
+      "git_blob": "e4fbd12c5a67beecba9035aeecbdbbb3026a9ad5",
+      "destination": "validation/DEPENDENCY_LICENSES.md",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "validation/README.md",
+      "git_blob": "8fd61eb024670205107921e256ef5eda87beb2af",
+      "destination": "validation/README.md",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "validation/fixtures/acker-source-facts.json",
+      "git_blob": "1e774557c86b3820ca5f2e1bffcab4caad55c795",
+      "destination": "validation/fixtures/acker-source-facts.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "validation/fixtures/calibration-plan.json",
+      "git_blob": "073a7c92ad955ac3dd713a98afbb5a4d5c3f1ae4",
+      "destination": "validation/fixtures/calibration-plan.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "validation/fixtures/method-gates.json",
+      "git_blob": "5637723de368b5d3bb9d7b4b78534cbbe4010878",
+      "destination": "validation/fixtures/method-gates.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "validation/fixtures/synthetic-v1.json",
+      "git_blob": "f5c08b4d791f46ccd0d9c79eda0e97e2d71da127",
+      "destination": "validation/fixtures/synthetic-v1.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "validation/preflight/.python-version",
+      "git_blob": "4de75f8d77a3e872d8883636a5d65deefb47fbe6",
+      "destination": "validation/preflight/.python-version",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "validation/preflight/DEPENDENCY_LICENSES.md",
+      "git_blob": "22982fc531eded0fffc26813305ee1b02f4df2ff",
+      "destination": "validation/preflight/DEPENDENCY_LICENSES.md",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "validation/preflight/README.md",
+      "git_blob": "56c534fd2ee96ba8427376cabcdc77f3aca44f82",
+      "destination": "validation/preflight/README.md",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "validation/preflight/inspect_appeears.py",
+      "git_blob": "b8138afeb253d39d83080ca35289968ae34d12a2",
+      "destination": "validation/preflight/inspect_appeears.py",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "validation/preflight/inspect_power.py",
+      "git_blob": "2f336fe1345d5abb7798ec00b965da865c163f7b",
+      "destination": "validation/preflight/inspect_power.py",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "validation/preflight/inspect_sources.py",
+      "git_blob": "23b083e2df64243f5a5f35a5d1234736094fe1b2",
+      "destination": "validation/preflight/inspect_sources.py",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "validation/preflight/pyproject.toml",
+      "git_blob": "fd1dded745c81f8c145f36f27be617b836114bc7",
+      "destination": "validation/preflight/pyproject.toml",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "validation/preflight/tests/test_inspections.py",
+      "git_blob": "714075f20dba33d85c2a79fbf82c1f9324cd64f6",
+      "destination": "validation/preflight/tests/test_inspections.py",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "validation/preflight/uv.lock",
+      "git_blob": "75bf7885974a41ab74993e69ba2cba5b05e8ceef",
+      "destination": "validation/preflight/uv.lock",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "validation/pyproject.toml",
+      "git_blob": "53ae979fb3686deaa010ebc4a097d81eec27c88b",
+      "destination": "validation/pyproject.toml",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "validation/reference/__init__.py",
+      "git_blob": "a0ce5ac7ebd6dcb800121f2630987e92c5a99450",
+      "destination": "validation/reference/__init__.py",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "validation/reference/build_fixtures.py",
+      "git_blob": "9361c2fdfc34426201cc1ec0b6ceea8a161db270",
+      "destination": "validation/reference/build_fixtures.py",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "validation/reference/oracles.py",
+      "git_blob": "a96315d30e4410a813de374264ce9017f4f97d1a",
+      "destination": "validation/reference/oracles.py",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "validation/reference/run_checks.py",
+      "git_blob": "6ee9e02208f5adc7ea4b84d34427b5d86014a7ed",
+      "destination": "validation/reference/run_checks.py",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "validation/reference/sources.json",
+      "git_blob": "1588e52c8aaefe23b200e7938108741f34c2bd47",
+      "destination": "validation/reference/sources.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "validation/reports/f04-reference-results.json",
+      "git_blob": "38d667440fa4b9987fd7acf66dbb7627d65c33de",
+      "destination": "validation/reports/f04-reference-results.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "validation/reports/provider-preflight.json",
+      "git_blob": "e65f3951a40072de94129e1c5c649ca4af28e404",
+      "destination": "validation/reports/provider-preflight.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "validation/reports/provider-preflight.md",
+      "git_blob": "ae219ddad4cca8dbac2a619328ef4bb5172882ed",
+      "destination": "validation/reports/provider-preflight.md",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "validation/tests/test_reference.py",
+      "git_blob": "a89b07ab2028009c265836ba6aba9abc2e92f568",
+      "destination": "validation/tests/test_reference.py",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "validation/uv.lock",
+      "git_blob": "8c97483392a6007b480a4c8988b3239f04b84253",
+      "destination": "validation/uv.lock",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "web/AGENTS.md",
+      "git_blob": "af3b7c84114bafeee578bf1adff2ef74af2cc6a2",
+      "destination": "AGENTS.md",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "web/next.config.ts",
+      "git_blob": "7804c9d8f53f3e8c2b42e2387f01f0f04ab8f547",
+      "destination": "next.config.ts",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "web/package.json",
+      "git_blob": "250aa748e43602ef50a4f98dcb7ec949b5d5fe8f",
+      "destination": "package.json",
+      "disposition": "merged/adapted into single-root project; exact original retained by source archive tag"
+    },
+    {
+      "source_path": "web/playwright.config.ts",
+      "git_blob": "5b7b6ba7c95b13fde8106d441570c4b1d7b8e45a",
+      "destination": "playwright.config.ts",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "web/public/globe/basemap-2048x1024.jpg",
+      "git_blob": "38548a5cefff84d8d9c88686aee8edbcd125a6f0",
+      "destination": "public/globe/basemap-2048x1024.jpg",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "web/public/globe/basemap.manifest.json",
+      "git_blob": "aabfb8f4ebc482ee2cccef755fbfe9adc4679d58",
+      "destination": "public/globe/basemap.manifest.json",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "web/scripts/contracts.mjs",
+      "git_blob": "7f87516dba1d72b84d4d14bf89bb2a5838054e29",
+      "destination": "scripts/contracts.mjs",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "web/scripts/contracts.test.mjs",
+      "git_blob": "c2e73e5b2c6e83aa8b5cbf9bf41d0e0f8f300f83",
+      "destination": "scripts/contracts.test.mjs",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "web/scripts/next.mjs",
+      "git_blob": "07f0d2be506cb2269f3a1b1213908434d6826108",
+      "destination": "scripts/next.mjs",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "web/src/app/about/page.tsx",
+      "git_blob": "38ff7c0e065133ff4aecdf2d25c3a45bd72f0d3d",
+      "destination": null,
+      "disposition": "retained in source archive tag; superseded by Navida root UI or root project configuration"
+    },
+    {
+      "source_path": "web/src/app/api/v1/field/[variable]/route.ts",
+      "git_blob": "6e0c50acb61bbaeaaa2e92fc31aca81d03bb72ac",
+      "destination": "src/app/api/v1/field/[variable]/route.ts",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "web/src/app/api/v1/geocode/route.ts",
+      "git_blob": "a65bde413d048a016218e16a82809137c1afab83",
+      "destination": "src/app/api/v1/geocode/route.ts",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "web/src/app/api/v1/health/route.ts",
+      "git_blob": "4a697178b537370147f9ed079c27dc66a3397847",
+      "destination": "src/app/api/v1/health/route.ts",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "web/src/app/api/v1/regional-series/[variable]/route.ts",
+      "git_blob": "1b04a154e0cc0e7cdd817fad68bfaab5ce5b7744",
+      "destination": "src/app/api/v1/regional-series/[variable]/route.ts",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "web/src/app/api/v1/series/[variable]/route.ts",
+      "git_blob": "eca1a43ccc1c29bead80f069754879b799e93946",
+      "destination": "src/app/api/v1/series/[variable]/route.ts",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "web/src/app/data/page.tsx",
+      "git_blob": "0599a170e594cca684644646ddf8445208b35bb7",
+      "destination": null,
+      "disposition": "retained in source archive tag; superseded by Navida root UI or root project configuration"
+    },
+    {
+      "source_path": "web/src/app/error.tsx",
+      "git_blob": "fa5701540e479a830e6eda2e9e242769d7ade9a0",
+      "destination": null,
+      "disposition": "retained in source archive tag; superseded by Navida root UI or root project configuration"
+    },
+    {
+      "source_path": "web/src/app/layout.tsx",
+      "git_blob": "2d934137e3a893fd5d73b89fe2eaba98bef46897",
+      "destination": null,
+      "disposition": "retained in source archive tag; superseded by Navida root UI or root project configuration"
+    },
+    {
+      "source_path": "web/src/app/methodology/page.tsx",
+      "git_blob": "0cad10038b8e505dc1a3143da963af613b472586",
+      "destination": null,
+      "disposition": "retained in source archive tag; superseded by Navida root UI or root project configuration"
+    },
+    {
+      "source_path": "web/src/app/not-found.tsx",
+      "git_blob": "5c61b3118063aa1e4ca5ed6707d13c9fa4e3c6a1",
+      "destination": null,
+      "disposition": "retained in source archive tag; superseded by Navida root UI or root project configuration"
+    },
+    {
+      "source_path": "web/src/app/page.tsx",
+      "git_blob": "c8c104f159c891a1a4a128436d66e440a1659122",
+      "destination": null,
+      "disposition": "retained in source archive tag; superseded by Navida root UI or root project configuration"
+    },
+    {
+      "source_path": "web/src/app/platform/page.tsx",
+      "git_blob": "a067583f34d17233daa63de470e20d2285cc16dc",
+      "destination": null,
+      "disposition": "retained in source archive tag; superseded by Navida root UI or root project configuration"
+    },
+    {
+      "source_path": "web/src/app/workspace/assistant/page.tsx",
+      "git_blob": "d805d7ed7c09526bea0d9f53e84db9a66f273ded",
+      "destination": null,
+      "disposition": "retained in source archive tag; superseded by Navida root UI or root project configuration"
+    },
+    {
+      "source_path": "web/src/app/workspace/case-board/page.tsx",
+      "git_blob": "72539cfdccd5c663e24f2dc1dba41798f671b056",
+      "destination": null,
+      "disposition": "retained in source archive tag; superseded by Navida root UI or root project configuration"
+    },
+    {
+      "source_path": "web/src/app/workspace/data-preview/page.tsx",
+      "git_blob": "57a62763a8cfb683184fa79df51c7920625b7bb1",
+      "destination": null,
+      "disposition": "retained in source archive tag; superseded by Navida root UI or root project configuration"
+    },
+    {
+      "source_path": "web/src/app/workspace/data-selection/page.tsx",
+      "git_blob": "1010bfca772c4eec77feab3477d5d76c719fa697",
+      "destination": null,
+      "disposition": "retained in source archive tag; superseded by Navida root UI or root project configuration"
+    },
+    {
+      "source_path": "web/src/app/workspace/evidence/page.tsx",
+      "git_blob": "55802bac77d0aff08a059c0002c41816d2c2da6c",
+      "destination": null,
+      "disposition": "retained in source archive tag; superseded by Navida root UI or root project configuration"
+    },
+    {
+      "source_path": "web/src/app/workspace/globe/page.tsx",
+      "git_blob": "220ef55984513137c935513aaade3d78876256ee",
+      "destination": null,
+      "disposition": "retained in source archive tag; superseded by Navida root UI or root project configuration"
+    },
+    {
+      "source_path": "web/src/app/workspace/layout.tsx",
+      "git_blob": "721a7ab3c8dc49b1cddaf46a557b80a2206be920",
+      "destination": null,
+      "disposition": "retained in source archive tag; superseded by Navida root UI or root project configuration"
+    },
+    {
+      "source_path": "web/src/app/workspace/page.tsx",
+      "git_blob": "cd4378ff1fb49628b9f3d8d5b4e8b56792cdc611",
+      "destination": null,
+      "disposition": "retained in source archive tag; superseded by Navida root UI or root project configuration"
+    },
+    {
+      "source_path": "web/src/app/workspace/visualize/page.tsx",
+      "git_blob": "8aee7254dbbe7b4a5d16738560e94a9c62d0d47c",
+      "destination": null,
+      "disposition": "retained in source archive tag; superseded by Navida root UI or root project configuration"
+    },
+    {
+      "source_path": "web/src/components/layout/InfoCard.tsx",
+      "git_blob": "6d47dfcac75e0ac1cde139198225673db340fe05",
+      "destination": null,
+      "disposition": "retained in source archive tag; superseded by Navida root UI or root project configuration"
+    },
+    {
+      "source_path": "web/src/components/layout/PageShell.tsx",
+      "git_blob": "9d51e16139d4b63115c75055cf30ea8673e64b12",
+      "destination": null,
+      "disposition": "retained in source archive tag; superseded by Navida root UI or root project configuration"
+    },
+    {
+      "source_path": "web/src/components/layout/PublicNavbar.tsx",
+      "git_blob": "940fb7cf6b336f7a5c6de443e70ac4f7fd3a3908",
+      "destination": null,
+      "disposition": "retained in source archive tag; superseded by Navida root UI or root project configuration"
+    },
+    {
+      "source_path": "web/src/components/ui/Icon.tsx",
+      "git_blob": "aea9d5a887968b077c68759ec682414e8f6844d0",
+      "destination": null,
+      "disposition": "retained in source archive tag; superseded by Navida root UI or root project configuration"
+    },
+    {
+      "source_path": "web/src/contracts/generated.ts",
+      "git_blob": "7f993765034dfb5f67291ae8d4e9d87ad449738d",
+      "destination": "src/contracts/generated.ts",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "web/src/data/field.ts",
+      "git_blob": "5d7ea22c4c832a40d18da42313691a712997b607",
+      "destination": "src/data/field.ts",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "web/src/data/geocode.ts",
+      "git_blob": "d2a0dd075c7792fe01f6a091b61b75ad9a533e6e",
+      "destination": "src/data/geocode.ts",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "web/src/data/health.ts",
+      "git_blob": "cc6db9c08652df9ff4f97ef3bc84d5ff3ded3871",
+      "destination": "src/data/health.ts",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "web/src/data/series.ts",
+      "git_blob": "c9712d8606c477f0a62d087830f0db59366d2242",
+      "destination": "src/data/series.ts",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "web/src/features/catalog/Catalog.tsx",
+      "git_blob": "0e23a0df264559331c4c8e76c1c20875924000e8",
+      "destination": "src/features/catalog/Catalog.tsx",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "web/src/features/catalog/plannedCatalog.ts",
+      "git_blob": "613c2fa5be6d8fbc90c3a22955938c3602f977c6",
+      "destination": "src/features/catalog/plannedCatalog.ts",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "web/src/features/discovery/AssistantPage.tsx",
+      "git_blob": "bcc6dbdacd61aa8156a91d705eed74973acfe0d3",
+      "destination": "src/features/discovery/AssistantPage.tsx",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "web/src/features/discovery/discovery.ts",
+      "git_blob": "9e70154c4fd126cfc85112fa12d63a31dea535d2",
+      "destination": "src/features/discovery/discovery.ts",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "web/src/features/evidence/EvidencePage.tsx",
+      "git_blob": "cc2b63d0220c5cc072671bba0676a635250efdfa",
+      "destination": "src/features/evidence/EvidencePage.tsx",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "web/src/features/globe/GlobePage.tsx",
+      "git_blob": "6f960e2cfae48140e7fcbb3d09f95d3b4d4fc5b6",
+      "destination": "src/features/globe/GlobePage.tsx",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "web/src/features/globe/renderer/GlobeScene.ts",
+      "git_blob": "90f55e584435271e94c131d0dc7775cc9c3ec448",
+      "destination": "src/features/globe/renderer/GlobeScene.ts",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "web/src/features/globe/renderer/cellLayer.ts",
+      "git_blob": "97ce979e79b96fa1806f18de18d28ea45259be53",
+      "destination": "src/features/globe/renderer/cellLayer.ts",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "web/src/features/globe/renderer/fieldColors.ts",
+      "git_blob": "f2e98c1623a6f67bff5af6492a3095f69305f1e4",
+      "destination": "src/features/globe/renderer/fieldColors.ts",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "web/src/features/globe/renderer/fieldLayer.ts",
+      "git_blob": "43bc4d15007f5a902d2cb50b3eb60fc43b9831f4",
+      "destination": "src/features/globe/renderer/fieldLayer.ts",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "web/src/features/globe/renderer/grid.ts",
+      "git_blob": "908193d77fb5594c2cefe9dbec134e524d3449eb",
+      "destination": "src/features/globe/renderer/grid.ts",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "web/src/features/globe/renderer/syntheticField.ts",
+      "git_blob": "0b074db24eebc3139b00cbd7e3d2a69b7714529d",
+      "destination": "src/features/globe/renderer/syntheticField.ts",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "web/src/features/globe/renderer/trendColors.ts",
+      "git_blob": "557eefe8cbad30d056055af2bccbff8cb014f361",
+      "destination": "src/features/globe/renderer/trendColors.ts",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "web/src/features/preview/ObservationTable.tsx",
+      "git_blob": "4e2e9f9e6af7cb70edb3d311648224cbd656f5ec",
+      "destination": "src/features/preview/ObservationTable.tsx",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "web/src/features/preview/PreviewPage.tsx",
+      "git_blob": "81fecbc51cf006ef5c9b73f50ed4b6e9d8e4e1aa",
+      "destination": "src/features/preview/PreviewPage.tsx",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "web/src/features/preview/SeriesView.tsx",
+      "git_blob": "6de6c19ac44e6eb46b3084002690c0de9cd8627e",
+      "destination": "src/features/preview/SeriesView.tsx",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "web/src/features/preview/TimeSeriesChart.tsx",
+      "git_blob": "b17821fbdf84dd5ac19d8b7400b61ced84a40e61",
+      "destination": "src/features/preview/TimeSeriesChart.tsx",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "web/src/features/preview/chartMath.ts",
+      "git_blob": "af69f4a84a2eba6b1104ba7af827e9079fbbf358",
+      "destination": "src/features/preview/chartMath.ts",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "web/src/features/workspace/ConnectionStatus.tsx",
+      "git_blob": "c0613b91d179498ec6fac5c2dd1eb637e71444fa",
+      "destination": "src/features/workspace/ConnectionStatus.tsx",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "web/src/features/workspace/OnboardingTour.tsx",
+      "git_blob": "e9805c0a4d57d40efcbb184e885e236db552d8e4",
+      "destination": null,
+      "disposition": "retained in source archive tag; superseded by Navida root UI or root project configuration"
+    },
+    {
+      "source_path": "web/src/features/workspace/Overview.tsx",
+      "git_blob": "3c1b906cb4e917a61005a504bef4a0c35b796901",
+      "destination": null,
+      "disposition": "retained in source archive tag; superseded by Navida root UI or root project configuration"
+    },
+    {
+      "source_path": "web/src/features/workspace/UnavailablePage.tsx",
+      "git_blob": "a3b049c0bc08d775bd73306669b6aab972113cd5",
+      "destination": null,
+      "disposition": "retained in source archive tag; superseded by Navida root UI or root project configuration"
+    },
+    {
+      "source_path": "web/src/features/workspace/Workspace.tsx",
+      "git_blob": "a491fa99aaafe9c902e5483c469c8aa0e43497e7",
+      "destination": null,
+      "disposition": "retained in source archive tag; superseded by Navida root UI or root project configuration"
+    },
+    {
+      "source_path": "web/src/proxy.ts",
+      "git_blob": "a2c5fcbd169994ed79101c3370879508289b0707",
+      "destination": "src/proxy.ts",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "web/src/server/localBoundary.ts",
+      "git_blob": "ba51035aba43472f9626828db45024f85be3275a",
+      "destination": "src/server/localBoundary.ts",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "web/src/state/preferences.tsx",
+      "git_blob": "7a53d5d7782fa6b792b731a84a05982775f02794",
+      "destination": "src/state/preferences.tsx",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "web/src/styles/base.css",
+      "git_blob": "c623247cf9eb80f73b3c26006a7ea2932663f68e",
+      "destination": null,
+      "disposition": "retained in source archive tag; superseded by Navida root UI or root project configuration"
+    },
+    {
+      "source_path": "web/tests/browser/foundation.spec.ts",
+      "git_blob": "b69a45efe076f76655e26b53b737aacef8319c6c",
+      "destination": "tests/browser/foundation.spec.ts",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "web/tests/contracts/consumers.ts",
+      "git_blob": "09be804162724c69fe515a41e47fd35bbefef452",
+      "destination": "tests/contracts/consumers.ts",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "web/tests/e2e/workspace/field.spec.ts",
+      "git_blob": "7b8e0a96756503b4d194cfffdb920850ba896309",
+      "destination": "tests/e2e/workspace/field.spec.ts",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "web/tests/e2e/workspace/globe.spec.ts",
+      "git_blob": "e34a99d5957a9bc5f5c43158c5bbdd6fda65ede3",
+      "destination": "tests/e2e/workspace/globe.spec.ts",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "web/tests/e2e/workspace/public-site.spec.ts",
+      "git_blob": "43b27388dd12400605f432bf5f6551d33f51b173",
+      "destination": "tests/e2e/workspace/consolidation.spec.ts",
+      "disposition": "superseded application-shell assertions; new Navida-root integration journeys cover navigation, catalog, discovery, preferences, onboarding, security and unavailable science; original retained by source archive tag"
+    },
+    {
+      "source_path": "web/tests/e2e/workspace/series.spec.ts",
+      "git_blob": "2aa78524127157596efc6dcd823ac4dc0760b115",
+      "destination": "tests/e2e/workspace/series.spec.ts",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "web/tests/e2e/workspace/workspace.spec.ts",
+      "git_blob": "6dd00fae6f5e9f2b7f98da14be64495a2840ef05",
+      "destination": "tests/e2e/workspace/consolidation.spec.ts",
+      "disposition": "superseded application-shell assertions; new Navida-root integration journeys cover navigation, catalog, discovery, preferences, onboarding, security and unavailable science; original retained by source archive tag"
+    },
+    {
+      "source_path": "web/tests/pages/WorkspacePage.ts",
+      "git_blob": "fda5725cf12373a0f14ea23048df5e7954486efa",
+      "destination": "tests/pages/WorkspacePage.ts",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "web/tests/setup.ts",
+      "git_blob": "e2d91af6266161fb369c4c2f2db996588a0f4ddd",
+      "destination": "tests/setup.ts",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "web/tests/unit/App.test.tsx",
+      "git_blob": "5b5cfa91596635acf23382eb431da7d3443c3463",
+      "destination": null,
+      "disposition": "retained in source archive tag; superseded by Navida root UI or root project configuration"
+    },
+    {
+      "source_path": "web/tests/unit/ObservationTable.test.tsx",
+      "git_blob": "7303e157b4e7269459866773aad12f9668c18798",
+      "destination": "tests/unit/ObservationTable.test.tsx",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "web/tests/unit/discovery.test.tsx",
+      "git_blob": "05d35fe407e8189e64199659be49b67aa0943127",
+      "destination": "tests/unit/discovery.test.tsx",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "web/tests/unit/globeGrid.test.ts",
+      "git_blob": "5c9fafc6420049eed99b7aa050cb7578ad7a6bcd",
+      "destination": "tests/unit/globeGrid.test.ts",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "web/tests/unit/health.test.ts",
+      "git_blob": "588bae32088771ef06bb09c906ce96a043e133bb",
+      "destination": "tests/unit/health.test.ts",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "web/tests/unit/series.test.tsx",
+      "git_blob": "008f2357d7571c23a50131ff801e1ec2a59f9352",
+      "destination": "tests/unit/series.test.tsx",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "web/tests/unit/serverBoundary.test.ts",
+      "git_blob": "81c7ce86bbf9e620e02ca047bb083b68a8bddc44",
+      "destination": "tests/unit/serverBoundary.test.ts",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "web/tests/unit/trendColors.test.ts",
+      "git_blob": "6d4d90203382ab54cb855e1644af59cf1c7eae51",
+      "destination": "tests/unit/trendColors.test.ts",
+      "disposition": "integrated; adapt paths/contracts as required"
+    },
+    {
+      "source_path": "web/tsconfig.json",
+      "git_blob": "ed370d1ace4f19e518f6c06489c41205dd577836",
+      "destination": "tsconfig.json",
+      "disposition": "merged/adapted into single-root project; exact original retained by source archive tag"
+    },
+    {
+      "source_path": "web/vitest.config.ts",
+      "git_blob": "e1445225262f4d169f2375edcd99de60715aa67a",
+      "destination": "vitest.config.ts",
+      "disposition": "integrated; adapt paths/contracts as required"
+    }
+  ],
+  "note": "Each source blob remains retrievable from archive/earth-trend-source-84d941f. Destinations may be adapted, not byte-identical. Null destinations were deliberately superseded or retained only in the archive. Navida root baseline is retained separately at archive/iris-before-consolidation."
+}

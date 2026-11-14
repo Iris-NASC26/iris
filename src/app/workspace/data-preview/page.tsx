@@ -1,12 +1,4 @@
-"use client";
-
-import { Suspense } from "react";
-import { DataPreviewView } from "@/components/dashboard/DataPreviewView";
-
-export default function DataPreviewPage() {
-  return (
-    <Suspense fallback={<div className="dashboard-page-inner">Loading Data Preview…</div>}>
-      <DataPreviewView />
-    </Suspense>
-  );
-}
+'use client';
+import { Suspense } from 'react';
+import { PreviewPage } from '@/features/preview/PreviewPage';
+export default function DataPreviewPage() { return <div className="earth-data-feature dashboard-page-inner"><Suspense fallback={<p>Loading source selection...</p>}><PreviewPage /></Suspense></div>; }

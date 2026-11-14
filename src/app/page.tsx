@@ -34,8 +34,8 @@ const capabilities: Array<{
     icon: "sparkles",
     title: "Follow the next clue",
     text: "Connect related Earth-system variables to investigate plausible physical relationships, not just correlations.",
-    stat: "18",
-    label: "analysis-ready variables",
+    stat: "13",
+    label: "planned variables",
   },
 ];
 
@@ -53,7 +53,7 @@ export default function LandingPage() {
     <div className={dark ? "dark app-shell landing-site" : "app-shell landing-site"}>
       <PublicNavbar dark={dark} onToggleTheme={toggleTheme} />
 
-      <main id="top">
+      <main id="top"><p className="prototype-disclosure">Design preview: static charts and example investigations illustrate the intended interface. They are not NASA observations or validated results. Use Data Preview for real source retrieval.</p>
         <section className="landing-hero">
           <div className="hero-glow glow-one" />
           <div className="hero-glow glow-two" />
@@ -174,7 +174,7 @@ export default function LandingPage() {
           <div className="signal-demo">
             <div className="signal-demo-head">
               <span>Near-surface temperature</span>
-              <strong>+0.42°C / decade</strong>
+              <strong>Not computed</strong>
             </div>
             <svg
               viewBox="0 0 600 300"
@@ -279,8 +279,8 @@ export default function LandingPage() {
             </p>
             <div className="data-stats">
               <div>
-                <strong>18</strong>
-                <span>analysis-ready variables</span>
+                <strong>13</strong>
+                <span>planned variables</span>
               </div>
               <div>
                 <strong>40+</strong>
@@ -312,24 +312,24 @@ export default function LandingPage() {
               icon="thermometer"
               place="Los Angeles, USA"
               title="Two decades of urban warming"
-              value="+0.42°C"
-              meta="per decade · 99.86% confidence"
+              value="Not computed"
+              meta="per decade · confidence not evaluated"
               tone="warm"
             />
             <CaseCard
               icon="activity"
               place="Central Valley, USA"
               title="The signature of a historic drought"
-              value="−18.7mm"
-              meta="per decade · 98.2% confidence"
+              value="Not computed"
+              meta="per decade · confidence not evaluated"
               tone="dry"
             />
             <CaseCard
               icon="layers"
               place="Amazon Basin, Brazil"
               title="Forest resilience under pressure"
-              value="−0.08"
-              meta="NDVI per decade · 95.4% confidence"
+              value="Not computed"
+              meta="NDVI per decade · confidence not evaluated"
               tone="forest"
             />
           </div>
@@ -471,23 +471,23 @@ function ProductPreview() {
               <Icon name="arrow" size={17} />
               <div>
                 <small>Detective verdict</small>
-                <strong>Significant warming trend detected</strong>
-                <p>Temperature has risen by +0.42°C per decade.</p>
+                <strong>Trend analysis awaiting validation</strong>
+                <p>No trend has been calculated.</p>
               </div>
-              <b>99.86%</b>
+              <b>Not computed</b>
             </div>
             <div className="preview-metrics">
               <span>
                 <small>Decadal rate</small>
-                <b>+0.42°C</b>
+                <b>Not computed</b>
               </span>
               <span>
                 <small>Total change</small>
-                <b>+0.84°C</b>
+                <b>Not computed</b>
               </span>
               <span>
                 <small>MK p-value</small>
-                <b>0.0014</b>
+                <b>Not computed</b>
               </span>
               <span>
                 <small>95% CI</small>

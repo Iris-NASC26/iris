@@ -1,12 +1,6 @@
-/**
- * Project Iris — Frontend & Next.js Server Data Discovery, Conversational SI & Extraction Types
- * 100% Real Data Architecture — Zero Synthetic or Hardcoded Dummy Series.
- * Supported Live NASA APIs:
- * 1. NASA POWER (`https://power.larc.nasa.gov/api/...`)
- * 2. NASA CMR (`https://cmr.earthdata.nasa.gov/search/...`)
- * 3. NASA AppEEARS (`https://appeears.earthdatacloud.nasa.gov/api/...`)
- * 4. NASA GES DISC (`https://api.giovanni.earthdata.nasa.gov/timeseries`)
- * 5. NASA Harmony (`https://harmony.earthdata.nasa.gov/...`)
+/** Preserved Navida prototype types/helpers. Not the authoritative scientific contracts.
+ * Canonical consumers use src/contracts/generated.ts and src/data/.
+ * Legacy provider, SI and extraction endpoints are disconnected pending review.
  */
 
 export type TemporalFrequency = "Daily" | "8-Day" | "16-Day" | "Monthly" | "Seasonal" | "Yearly";

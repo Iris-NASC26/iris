@@ -1,23 +1,29 @@
-import { NextResponse } from "next/server";
+/** Narrow fixed-upstream proxy for the place geocoder. No arbitrary URLs or credentials. */
+import { NextResponse } from 'next/server';
 
-const FASTAPI_BASE = process.env.FASTAPI_URL || "http://127.0.0.1:8000";
+export const dynamic = 'force-dynamic';
+
+const headers = { 'Cache-Control': 'no-store' };
+const problem = (status: number, detail: string, code: string) => NextResponse.json({
+  schema_version: '1.0', type: 'about:blank', title: 'Request rejected', status, detail, code,
+  request_id: 'req-proxy', retryable: false, retry_after_seconds: null, field_errors: [],
+}, { status, headers: { ...headers, 'Content-Type': 'application/problem+json' } });
 
 export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const q = searchParams.get("q") || "";
-  if (!q) {
-    return NextResponse.json({ error: "q query parameter is required" }, { status: 400 });
+  const name = new URL(request.url).searchParams.get('name')?.trim() ?? '';
+  if (!name || name.length > 100) {
+    return problem(422, 'Enter a place name of up to 100 characters.', 'INVALID_PARAMETERS');
   }
   try {
-    const upstream = await fetch(`${FASTAPI_BASE}/api/v1/geocode?q=${encodeURIComponent(q)}`, {
-      signal: AbortSignal.timeout(10000),
+    const upstream = await fetch(`http://127.0.0.1:8000/api/v1/geocode?name=${encodeURIComponent(name)}`, {
+      cache: 'no-store', redirect: 'error', signal: AbortSignal.timeout(30_000),
+      headers: { Accept: 'application/json' },
     });
-    const data = await upstream.json();
-    return NextResponse.json(data, { status: upstream.status });
-  } catch (error) {
-    return NextResponse.json(
-      { error: "Geocoding request failed", detail: String(error) },
-      { status: 502 },
-    );
+    const type = upstream.headers.get('content-type') ?? '';
+    if (!type.includes('json')) throw new Error('Unexpected upstream content');
+    return new NextResponse(await upstream.text(), { status: upstream.status, headers: { ...headers, 'Content-Type': type } });
+  } catch {
+    console.warn('Local FastAPI geocode request unavailable');
+    return problem(503, 'The local backend is unavailable.', 'PROVIDER_UNAVAILABLE');
   }
 }

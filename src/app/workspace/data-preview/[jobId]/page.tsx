@@ -1,17 +1,2 @@
-"use client";
-
-import { Suspense, use } from "react";
-import { DataPreviewView } from "@/components/dashboard/DataPreviewView";
-
-export default function DataPreviewJobPage({
-  params,
-}: {
-  params: Promise<{ jobId: string }>;
-}) {
-  const { jobId } = use(params);
-  return (
-    <Suspense fallback={<div className="dashboard-page-inner">Loading Data Preview…</div>}>
-      <DataPreviewView routeJobId={jobId} />
-    </Suspense>
-  );
-}
+import { ReviewRequired } from '@/components/dashboard/ReviewRequired';
+export default function LegacyJobPage() { return <ReviewRequired title="Legacy extraction result" message="This job belongs to the earlier prototype store. Its source identity and QA need review before it can be used in the shared application. Select an approved source to load a new series." />; }

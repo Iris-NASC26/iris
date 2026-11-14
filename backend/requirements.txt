@@ -1,9 +1,2 @@
-fastapi>=0.115.0
-uvicorn[standard]>=0.32.0
-httpx>=0.27.0
-pandas>=2.2.0
-numpy>=1.26.0
-scipy>=1.14.0
-statsmodels>=0.14.0
-pymannkendall>=1.4.3
-pydantic>=2.9.0
+# Compatibility install entry; uv sync --locked is the supported reproducible setup.
+-e .

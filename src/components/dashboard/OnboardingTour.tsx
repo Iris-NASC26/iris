@@ -7,13 +7,13 @@ const steps = [
   {
     eyebrow: "Welcome to Iris",
     title: "Your Earth-system investigation workspace",
-    text: "Iris keeps discovery, source data, visual analysis, and interpretation connected in one traceable workflow.",
+    text: "Practice build: browse approved variables, retrieve raw NASA POWER data and inspect source metadata. Trend analysis remains unavailable.",
     icon: "globe" as const,
   },
   {
     eyebrow: "Ask in plain language",
     title: "Begin with System Intelligence",
-    text: "Describe a place, environmental signal, or headline. Iris turns it into a structured data request you can inspect.",
+    text: "Describe an environmental topic. A local rule-based assistant suggests approved variables for your confirmation; no AI service is called.",
     icon: "sparkles" as const,
   },
   {
@@ -25,7 +25,7 @@ const steps = [
   {
     eyebrow: "Separate signal from noise",
     title: "Plot, test, and follow the next clue",
-    text: "Compare raw, seasonal, and deseasonalized records, then use statistics and related variables to test the story.",
+    text: "Inspect raw monthly series and globe fields. Deseasonalization, trend inference, case files and forecasts require later scientific review.",
     icon: "activity" as const,
   },
 ];
