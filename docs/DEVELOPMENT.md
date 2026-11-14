@@ -1,4 +1,4 @@
-# Local development — F02/F03
+# Local development — foundation and F05 preflight
 
 This is a practice build. F02 provides React/TypeScript/Vite and FastAPI/Pydantic/Uvicorn with a browser-to-backend health check. Analysis is explicitly unavailable. See [execution ownership and gates](EXECUTION_STATUS.md). Full local release packaging is R01/R07, not this development launcher.
 
@@ -82,3 +82,28 @@ uv --directory validation run --locked python -m reference.run_checks --check
 ```
 
 H3 owns these references, with independent human scientific review required. Shared application lockfiles stay with H1. Synthetic fixtures and reference reports must not be exposed as NASA observations, prepared product results or proof that SM-12/VL-01/VL-02 passed. Scientific gates remain open even when deterministic tests pass. F04 checks are separate commands; adding full CI enforcement belongs to F06.
+
+## NASA provider preflight — F05
+
+F05 adds opt-in inspection tools and [actual provider evidence](../validation/reports/provider-preflight.md),
+not application adapters or scientific readiness. POWER chunks/coordinates, seven HDF5 source
+headers, the approved AIRS map, a Giovanni CSV, a supported HOSS subset and two AppEEARS
+NDVI/QA probes were checked. Raw artifacts stay in ignored `artifacts/f05/`; sanitized metadata,
+hashes, failures and estimates are committed. Full build feasibility and scientific admission
+remain explicit gates.
+
+The [isolated preflight guide](../validation/preflight/README.md) documents setup, live opt-ins,
+the external token file, reproducibility and offline tests. It has its own pinned environment
+and lockfile, separate from both the application and F04. The public probe uses only stdlib;
+no NASA call or credential read is added to application setup or ordinary checks.
+
+```powershell
+backend/.venv/Scripts/python.exe -m unittest discover -s scripts/tests -v
+uv run --project validation/preflight --locked python -m unittest discover -s validation/preflight/tests -v
+```
+
+F05 tools may read `%LOCALAPPDATA%\EarthTrendDetective\secrets\.env` (`EARTHDATA_TOKEN=`),
+an environment token or the external `.netrc`, with explicit authenticated opt-in. Verify private
+file permissions first. React and the health server do not read these files. Never commit
+credentials/signed URLs or label synthetic format fixtures as NASA observations. F06 owns
+future automated CI enforcement; H2/H3 review source/QA findings before release admission.
