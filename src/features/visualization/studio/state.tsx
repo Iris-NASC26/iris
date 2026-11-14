@@ -96,11 +96,7 @@ export interface StudioState {
     setTimeIndex: (i: number) => void;
     playing: boolean;
     setPlaying: (v: boolean) => void;
-    tablePage: number;
-    setTablePage: (v: number | ((p: number) => number)) => void;
-    focus: boolean;
-    setFocus: (v: boolean) => void;
-    analysis: UseScientificAnalysis;
+    analysis: Pick<UseScientificAnalysis, 'status' | 'error' | 'binding' | 'inputKey'>;
     exportData: (type: 'csv' | 'json') => void;
     openAnalysis: () => void;
 }

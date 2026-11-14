@@ -14,6 +14,7 @@ test('live NASA discovery, point observations and native grids reach the visuali
  const response=await extraction;expect(response.ok()).toBe(true);
  const result=await response.json();expect(result.upstream_live_fetched).toBe(true);expect(result.chart_series.length).toBe(24);
  await page.locator('.viz-chart-canvas canvas').waitFor();
+ await page.getByRole('tab',{name:'Time series',exact:true}).click();
  await expect(page.getByRole('img',{name:/Time series for Temperature at 2 Meters/})).toBeVisible();
  await page.screenshot({path:'artifacts/visualization/live-series.png',fullPage:true});
  await page.getByRole('button',{name:'Living globe',exact:true}).click();

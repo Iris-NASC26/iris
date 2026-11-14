@@ -11,7 +11,8 @@ import { EXTENT_PRESETS, fieldRoute, parseBox, type ExtentBox } from "./extents"
 import { DEFAULT_ORDER, type LayerId } from "./layers";
 import { DEFAULT_STYLE, type FieldStyle } from "./styles";
 import dynamic from "next/dynamic";
-import { useScientificAnalysis } from "./hooks/useScientificAnalysis";
+import { sourceKey } from './adapters/analysisBinding';
+import { StudioDisplayProvider, useDisplay } from './studio/display';
 import { StudioContext, type MapState, type StudioSelection, type StudioState } from "./studio/state";
 import { StudioShell } from "./studio/StudioShell";
 import type { CellInspection, MapPoint } from "./Globe";
@@ -21,13 +22,17 @@ const MapWorkspace = dynamic(() => import('./MapWorkspace').then(module => modul
 export function VisualizationWorkspace({ initialView = 'charts' }: {
     initialView?: 'charts' | 'globe';
 }) {
+    return <StudioDisplayProvider><VisualizationWorkspaceContent initialView={initialView}/></StudioDisplayProvider>;
+}
+function VisualizationWorkspaceContent({ initialView }: { initialView: 'charts' | 'globe' }) {
+    const { display } = useDisplay();
     const dashboard = useDashboard(), store = useVisualizations(), params = useSearchParams(), router = useRouter();
     const [prompt, setPrompt] = useState(''), [catalog, setCatalog] = useState<DataProduct[]>([]), [selected, setSelected] = useState<string[] | null>(null);
     const [searching, setSearching] = useState(false), [loading, setLoading] = useState(false), [error, setError] = useState(''), [notice, setNotice] = useState('');
     const [place, setPlace] = useState(dashboard.extractionConfig.region_name), [lat, setLat] = useState(String(dashboard.extractionConfig.point_lat ?? 6.9355)), [lon, setLon] = useState(String(dashboard.extractionConfig.point_lon ?? 79.8487));
     const [start, setStart] = useState(dashboard.extractionConfig.start_date), [end, setEnd] = useState(dashboard.extractionConfig.end_date), [frequency, setFrequency] = useState('Monthly');
     const [primaryId, setPrimaryId] = useState(''), [hidden, setHidden] = useState<string[]>([]), [filterStart, setFilterStart] = useState(''), [filterEnd, setFilterEnd] = useState('');
-    const [includeFlagged, setIncludeFlagged] = useState(false), [normalized, setNormalized] = useState(false), [timeIndex, setTimeIndex] = useState(0), [playing, setPlaying] = useState(false), [tablePage, setTablePage] = useState(0);
+    const [includeFlagged, setIncludeFlagged] = useState(false), [normalized, setNormalized] = useState(false), [timeIndex, setTimeIndex] = useState(0), [playing, setPlaying] = useState(false);
     const [selection, setSelection] = useState<StudioSelection | null>(null);
     const [fieldVariable, setFieldVariable] = useState<SpatialVariableId>('V01'), [fieldMonth, setFieldMonth] = useState('2024-01'), [fieldBox, setFieldBox] = useState(['4', '16', '76', '86']);
     const [field, setField] = useState<SpatialField | null>(null), [fieldBusy, setFieldBusy] = useState(false), [fieldError, setFieldError] = useState('');
@@ -37,8 +42,7 @@ export function VisualizationWorkspace({ initialView = 'charts' }: {
     const [layerVisible, setLayerVisible] = useState<Record<LayerId, boolean>>({ field: true, points: true, extent: true, basemap: true }), [layerOrder, setLayerOrder] = useState<LayerId[]>(DEFAULT_ORDER);
     const [inspection, setInspection] = useState<CellInspection | null>(null);
     const [drawMode, setDrawMode] = useState(false), [cellClearSignal, setCellClearSignal] = useState(0), [applied, setApplied] = useState<{ variable: string; month: string; box: ExtentBox } | null>(null);
-    const [drawerOpen, setDrawerOpen] = useState(true);
-    const [focus, setFocus] = useState(false);
+    const [drawerOpen, setDrawerOpen] = useState(false);
     // Whether this session has a loaded field — survives the transient null
     // while a reload is in flight, so playback/steppers keep driving requests.
     const spatialSession = useRef(false);
@@ -60,7 +64,10 @@ export function VisualizationWorkspace({ initialView = 'charts' }: {
     const stats = summary(primaryRows);
     const times = primaryRows.map(r => r.time), selectedTime = times[Math.min(timeIndex, Math.max(0, times.length - 1))];
     const primaryIndex = Math.min(timeIndex, Math.max(0, primaryRows.length - 1));
-    const analysis = useScientificAnalysis(primary?.preview);
+    const selectedTimestamp = primaryRows[primaryIndex]?.timestamp;
+    const inputKey = sourceKey(primary?.preview);
+    const binding = store.analyses[inputKey] ?? null;
+    const analysis: StudioState['analysis'] = { inputKey, binding, status: binding ? 'complete' : 'empty', error: '' };
     const points: MapPoint[] = entries.flatMap(s => { const position = coordinates(s.preview); if (!position)
         return []; const value = (data.get(s.id) ?? []).find(r => r.time === selectedTime)?.value ?? null; return [{ id: s.id, label: `${s.preview.product.variable_name} / ${s.preview.extraction_config.region_name}`, lat: position.lat, lon: position.lon, value, units: s.preview.summary_stats.unit, color: s.color }]; });
     const ingest = (preview: PreviewResponse) => { store.add(preview); setPrimaryId(preview.result_id || preview.job_id); };
@@ -100,9 +107,14 @@ export function VisualizationWorkspace({ initialView = 'charts' }: {
             router.replace(`/workspace/globe?${params.toString()}`);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
-    useEffect(() => { setTimeIndex(0); setTablePage(0); setPlaying(false); setSelection(null); }, [primary?.id, filterStart, filterEnd, includeFlagged]);
+    useEffect(() => { setTimeIndex(0); setPlaying(false); setSelection(null); }, [primary?.id, filterStart, filterEnd, includeFlagged]);
     useEffect(() => { if (!playing || times.length < 2)
         return; const id = window.setInterval(() => setTimeIndex(i => (i + 1) % times.length), 650); return () => clearInterval(id); }, [playing, times.length]);
+    useEffect(() => {
+        if (playing && primary && selectedTime !== undefined && selectedTimestamp) {
+            setSelection({ seriesId: primary.id, time: selectedTime, timestamp: selectedTimestamp });
+        }
+    }, [playing, primary?.id, selectedTime, selectedTimestamp]);
     useEffect(() => () => { request.current?.abort(); fieldRequest.current?.abort(); searchRequest.current?.abort(); geoRequest.current?.abort(); }, []);
     const fieldKey = `${fieldVariable}|${fieldMonth}|${fieldBox.join(',')}`;
     useEffect(() => {
@@ -326,7 +338,7 @@ export function VisualizationWorkspace({ initialView = 'charts' }: {
         setTimeout(() => URL.revokeObjectURL(url), 1000);
     }
     function analyze() { if (!primary)
-        return; dashboard.setExtractedPreview(primary.preview); dashboard.setAutoRunCase(false); router.push(`/workspace/visualize?view=analysis&jobId=${encodeURIComponent(primary.preview.job_id)}`); }
+        return; dashboard.setExtractedPreview(primary.preview); dashboard.setAutoRunCase(false); router.push(`/workspace/data-analysis?jobId=${encodeURIComponent(primary.preview.job_id)}`); }
     const pick = (latitude: number, longitude: number) => { setLat(latitude.toFixed(4)); setLon(longitude.toFixed(4)); setPlace(`Picked location ${latitude.toFixed(2)}, ${longitude.toFixed(2)}`); };
     const map: MapState = {
         field, applied, busy: fieldBusy, error: fieldError,
@@ -372,8 +384,6 @@ export function VisualizationWorkspace({ initialView = 'charts' }: {
         selection, select: setSelection,
         timeIndex, setTimeIndex,
         playing, setPlaying,
-        tablePage, setTablePage,
-        focus, setFocus,
         analysis, exportData, openAnalysis: analyze,
     };
     const controls = <aside className="viz-controls" aria-label="Visualization controls">
@@ -390,7 +400,7 @@ export function VisualizationWorkspace({ initialView = 'charts' }: {
         setLon(String(p.center[1]));
     } }}><option value="">Choose a location...</option>{REGION_PRESETS.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}</select>
      <div className="viz-two-cols"><label>Latitude<input type="number" min={-90} max={90} step="any" value={lat} onChange={e => setLat(e.target.value)}/></label><label>Longitude<input type="number" min={-180} max={180} step="any" value={lon} onChange={e => setLon(e.target.value)}/></label></div>
-     <p className="viz-note">Time-series retrieval samples a point. A region name does not make it a regional average. Click the globe to pick coordinates.</p>
+     <p className="viz-note">Time-series retrieval samples a point. A region name does not make it a regional average. Review the coordinates before loading.</p>
     </section>
     <section className="viz-control-section"><span className="viz-step">03 / SET THE PERIOD</span>
      <div className="viz-two-cols"><label>Observation start<input type="date" value={start} onChange={e => setStart(e.target.value)}/></label><label>Observation end<input type="date" value={end} onChange={e => setEnd(e.target.value)}/></label></div>
@@ -401,7 +411,7 @@ export function VisualizationWorkspace({ initialView = 'charts' }: {
     </section>
     {store.series.length > 0 && <section className="viz-control-section"><span className="viz-step">LOADED SERIES / {store.series.length} OF {MAX_SERIES}</span><div className="viz-loaded-list">{store.series.map(s => <article key={s.id}><label><input type="checkbox" checked={!hidden.includes(s.id)} onChange={e => setHidden(current => e.target.checked ? current.filter(id => id !== s.id) : [...current, s.id])}/><i style={{ background: s.color }}/><span>{s.label}</span></label><button aria-label={`Remove ${s.label}`} onClick={() => store.remove(s.id)}>Remove</button></article>)}</div></section>}
    </aside>;
-    const timeStrip = primary && primaryRows.length > 0 && <section className="viz-time-control"><button className="viz-button" onClick={() => setPlaying(p => !p)}>{playing ? 'Pause' : 'Play observations'}</button><label>Selected observation<input aria-label="Observation time" type="range" min={0} max={Math.max(0, times.length - 1)} value={primaryIndex} onChange={e => { setPlaying(false); setTimeIndex(Number(e.target.value)); const r = primaryRows[Number(e.target.value)]; if (r) setSelection({ seriesId: primary.id, time: r.time, timestamp: r.timestamp }); }}/></label><strong>{primaryRows[primaryIndex]?.timestamp} / {format(primaryRows[primaryIndex]?.value ?? null)} {primary.preview.summary_stats.unit}</strong><p>Playback selects retrieved observations only.</p></section>;
+    const timeStrip = primary && primaryRows.length > 0 && <section className="viz-time-control"><button className="viz-button" onClick={() => setPlaying(p => !p)}>{playing ? 'Pause' : 'Play observations'}</button><label>Selected observation<input aria-label="Observation time" type="range" min={0} max={Math.max(0, times.length - 1)} value={primaryIndex} onChange={e => { setPlaying(false); setTimeIndex(Number(e.target.value)); const r = primaryRows[Number(e.target.value)]; if (r) setSelection({ seriesId: primary.id, time: r.time, timestamp: r.timestamp }); }}/></label><strong>{primaryRows[primaryIndex]?.timestamp} / {format(primaryRows[primaryIndex]?.value ?? null)} {primary.preview.summary_stats.unit}</strong><p>Step through retrieved timestamps and highlight the same observation across views.</p></section>;
     if (initialView === 'globe')
         return <div className="viz-workbench dashboard-page-inner">
   <header className="viz-heading"><div><span className="viz-eyebrow">LIVING GLOBE / NASA SPATIAL LAYERS</span><h2>Make the change visible.</h2><p>Choose a spatial variable, region and month to paint real NASA grid values across the globe.</p></div><Link className="viz-button" href="/workspace/visualize"><Icon name="activity" size={16}/> Open visualization studio</Link></header>
@@ -412,17 +422,17 @@ export function VisualizationWorkspace({ initialView = 'charts' }: {
    </section>
   </div>
  </div>;
-    return <StudioContext.Provider value={studio}><div className="viz-workbench dashboard-page-inner">
-  <header className="viz-heading"><div><span className="viz-eyebrow">IRIS VISUALIZATION STUDIO</span><h2>Make the change visible.</h2><p>Choose the evidence. Explore the patterns. Keep the source in view.</p></div><Link className="viz-button" href="/workspace/intelligence"><Icon name="sparkles" size={16}/> Open SI discovery</Link></header>
-  <div className="viz-layout" data-studio data-focus={focus || undefined}>
-   {drawerOpen && !focus && controls}
+    return <StudioContext.Provider value={studio}><div className="viz-workbench viz-immersive dashboard-page-inner" data-environment={display.dark ? 'dark' : 'light'}>
+  <header className="viz-heading"><div><span className="viz-eyebrow">IRIS / EARTH SYSTEM OBSERVATORY</span><h2>Make the change visible.</h2><p>Explore the shape of the record. Follow the evidence behind the trend.</p></div><Link className="viz-button" href="/workspace/intelligence"><Icon name="sparkles" size={16}/> Open SI discovery</Link></header>
+  {primary && <section className="viz-context-strip" aria-label="Selected record"><div><span>WHAT</span><strong>{primary.preview.product.variable_name}</strong><small>{primary.preview.summary_stats.unit} · {primary.preview.product.source_api}</small></div><div><span>WHERE</span><strong>{primary.preview.extraction_config.region_name}</strong><small>{primary.preview.spatial_semantics_applied || 'Point sample; not a regional mean'}</small></div><div><span>WHEN</span><strong>{primary.preview.extraction_config.start_date} → {primary.preview.extraction_config.end_date}</strong><small>{primary.preview.extraction_config.target_frequency} · {stats.count} visible usable observations</small></div><div><span>ANALYSIS</span><strong>{binding ? 'Matching result attached' : 'Not yet attached'}</strong><small>{binding ? `${binding.result.start_year}–${binding.result.end_year} · display filters do not retest` : 'Complete selected methods on Data Analysis'}</small></div></section>}
+  <div className="viz-layout" data-studio data-drawer={drawerOpen || undefined}>
+   {drawerOpen && controls}
    <section className="viz-results" aria-label="Visualization studio" aria-busy={loading}>
     {error && <div className="viz-error" role="alert"><strong>Could not complete this request</strong><p>{error}</p></div>}{notice && <p className="viz-notice" role="status">{notice}</p>}
     <StudioShell>
       <button className="viz-button" aria-pressed={drawerOpen} onClick={() => setDrawerOpen(o => !o)}>{drawerOpen ? 'Hide data controls' : 'Data controls'}</button>
       {primary && <button className="viz-button" onClick={() => exportData('csv')}>Export CSV</button>}
       {primary && <button className="viz-button" onClick={() => exportData('json')}>Export JSON</button>}
-      {primary && <button className="viz-button" onClick={analyze}>Scientific analysis</button>}
     </StudioShell>
     {timeStrip}
    </section>

@@ -4,10 +4,8 @@
 import { useMemo, useState } from "react";
 import type { IDockviewPanelProps } from "dockview-react";
 import { DataChart, ChartCanvas, type ChartKind, type SelectEvent } from "../Charts";
-import { calendar, deviation, format, MONTHS, monthlyCells, paired, scale, summary, type VisualSeries } from "../model";
-import { useTheme } from "@/context/ThemeContext";
-import { ANALYSIS_METHODS, type AnalysisMethod, type SeasonalAdjustment } from "../hooks/useScientificAnalysis";
-import { outlookCapabilities } from "../adapters/analysisResult";
+import { calendar, format, lineData, MONTHS, monthlyCells, paired, scale, summary, type VisualSeries } from "../model";
+import { useStudioTheme as useTheme } from './display';
 import { useStudio, type StudioState } from "./state";
 
 type P = IDockviewPanelProps;
@@ -31,18 +29,39 @@ function commitIndex(studio: StudioState, i: number) {
 export function TimeSeriesPanel(_p: P) {
     const s = useStudio();
     const [kind, setKind] = useState<ChartKind>('line');
+    const [signal, setSignal] = useState<'observed' | 'analysis'>('observed');
     if (!s.primary) return <EmptyData />;
     const stats = summary(s.primaryRows);
     const markTime = s.selection?.seriesId === s.primary.id ? s.selection.time : s.primaryRows[Math.min(s.timeIndex, s.primaryRows.length - 1)]?.time ?? null;
     return <div className="viz-panel">
         <div className="viz-panel-tools">
-            <span className="viz-chart-types" role="group" aria-label="Chart type">{(['line', 'area', 'bars'] as const).map(k => <button key={k} aria-pressed={kind === k} onClick={() => setKind(k)}>{({ line: 'Line', area: 'Area', bars: 'Bars' } as const)[k]}</button>)}</span>
+            <span className="viz-chart-types" role="group" aria-label="Chart type">{(['line', 'area', 'bars', 'distribution'] as const).map(k => <button key={k} aria-pressed={kind === k} onClick={() => { setKind(k); setSignal('observed'); }}>{({ line: 'Line', area: 'Area', bars: 'Bars', distribution: 'Distribution' } as const)[k]}</button>)}</span>
+            {s.analysis.binding && <label>Signal<select aria-label="Signal" value={signal} onChange={e => setSignal(e.target.value as typeof signal)}><option value="observed">Observed record</option><option value="analysis">Analysis-adjusted & fitted</option></select></label>}
             {s.entries.length > 1 && <label className="viz-check"><input type="checkbox" checked={s.normalized} onChange={e => s.setNormalized(e.target.checked)}/> Standardize (unitless)</label>}
             <select aria-label="Primary series" value={s.primary.id} onChange={e => s.setPrimaryId(e.target.value)}>{s.entries.map(x => <option key={x.id} value={x.id}>{x.label}</option>)}</select>
         </div>
-        {stats.count ? <DataChart kind={kind} entries={s.entries} primary={s.primary} data={s.data} normalized={s.normalized} markTime={markTime} onSelect={e => publish(s, e)}/> : <Empty text="No usable observations in this period. Adjust the display filters or inspect the QA flags." />}
+        {signal === 'analysis' && s.analysis.binding ? <AnalyzedSeries studio={s}/> : stats.count ? <DataChart kind={kind} entries={s.entries} primary={s.primary} data={s.data} normalized={s.normalized} markTime={markTime} onSelect={e => publish(s, e)}/> : <Empty text="No usable observations in this period. Adjust the display filters or inspect the QA flags." />}
         <p className="viz-panel-foot">Units {s.primary.preview.summary_stats.unit} · {s.primary.preview.extraction_config.target_frequency} · gaps are real, never connected.</p>
     </div>;
+}
+
+function AnalyzedSeries({ studio: s }: { studio: StudioState }) {
+    const { dark } = useTheme(), b = s.analysis.binding!;
+    const foreground = dark ? '#acbdcf' : '#47586d';
+    const byTime = new Map(b.result.analysis_series.map(r => [Date.parse(r.timestamp), r]));
+    const aligned = s.primaryRows.map(row => ({ row, result: byTime.get(row.time) }));
+    if (!aligned.some(x => x.result?.deseasonalized_value !== null && x.result?.deseasonalized_value !== undefined && x.row.value !== null)) return <Empty text="The analysis-adjusted observations cannot be aligned to the visible source timestamps. Use the observed record or Data Analysis; no values were interpolated."/>;
+    const series = [{ name: `Analysis-adjusted (${b.result.seasonal_adjustment_method})`, field: 'deseasonalized_value' as const, color: s.primary!.color },
+        ...(b.submission.methods.includes('ols') ? [{ name: 'Submitted OLS fit', field: 'ols_trend' as const, color: '#e5ab74' }] : []),
+        ...(b.submission.methods.includes('sen_slope') ? [{ name: 'Submitted Sen fit', field: 'sen_trend' as const, color: '#b39ae6' }] : [])];
+    return <><ChartCanvas label={`Submitted analysis-adjusted observations and requested fits for ${s.primary!.label}. Fits are not drawn on unadjusted observations.`} resetable onSelect={data => { if (Array.isArray(data) && typeof data[0] === 'number') publish(s, { kind: 'time', time: data[0] }); }} option={{
+        animation: false, useUTC: true, aria: { enabled: true }, backgroundColor: 'transparent', grid: { top: 45, left: 65, right: 20, bottom: 55 },
+        legend: { type: 'scroll', textStyle: { color: foreground } }, tooltip: { trigger: 'axis', confine: true, renderMode: 'richText' },
+        xAxis: { type: 'time', axisLabel: { color: foreground } }, yAxis: { type: 'value', name: b.result.unit, scale: true, axisLabel: { color: foreground }, splitLine: { lineStyle: { color: dark ? '#29394d' : '#dbe4ed' } } },
+        dataZoom: [{ type: 'inside', filterMode: 'none' }, { type: 'slider', height: 18, bottom: 5, filterMode: 'none' }],
+        series: series.map((item, i) => ({ name: item.name, type: 'line', connectNulls: false, showSymbol: i === 0, symbolSize: 3, lineStyle: { width: 2, type: i === 0 ? 'solid' : 'dashed', color: item.color }, itemStyle: { color: item.color },
+            data: lineData(aligned.map(x => ({ ...x.row, value: x.row.value === null ? null : x.result?.[item.field] ?? null })), s.primary!.preview.extraction_config.target_frequency) })),
+    }}/><p className="viz-panel-foot">Backend fits and adjusted values are aligned by exact timestamp. Only requested methods are shown. Original analysis window {b.result.start_year}–{b.result.end_year}; brush zoom does not refit.</p></>;
 }
 
 export function SeasonalPanel(_p: P) {
@@ -117,17 +136,6 @@ export function RelationshipPanel(_p: P) {
     </div>;
 }
 
-export function ObservationTablePanel(_p: P) {
-    const s = useStudio();
-    if (!s.primary) return <EmptyData />;
-    const rows = s.primaryRows;
-    return <div className="viz-panel">
-        <div className="viz-panel-tools"><span className="viz-muted">Source values and QA flags — nothing interpolated.</span><button className="viz-button" onClick={() => s.exportData('csv')}>Export CSV</button><button className="viz-button" onClick={() => s.exportData('json')}>Export JSON</button></div>
-        <div className="viz-table-scroll"><table><caption>Observation data for {s.primary.label}</caption><thead><tr><th>Timestamp</th><th>Source value ({s.primary.preview.summary_stats.unit})</th><th>Plotted value</th><th>Source QA</th><th>Selected</th></tr></thead><tbody>{rows.slice(s.tablePage * 50, s.tablePage * 50 + 50).map(r => <tr key={r.timestamp} data-selected={s.selection?.seriesId === s.primary!.id && s.selection.time === r.time || undefined} onClick={() => { const i = rows.indexOf(r); if (i >= 0) commitIndex(s, i); }}><td>{r.timestamp}</td><td>{format(r.sourceValue ?? null, 4)}</td><td>{format(r.value, 4)}</td><td>{r.qa}</td><td>{s.selection?.time === r.time ? '●' : ''}</td></tr>)}</tbody></table></div>
-        <div className="viz-table-pages"><button disabled={s.tablePage === 0} onClick={() => s.setTablePage(p => p - 1)}>Previous rows</button><span>Page {s.tablePage + 1} of {Math.max(1, Math.ceil(rows.length / 50))}</span><button disabled={(s.tablePage + 1) * 50 >= rows.length} onClick={() => s.setTablePage(p => p + 1)}>Next rows</button></div>
-    </div>;
-}
-
 export function SourceInspectorPanel(_p: P) {
     const s = useStudio();
     if (!s.primary) return <EmptyData />;
@@ -137,7 +145,7 @@ export function SourceInspectorPanel(_p: P) {
     return <div className="viz-panel viz-panel-scroll">
         <section className="viz-control-section"><span className="viz-step">SELECTION</span>
             {s.selection && selRow ? <dl className="viz-kv"><dt>Timestamp</dt><dd>{s.selection.timestamp}</dd><dt>Value</dt><dd>{format(selRow.value)} {p.summary_stats.unit} (QA: {selRow.qa})</dd><dt>Series</dt><dd>{s.primary.label}</dd></dl>
-                : <p className="viz-muted">Click a chart point, heatmap cell, aligned pair, or table row to commit a selection shared across panels.</p>}
+                : <p className="viz-muted">Click a chart point, heatmap cell or aligned pair to commit a selection shared across panels.</p>}
         </section>
         <section className="viz-control-section"><span className="viz-step">DISPLAY</span>
             <div className="viz-filter-row"><label>From<input type="date" value={s.filterStart} onChange={e => s.setFilterStart(e.target.value)}/></label><label>To<input type="date" value={s.filterEnd} onChange={e => s.setFilterEnd(e.target.value)}/></label></div>
@@ -149,55 +157,5 @@ export function SourceInspectorPanel(_p: P) {
             {p.product.source_url && <a href={p.product.source_url} rel="noreferrer" target="_blank">Source documentation</a>}
         </section>
         <section className="viz-control-section"><span className="viz-step">SERIES</span>{s.series.map(v => <article key={v.id} className="viz-series-row"><label><input type="checkbox" checked={!s.hidden.includes(v.id)} onChange={e => s.toggleHidden(v.id, e.target.checked)}/><i style={{ background: v.color }}/>{v.label}</label><button onClick={() => s.removeSeries(v.id)}>Remove</button></article>)}</section>
-    </div>;
-}
-
-export function ComparisonPanel(_p: P) {
-    const s = useStudio();
-    if (!s.primary) return <EmptyData />;
-    const visible = s.entries;
-    const trendBinding = s.analysis.binding;
-    const trendOk = trendBinding && trendBinding.submission.methods.some(m => m === 'sen_slope' || m === 'ols') && trendBinding.inputKey === s.analysis.inputKey;
-    return <div className="viz-panel viz-panel-scroll">
-        <table className="viz-compare"><caption>Visible series over the shared display window — descriptive values only.</caption>
-            <thead><tr><th>Series</th><th>Usable</th><th>Mean</th><th>Range</th><th>Std dev</th><th>First→last</th></tr></thead>
-            <tbody>{visible.map(v => { const rows = s.data.get(v.id) ?? []; const st = summary(rows); const sd = deviation(rows); return <tr key={v.id}><td><i className="viz-swatch" style={{ background: v.color }}/>{v.label}</td><td>{st.count}</td><td>{format(st.mean)} {v.preview.summary_stats.unit}</td><td>{format(st.min)}–{format(st.max)}</td><td>{sd === null ? 'Unavailable' : sd === 0 ? '0 (zero variance)' : format(sd)}</td><td>{format(st.change)}</td></tr>; })}</tbody>
-        </table>
-        {trendOk ? <div className="viz-control-section"><span className="viz-step">SUBMITTED TREND ESTIMATE</span>
-            <dl className="viz-kv"><dt>Sen slope</dt><dd>{format(trendBinding.result.sens_slope_decadal)} {trendBinding.result.unit}/decade · 95% CI {format(trendBinding.result.sens_ci_low)} to {format(trendBinding.result.sens_ci_high)}</dd><dt>OLS slope</dt><dd>{format(trendBinding.result.ols_slope_decadal)} {trendBinding.result.unit}/decade · 95% CI {format(trendBinding.result.ols_ci_low_decadal)} to {format(trendBinding.result.ols_ci_high_decadal)}</dd><dt>Bound to</dt><dd>{trendBinding.result.dataset_name} · {trendBinding.result.start_year}–{trendBinding.result.end_year} · methods {trendBinding.submission.methods.join(', ')}</dd></dl>
-            <p className="viz-muted">Intervals are this submission’s estimates only; no cross-dataset trend comparison is implied.</p></div>
-            : <p className="viz-muted">Trend estimates appear here only for a matching submitted analysis on the primary series — open the Outlook panel to run one. Endpoint differences above are descriptive, not trend estimates.</p>}
-    </div>;
-}
-
-export function OutlookPanel(_p: P) {
-    const s = useStudio();
-    const [seasonal, setSeasonal] = useState<SeasonalAdjustment>('auto');
-    const [methods, setMethods] = useState<AnalysisMethod[]>(['sen_slope', 'hamed_rao_mk', 'ols']);
-    const a = s.analysis;
-    const binding = a.binding;
-    const outlook = binding?.result.outlook;
-    const caps = outlook ? outlookCapabilities(outlook) : null;
-    const toggle = (m: AnalysisMethod) => setMethods(c => c.includes(m) ? c.filter(x => x !== m) : [...c, m]);
-    return <div className="viz-panel viz-panel-scroll">
-        <section className="viz-control-section"><span className="viz-step">SUBMITTED ANALYSIS</span>
-            {!s.primary ? <p className="viz-muted">Load observations first — analysis runs on the primary series.</p> : <>
-            <label>Seasonal treatment<select value={seasonal} onChange={e => { setSeasonal(e.target.value as SeasonalAdjustment); a.invalidate(); }}><option value="auto">Auto (STL if eligible, else climatology)</option><option value="stl">STL</option><option value="calendar_climatology">Calendar climatology</option><option value="none">None</option></select></label>
-            <div className="viz-method-grid">{ANALYSIS_METHODS.map(m => <label key={m.id} className="viz-check"><input type="checkbox" checked={methods.includes(m.id)} onChange={() => { toggle(m.id); a.invalidate(); }}/>{m.label}</label>)}</div>
-            <button className="viz-button viz-primary" disabled={!methods.length || a.status === 'loading'} onClick={() => a.run({ seasonal, methods })}>{a.status === 'loading' ? 'Running selected methods…' : 'Run selected analysis'}</button>
-            {a.status === 'error' && <p className="viz-error" role="alert">{a.error}</p>}
-            {binding && <p className="viz-muted" role="status">Result bound to {binding.result.dataset_name} · {binding.result.start_year}–{binding.result.end_year} · grade {binding.result.evidence_grade}. Display filters never change this inference.</p>}
-            </>}
-        </section>
-        {!binding && s.primary && a.status !== 'loading' && <p className="viz-muted">No analysis has been submitted for this series and configuration — nothing below is implied. For the full Case File use <strong>Scientific analysis</strong> in the toolbar.</p>}
-        {a.status === 'loading' && <p className="viz-muted" role="status">Analysis running — previous results are not shown while superseded.</p>}
-        {outlook && caps && <section className="viz-control-section"><span className="viz-step">OUTLOOK</span>
-            <p><strong>{outlook.not_a_prediction_label}</strong></p>
-            {caps.continuation ? <table className="viz-compare"><caption>Conditional trend-continuation points — returned bounds are the submitted method’s envelope, not calibrated prediction intervals.</caption><thead><tr><th>Year</th><th>Central</th><th>Returned bounds</th></tr></thead><tbody>{outlook.continuation_points.map(p => <tr key={p.year}><td>{p.year}</td><td>{format(p.central_value)} {binding!.result.unit}</td><td>{format(p.ci_low)} to {format(p.ci_high)}</td></tr>)}</tbody></table> : <p className="viz-muted">No continuation points were returned for this submission.</p>}
-            {caps.shortTerm ? <><p className="viz-muted">Short-term statistical outlook (skill-gated; RMSE {format(outlook.backtest_rmse)} vs climatology {format(outlook.climatology_baseline_rmse)}):</p>
-                <table className="viz-compare"><thead><tr><th>Year</th><th>Central</th><th>Returned bounds</th></tr></thead><tbody>{outlook.short_term_forecast_points.map((p, i) => <tr key={`${p.year}-${i}`}><td>{p.year}</td><td>{format(p.central_value)} {binding!.result.unit}</td><td>{format(p.ci_low)} to {format(p.ci_high)}</td></tr>)}</tbody></table></>
-                : <p className="viz-muted" role="status">Short-term outlook suppressed: {outlook.skill_gate_reason || 'the skill gate did not pass for this submission.'} A passed gate indicates backtest skill against climatology — not independent scientific validation.</p>}
-            <p className="viz-muted">{outlook.cmip6_Reference_note}</p>
-        </section>}
     </div>;
 }

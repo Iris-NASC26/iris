@@ -2,8 +2,11 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from 'next/link';
 import { Icon } from "@/components/ui/Icon";
 import { useDashboard } from "@/context/DashboardContext";
+import { useVisualizations } from '@/features/visualization/store';
+import { sourceKey } from '@/features/visualization/adapters/analysisBinding';
 import type { SignalMode } from "@/lib/dashboardData";
 import type {
   CaseFileAnalysisResponse,
@@ -34,6 +37,7 @@ const ANALYSIS_METHODS: Array<{ id: AnalysisMethod; label: string; detail: strin
 ];
 
 export default function DataAnalysisPage() {
+  const { publishAnalysis, invalidateAnalysis } = useVisualizations();
   const {
     autoRunCase,
     dataset,
@@ -73,6 +77,7 @@ export default function DataAnalysisPage() {
     setCaseFileData(null);
     setAnalysisError("");
     setAnalysis("loading");
+    if (extractedPreview) invalidateAnalysis(extractedPreview);
 
     try {
       if (
@@ -111,6 +116,7 @@ export default function DataAnalysisPage() {
         }),
       });
       const responseBody = await response.json();
+      if (controller.signal.aborted) return;
       if (!response.ok) {
         throw new Error(
           responseBody.detail || responseBody.error || `Analysis failed (${response.status}).`,
@@ -119,6 +125,7 @@ export default function DataAnalysisPage() {
       if (!responseBody.result_id || !Array.isArray(responseBody.analysis_series)) {
         throw new Error("The analysis service returned an incomplete Case File.");
       }
+      if (extractedPreview) publishAnalysis(extractedPreview, { seasonal: seasonalAdjustment, methods: selectedMethods }, responseBody);
       setCaseFileData(responseBody as CaseFileAnalysisResponse);
       setAnalysis("complete");
     } catch (error) {
@@ -127,6 +134,8 @@ export default function DataAnalysisPage() {
       setAnalysis("error");
     }
   }, [
+    publishAnalysis,
+    invalidateAnalysis,
     dataset.code,
     dataset.id,
     dataset.name,
@@ -149,6 +158,7 @@ export default function DataAnalysisPage() {
 
   const resetResults = () => {
     requestController.current?.abort();
+    if (extractedPreview) invalidateAnalysis(extractedPreview);
     setCaseFileData(null);
     setAnalysisError("");
     setAnalysis("empty");
@@ -174,12 +184,9 @@ export default function DataAnalysisPage() {
   };
   const canAnalyze =
     Boolean(extractedPreview) || extractionConfig.source_api.toLowerCase() === "nasa power";
-  const analysisInputKey = [
-    extractedPreview?.job_id || "live",
-    extractedPreview?.extraction_config.variable_id || extractionConfig.variable_id,
-    extractedPreview?.extraction_config.region_name || extractionConfig.region_name || location,
-    extractedPreview?.extraction_config.start_date || startYear,
-    extractedPreview?.extraction_config.end_date || endYear,
+  const analysisInputKey = extractedPreview ? sourceKey(extractedPreview) : [
+    'live', extractionConfig.variable_id,
+    extractionConfig.region_name || location, startYear, endYear,
   ].join("|");
 
   useEffect(() => {
@@ -354,6 +361,7 @@ export default function DataAnalysisPage() {
         </aside>
 
         <section className="analysis-panel" aria-live="polite">
+          {analysis === 'complete' && extractedPreview && <Link className="btn btn-primary" href={`/workspace/visualize?jobId=${encodeURIComponent(extractedPreview.job_id)}`}>Explore in Visualization Studio →</Link>}
           {analysis === "empty" &&
             (canAnalyze ? (
               <SelectionPrompt selectedCount={selectedMethods.length} />
