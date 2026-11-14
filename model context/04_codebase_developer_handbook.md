@@ -28,7 +28,7 @@ c:\Users\navid\Desktop\Iris\
 │   │   └── nasa_power.py            # NASA POWER synchronous time-series client
 │   ├── services/
 │   │   ├── capability_matrix.py     # Runtime provider readiness & capability engine
-│   │   ├── cube_service.py          # Global Trend Cube gridded layer & Case Board service
+│   │   ├── cube_service.py          # Global Trend Cube gridded layer service
 │   │   ├── job_store.py             # Durable disk/memory job state & SHA-256 caching
 │   │   ├── llm_router.py            # Gemini 3.5 Flash-Lite intent parser & GCMD fallback
 │   │   ├── science_pipeline.py      # Hamed-Rao MK, Sen's slope, STL, Pettitt & Grading
@@ -47,11 +47,9 @@ c:\Users\navid\Desktop\Iris\
 │   │   │   ├── data-selection/      # Dataset parameter & boundary configuration
 │   │   │   ├── data-preview/        # Time-series preview, KPIs, map & tabular export
 │   │   │   ├── globe/               # 3D Living Globe visualization engine
-│   │   │   ├── case-board/          # Regional multi-variable environmental scan
 │   │   │   ├── visualize/           # Deep Scientific Case File analysis suite
 │   │   │   ├── case-studies/        # Peer-reviewed guided investigations
 │   │   │   ├── research/            # User scratchpad & hypothesis lab
-│   │   │   └── advanced/            # Developer tools, API tests & provider diagnostics
 │   │   ├── methodology/             # Public methodology & validation documentation
 │   │   ├── layout.tsx & page.tsx    # Root layout & landing page
 │   ├── components/
@@ -91,7 +89,6 @@ The frontend coordinates state through two complementary mechanisms:
 2. **URL Search Parameters (Deep-Linking):**
    - `/workspace/data-preview/[jobId]`: Directly loads any saved or shared extraction result.
    - `/workspace/visualize?jobId=...`: Loads an extracted time series into the deep Case File.
-   - `/workspace/case-board?region=Sahel`: Loads pre-filtered regional cube trends.
    - `/workspace/globe?layer=cube_t2m`: Directs the 3D globe to a specific climate variable.
 
 ---
@@ -111,7 +108,6 @@ Next.js provides transparent proxy routes in `src/app/api/v1/` that forward requ
 | `/api/v1/timeseries/jobs/{id}/preview` | `GET` | `backend/main.py` | Retrieves completed preview payload (KPIs, time-series, QA flags). |
 | `/api/v1/cube/manifest` | `GET` | `backend/main.py` | Returns Global Trend Cube metadata and available gridded layers. |
 | `/api/v1/cube/globe` | `GET` | `backend/main.py` | Serves global gridded trend cells for 3D globe rendering. |
-| `/api/v1/cube/case-board` | `POST` | `backend/main.py` | Scans multiple cube layers for a regional bounding box. |
 | `/api/v1/analyze/case-file` | `POST` | `backend/main.py` | Executes full statistical suite (MK, Sen, STL, Pettitt, Emergence). |
 | `/api/v1/evidence/registry` | `GET` | `backend/main.py` | Returns evidence grades, caveat definitions, and validation benchmarks. |
 | `/api/v1/capabilities` | `GET` | `backend/main.py` | Exposes dynamic provider readiness and live/offline status. |
@@ -145,7 +141,7 @@ Next.js provides transparent proxy routes in `src/app/api/v1/` that forward requ
    }
    ```
 2. **Add Gridded Values:** In `_compute_cell_metrics_for_layer()` (`backend/services/cube_service.py`), add the computation or pre-sliced data array for the layer.
-3. **Connect to Globe & Case Board:** The layer will automatically appear in the 3D Globe layer switcher and the Regional Case Board multi-variable scanner.
+3. **Connect to Globe:** The layer will automatically appear in the 3D Globe layer switcher.
 
 ### Recipe 3: Running and Verifying the System
 - **Run Backend:**

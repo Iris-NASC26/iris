@@ -12,10 +12,10 @@
 
 Project Iris resolves a fundamental dichotomy in environmental data exploration:
 1. **The Ad-Hoc Discovery Dilemma:** Earth science researchers, students, and citizens ask dynamic, plain-language questions ("Has precipitation decreased in the Sahel over the last 30 years?") and require live, targeted data retrieval across dispersed space agency catalogs (NASA CMR, POWER, AppEEARS, GES DISC, Harmony, NOAA, etc.).
-2. **The Systematic Evidence Requirement:** Rigorous scientific inference requires stable, pre-computed, multi-decadal gridded data (The Global Trend Cube) enabling instantaneous global visualization (Living Globe), cross-variable regional scanning (Case Board), non-parametric hypothesis testing (Hamed-Rao Mann-Kendall, Sen's slope), and offline resilience for competitions and classrooms.
+2. **The Systematic Evidence Requirement:** Rigorous scientific inference requires stable, pre-computed, multi-decadal gridded data (The Global Trend Cube) enabling instantaneous global visualization (Living Globe), non-parametric hypothesis testing (Hamed-Rao Mann-Kendall, Sen's slope), and offline resilience for competitions and classrooms.
 
 Earlier iterations of the project separated these two visions:
-- **SRS v0.1 (Earth Trend Detective):** Focused heavily on the pre-computed Global Trend Cube, 3D Living Globe, Case Board, and structured guided stories, but lacked an ad-hoc live catalog discovery and extraction engine for arbitrary user queries.
+- **SRS v0.1 (Earth Trend Detective):** Focused heavily on the pre-computed Global Trend Cube, 3D Living Globe, and structured guided stories, but lacked an ad-hoc live catalog discovery and extraction engine for arbitrary user queries.
 - **Project Iris Phase 2 (Data Retrieval Pipeline):** Built a live conversational System Intelligence (SI) router, multi-provider catalog search, parameter selection, and time-series extraction pipeline, but deferred the global cube, 3D globe, and multi-variable scanning.
 
 **SRS v1.0 Integrated Revision unites both feature sets into a singular, cohesive cloud-native platform.** Neither set is discarded or compromised. Live ad-hoc data discovery seamlessly flows into the same rigorous statistical engine that powers pre-computed global cube investigations.
@@ -28,7 +28,7 @@ The following matrix documents the key conflicts and reconciliations between the
 
 | Dimension | Previous v0.1 (Earth Trend Detective) | Early Project Iris Notes / Logs | Reconciled Integrated SRS v1.0 (Controlling) |
 | :--- | :--- | :--- | :--- |
-| **Product Scope** | Curated Global Trend Cube, Living Globe, Case Board, Case File. | Live natural-language query, provider catalog discovery, preview. | **Dual-Track System:** Track A (Live Ad-Hoc Retrieval) + Track B (Global Trend Cube & Regional Evidence). |
+| **Product Scope** | Curated Global Trend Cube, Living Globe, Case File. | Live natural-language query, provider catalog discovery, preview. | **Dual-Track System:** Track A (Live Ad-Hoc Retrieval) + Track B (Global Trend Cube & Living Globe). |
 | **Data Integrity Rule** | Prohibits unlabelled synthetic data; requires real observations. | Allowed "physically calibrated synthetic fallback" when upstream offline. | **Zero Synthetic Data in Production:** All numbers must originate from real upstream APIs or verified, pinned real snapshots with full provenance. Synthetic fixtures are strictly restricted to unit tests. |
 | **Offline Operation** | Mandatory offline demo capability for Space Apps judging. | Assumed live network access to upstream APIs (NASA/NOAA/etc.). | **Hybrid Resilience:** Live discovery/extraction for connected workflows; verified real snapshots (`srsCubeAndScienceEngine.ts`) ensure 100% offline functionality. |
 | **Super Intelligence (SI)** | Statistics decide; SI only suggests. SI never generates numbers. | Used LLM for intent extraction, variable mapping, and search query generation. | **Reconciled Role:** `gemini-3.5-flash-lite` parses queries into structured search facets and explains findings. Deterministic algorithms compute all statistics. |
@@ -54,7 +54,6 @@ flowchart TD
     subgraph TrackB["Track B: Global Trend Cube & Regional Evidence (Earth Trend Detective)"]
         CUBE_ENG["Global Trend Cube Service\n- 0.5° & 1.0° Gridded Global Manifest\n- Multi-Decadal Baselines (1981-2025)\n- Pre-computed Decadal Trends & FDR q-values"]
         UI_GL["Living Globe (/workspace/globe)\n- 3D Interactive WebGL / Globe Visualization\n- Trend Direction & Significance Overlays\n- Opposite-Trends Dipole & Time-Lapse Mode"]
-        UI_CB["Regional Case Board (/workspace/case-board)\n- Multi-Variable Environmental Health Scan\n- Regional Aggregation (Mean / Median)\n- Evidence Grades (A, B, C, D) & Caveat Registry"]
     end
 
     subgraph CoreScience["Shared Scientific & Evidence Analysis Engine (/workspace/visualize)"]
@@ -109,5 +108,5 @@ This `model context` directory is organized into 5 authoritative documents desig
 1. [00_master_architecture_and_merge_guide.md](file:///c:/Users/navid/Desktop/Iris/model%20context/00_master_architecture_and_merge_guide.md) *(This Document)*: High-level vision, version reconciliation, dual-track architecture, and governing principles.
 2. [01_integrated_srs_requirements_matrix.md](file:///c:/Users/navid/Desktop/Iris/model%20context/01_integrated_srs_requirements_matrix.md): Exhaustive requirements traceability matrix (VC, DS, DP, GL, SC, AN, VZ, FC, ED, DA, PV, VL) and acceptance criteria.
 3. [02_live_data_retrieval_and_providers.md](file:///c:/Users/navid/Desktop/Iris/model%20context/02_live_data_retrieval_and_providers.md): Technical specification of the live retrieval pipeline, Gemini SI router, provider adapters, asynchronous job store, and Data Preview.
-4. [03_global_trend_cube_and_science_pipeline.md](file:///c:/Users/navid/Desktop/Iris/model%20context/03_global_trend_cube_and_science_pipeline.md): Mathematical formulations, statistical algorithms, Global Trend Cube specifications, Living Globe, Case Board, and evidence grading.
+4. [03_global_trend_cube_and_science_pipeline.md](file:///c:/Users/navid/Desktop/Iris/model%20context/03_global_trend_cube_and_science_pipeline.md): Mathematical formulations, statistical algorithms, Global Trend Cube specifications, Living Globe, and evidence grading.
 5. [04_codebase_developer_handbook.md](file:///c:/Users/navid/Desktop/Iris/model%20context/04_codebase_developer_handbook.md): Practical developer handbook: directory layout, FastAPI backend, Next.js frontend, state management, API routes, testing, and extension procedures.

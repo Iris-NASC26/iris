@@ -57,8 +57,6 @@ from providers.noaa_onestop import search_noaa_onestop_catalog
 from providers.opendap import search_opendap_catalog
 from providers.research_literature import execute_research_search
 from schemas import (
-    CaseBoardRequest,
-    CaseBoardResponse,
     CaseFileAnalysisRequest,
     CaseFileAnalysisResponse,
     ChatTurnRequest,
@@ -80,7 +78,6 @@ from services.cube_service import (
     SNAPSHOT_UTC,
     get_evidence_methods_registry,
     get_globe_cube_data,
-    scan_regional_case_board,
 )
 from services.llm_router import extract_scientific_intent, rank_and_explain_products
 from services.science_pipeline import execute_case_file_analysis, load_series_from_job_id
@@ -500,12 +497,6 @@ async def get_living_globe_cube(
 ) -> GlobeCubeResponse:
     """Serves read-only versioned Global Trend Cube tiles, FDR channel, and dipoles for the Living Globe."""
     return get_globe_cube_data(layer_id=layer_id, window=window)
-
-
-@app.post("/api/v1/cube/case-board", response_model=CaseBoardResponse)
-async def post_regional_case_board(req: CaseBoardRequest) -> CaseBoardResponse:
-    """Scans all Global Trend Cube variables for a region and optionally performs Two-Region comparison."""
-    return scan_regional_case_board(req)
 
 
 @app.post("/api/v1/analyze/case-file", response_model=CaseFileAnalysisResponse)

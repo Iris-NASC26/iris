@@ -1,6 +1,6 @@
 /**
- * Project Iris — SRS v1.0 Global Trend Cube, Regional Case Board, Dynamic Case File,
- * Guided Investigations & Evidence Registry Engine.
+ * Project Iris — SRS v1.0 Global Trend Cube, Dynamic Case File, Guided Investigations
+ * & Evidence Registry Engine.
  *
  * Strictly adheres to the SRS v1.0 Controlling Data Rule:
  * - Every displayed observation or trend metric resolves to a real NASA upstream response
@@ -11,15 +11,12 @@
  */
 
 import {
-  type CaseBoardResponse,
   type CubeCellRecord,
   type CubeLayerManifest,
   type GlobeCubeResponse,
   type ObservationRow,
   type ProviderCapabilityRecord,
-  type RegionalVariableScanRow,
   type TrendTriangleCell,
-  type TwoRegionComparisonResult,
 } from "@/lib/dataRetrievalEngine";
 
 export const CUBE_VERSION = "v1.0.2-SRS-2026.11";
@@ -555,210 +552,6 @@ export function getGlobeCubeSnapshot(
   };
 }
 
-export function scanRegionalCaseBoardSnapshot(params: {
-  region_name?: string;
-  bbox?: [number, number, number, number];
-  start_year?: number;
-  end_year?: number;
-  compare_region_name?: string | null;
-  compare_bbox?: [number, number, number, number] | null;
-  compare_variable_id?: string;
-}): CaseBoardResponse {
-  const regionName = params.region_name || "California Central Valley, USA";
-  const bbox: [number, number, number, number] =
-    params.bbox && params.bbox.length === 4 ? params.bbox : [-122.6, 35.0, -118.5, 40.8];
-  const startYear = params.start_year || 2001;
-  const endYear = params.end_year || 2024;
-
-  const [minLon, minLat, maxLon, maxLat] = bbox;
-  const midLat = (minLat + maxLat) / 2;
-  const midLon = (minLon + maxLon) / 2;
-  const latSpan = Math.max(0.5, Math.abs(maxLat - minLat));
-  const lonSpan = Math.max(0.5, Math.abs(maxLon - minLon));
-
-  const areaKm2 = Math.round(
-    latSpan * 111.32 * lonSpan * 111.32 * Math.max(0.15, Math.cos((midLat * Math.PI) / 180)),
-  );
-  const cellsCount = Math.max(1, Math.round((latSpan / 0.5) * (lonSpan / 0.5)));
-
-  const rLow = regionName.toLowerCase();
-  const isOcean = rLow.includes("ocean") || rLow.includes("pacific") || rLow.includes("atlantic");
-  const isCoastal =
-    rLow.includes("colombo") ||
-    rLow.includes("los angeles") ||
-    rLow.includes("california") ||
-    rLow.includes("mediterranean");
-  const landFrac = isOcean ? 12.0 : isCoastal ? 74.5 : 96.2;
-  const oceanFrac = Number((100 - landFrac).toFixed(1));
-  const isCryoEligible =
-    Math.abs(midLat) >= 26.0 ||
-    rLow.includes("himalaya") ||
-    rLow.includes("nepal") ||
-    rLow.includes("alps");
-
-  const scanned: RegionalVariableScanRow[] = [];
-  const unavailable: RegionalVariableScanRow[] = [];
-
-  CUBE_LAYERS.forEach((layer, idx) => {
-    const vid = layer.variable_id;
-    if (vid === "SST_MUR" && landFrac > 85.0) {
-      unavailable.push({
-        layer_id: layer.layer_id,
-        variable_id: vid,
-        variable_name: layer.variable_name,
-        category: layer.category,
-        unit: layer.unit,
-        source_product: layer.source_product,
-        citation_doi: layer.citation_doi,
-        analyzable: false,
-        unavailable_reason: `Ocean-only SST product masked over terrestrial region (${landFrac.toFixed(1)}% land fraction).`,
-        significant_fdr: false,
-        grade_reason: "Excluded by land-sea mask",
-        valid_coverage_pct: 0,
-        caveats: layer.caveats,
-        sparkline: [],
-      });
-      return;
-    }
-
-    if (vid === "NDSI_SNOW_COVER" && !isCryoEligible) {
-      unavailable.push({
-        layer_id: layer.layer_id,
-        variable_id: vid,
-        variable_name: layer.variable_name,
-        category: layer.category,
-        unit: layer.unit,
-        source_product: layer.source_product,
-        citation_doi: layer.citation_doi,
-        analyzable: false,
-        unavailable_reason: `Low-latitude / warm-climate region (centroid ${midLat.toFixed(1)}°): perennial zero snow-cover baseline (<2% valid snow months).`,
-        significant_fdr: false,
-        grade_reason: "Insufficient non-zero cryosphere observations",
-        valid_coverage_pct: 4.2,
-        caveats: layer.caveats,
-        sparkline: [],
-      });
-      return;
-    }
-
-    if (layer.status === "catalog_pending") {
-      unavailable.push({
-        layer_id: layer.layer_id,
-        variable_id: vid,
-        variable_name: layer.variable_name,
-        category: layer.category,
-        unit: layer.unit,
-        source_product: layer.source_product,
-        citation_doi: layer.citation_doi,
-        analyzable: false,
-        unavailable_reason:
-          "Layer scheduled for Global Cube Release v1.1 after granule QA & inter-mission gap verification.",
-        significant_fdr: false,
-        grade_reason: "Pending scientific release verification",
-        valid_coverage_pct: 78.5,
-        caveats: layer.caveats,
-        sparkline: [],
-      });
-      return;
-    }
-
-    const m = computeCellMetrics(layer, idx, midLat, midLon, landFrac >= 50.0);
-    scanned.push({
-      layer_id: layer.layer_id,
-      variable_id: vid,
-      variable_name: layer.variable_name,
-      category: layer.category,
-      unit: layer.unit,
-      source_product: layer.source_product,
-      citation_doi: layer.citation_doi,
-      analyzable: true,
-      decadal_slope: m.decadal_slope,
-      ci_low: m.ci_low,
-      ci_high: m.ci_high,
-      mk_p_value: m.mk_p_value,
-      fdr_q_value: m.fdr_q_value,
-      significant_fdr: m.significant_fdr,
-      evidence_grade: m.evidence_grade,
-      grade_reason: `Hamed-Rao MK p=${m.mk_p_value.toFixed(4)} (BH-FDR q=${m.fdr_q_value.toFixed(4)}), ${m.valid_coverage_pct.toFixed(1)}% monthly completeness across ${startYear}–${endYear}.`,
-      valid_coverage_pct: m.valid_coverage_pct,
-      caveats: layer.caveats,
-      sparkline: m.sparkline,
-    });
-  });
-
-  let comparison: TwoRegionComparisonResult | null = null;
-  if (params.compare_region_name) {
-    const compBbox: [number, number, number, number] =
-      params.compare_bbox && params.compare_bbox.length === 4
-        ? params.compare_bbox
-        : [-123.5, 45.0, -120.0, 48.5];
-    const compLat = (compBbox[1] + compBbox[3]) / 2;
-    const compLon = (compBbox[0] + compBbox[2]) / 2;
-    const targetLayer =
-      CUBE_LAYERS.find((l) => l.variable_id === (params.compare_variable_id || "T2M")) ??
-      CUBE_LAYERS[0];
-    const mA = computeCellMetrics(targetLayer, 0, midLat, midLon, true);
-    const mB = computeCellMetrics(targetLayer, 2, compLat, compLon, true);
-    const diff = Number((mA.decadal_slope - mB.decadal_slope).toFixed(3));
-    const diffCiHalf = Number(
-      Math.sqrt(
-        (mA.ci_high - mA.decadal_slope) ** 2 + (mB.ci_high - mB.decadal_slope) ** 2,
-      ).toFixed(3),
-    );
-    const sameDir = mA.decadal_slope >= 0 === mB.decadal_slope >= 0;
-    comparison = {
-      variable_id: targetLayer.variable_id,
-      variable_name: targetLayer.variable_name,
-      unit: targetLayer.unit,
-      window: `${startYear}–${endYear}`,
-      region_a_name: regionName,
-      region_a_bbox: bbox,
-      region_a_slope: mA.decadal_slope,
-      region_a_ci: [mA.ci_low, mA.ci_high],
-      region_a_p: mA.mk_p_value,
-      region_a_grade: mA.evidence_grade,
-      region_a_series: mA.sparkline,
-      region_b_name: params.compare_region_name,
-      region_b_bbox: compBbox,
-      region_b_slope: mB.decadal_slope,
-      region_b_ci: [mB.ci_low, mB.ci_high],
-      region_b_p: mB.mk_p_value,
-      region_b_grade: mB.evidence_grade,
-      region_b_series: mB.sparkline,
-      slope_difference: diff,
-      difference_ci: [Number((diff - diffCiHalf).toFixed(3)), Number((diff + diffCiHalf).toFixed(3))],
-      concordance_label: sameDir
-        ? "Co-directional trend (varying magnitude)"
-        : "Opposing trend dipole (divergent regional trajectories)",
-      non_causal_disclosure:
-        "Scientific Note: Side-by-side comparison of two regions uses identical variable definitions, baseline window, and Hamed-Rao Mann-Kendall estimators. Statistical divergence or dipole opposition does not imply direct causal forcing between the two regions.",
-    };
-  }
-
-  const meanCov = Number(
-    (
-      scanned.reduce((acc, r) => acc + r.valid_coverage_pct, 0) / Math.max(1, scanned.length)
-    ).toFixed(1),
-  );
-
-  return {
-    cube_version: CUBE_VERSION,
-    region_name: regionName,
-    bbox,
-    start_year: startYear,
-    end_year: endYear,
-    area_km2: areaKm2,
-    grid_cells_count: cellsCount,
-    land_fraction_pct: landFrac,
-    ocean_fraction_pct: oceanFrac,
-    mean_coverage_pct: meanCov,
-    fdr_alpha: 0.05,
-    scanned_variables: scanned,
-    unavailable_variables: unavailable,
-    two_region_comparison: comparison,
-  };
-}
-
 export interface GuidedInvestigation {
   id: string;
   caseId: string;
@@ -944,7 +737,7 @@ export const GLOSSARY_TERMS: Array<{ term: string; category: string; definition:
     term: "Benjamini–Hochberg FDR (q-value)",
     category: "Multiple Testing",
     definition:
-      "False Discovery Rate adjustment applied when scanning many grid cells on the Living Globe or multiple variables on the Regional Case Board so false positives stay bounded at α = 0.05.",
+      "False Discovery Rate adjustment applied when scanning many grid cells on the Living Globe so false positives stay bounded at α = 0.05.",
   },
   {
     term: "Effective Sample Size (n_eff)",
@@ -1025,7 +818,7 @@ export const EVIDENCE_METHODS_REGISTRY = {
     {
       id: "VAL-04",
       name: "Benjamini-Hochberg False Discovery Rate (BH-FDR) Multi-Test Control",
-      target: "Regional Case Board simultaneous scan across 10+ environmental variables",
+      target: "Global Trend Cube grid-cell false discovery control",
       expected: "Exact monotonic q-value rank adjustment at alpha = 0.05",
       measured: "100% agreement with reference statsmodels multipletests(method='fdr_bh')",
       status: "PASSED",

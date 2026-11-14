@@ -122,7 +122,7 @@ You can now:
 - **Export the Case File** as JSON or CSV
 - **Share the investigation** via URL
 - **Investigate related variables** using the "Next clue" suggestions
-- **Explore global trends** using the [Living Globe](#globe) or [Regional Case Board](#case-board)
+- **Explore global trends** using the [Living Globe](#globe)
 
 ---
 

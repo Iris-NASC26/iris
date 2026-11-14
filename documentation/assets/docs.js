@@ -22,7 +22,6 @@ const NAV = [
     section: "Global Evidence",
     items: [
       { id: "globe",       title: "Living Globe",         icon: "🌐" },
-      { id: "case-board",  title: "Regional Case Board",  icon: "🗂️" },
       { id: "case-studies", title: "Case Studies",        icon: "📋" },
     ],
   },

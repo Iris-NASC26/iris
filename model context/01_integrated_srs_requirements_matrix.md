@@ -69,25 +69,13 @@
 | **GL-01** | P0 | The system shall render an interactive 3D virtual globe displaying pre-computed Global Trend Cube monthly layers (0.5° and 1.0° gridded data). | Implemented in `src/app/workspace/globe/page.tsx`. |
 | **GL-02** | P0 | Global cells shall be color-coded by decadal trend magnitude using perceptually uniform, colorblind-safe diverging palettes (e.g. blue-to-red for temperature; brown-to-green for NDVI and precipitation). | Implemented with documented scientific zero-centering and color scales. |
 | **GL-03** | P0 | Statistically non-significant grid cells (FDR adjusted $q > 0.05$) shall be visibly masked or dimmed, allowing users to focus on verified trends. | Implemented via FDR toggle overlay in `GlobeView`. |
-| **GL-04** | P0 | Clicking any grid cell on the globe shall display an inspection tooltip showing coordinates, 1981–2025 Sen's slope, Mann-Kendall p-value, and a direct button to open the Regional Case Board. | Implemented in `src/app/workspace/globe/page.tsx`. |
+| **GL-04** | P0 | Clicking any grid cell on the globe shall display an inspection tooltip showing coordinates, 1981–2025 Sen's slope, Mann-Kendall p-value, and evidence grade. | Implemented in `src/app/workspace/globe/page.tsx`. |
 | **GL-05** | P1 | Time-lapse playback mode shall animate monthly global anomaly fields across historical decades (1981–2025). | Supported via time slider and animation hooks. |
 | **GL-06** | P1 | "Opposite Trends" mode shall automatically highlight antipodal or dipole regions displaying inverse trends (e.g. Arctic warming vs. Antarctic sea ice stability, or ENSO teleconnections). | Implemented in `GlobeView` and `SeesawDipoleSection`. |
 
 ---
 
-### 1.6 Regional Case Board (SC)
-
-| ID | Priority | Requirement Statement | Implementation / Verification State |
-| :--- | :---: | :--- | :--- |
-| **SC-01** | P0 | The Case Board shall evaluate multi-variable environmental health for any selected region or country by scanning all available cube layers simultaneously. | Implemented in `src/app/workspace/case-board/page.tsx` and `backend/services/cube_service.py`. |
-| **SC-02** | P0 | Each variable row shall display: physical parameter, Decadal Trend Rate, p-value, Benjamini-Hochberg FDR q-value, Evidence Grade (A, B, C, D), and active Caveat badges. | Implemented in `CaseBoardRow` components. |
-| **SC-03** | P0 | The Case Board shall compute an aggregate regional spatial mean/median, reporting valid land/ocean fraction and spatial coverage percentage. | Computed server-side in `scan_regional_case_board()`. |
-| **SC-04** | P0 | Users shall be able to compare two distinct geographic regions side-by-side across identical variables and time baselines. | Implemented in `/workspace/case-board` dual-region mode. |
-| **SC-05** | P0 | Clicking any variable card on the Case Board shall open the deep Scientific Case File (`/workspace/visualize`) with the region and variable pre-loaded. | Implemented with router parameter transfer. |
-
----
-
-### 1.7 Dynamic Case File & Scientific Analysis (AN / VZ)
+### 1.6 Dynamic Case File & Scientific Analysis (AN / VZ)
 
 | ID | Priority | Requirement Statement | Implementation / Verification State |
 | :--- | :---: | :--- | :--- |
@@ -103,7 +91,7 @@
 
 ---
 
-### 1.8 Outlook Projections (FC)
+### 1.7 Outlook Projections (FC)
 
 | ID | Priority | Requirement Statement | Implementation / Verification State |
 | :--- | :---: | :--- | :--- |
@@ -112,7 +100,7 @@
 
 ---
 
-### 1.9 Guided Investigations & Educational Stories (ED / VL)
+### 1.8 Guided Investigations & Educational Stories (ED / VL)
 
 | ID | Priority | Requirement Statement | Implementation / Verification State |
 | :--- | :---: | :--- | :--- |
@@ -127,7 +115,7 @@
 
 | Category | Requirement | Specification & Verification Method |
 | :--- | :--- | :--- |
-| **Performance** | Interactive Latency | Global cube cell queries and Case Board scans shall return in under 500 ms. Synchronous time-series extracts (NASA POWER) shall complete within 3 seconds. |
+| **Performance** | Interactive Latency | Global cube cell queries shall return in under 500 ms. Synchronous time-series extracts (NASA POWER) shall complete within 3 seconds. |
 | **Reliability** | Zero Crash Isolation | Failure of any individual external API (e.g. NASA AppEEARS token expiration or CMR 503) shall be isolated; the application shall remain functional and report granular diagnostics. |
 | **Data Integrity** | Strict Real-Data Guarantee | Production observation channels must reject synthetic numbers. If offline, the platform automatically switches to verified, pinned real snapshots (`v1.0.2-SRS-2026.11`). |
 | **Accessibility** | WCAG 2.1 AA Compliance | All UI elements maintain minimum 4.5:1 color contrast, complete keyboard navigability, ARIA labels on chart visualizers, and colorblind-safe palettes (Viridis, Magma, Coolwarm). |

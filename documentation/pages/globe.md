@@ -69,7 +69,7 @@ Click any grid cell to open the **Cell Inspector** tooltip showing:
 - Mann-Kendall p-value and BH FDR q-value
 - Evidence grade (A–D)
 - 45-year baseline mean and standard deviation
-- An **"Open in Case Board"** button that loads this cell's region into the Regional Case Board for a full multi-variable scan
+- A direct action to open the selected location in Plot & Visualize
 
 ---
 
@@ -78,5 +78,4 @@ Click any grid cell to open the **Cell Inspector** tooltip showing:
 The Living Globe is a discovery tool. When you find a region of interest:
 
 1. Click the cell to open the Cell Inspector
-2. Click **"Open in Case Board"** to see all six variables for that region simultaneously
-3. From the Case Board, click any variable to open its full Case File analysis in Plot & Visualize
+2. Open the selected location in Plot & Visualize to inspect its Case File analysis

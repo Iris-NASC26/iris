@@ -278,71 +278,6 @@ export interface GlobeCubeResponse {
   }>;
 }
 
-export interface RegionalVariableScanRow {
-  layer_id: string;
-  variable_id: string;
-  variable_name: string;
-  category: string;
-  unit: string;
-  source_product: string;
-  citation_doi: string;
-  analyzable: boolean;
-  unavailable_reason?: string | null;
-  decadal_slope?: number | null;
-  ci_low?: number | null;
-  ci_high?: number | null;
-  mk_p_value?: number | null;
-  fdr_q_value?: number | null;
-  significant_fdr: boolean;
-  evidence_grade?: "A" | "B" | "C" | "D" | null;
-  grade_reason: string;
-  valid_coverage_pct: number;
-  caveats: string[];
-  sparkline: number[];
-}
-
-export interface TwoRegionComparisonResult {
-  variable_id: string;
-  variable_name: string;
-  unit: string;
-  window: string;
-  region_a_name: string;
-  region_a_bbox: [number, number, number, number];
-  region_a_slope: number;
-  region_a_ci: [number, number];
-  region_a_p: number;
-  region_a_grade: "A" | "B" | "C" | "D";
-  region_a_series: number[];
-  region_b_name: string;
-  region_b_bbox: [number, number, number, number];
-  region_b_slope: number;
-  region_b_ci: [number, number];
-  region_b_p: number;
-  region_b_grade: "A" | "B" | "C" | "D";
-  region_b_series: number[];
-  slope_difference: number;
-  difference_ci: [number, number];
-  concordance_label: string;
-  non_causal_disclosure: string;
-}
-
-export interface CaseBoardResponse {
-  cube_version: string;
-  region_name: string;
-  bbox: [number, number, number, number];
-  start_year: number;
-  end_year: number;
-  area_km2: number;
-  grid_cells_count: number;
-  land_fraction_pct: number;
-  ocean_fraction_pct: number;
-  mean_coverage_pct: number;
-  fdr_alpha: number;
-  scanned_variables: RegionalVariableScanRow[];
-  unavailable_variables: RegionalVariableScanRow[];
-  two_region_comparison?: TwoRegionComparisonResult | null;
-}
-
 export interface MonthlyFingerprintItem {
   month_index: number;
   month_name: string;
@@ -482,59 +417,6 @@ export interface ChatTurnResponse {
   provider_status: Record<string, string>;
   trigger_extraction: boolean;
 }
-
-export interface RegionPreset {
-  id: string;
-  name: string;
-  subtitle: string;
-  bbox: [number, number, number, number];
-  center: [number, number];
-}
-
-export const REGION_PRESETS: RegionPreset[] = [
-  {
-    id: "sri-lanka",
-    name: "Colombo, Western Province, Sri Lanka",
-    subtitle: "Indian Ocean Monsoon & Biosphere",
-    bbox: [79.52, 5.91, 81.88, 9.84],
-    center: [6.9355, 79.8487],
-  },
-  {
-    id: "california",
-    name: "California Central Valley, USA",
-    subtitle: "Agricultural Drought & Groundwater Basin",
-    bbox: [-122.6, 35.0, -118.5, 40.8],
-    center: [36.77, -119.41],
-  },
-  {
-    id: "los-angeles",
-    name: "Los Angeles County, CA",
-    subtitle: "Urban Heat Island & Coastal Basin",
-    bbox: [-118.95, 33.7, -117.62, 34.82],
-    center: [34.05, -118.24],
-  },
-  {
-    id: "amazon",
-    name: "Central Amazon Basin, Brazil",
-    subtitle: "Tropical Rainforest Canopy & Hydrology",
-    bbox: [-68.0, -8.5, -52.0, 1.0],
-    center: [-3.75, -60.0],
-  },
-  {
-    id: "himalaya",
-    name: "Central Himalaya (Koshi Basin, Nepal)",
-    subtitle: "Alpine Cryosphere & Glacier Retreat",
-    bbox: [85.0, 26.7, 89.2, 29.2],
-    center: [27.95, 87.1],
-  },
-  {
-    id: "mediterranean",
-    name: "Mediterranean Europe",
-    subtitle: "Heatwaves & Aridity Transition",
-    bbox: [-9.5, 36.0, 28.0, 46.5],
-    center: [41.25, 9.25],
-  },
-];
 
 export const UPSTREAM_PROVIDER_LIST = [
   "NASA POWER",

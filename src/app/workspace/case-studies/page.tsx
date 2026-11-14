@@ -225,17 +225,6 @@ export default function DashboardCasesPage() {
               >
                 Try It Yourself in Dynamic Case File <Icon name="arrow" size={14} />
               </button>
-              <button
-                className="dp-secondary-btn"
-                onClick={() =>
-                  router.push(
-                    `/workspace/case-board?region=${encodeURIComponent(activeInv.regionName)}`,
-                  )
-                }
-                type="button"
-              >
-                Inspect Region on Case Board
-              </button>
               <a
                 className="dp-doi-link"
                 href={activeInv.citationDoi}
@@ -256,7 +245,7 @@ export default function DashboardCasesPage() {
           <span>03</span> Scientific & Statistical Glossary
         </span>
         <h3 style={{ marginTop: "6px", marginBottom: "14px" }}>
-          Core Definitions Used Across Globe, Case Board & Case File
+          Core Definitions Used Across Globe & Case File
         </h3>
         <div className="srs-glossary-grid">
           {GLOSSARY_TERMS.map((item) => (

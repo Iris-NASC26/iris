@@ -12,7 +12,7 @@ import { getGlobeCubeSnapshot } from "@/lib/srsCubeAndScienceEngine";
 
 export default function LivingGlobePage() {
   const router = useRouter();
-  const { setLocation, setRegion, setBbox, setStartYear, setEndYear, setAutoRunCase } =
+  const { setLocation, setRegion, setStartYear, setEndYear, setAutoRunCase } =
     useDashboard();
 
   const [selectedLayerId, setSelectedLayerId] = useState("cube_t2m");
@@ -100,19 +100,6 @@ export default function LivingGlobePage() {
     );
   }, [activeCell, cubeData.cells]);
 
-  const handleOpenCaseBoard = (cell: CubeCellRecord) => {
-    const minLon = Number(Math.max(-180, cell.lon - 2.5).toFixed(2));
-    const maxLon = Number(Math.min(180, cell.lon + 2.5).toFixed(2));
-    const minLat = Number(Math.max(-90, cell.lat - 2.0).toFixed(2));
-    const maxLat = Number(Math.min(90, cell.lat + 2.0).toFixed(2));
-    setLocation(cell.region_label);
-    setRegion(cell.region_label);
-    setBbox(`${minLat}, ${minLon}, ${maxLat}, ${maxLon}`);
-    router.push(
-      `/workspace/case-board?region=${encodeURIComponent(cell.region_label)}&bbox=${encodeURIComponent(`${minLon},${minLat},${maxLon},${maxLat}`)}`,
-    );
-  };
-
   const handleOpenCaseFile = (cell: CubeCellRecord) => {
     setLocation(cell.region_label);
     setRegion(cell.region_label);
@@ -173,15 +160,6 @@ export default function LivingGlobePage() {
             >
               <Icon name="layers" size={14} /> 2D Equirectangular Map
             </button>
-            {activeCell && (
-              <button
-                className="dp-proceed-btn"
-                onClick={() => handleOpenCaseBoard(activeCell)}
-                type="button"
-              >
-                Scan Region in Case Board <Icon name="arrow" size={14} />
-              </button>
-            )}
           </div>
         </div>
       </section>
@@ -573,8 +551,8 @@ export default function LivingGlobePage() {
                   </small>
                   <strong>Linked Dipole: {activeCell.opposite_dipole_region}</strong>
                   <p>
-                    Exhibits an opposing multi-decadal anomaly phase. Compare both regions side-by-side
-                    in the Regional Case Board.
+                    Exhibits an opposing multi-decadal anomaly phase. Select the linked cell to inspect
+                    its measurements on the globe.
                   </p>
                   {dipolePartnerCell && (
                     <button
@@ -608,13 +586,6 @@ export default function LivingGlobePage() {
               </div>
 
               <div className="srs-inspector-actions">
-                <button
-                  className="dp-proceed-btn"
-                  onClick={() => handleOpenCaseBoard(activeCell)}
-                  type="button"
-                >
-                  Open Regional Case Board <Icon name="arrow" size={14} />
-                </button>
                 <button
                   className="dp-secondary-btn"
                   onClick={() => handleOpenCaseFile(activeCell)}
