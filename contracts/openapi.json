@@ -4643,6 +4643,57 @@
         "title": "Readiness",
         "type": "object"
       },
+      "RegionBox": {
+        "additionalProperties": false,
+        "properties": {
+          "cell_lat_step": {
+            "title": "Cell Lat Step",
+            "type": "number"
+          },
+          "cell_lon_step": {
+            "title": "Cell Lon Step",
+            "type": "number"
+          },
+          "lat_max": {
+            "title": "Lat Max",
+            "type": "number"
+          },
+          "lat_min": {
+            "title": "Lat Min",
+            "type": "number"
+          },
+          "lon_max": {
+            "title": "Lon Max",
+            "type": "number"
+          },
+          "lon_min": {
+            "title": "Lon Min",
+            "type": "number"
+          },
+          "native_cells": {
+            "minimum": 1,
+            "title": "Native Cells",
+            "type": "integer"
+          },
+          "selection": {
+            "const": "area_weighted_mean_native_cells",
+            "title": "Selection",
+            "type": "string"
+          }
+        },
+        "required": [
+          "lat_min",
+          "lat_max",
+          "lon_min",
+          "lon_max",
+          "cell_lat_step",
+          "cell_lon_step",
+          "native_cells",
+          "selection"
+        ],
+        "title": "RegionBox",
+        "type": "object"
+      },
       "RegionSpec": {
         "description": "A region specification, not proof of valid topology or scientific support.",
         "discriminator": {
@@ -4787,6 +4838,34 @@
           "provenance_id"
         ],
         "title": "RegionSummary",
+        "type": "object"
+      },
+      "RegionalSeriesResult": {
+        "additionalProperties": false,
+        "description": "Cos(latitude)-weighted monthly mean of a box's native cells. Retrieval, not analysis.",
+        "properties": {
+          "box": {
+            "$ref": "#/components/schemas/RegionBox"
+          },
+          "schema_version": {
+            "const": "1.0",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "series": {
+            "$ref": "#/components/schemas/Series"
+          },
+          "source": {
+            "$ref": "#/components/schemas/SeriesSource"
+          }
+        },
+        "required": [
+          "schema_version",
+          "series",
+          "box",
+          "source"
+        ],
+        "title": "RegionalSeriesResult",
         "type": "object"
       },
       "RegressionDiagnostics": {
@@ -6848,6 +6927,89 @@
         "summary": "Health"
       }
     },
+    "/api/v1/regional-series/{variable_id}": {
+      "get": {
+        "operationId": "regional_series_api_v1_regional_series__variable_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "variable_id",
+            "required": true,
+            "schema": {
+              "title": "Variable Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "lat_min",
+            "required": true,
+            "schema": {
+              "maximum": 90,
+              "minimum": -90,
+              "title": "Lat Min",
+              "type": "number"
+            }
+          },
+          {
+            "in": "query",
+            "name": "lat_max",
+            "required": true,
+            "schema": {
+              "maximum": 90,
+              "minimum": -90,
+              "title": "Lat Max",
+              "type": "number"
+            }
+          },
+          {
+            "in": "query",
+            "name": "lon_min",
+            "required": true,
+            "schema": {
+              "maximum": 180,
+              "minimum": -180,
+              "title": "Lon Min",
+              "type": "number"
+            }
+          },
+          {
+            "in": "query",
+            "name": "lon_max",
+            "required": true,
+            "schema": {
+              "maximum": 180,
+              "minimum": -180,
+              "title": "Lon Max",
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegionalSeriesResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Regional Series"
+      }
+    },
     "/api/v1/series/{variable_id}": {
       "get": {
         "operationId": "point_series_api_v1_series__variable_id__get",
@@ -6930,6 +7092,7 @@
     "PointSeriesResult",
     "Provenance",
     "RegionSpec",
+    "RegionalSeriesResult",
     "ScanRequest",
     "ScanResult",
     "Series",
