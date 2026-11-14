@@ -35,20 +35,26 @@ length, total size and stable ETag, caches pages and stops at 4 MiB/64 requests 
 file. It never pads a partial file to impersonate a full granule.
 
 For authentication, configure external `.netrc` with the Earthdata host, login
-and password; verify its private OS permissions before use. On Windows the optional
-token file is `%LOCALAPPDATA%\EarthTrendDetective\secrets\.env`:
+and password; verify its private OS permissions before use. The optional token file
+is now the Git-ignored project-root `.env`, moved by explicit user request during U01.
+The legacy Windows path `%LOCALAPPDATA%\EarthTrendDetective\secrets\.env` remains a fallback:
 
 ```dotenv
 EARTHDATA_TOKEN=
 ```
 
 Set the value only in a local editor. Token environment variable takes precedence,
-then that external Windows file; otherwise the tool obtains/reuses an Earthdata
+then the project-root file, then the legacy Windows file; otherwise the tool obtains/reuses an Earthdata
 token from the external `.netrc`. It never evaluates shell syntax or prints a
 token. An explicitly configured invalid token is not silently replaced. The
 health server and React application do not load these files. AppEEARS requires its
 separate login/token, kept in memory during operator probes. No secret belongs in
 `VITE_` variables, source, fixtures, job metadata or a pull request.
+
+Only `EARTHDATA_TOKEN` is read, without shell evaluation or export of other entries.
+The historical F05 report records the original inspected source hashes and original
+credential location. This U01 parser/location change does not regenerate historical
+evidence or claim fresh authenticated access; offline parser regression tests cover it.
 
 AppEEARS samples were operator-submitted for the user-approved B01/B02 boxes in
 January 2005, requesting MOD13A3.061 NDVI, VI Quality and pixel reliability as

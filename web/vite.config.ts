@@ -1,6 +1,8 @@
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
+  // Credentials live in the project-root .env. This UI has no env-file inputs.
+  envDir: false,
   server: {
     host: '127.0.0.1',
     port: 5173,

@@ -1,6 +1,6 @@
 # Local development — foundation and F05 preflight
 
-This is a practice build. F02 provides React/TypeScript/Vite and FastAPI/Pydantic/Uvicorn with a browser-to-backend health check. Analysis is explicitly unavailable. See [execution ownership and gates](EXECUTION_STATUS.md). Full local release packaging is R01/R07, not this development launcher.
+This is a practice build. The U01 integration adds a visible Iris workspace to the F02 React/TypeScript/Vite and FastAPI foundation, selectively porting Navida's UI. Analysis is explicitly unavailable. See [execution ownership and gates](EXECUTION_STATUS.md) and the [integration/reuse ledger](NAVIDA_INTEGRATION.md). Full local release packaging is R01/R07, not this development launcher.
 
 ## Prerequisites and setup
 
@@ -62,7 +62,7 @@ web/scripts/contracts*.mjs    generation, non-mutating check and isolated drift 
 scripts/dev.py                setup, supervised start and check entry points
 ```
 
-Create future science/providers/geometry/storage modules only when their approved tasks start. Keep numerical calculations out of React and HTTP handlers. Never put observations or passwords into demonstration placeholders. `.env`, netrc files, private keys, build artifacts, raw data and environments are ignored; secrets belong outside the repository. The current app needs no environment file.
+Create future science/providers/geometry/storage modules only when their approved tasks start. Keep numerical calculations out of React and HTTP handlers. Never put observations or passwords into demonstration placeholders. `.env`, netrc files, private keys, build artifacts, raw data and environments are ignored. By explicit user decision during U01, private settings were moved intact into the ignored project-root `.env`; its permissions are restricted to the current Windows user and SYSTEM. Never copy it into `web/` or stage it. The UI and health server need no credentials and do not load this file.
 
 H1 owns shared root configuration, Python dependencies and both lockfiles for F02. Coordinate future lockfile updates through one owner. Dependencies are exact at direct declarations and resolved in `pnpm-lock.yaml` / `backend/uv.lock`; the [licence inventory](DEPENDENCY_LICENSES.md) records installed transitive packages. Comprehensive CI, automated secret/license checks and branch protection remain F06. Human approval and post-merge checks are required before marking tasks DONE.
 
@@ -102,8 +102,46 @@ backend/.venv/Scripts/python.exe -m unittest discover -s scripts/tests -v
 uv run --project validation/preflight --locked python -m unittest discover -s validation/preflight/tests -v
 ```
 
-F05 tools may read `%LOCALAPPDATA%\EarthTrendDetective\secrets\.env` (`EARTHDATA_TOKEN=`),
-an environment token or the external `.netrc`, with explicit authenticated opt-in. Verify private
+F05 tools may read the ignored project-root `.env` (`EARTHDATA_TOKEN=`),
+an environment token, the legacy `%LOCALAPPDATA%\EarthTrendDetective\secrets\.env`, or the external `.netrc`, with explicit authenticated opt-in. Verify private
 file permissions first. React and the health server do not read these files. Never commit
 credentials/signed URLs or label synthetic format fixtures as NASA observations. F06 owns
 future automated CI enforcement; H2/H3 review source/QA findings before release admission.
+
+## U01 — selective Iris workspace integration
+
+Open `http://127.0.0.1:5173/workspace`. React Router replaces Next.js navigation;
+Radix Dialog supplies modal focus trapping/restoration for the tour and mobile drawer.
+View preferences (theme, explanation level, reduced motion and sidebar) alone use localStorage.
+The tour is user-invoked and skippable. System reduced-motion preferences are also respected.
+UI components are owned CSS/React; the full Tailwind/shadcn, query/state, globe and chart
+dependencies will be introduced by their consuming tasks. No additional renderer is installed.
+
+The searchable list presents all 13 approved P0 variable targets, not an admitted D01
+registry or installed data catalog. URL selection survives reload; unknown variable IDs
+produce an explicit error state. Preview stays empty; globe, analysis and scan routes
+explain their unavailable state. The typed observation table is verified against a
+test-only F03 fixture and is not connected to production data. No synthetic fixtures,
+Navida-generated cube metrics, saved extraction store, provider adapters or AI calls
+enter the application bundle. Only `/api/v1/health` is requested by these flows.
+
+Vite has `envDir: false`, so it reads no dotenv files; never inject private settings into
+the frontend process or use `VITE_` for secrets. The application does not automatically
+activate Gemini, NOAA or other integrations because keys exist. The trusted opt-in
+preflight reader extracts only `EARTHDATA_TOKEN`, without exporting/evaluating other keys.
+Token precedence: process environment, root `.env`, legacy Windows file, external netrc.
+An invalid nonempty configured token fails rather than silently switching sources.
+
+After changing dependencies or Vite configuration, restart the existing frontend if its
+proxy is stale. Check `/api/v1/health` through port 5173 returns JSON with `analysis_ready: false`.
+For deliberate browser verification against already-running local servers:
+
+```powershell
+$env:EARTH_TREND_TEST_EXISTING_SERVER = '1'
+npx --yes pnpm@12.18.0 --dir web test:browser
+Remove-Item Env:EARTH_TREND_TEST_EXISTING_SERVER
+```
+
+The normal `python scripts/dev.py browser` remains a managed-server run with free ports.
+CI never reuses a server even if the override is set. New journeys live in
+`web/tests/e2e/workspace/`, with a page object in `web/tests/pages/`.

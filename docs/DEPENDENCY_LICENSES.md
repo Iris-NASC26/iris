@@ -182,3 +182,44 @@ The licence identifiers below are present in the [SPDX licence list](https://spd
 Installed package counts: 29 Python dependencies and 129 Node package/version entries. No NASA dataset or imagery is bundled in F02.
 
 F03 adds MIT-licensed `openapi-typescript` 7.13.0 and its transitive dependencies. The generator uses TypeScript 5.9.3 (Apache-2.0) at the workspace root to satisfy its declared peer range; the web application keeps TypeScript 7.0.2. Generation tools are development dependencies, not runtime application features. Python dependencies are unchanged.
+
+## U01 workspace integration additions
+
+Inspected installed package metadata and available licence files on 14 November 2026.
+React Router 7.18.5 provides client-side routing; Radix Dialog 1.3.1 provides the
+approved accessible modal primitive. Exact direct versions and transitive resolution
+are locked. All 28 new packages declare MIT. Packages without a distributed full
+licence file are marked below: retrieve/check their upstream copyright notices
+before release redistribution in F06/R06. This extends the seed inventory, not final
+AC-34 certification. No Next.js, MapLibre, AI SDK or scientific dependency is added.
+
+| Package | Version | Licence | Evidence |
+| --- | --- | --- | --- |
+| @radix-ui/primitive | 1.2.0 | MIT | Metadata + licence file |
+| @radix-ui/react-compose-refs | 1.1.5 | MIT | Metadata + licence file |
+| @radix-ui/react-context | 1.3.0 | MIT | Metadata + licence file |
+| @radix-ui/react-dialog | 1.3.1 | MIT | Metadata + licence file |
+| @radix-ui/react-dismissable-layer | 1.2.1 | MIT | Metadata + licence file |
+| @radix-ui/react-focus-guards | 1.2.0 | MIT | Metadata + licence file |
+| @radix-ui/react-focus-scope | 1.3.1 | MIT | Metadata + licence file |
+| @radix-ui/react-id | 1.1.4 | MIT | Metadata + licence file |
+| @radix-ui/react-portal | 1.2.0 | MIT | Metadata + licence file |
+| @radix-ui/react-presence | 1.1.11 | MIT | Metadata + licence file |
+| @radix-ui/react-primitive | 2.2.0 | MIT | Metadata + licence file |
+| @radix-ui/react-slot | 1.5.0 | MIT | Metadata + licence file |
+| @radix-ui/react-use-callback-ref | 1.1.5 | MIT | Metadata + licence file |
+| @radix-ui/react-use-controllable-state | 1.3.0 | MIT | Metadata + licence file |
+| @radix-ui/react-use-effect-event | 0.0.5 | MIT | Metadata + licence file |
+| @radix-ui/react-use-layout-effect | 1.1.4 | MIT | Metadata + licence file |
+| aria-hidden | 1.2.6 | MIT | Metadata + licence file |
+| cookie | 1.1.1 | MIT | Metadata + licence file |
+| detect-node-es | 1.1.0 | MIT | Metadata + licence file |
+| get-nonce | 1.0.1 | MIT | Metadata + licence file |
+| react-remove-scroll | 2.7.2 | MIT | Metadata + licence file |
+| react-remove-scroll-bar | 2.3.8 | MIT | Metadata; full notice pending |
+| react-router | 7.18.5 | MIT | Metadata + licence file |
+| react-router-dom | 7.18.5 | MIT | Metadata + licence file |
+| react-style-singleton | 2.2.3 | MIT | Metadata + licence file |
+| set-cookie-parser | 2.7.3 | MIT | Metadata + licence file |
+| use-callback-ref | 1.3.3 | MIT | Metadata + licence file |
+| use-sidecar | 1.1.3 | MIT | Metadata + licence file |

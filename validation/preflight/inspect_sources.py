@@ -60,25 +60,36 @@ class NoRedirect(HTTPRedirectHandler):
         return None
 
 
+def token_from_file(file: Path) -> str:
+    """Read only the Earthdata key; never execute or export other env entries."""
+    if not file.is_file():
+        return ""
+    if file.stat().st_size > 65536:
+        raise InspectionError("Private token file is oversized")
+    entries = []
+    for line in file.read_text(encoding="utf-8-sig").splitlines():
+        key, separator, value = line.strip().partition("=")
+        if separator and key.strip() == "EARTHDATA_TOKEN":
+            entries.append(value.strip())
+    if len(entries) > 1:
+        raise InspectionError("Duplicate private token configuration")
+    token = entries[0] if entries else ""
+    if len(token) > 1 and token[0] == token[-1] and token[0] in "\"'":
+        token = token[1:-1]
+    if any(c.isspace() for c in token):
+        raise InspectionError("Invalid token whitespace; value withheld")
+    return token
+
+
 def private_token() -> str:
-    """Read an explicit local token, otherwise obtain one from external netrc."""
+    """Explicit opt-in only: environment, project .env, legacy file, then netrc."""
     token = os.environ.get("EARTHDATA_TOKEN", "").strip()
-    if not token and os.name == "nt":
-        file = Path(os.environ["LOCALAPPDATA"]) / "EarthTrendDetective/secrets/.env"
-        if file.is_file():
-            if file.stat().st_size > 65536:
-                raise InspectionError("Private token file is oversized")
-            entries = [
-                line.partition("=")[2].strip()
-                for line in file.read_text(encoding="utf-8-sig").splitlines()
-                if line.strip().startswith("EARTHDATA_TOKEN=")
-            ]
-            if len(entries) > 1:
-                raise InspectionError("Duplicate private token configuration")
-            if entries:
-                token = entries[0]
-                if len(token) > 1 and token[0] == token[-1] and token[0] in "\"'":
-                    token = token[1:-1]
+    if not token:
+        token = token_from_file(ROOT / ".env")
+    if not token and os.name == "nt" and os.environ.get("LOCALAPPDATA"):
+        token = token_from_file(
+            Path(os.environ["LOCALAPPDATA"]) / "EarthTrendDetective/secrets/.env"
+        )
     if token:
         if any(c.isspace() for c in token):
             raise InspectionError("Invalid token whitespace; value withheld")

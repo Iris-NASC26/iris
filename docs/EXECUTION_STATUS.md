@@ -1,4 +1,4 @@
-# Execution status — F01/F02/F03/F04/F05
+# Execution status — F01/F02/F03/F04/F05 and selective U01 integration
 
 **Updated:** 14 November 2026, Asia/Colombo.  
 **Context:** Practice build outside the official submission, explicitly confirmed by the user. Do not represent this work as eligible event-period development.  
@@ -6,6 +6,55 @@
 **Current branch:** `feat/F05-provider-preflight`, based on F04 commit `a35672e`. Baseline PR: [#1](https://github.com/Iris-NASC26/earth-system-trend-detective/pull/1); foundation PR: [#7](https://github.com/Iris-NASC26/earth-system-trend-detective/pull/7); F04 PR: [#8](https://github.com/Iris-NASC26/earth-system-trend-detective/pull/8). Remote merges were observed during F05; scientific review/sign-off is not inferred from a merge.
 
 This ledger records execution without rewriting the approved documents. The user authorized F01/F02, provisional H1–H6 roles, F03, and then F04 in the latest attached request. For F04 the user separately approved a pinned isolated validation environment and retained H3 as the provisional owner with no named GitHub reviewer. Local hosting remains the target. The current change is F04 only; no additional product feature or application architecture change is proposed.
+
+## Latest update — U01 selective workspace integration
+
+The user authorized the recommended selective port from `initial-navida`, retaining
+our Vite/FastAPI/Three.js architecture and prioritizing a visible, truthful workspace.
+Branch `feat/U01-navida-workspace` starts at main `553680e`; source snapshot is
+Navida's `cabc793`. The prior F01–F05 paragraphs/tables below remain historical
+records, not a declaration that the latest change is still F04/F05.
+
+**State: REVIEW — bounded U01 integration slice; partial U02/U04/U06/U14 groundwork.**
+The [integration/reuse ledger](NAVIDA_INTEGRATION.md) records source attribution,
+future-task credit and exclusions. No whole scientific/data task is marked DONE.
+Human UI/accessibility review remains due; F04/F05 domain gates are unchanged.
+
+Delivered: grouped navigation, responsive mobile drawer, optional four-step tour,
+dark/light theme, actual three-level content, reduced-motion controls, persistent
+view preferences, planned V01–V13 search/theme filtering and source flashcards,
+URL-preserved selection, unknown/empty states, typed observation-table groundwork,
+evidence/AI/contribution disclosure. Analysis/scan/globe remain unavailable. No
+synthetic observations, generated cube metrics, source-store results, AI service or
+new NASA requests are connected to the runtime. Only liveness is operational.
+
+The existing private `.env` was moved intact into the Git-ignored project root at
+the user's explicit request. ACL is current user + SYSTEM. Vite dotenv loading is
+disabled; opt-in preflight reads only Earthdata's key from the new path with legacy
+fallback. Existing report hashes remain historical evidence, not regenerated claims.
+
+Verification on 14 November 2026:
+
+| Check | Result and limit |
+| --- | --- |
+| `python scripts/dev.py check` | PASS: contract drift, backend Ruff/format, strict mypy, 156 pytest, TypeScript, 12 Vitest, six Node generator tests and Vite production build |
+| Browser suite, real local services | PASS: five Chromium journeys; health/retry, planned catalog→preview/reload, tour focus trap/Escape/restoration, 390px drawer/theme/reduced-motion and no horizontal overflow |
+| `python -m unittest discover -s scripts/tests -q` | PASS: 35 offline tests including three credential-file regression tests; no actual credentials/network used by tests |
+| Preflight isolated format tests | PASS: seven; source/format assertions only, not new NASA/scientific acceptance |
+| Changed preflight lint/format/strict mypy | PASS; two source files |
+| Browser/private-file boundary | Root `/.env` returns SPA HTML only; absolute `/@fs/` credential file access returns 403; no file content exposed |
+| New dependency review | 28 MIT declarations inspected; distributed notices checked where present. `react-remove-scroll-bar` full upstream notice remains a release F06/R06 item |
+
+The first browser run found the reused Vite process returning HTML for its health
+proxy. The verified workspace Vite process was restarted; direct/proxied health then
+matched and all five tests passed. A unit check's ambiguous availability-text selector
+was resolved by clarifying the workflow card copy. No failures were skipped.
+
+Build warnings about third-party `use client` directives remain visible; this is a
+client-only Vite app. The existing Starlette/httpx deprecation warning is unchanged.
+These passes do not certify scientific methods or full U01/U02/U04/U06 acceptance.
+Recommended next independent task after review: D01 admitted catalog/caveat registry,
+then the real V01 data path; remaining Navida chart/provider helpers stay candidates.
 
 ## Ownership and first assignment board
 
