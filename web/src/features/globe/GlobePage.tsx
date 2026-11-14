@@ -20,6 +20,7 @@ export function GlobePage() {
   const container = useRef<HTMLDivElement>(null);
   const scene = useRef<GlobeScene | null>(null);
   const [status, setStatus] = useState<Status>('loading');
+  const [generation, setGeneration] = useState(0);
   const [basemap, setBasemap] = useState<BasemapState | 'pending'>('pending');
   const [showCells, setShowCells] = useState(false);
   const [rotate, setRotate] = useState(false);
@@ -37,6 +38,7 @@ export function GlobePage() {
       try {
         scene.current = createGlobeScene(element, setPicked, setBasemap);
         setStatus('ready');
+        setGeneration(value => value + 1);
       } catch { setStatus('error'); }
     }).catch(() => { if (!cancelled) setStatus('error'); });
     return () => { cancelled = true; scene.current?.dispose(); scene.current = null; };
@@ -44,19 +46,23 @@ export function GlobePage() {
 
   useEffect(() => {
     if (status !== 'ready') return;
-    fieldColors.values ??= createSyntheticField();
-    scene.current?.setCells(showCells ? fieldColors.values : null, syntheticColor);
-  }, [showCells, status]);
-  useEffect(() => { scene.current?.setAutoRotate(rotate && !reducedMotion); }, [rotate, reducedMotion, status]);
+    applyCells(showCells);
+  }, [showCells, status, generation]);
+  useEffect(() => { scene.current?.setAutoRotate(rotate && !reducedMotion); }, [rotate, reducedMotion, status, generation]);
   useEffect(() => {
     if (status !== 'ready') return;
     const timer = window.setInterval(() => setStats(scene.current?.stats() ?? null), 500);
     return () => window.clearInterval(timer);
   }, [status]);
 
+  function applyCells(on: boolean) {
+    fieldColors.values ??= createSyntheticField();
+    scene.current?.setCells(on ? fieldColors.values : null, syntheticColor);
+  }
+
   async function runBenchmark() {
     if (!scene.current || benchmark === 'running') return;
-    setShowCells(true); setBenchmark('running');
+    setShowCells(true); applyCells(true); setBenchmark('running');
     await new Promise(resolve => setTimeout(resolve, 300));
     setBenchmark(await scene.current.spinBenchmark(BENCHMARK_SECONDS));
   }
