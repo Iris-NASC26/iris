@@ -44,6 +44,19 @@ test('completed Data Analysis binds evidence and fitted values across navigation
         requests++;
         return route.fulfill({ json: analysisFixture(route.request().postDataJSON().analysis_methods) });
     });
+    // Analysis methods require >=6 valid observations; give this test a
+    // richer series than the shared 4-valid fixture so the checkboxes
+    // are enabled under the compatibility gate.
+    const rich = fixture();
+    rich.chart_series = rich.raw_rows = [
+        ['2020-01', 10, 'Valid'], ['2020-02', 11, 'Valid'],
+        ['2020-03', 12, 'Valid'], ['2021-01', 14, 'Valid'],
+        ['2021-02', 18, 'Flagged'], ['2021-03', 16, 'Valid'],
+        ['2021-04', 15, 'Valid'], ['2021-05', 17, 'Valid'],
+    ].map(([timestamp, value, qa_flag]) => ({ timestamp, value, qa_flag, unit: 'C', variable_id: 'T2M', rolling_avg: null, anomaly_z: null }));
+    rich.summary_stats = { ...rich.summary_stats, count: 8, valid_count: 7, missing_count: 0, flagged_count: 1 };
+    rich.total_rows = 8; rich.page_size = 8;
+    await page.route('**/api/v1/timeseries/jobs/*/preview?*', route => route.fulfill({ json: rich }));
     const ui = new VisualizationPage(page); await ui.open('/workspace/visualize?jobId=job-test');
     await expect(page.getByLabel('Selected record')).toContainText('Test air temperature');
     await page.getByRole('link', { name: 'Data Analysis', exact: true }).click();

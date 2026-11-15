@@ -5,7 +5,7 @@ import { product,fixture,field } from './fixtures';
 test('workspace header has theme toggle and repository link without the context chip',async({page})=>{
  await page.addInitScript(()=>localStorage.setItem('iris-theme','light'));
  await page.goto('/workspace');
- await expect(page.locator('.dashboard-context-chip')).toHaveCount(0);
+ await expect(page.locator('.dashboard-context-chip')).toContainText('No dataset selected');
  const themeToggle=page.locator('.dashboard-topbar').getByRole('button',{name:'Switch to dark mode',exact:true});
  await expect(themeToggle).toBeVisible();
  const repository=page.locator('.dashboard-sidebar-footer').getByRole('link',{name:'GitHub repository',exact:true});
@@ -31,7 +31,7 @@ test('does not fetch data on mount and discovers, selects and retrieves on expli
  for(const name of ['Area','Bars']){
   await page.getByRole('button',{name,exact:true}).click();await expect(page.getByRole('img',{name:/Exact values are available in CSV and JSON exports/}).first()).toBeVisible();
  }
- await page.getByRole('tab',{name:'Seasonal cycles',exact:true}).click();await expect(page.getByRole('img',{name:/Monthly heatmap/})).toBeVisible();
+ await page.getByRole('tab',{name:'Seasonal cycles',exact:true}).click();await page.getByRole('button',{name:'Year-by-month',exact:true}).click();await expect(page.getByRole('img',{name:/Monthly heatmap/})).toBeVisible();
  await page.getByRole('button',{name:'Seasonal profile',exact:true}).click();await expect(page.getByRole('img',{name:/Seasonal profile for/})).toBeVisible();
  await page.getByRole('tab',{name:'Source & selection',exact:true}).click();
  await expect(page.getByText('4 (2 missing/excluded)',{exact:true})).toBeVisible();
