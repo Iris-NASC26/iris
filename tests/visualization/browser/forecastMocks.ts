@@ -7,6 +7,8 @@ export async function mockForecasts(page: Page) {
   await page.route("**/api/v1/forecasts/**", (route) => {
     const path = new URL(route.request().url()).pathname.split("/"),
       id = path[4];
+    if (id === "v2" && path[5] === "catalogue")
+      return route.fulfill({ json: catalogueFixture(now) });
     if (id === "catalogue")
       return route.fulfill({ json: catalogueFixture(now) });
     if (id === "capabilities")

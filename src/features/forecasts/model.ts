@@ -3,7 +3,7 @@ import registry from "../../../shared/forecast-regions.json" with { type: "json"
 export const FORECAST_REGIONS = registry.regions;
 export type ForecastRegion = (typeof FORECAST_REGIONS)[number];
 export const forecastHref = (id: string, artifactId?: string | null) =>
-  `/workspace/data-analysis?forecastId=${encodeURIComponent(id)}${artifactId ? `&run=${artifactId}` : ""}`;
+  `/workspace/forecasts?forecastId=${encodeURIComponent(id)}${artifactId ? `&run=${encodeURIComponent(artifactId)}` : ""}`;
 export const forecastRegion = (id: string) =>
   FORECAST_REGIONS.find((r) => r.id === id);
 export interface ForecastWindow {
@@ -49,7 +49,11 @@ export interface ForecastCard {
   artifact_id: string | null;
   id: string;
   location: ForecastRegion;
-  kind: "precipitation";
+  kind: "precipitation" | "local_model";
+  target?: string;
+  target_label?: string;
+  unit?: string;
+  median?: number | null;
   state: "fresh" | "stale" | "unavailable";
   peak_24h: ForecastWindow | null;
   retrieved_at: string | null;
@@ -241,7 +245,7 @@ export function parseCatalogue(value: unknown): ForecastCard[] {
       card.location?.latitude !== site.latitude ||
       card.location?.longitude !== site.longitude ||
       !["fresh", "stale", "unavailable"].includes(card.state) ||
-      card.kind !== "precipitation"
+      !["precipitation", "local_model"].includes(card.kind)
     )
       throw new Error("Invalid forecast card.");
     if (
@@ -329,4 +333,250 @@ export function parseContext(value: unknown, id: string): ForecastContext {
   )
     throw new Error("NASA source provenance is incomplete.");
   return v;
+}
+
+/* ---- Iris historical-ML forecast contracts (iris.ml-forecast.v2) ----
+ * These describe the local pipeline built only on Meteomatics *past* records.
+ * They are deliberately separate from the provider-ensemble contracts above:
+ * a v2 run is never a provider forecast and vice versa.
+ */
+
+export interface MlTarget {
+  label: string;
+  unit: string;
+  composite_days: number;
+  sources: string[];
+}
+export interface MlCapabilities {
+  schema_version: string;
+  credentials: { configured: boolean; reason?: string };
+  earthdata_credentials?: { configured: boolean };
+  policy: string;
+  admin_token_required: boolean;
+  sources: Record<
+    string,
+    { param: string; declared_availability_lag_hours: number; role: string }
+  >;
+  targets?: Record<string, MlTarget>;
+  earthdata_products?: Record<
+    string,
+    { delay_days: number; daac: string; cadence: string; note: string }
+  >;
+}
+export function parseMlCapabilities(v: unknown): MlCapabilities {
+  const c = v as MlCapabilities;
+  if (
+    !c ||
+    c.schema_version !== "iris.ml-forecast.v2" ||
+    typeof c.credentials?.configured !== "boolean" ||
+    typeof c.policy !== "string" ||
+    !c.sources ||
+    Object.values(c.sources).some(
+      (s) =>
+        typeof s?.param !== "string" ||
+        !finite(s?.declared_availability_lag_hours) ||
+        typeof s?.role !== "string",
+    )
+  )
+    throw new Error("Invalid ML forecast capabilities response.");
+  return c;
+}
+
+export interface MlHistory {
+  state: string;
+  source_id: string;
+  records: {
+    interval_start: string;
+    interval_end: string;
+    value: number;
+    unit: string;
+    available_at: string | null;
+  }[];
+  coverage: { complete_days: number; first_day: string | null; last_day: string | null };
+}
+export function parseMlHistory(v: unknown): MlHistory {
+  const h = v as MlHistory;
+  if (
+    !h ||
+    typeof h.state !== "string" ||
+    !Array.isArray(h.records) ||
+    !h.coverage ||
+    !finite(h.coverage.complete_days) ||
+    h.records.some(
+      (r) =>
+        typeof r?.interval_start !== "string" ||
+        typeof r?.interval_end !== "string" ||
+        !finite(r?.value) ||
+        (r.unit === "mm" && r.value < 0) ||
+        Date.parse(r.interval_end) <= Date.parse(r.interval_start),
+    )
+  )
+    throw new Error("Invalid ML history response.");
+  return h;
+}
+
+export interface MlDataset {
+  dataset_id: string;
+  source_id: string;
+  records: number;
+  precip_complete_days: number;
+  coverage: { first_day: string | null; last_day: string | null };
+  quarantine: { count: number; reasons: string[] };
+  content_sha256: string;
+  created_at: string;
+  variables?: string[];
+}
+export function parseMlDatasets(v: unknown): MlDataset[] {
+  const list = (v as { datasets?: unknown })?.datasets;
+  if (!Array.isArray(list)) throw new Error("Invalid datasets response.");
+  list.forEach((d) => {
+    const m = d as MlDataset;
+    if (
+      !/^ds-[a-f0-9]{16}$/.test(m?.dataset_id ?? "") ||
+      !finite(m?.records) ||
+      !finite(m?.precip_complete_days) ||
+      !/^[a-f0-9]{64}$/.test(m?.content_sha256 ?? "")
+    )
+      throw new Error("Invalid dataset manifest.");
+  });
+  return list as MlDataset[];
+}
+
+export type MlModelState =
+  | "candidate"
+  | "eligible"
+  | "active"
+  | "rejected"
+  | "stale"
+  | "retired";
+export interface MlModelCard {
+  model_id: string;
+  location_id: string;
+  horizon_index: number;
+  state: MlModelState;
+  dataset_id: string;
+  trained_at: string;
+  metrics: {
+    model_mae?: number | null;
+    baseline_mae?: number | null;
+    skill_vs_best_baseline?: number | null;
+    folds?: number;
+    n_eval?: number;
+    model_sha256?: string | null;
+    target?: string;
+    coverage_80?: number;
+    test_start?: string;
+    test_end?: string;
+    evaluation_scope?: string;
+  };
+  eligibility_reasons: string[];
+}
+export function parseMlModels(v: unknown): MlModelCard[] {
+  const list = (v as { models?: unknown })?.models;
+  if (!Array.isArray(list)) throw new Error("Invalid models response.");
+  const states: MlModelState[] = [
+    "candidate",
+    "eligible",
+    "active",
+    "rejected",
+    "stale",
+    "retired",
+  ];
+  list.forEach((m) => {
+    const c = m as MlModelCard;
+    if (
+      !/^m-[a-f0-9]{14}(-[a-z0-9]{1,8})?-h[0-2]$/.test(c?.model_id ?? "") ||
+      !states.includes(c?.state) ||
+      !Array.isArray(c?.eligibility_reasons)
+    )
+      throw new Error("Invalid model card.");
+  });
+  return list as MlModelCard[];
+}
+
+export interface MlTrendReport {
+  family_id: string;
+  state: "computed" | "insufficient";
+  reason?: string;
+  slope_per_decade?: number | null;
+  ci_90?: [number, number] | null;
+  p_raw?: number | null;
+  q_bh?: number | null;
+  completeness: number;
+  n_complete_months: number;
+  lag1_autocorrelation?: number | null;
+  method: string;
+  scope: string;
+}
+export function parseMlTrends(v: unknown): MlTrendReport[] {
+  const list = (v as { reports?: unknown })?.reports;
+  if (!Array.isArray(list)) throw new Error("Invalid trends response.");
+  list.forEach((r) => {
+    const t = r as MlTrendReport;
+    if (
+      !t ||
+      (t.state !== "computed" && t.state !== "insufficient") ||
+      !finite(t.completeness) ||
+      (t.q_bh != null && (!finite(t.q_bh) || t.q_bh < 0 || t.q_bh > 1))
+    )
+      throw new Error("Invalid trend report.");
+  });
+  return list as MlTrendReport[];
+}
+
+export interface MlJob {
+  job_id: string;
+  kind: string;
+  status: "queued" | "running" | "complete" | "failed" | "cancelled";
+  progress: number;
+  checkpoint: Record<string, unknown>;
+  error: string | null;
+}
+
+export interface MlPredictionWindow {
+  window_start: string;
+  window_end: string;
+  q10: number;
+  q50: number;
+  q90: number;
+  unit: string;
+  nonnegative?: boolean;
+  model_id?: string;
+  source_id?: string;
+}
+export interface MlPrediction {
+  state?: string;
+  reason?: string;
+  horizons?: { horizon: number; reason: string }[];
+  run_id?: string;
+  issued_at?: string;
+  uncertainty_method?: string;
+  predictions?: MlPredictionWindow[];
+  target?: string;
+  latest_input_at?: string;
+  input_age_hours?: number;
+  stale?: boolean;
+  scope?: string;
+}
+export function parseMlPrediction(v: unknown): MlPrediction {
+  const p = v as MlPrediction;
+  if (!p || typeof p !== "object") throw new Error("Invalid prediction response.");
+  if (p.state === "unavailable") return p;
+  if (
+    !Array.isArray(p.predictions) ||
+    p.predictions.length < 1 || p.predictions.length > 3 ||
+    p.predictions.some(
+      (w) =>
+        !finite(w?.q10) ||
+        !finite(w?.q50) ||
+        !finite(w?.q90) ||
+        !Number.isFinite(Date.parse(w.window_start)) ||
+        !Number.isFinite(Date.parse(w.window_end)) ||
+        Date.parse(w.window_end) <= Date.parse(w.window_start) ||
+        (w.nonnegative !== false && (w.q10 < 0 || w.q50 < 0 || w.q90 < 0)) ||
+        !(w.q10 <= w.q50 && w.q50 <= w.q90),
+    )
+  )
+    throw new Error("Invalid ML prediction: quantiles must be finite, ordered, nonnegative.");
+  return p;
 }

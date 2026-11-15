@@ -25,7 +25,7 @@ test("COBE globe renders marker links that open upcoming predictions", async ({
   await expect(markers).toHaveCount(6);
   await expect(markers.first()).toHaveAttribute(
     "href",
-    /\/workspace\/data-analysis\?forecastId=/,
+    /\/workspace\/forecasts\?forecastId=/,
   );
   // Keyboard-equivalent navigation: markers are ordinary links in tab order.
   await markers.nth(0).focus();
@@ -34,7 +34,7 @@ test("COBE globe renders marker links that open upcoming predictions", async ({
   expect(blocked).toEqual([]);
   // Keyboard-equivalent activation works even while the marker is occluded.
   await page.keyboard.press("Enter");
-  await page.waitForURL(/\/workspace\/data-analysis\?forecastId=/, {
+  await page.waitForURL(/\/workspace\/forecasts\?forecastId=/, {
     waitUntil: "domcontentloaded",
   });
   await expect(
@@ -89,7 +89,7 @@ test("no-WebGL fallback keeps equivalent location links", async ({
   await markers.nth(3).focus();
   await page.keyboard.press("Enter");
   await expect(page).toHaveURL(
-    /\/workspace\/data-analysis\?forecastId=central-valley/,
+    /\/workspace\/forecasts\?forecastId=central-valley/,
   );
   await context.close();
 });

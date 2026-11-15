@@ -11,7 +11,7 @@ export function useForecastCatalogue() {
     const controller = new AbortController();
     async function load() {
       try {
-        const response = await fetch("/api/v1/forecasts/catalogue", {
+        const response = await fetch("/api/v1/forecasts/v2/catalogue", {
           cache: "no-store",
           signal: controller.signal,
         });

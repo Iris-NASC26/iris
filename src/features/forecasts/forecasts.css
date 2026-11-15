@@ -361,3 +361,93 @@
   border: 3px solid white;
   box-shadow: 0 0 0 8px #008d7222;
 }
+
+/* Iris historical-ML panel (iris.ml-forecast.v2) */
+.ml-forecast .ml-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 12px;
+  margin: 16px 0;
+}
+.ml-forecast .ml-grid article {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  background: var(--panel);
+}
+.ml-forecast .ml-grid article > span {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.ml-forecast .ml-grid article > strong {
+  font-size: 18px;
+}
+.ml-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 14px 0;
+}
+.ml-actions button {
+  border: 1px solid var(--accent, #10947c);
+  background: transparent;
+  color: inherit;
+  border-radius: 999px;
+  padding: 8px 16px;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+.ml-actions button:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--accent, #10947c) 12%, transparent);
+}
+.ml-actions button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.ml-actions .ml-generate { background: #10947c; color: #fff; font-weight: 600; }
+.ml-forecast-chart { height: 280px; width: 100%; min-width: 0; }
+.ml-forecast-chart .viz-chart-frame, .ml-forecast-chart .viz-chart-canvas { height: 100%; width: 100%; }
+.ml-dataset-list {
+  list-style: none;
+  padding: 0;
+  font-size: 12px;
+  line-height: 1.9;
+}
+.ml-dataset-list code {
+  font-size: 11px;
+  background: var(--panel);
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+.ml-trends summary,
+.ml-datasets summary {
+  cursor: pointer;
+  font-size: 13px;
+  margin: 12px 0 8px;
+}
+
+.ml-target {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim, #7a8a99);
+}
+.ml-target select {
+  font: inherit;
+  text-transform: none;
+  letter-spacing: normal;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--line, #2a3540);
+  border-radius: 6px;
+  background: var(--surface, #10161d);
+  color: var(--text, #e8edf2);
+}
