@@ -129,8 +129,18 @@ function DashboardFrame({ children }: { children: ReactNode }) {
         <div className="dashboard-brand-row">
           <Link className="dashboard-brand" href="/">
             <span className="brand-mark">
-              <Icon name="globe" size={21} />
-              <i className="orbit-dot" />
+              <img
+                src="/favicon.svg"
+                alt="Iris logo"
+                width={22}
+                height={22}
+                style={{
+                  width: 22,
+                  height: 22,
+                  objectFit: "contain",
+                  filter: "brightness(0) invert(1)",
+                }}
+              />
             </span>
             <span className="dashboard-brand-copy">
               <strong>Iris</strong>
