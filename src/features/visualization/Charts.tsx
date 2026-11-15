@@ -23,14 +23,16 @@ export type SelectEvent =
     | { kind: 'time'; time: number }
     | { kind: 'month'; year: string; month: number; time: number }
     | { kind: 'pair'; time: number; timestamp: string; x: number; y: number };
-export function ChartCanvas({ option, label, onSelect, resetable }: {
+export function ChartCanvas({ option, label, onSelect, resetable, viewportKey }: {
     option: EChartsCoreOption;
     label: string;
     onSelect?: (data: unknown) => void;
     resetable?: boolean;
+    viewportKey?: string;
 }) {
     const node = useRef<HTMLDivElement>(null), chart = useRef<EChartsType | null>(null);
     const latest = useRef({ option, onSelect });
+    const lastViewport = useRef(viewportKey);
     latest.current = { option, onSelect };
     const [error, setError] = useState("");
     useEffect(() => {
@@ -39,18 +41,28 @@ export function ChartCanvas({ option, label, onSelect, resetable }: {
         void Promise.all([import('echarts/core'), import('echarts/charts'), import('echarts/components'), import('echarts/renderers')]).then(([engine, charts, components, renderers]) => {
             if (disposed || !node.current)
                 return;
-            engine.use([charts.LineChart, charts.BarChart, charts.HeatmapChart, charts.ScatterChart, components.GridComponent, components.TooltipComponent, components.LegendComponent, components.DataZoomComponent, components.VisualMapComponent, components.AriaComponent, components.MarkLineComponent, renderers.CanvasRenderer]);
+            engine.use([charts.LineChart, charts.BarChart, charts.HeatmapChart, charts.ScatterChart, components.GridComponent, components.TooltipComponent, components.LegendComponent, components.DataZoomComponent, components.VisualMapComponent, components.AriaComponent, components.MarkLineComponent, components.MarkPointComponent, renderers.CanvasRenderer]);
             const instance = engine.init(node.current, undefined, { renderer: 'canvas' });
             chart.current = instance;
             instance.setOption(latest.current.option, { notMerge: true });
             instance.on('click', params => { latest.current.onSelect?.((params as { data?: unknown }).data); });
+            instance.on('datazoom',()=>{
+                const zoom=(instance.getOption().dataZoom as {start?:number;end?:number}[]|undefined)?.[0];
+                if(zoom&&node.current?.parentElement){node.current.parentElement.dataset.zoomStart=String(zoom.start);node.current.parentElement.dataset.zoomEnd=String(zoom.end);}
+            });
             observer = new ResizeObserver(() => instance.resize());
             observer.observe(node.current);
         }).catch(() => { if (!disposed)
             setError("Chart renderer unavailable. CSV and JSON exports remain available."); });
         return () => { disposed = true; observer?.disconnect(); chart.current?.dispose(); chart.current = null; };
     }, []);
-    useEffect(() => { chart.current?.setOption(option, { notMerge: true }); }, [option]);
+    useEffect(() => {
+        const current=chart.current;if(!current)return;
+        const zoom=viewportKey&&lastViewport.current===viewportKey?(current.getOption().dataZoom as {start?:number;end?:number}[]|undefined):undefined;
+        current.setOption(option,{notMerge:true});
+        zoom?.forEach((window,i)=>{if(Number.isFinite(window.start)&&Number.isFinite(window.end))current.dispatchAction({type:'dataZoom',dataZoomIndex:i,start:window.start,end:window.end});});
+        lastViewport.current=viewportKey;
+    }, [option,viewportKey]);
     return <div className="viz-chart-frame" role="img" aria-label={label}>
         <div className="viz-chart-canvas" ref={node}/>
         {resetable && !error && <button type="button" className="viz-chart-reset" onClick={() => { const c = chart.current; if (!c) return; c.dispatchAction({ type: 'restore' }); c.setOption(latest.current.option, { notMerge: true }); }}>Reset zoom</button>}
@@ -74,25 +86,26 @@ export function DataChart({ kind, entries, primary, data, normalized, markTime, 
     const comparisonAllowed = (sameUnit && sameCadence) || normalized;
     const plotted = comparisonAllowed ? entries : [primary];
     const units = normalized ? 'Standard deviations (z-score)' : primary.preview.summary_stats.unit;
+    const marked=(normalized?standardize(selected):selected).find(r=>r.time===markTime);
     const marker = markTime != null && ['line', 'area', 'bars'].includes(kind)
-        ? { markLine: { silent: true, symbol: 'none', label: { show: false }, lineStyle: { color: '#d78837', type: 'dashed', width: 1.5 }, data: [{ xAxis: markTime }] } }
+        ? { markLine: { silent: true, symbol: 'none', label: { show: false }, lineStyle: { color: '#d78837', type: 'dashed', width: 1.5 }, data: [{ xAxis: markTime }] }, ...(marked?.value!==null&&marked?.value!==undefined?{markPoint:{symbol:'circle',symbolSize:12,label:{show:false},itemStyle:{color:primary.color,borderColor:dark?'#e5f7ef':'#fff',borderWidth:3,shadowColor:primary.color,shadowBlur:12},data:[{coord:[marked.time,marked.value]}]}}:{}) }
         : {};
     const option: EChartsCoreOption = { animation: false, useUTC: true, color: entries.map(s => s.color), backgroundColor: 'transparent', aria: { enabled: true },
         textStyle: { fontFamily: 'Inter, system-ui, sans-serif', color: foreground },
-        tooltip: { trigger: 'axis', renderMode: 'richText', confine: true },
+        tooltip: { trigger: 'axis', renderMode: 'richText', confine: true, backgroundColor: dark?'#142b23':'#ffffff', borderColor:grid, textStyle:{color:foreground,fontSize:11},axisPointer:{type:'cross',lineStyle:{color:'#86a99c',type:'dashed'}} },
         grid: { left: 72, right: 25, top: 55, bottom: 72 },
-        legend: { type: 'scroll', top: 5, textStyle: { color: foreground } },
+        legend: { type: 'scroll', top: 5, icon:'circle', itemWidth:8, itemHeight:8, textStyle: { color: foreground,fontSize:10 } },
         xAxis: { type: 'time', axisLine: { lineStyle: { color: grid } }, axisLabel: { color: foreground } },
         yAxis: { type: 'value', name: units, scale: kind !== 'area' && kind !== 'bars', splitLine: { lineStyle: { color: grid } }, axisLabel: { color: foreground } },
-        dataZoom: [{ type: 'inside', filterMode: 'none' }, { type: 'slider', height: 20, bottom: 12, filterMode: 'none' }],
+        dataZoom: [{ type: 'inside', filterMode: 'none' }, { type: 'slider', height: 22, bottom: 10, filterMode: 'none',borderColor:grid,backgroundColor:dark?'#10221b':'#f1f6f3',fillerColor:'#159d7e18',handleStyle:{color:'#159d7e',borderColor:'#fff'},textStyle:{color:foreground,fontSize:9} }],
     };
     let handleSelect: ((d: unknown) => void) | undefined;
     if (['line', 'area', 'bars'].includes(kind)) {
-        option.series = plotted.map((s, i) => ({ name: s.label, type: kind === 'bars' ? 'bar' : 'line', connectNulls: false,
+        option.series = plotted.map(s => ({ name: s.label, type: kind === 'bars' ? 'bar' : 'line', connectNulls: false,
             data: lineData(normalized ? standardize(data.get(s.id) ?? []) : data.get(s.id) ?? [], s.preview.extraction_config.target_frequency),
-            showSymbol: true, symbolSize: (data.get(s.id)?.length ?? 0) > 800 ? 2 : 4, lineStyle: { width: 2, color: s.color }, itemStyle: { color: s.color },
-            ...(i === 0 ? marker : {}),
-            ...(kind === 'area' ? { areaStyle: { opacity: 0.12 } } : {}), emphasis: { focus: 'series' } }));
+            showSymbol: true, symbolSize: (data.get(s.id)?.length ?? 0) > 800 ? 2 : 5, lineStyle: { width: 2.5, color: s.color }, itemStyle: { color: kind==='bars'?s.color:(dark?'#11251d':'#fff'),borderColor:s.color,borderWidth:2 },barMaxWidth:24,
+            ...(s.id === primary.id ? marker : {}),
+            ...(kind === 'area' ? { areaStyle: { color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:s.color},{offset:1,color:dark?'#10231b00':'#ffffff00'}]},opacity:.24 } } : {}), emphasis: { focus: 'series' } }));
         handleSelect = d => { const a = d as [number, number]; if (Array.isArray(a) && typeof a[0] === 'number') onSelect?.({ kind: 'time', time: a[0] }); };
     }
     else if (kind === 'seasonal') {
@@ -142,6 +155,6 @@ export function DataChart({ kind, entries, primary, data, normalized, markTime, 
   {normalized && ['line', 'area', 'bars'].includes(kind) && <p className="viz-note">Each series is standardized independently using its selected-period mean and sample standard deviation. Absolute magnitudes and units are not comparable in this view.</p>}
   {zeroVariance && <p className="viz-note" role="alert">At least one visible series has zero variance in the selected period — standardization is undefined for it and it is drawn flat at zero. Do not read a signal into it.</p>}
   {kind === 'scatter' && entries.length < 2 ? <div className="viz-empty">Load a second dataset or location to compare observations.</div> :
-            <ChartCanvas option={option} label={`${CHARTS.find(c => c.id === kind)?.label} for ${primary.label}. Exact values are available in CSV and JSON exports.`} onSelect={handleSelect} resetable={['line', 'area', 'bars', 'heatmap'].includes(kind)}/>}
+            <ChartCanvas viewportKey={`${primary.id}:${kind}:${normalized}:${selected[0]?.time}:${selected.at(-1)?.time}`} option={option} label={`${CHARTS.find(c => c.id === kind)?.label} for ${primary.label}. Exact values are available in CSV and JSON exports.`} onSelect={handleSelect} resetable={['line', 'area', 'bars', 'heatmap'].includes(kind)}/>}
  </>;
 }

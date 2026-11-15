@@ -1,13 +1,17 @@
 "use client";
 // Studio panel components. All shared state comes from StudioContext so panel
 // lifecycles never own loaded data — closing/reopening a panel is lossless.
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import type { IDockviewPanelProps } from "dockview-react";
 import { DataChart, ChartCanvas, type ChartKind, type SelectEvent } from "../Charts";
-import { calendar, format, lineData, MONTHS, monthlyCells, paired, scale, summary, type VisualSeries } from "../model";
+import { format, lineData, paired, summary } from "../model";
 import { useStudioTheme as useTheme } from './display';
 import { useStudio, type StudioState } from "./state";
 
+import { SeasonalCycle } from '../presentation/SeasonalCycle';
+import { TimeTrack } from '../presentation/TimeTrack';
+import { ObservationNavigator } from '../presentation/ObservationNavigator';
+import '../presentation/presentation.css';
 type P = IDockviewPanelProps;
 const Empty = ({ text }: { text: string }) => <div className="viz-empty"><p>{text}</p></div>;
 
@@ -28,19 +32,22 @@ function commitIndex(studio: StudioState, i: number) {
 
 export function TimeSeriesPanel(_p: P) {
     const s = useStudio();
-    const [kind, setKind] = useState<ChartKind>('line');
+    const [kind, setKind] = useState<ChartKind | 'track'>('line');
     const [signal, setSignal] = useState<'observed' | 'analysis'>('observed');
     if (!s.primary) return <EmptyData />;
     const stats = summary(s.primaryRows);
     const markTime = s.selection?.seriesId === s.primary.id ? s.selection.time : s.primaryRows[Math.min(s.timeIndex, s.primaryRows.length - 1)]?.time ?? null;
-    return <div className="viz-panel">
+    return <div className="viz-panel viz-timeseries-panel">
+        <div className="viz-record-heading"><div><span className="viz-record-eyebrow">THE OBSERVATION RECORD</span><h3>Follow the signal through time.</h3></div><span className="viz-record-count">{stats.count.toLocaleString()} usable / {s.primaryRows.length.toLocaleString()} rows</span></div>
         <div className="viz-panel-tools">
-            <span className="viz-chart-types" role="group" aria-label="Chart type">{(['line', 'area', 'bars', 'distribution'] as const).map(k => <button key={k} aria-pressed={kind === k} onClick={() => { setKind(k); setSignal('observed'); }}>{({ line: 'Line', area: 'Area', bars: 'Bars', distribution: 'Distribution' } as const)[k]}</button>)}</span>
-            {s.analysis.binding && <label>Signal<select aria-label="Signal" value={signal} onChange={e => setSignal(e.target.value as typeof signal)}><option value="observed">Observed record</option><option value="analysis">Analysis-adjusted & fitted</option></select></label>}
+            <span className="viz-chart-types" role="group" aria-label="Chart type">{(['line', 'area', 'bars', 'distribution', 'track'] as const).map(k => <button key={k} aria-pressed={kind === k} onClick={() => { setKind(k); setSignal('observed'); }}>{({ line: 'Line', area: 'Area', bars: 'Bars', distribution: 'Distribution', track: '3D Track' } as const)[k]}</button>)}</span>
+            {s.analysis.binding && <label>Signal<select aria-label="Signal" value={signal} onChange={e => { setSignal(e.target.value as typeof signal); if(e.target.value==='analysis') setKind('line'); }}><option value="observed">Observed record</option><option value="analysis">Analysis-adjusted & fitted</option></select></label>}
             {s.entries.length > 1 && <label className="viz-check"><input type="checkbox" checked={s.normalized} onChange={e => s.setNormalized(e.target.checked)}/> Standardize (unitless)</label>}
             <select aria-label="Primary series" value={s.primary.id} onChange={e => s.setPrimaryId(e.target.value)}>{s.entries.map(x => <option key={x.id} value={x.id}>{x.label}</option>)}</select>
         </div>
-        {signal === 'analysis' && s.analysis.binding ? <AnalyzedSeries studio={s}/> : stats.count ? <DataChart kind={kind} entries={s.entries} primary={s.primary} data={s.data} normalized={s.normalized} markTime={markTime} onSelect={e => publish(s, e)}/> : <Empty text="No usable observations in this period. Adjust the display filters or inspect the QA flags." />}
+        {signal === 'analysis' && s.analysis.binding ? <AnalyzedSeries studio={s}/> : stats.count ? kind === 'track' ? <TimeTrack key={`${s.primary.id}:${s.normalized}`}/> : <DataChart kind={kind} entries={s.entries} primary={s.primary} data={s.data} normalized={s.normalized} markTime={markTime} onSelect={e => publish(s, e)}/> : <Empty text="No usable observations in this period. Adjust the display filters or inspect the QA flags." />}
+        <ObservationNavigator/>
+        <div className="viz-series-overview"><span>Source mean<strong>{format(stats.mean)}</strong></span><span>Source range<strong>{format(stats.min)} to {format(stats.max)}</strong></span><span>{stats.missing} missing / excluded</span></div>
         <p className="viz-panel-foot">Units {s.primary.preview.summary_stats.unit} · {s.primary.preview.extraction_config.target_frequency} · gaps are real, never connected.</p>
     </div>;
 }
@@ -64,46 +71,7 @@ function AnalyzedSeries({ studio: s }: { studio: StudioState }) {
     }}/><p className="viz-panel-foot">Backend fits and adjusted values are aligned by exact timestamp. Only requested methods are shown. Original analysis window {b.result.start_year}–{b.result.end_year}; brush zoom does not refit.</p></>;
 }
 
-export function SeasonalPanel(_p: P) {
-    const s = useStudio();
-    const [view, setView] = useState<'heatmap' | 'profile'>('heatmap');
-    if (!s.primary) return <EmptyData />;
-    const cells = monthlyCells(s.primaryRows);
-    const years = [...new Set(cells.map(c => c.year))];
-    return <div className="viz-panel">
-        <div className="viz-panel-tools">
-            <span className="viz-chart-types" role="group" aria-label="Seasonal view"><button aria-pressed={view === 'heatmap'} onClick={() => setView('heatmap')}>Year-by-month</button><button aria-pressed={view === 'profile'} onClick={() => setView('profile')}>Seasonal profile</button></span>
-            <select aria-label="Seasonal series" value={s.primary.id} onChange={e => s.setPrimaryId(e.target.value)}>{s.entries.map(x => <option key={x.id} value={x.id}>{x.label}</option>)}</select>
-        </div>
-        {view === 'heatmap'
-            ? (cells.length ? <><DataChart kind="heatmap" entries={s.entries} primary={s.primary} data={s.data} normalized={false} onSelect={e => publish(s, e)}/><p className="viz-panel-foot">{years.length} year{years.length === 1 ? '' : 's'} · departures from each calendar month’s mean over the selected period (descriptive, not a backend seasonal adjustment). Empty cells have no usable observations; click a cell to select that month.</p></>
-                : <Empty text="No usable monthly cells in the selected period." />)
-            : <SeasonalProfile series={s.primary} rows={s.primaryRows} />}
-    </div>;
-}
-
-function SeasonalProfile({ series, rows }: { series: VisualSeries; rows: ReturnType<typeof useStudio>['primaryRows'] }) {
-    const { dark } = useTheme();
-    const foreground = dark ? '#c9d8d2' : '#53665e', grid = dark ? '#283e36' : '#e5ece8';
-    const byMonth = useMemo(() => {
-        const groups = new Map<number, { year: number; value: number; timestamp: string }[]>();
-        rows.forEach(r => { if (r.value === null) return; const d = new Date(r.time); const a = groups.get(d.getUTCMonth()) ?? []; a.push({ year: d.getUTCFullYear(), value: r.value, timestamp: r.timestamp }); groups.set(d.getUTCMonth(), a); });
-        return groups;
-    }, [rows]);
-    const profile = calendar(rows);
-    const yearly = [...new Set(rows.map(r => new Date(r.time).getUTCFullYear()))].sort();
-    const option = { animation: false, backgroundColor: 'transparent', aria: { enabled: true }, textStyle: { fontFamily: 'Inter, system-ui, sans-serif', color: foreground },
-        tooltip: { trigger: 'axis' as const, confine: true }, legend: { type: 'scroll' as const, top: 5, textStyle: { color: foreground } },
-        grid: { left: 72, right: 25, top: 55, bottom: 40 },
-        xAxis: { type: 'category' as const, data: MONTHS, axisLabel: { color: foreground } },
-        yAxis: { type: 'value' as const, name: series.preview.summary_stats.unit, scale: true, splitLine: { lineStyle: { color: grid } }, axisLabel: { color: foreground } },
-        series: [
-            { name: 'Selected-period calendar-month mean', type: 'line' as const, data: profile.map(m => m.mean), connectNulls: false, lineStyle: { width: 3, color: series.color }, itemStyle: { color: series.color }, symbolSize: 7 },
-            ...yearly.map((y, i) => ({ name: String(y), type: 'line' as const, data: MONTHS.map((_, m) => byMonth.get(m)?.find(v => v.year === y)?.value ?? null), connectNulls: false, lineStyle: { width: 1, opacity: 0.45, type: 'dashed' as const }, symbol: 'none', color: undefined as unknown as string, itemStyle: {}, emphasis: { focus: 'series' as const } })),
-        ],
-    };
-    return <><ChartCanvas option={option} label={`Seasonal profile for ${series.label}; dashed lines are individual years with real gaps.`}/><p className="viz-panel-foot">Solid line: mean of available values per calendar month (not a climate normal). Dashed: individual years — missing months stay missing.</p></>;
-}
+export function SeasonalPanel(_p: P) { return <SeasonalCycle/>; }
 
 export function RelationshipPanel(_p: P) {
     const s = useStudio();
