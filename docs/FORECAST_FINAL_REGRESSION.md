@@ -11,9 +11,9 @@ Windows, Node 24, Python 3.13 venv, Next 15.5.29, Chromium Playwright.
 | Complete backend | `cd backend; .venv/Scripts/python.exe -m pytest -q` | **299 passed**, 0 failed (46s) |
 | Frontend unit | `npm run test:visualization` | **122 passed**, 0 failed |
 | Type check | `npx tsc --noEmit --incremental false` | **clean**, exit 0 |
-| Browser | `npm run test:visualization:browser` | **66 pass / 3 fixed→pass / 3 skip** (see below) |
-| Production build | `npm run build` | **success** — all routes compiled |
-| Lint | `npm run lint` | **incomplete — environment** |
+| Browser | `npm run test:visualization:browser` | **69 pass / 0 fail / 3 skip** (final rerun) |
+| Production build | `npm run build` | **success** — all routes compiled, lint+types internal |
+| Lint | `npm run lint` | **0 errors, exit 0** (warnings only, non-blocking) |
 
 ## Failures found and fixed (all obsolete assertions vs merged-main behavior)
 
@@ -44,13 +44,17 @@ Verified: re-run of both specs → 12/12 pass.
 
 ## Limitations
 
-- **Lint gate incomplete:** `next lint` requires `eslint`, which is not
-  installed; `npm install eslint eslint-config-next` stalled in the
-  pnpm-managed store with peer-resolution conflicts and was killed.
-  `.eslintrc.json` (`next/core-web-vitals`) was added so the check runs
-  once the dependency is installed — the gate remains honestly open,
-  not reported green.
+- **Lint resolved:** the repo is pnpm-managed (`pnpm-lock.yaml`,
+  `pnpm-workspace.yaml`) — `npm install` cannot resolve into a pnpm
+  virtual store and `pnpm@9` rejected the v11 store layout. Correct
+  path: `npx pnpm@12 add -Dw eslint@8 eslint-config-next@15` (matches
+  the v11 store + Next 15.5.29). `pnpm-workspace.yaml` gained the
+  missing `packages:` declaration required by pnpm 12.
+- Lint then surfaced 5 real errors, now fixed: conditional `useMemo`
+  calls in `DataPreviewView.tsx` (hooks hoisted above the empty-state
+  early return, null-safe) and a `module`-variable assignment in
+  `Globe.tsx`. Remaining output is warnings only.
 - Production-start integrated smoke not executed end-to-end here; the
   built app compiled and the dev server serves /workspace (HTTP 200).
 - Live provider/live-visualization paths remain explicitly opt-in and
-  were not exercised.
+  were not exercised (live.spec.ts, verify-live.spec.ts, cesium skip).
