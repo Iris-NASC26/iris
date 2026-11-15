@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { EChartsOption, EChartsType } from 'echarts';
 import { MONTHS } from '../model';
 import { PALETTES, type DisplayPrefs } from '../studio/display';
-import type { Landscape } from './model';
+import { landscapeTooltipPoint, type Landscape } from './model';
 
 export function LandscapeChart({ model, display, reset, selectedTime, onSelect, onUnavailable }: {
     model: Landscape; display: DisplayPrefs; reset: number; selectedTime: number | null;
@@ -58,7 +58,11 @@ export function LandscapeChart({ model, display, reset, selectedTime, onSelect, 
         const axis = { axisLabel: { color: foreground, fontSize: 10 }, nameTextStyle: { color: foreground, fontSize: 11 }, axisLine: { lineStyle: { color: grid } }, axisTick: { show: false }, splitLine: { lineStyle: { color: grid, opacity: 0.5 } }, splitArea: { show: false } };
         const option = {
             animation: false, backgroundColor: 'transparent',
-            tooltip: { confine: true, renderMode: 'richText', formatter: (p: { data: number[] }) => `${MONTHS[p.data[0]]} ${p.data[1]}\n${p.data[2].toPrecision(5)} ${model.unit}\n${model.description}` },
+            tooltip: { confine: true, renderMode: 'richText', formatter: (p: { data?: unknown }) => {
+                const point = landscapeTooltipPoint(p.data);
+                if (!point || !Number.isInteger(point.x) || !MONTHS[point.x] || !Number.isInteger(point.y) || !Number.isFinite(point.y)) return '';
+                return `${MONTHS[point.x]} ${point.y}\n${point.value.toPrecision(5)} ${model.unit}\n${model.description}`;
+            } },
             visualMap: { min: model.range[0], max: model.range[1], dimension: 2, calculable: false, orient: 'horizontal', left: 'center', bottom: 5, itemWidth: 10, itemHeight: 140, text: [model.range[1].toPrecision(3), model.range[0].toPrecision(3)], textStyle: { color: foreground }, inRange: { color: colors }, precision: 2 },
             xAxis3D: { ...axis, type: 'value', min: 0, max: 11, interval: 1, name: 'Month', axisLabel: { color: foreground, formatter: (v: number) => MONTHS[v] ?? '' } },
             yAxis3D: { ...axis, type: 'value', min: model.years[0] - 0.5, max: model.years[model.years.length - 1] + 0.5, minInterval: 1, name: 'Year', axisLabel: { color: foreground, formatter: (v: number) => Number.isInteger(v) ? String(v) : '' } },

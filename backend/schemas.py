@@ -498,7 +498,9 @@ class OutlookSectionData(BaseModel):
 
 
 class CaseFileObservation(BaseModel):
-    timestamp: str
+    timestamp: str = Field(
+        ..., description="Monthly calendar period in YYYY-MM format; no time zone"
+    )
     value: Optional[float] = None
     seasonal_component: Optional[float] = None
     deseasonalized_value: Optional[float] = None
@@ -584,7 +586,9 @@ class CaseFileAnalysisResponse(BaseModel):
     ols_ci_high_decadal: float
     seasonal_kendall_z: Optional[float] = None
     seasonal_kendall_p: Optional[float] = None
-    change_point_timestamp: Optional[str] = None
+    change_point_timestamp: Optional[str] = Field(
+        None, description="Monthly calendar period in YYYY-MM format; no time zone"
+    )
     change_point_statistic: Optional[float] = None
     change_point_p_value: Optional[float] = None
     analysis_series: List[CaseFileObservation]

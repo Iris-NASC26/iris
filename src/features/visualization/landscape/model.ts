@@ -12,6 +12,15 @@ export interface Landscape {
 export const MAX_LANDSCAPE_YEARS = 150;
 export const MAX_SURFACE_PATCHES = 100;
 
+export function landscapeTooltipPoint(data: unknown): { x: number; y: number; value: number } | null {
+    const raw = Array.isArray(data) ? data
+        : data && typeof data === 'object' && 'value' in data ? data.value : null;
+    if (!Array.isArray(raw) || ![raw[0], raw[1], raw[2]].every(
+        value => typeof value === 'number' && Number.isFinite(value)
+    )) return null;
+    return { x: raw[0], y: raw[1], value: raw[2] };
+}
+
 export function landscape(rows: Datum[], cadence: string, quantity: Quantity, sourceUnit: string): Landscape {
     const unit = quantity === 'standardized' ? 'standard deviations' : sourceUnit === '1' ? 'dimensionless' : sourceUnit;
     const description = quantity === 'observed' ? 'Observed values in source units'
