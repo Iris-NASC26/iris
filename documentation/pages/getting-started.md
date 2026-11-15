@@ -1,6 +1,6 @@
 # Introduction to Iris
 
-<span class="version-badge">📡 Draft · November 2026</span>
+<span class="version-badge">Draft · November 2026</span>
 
 **Iris** is an open Earth intelligence platform that lets anyone investigate long-term environmental change using decades of real satellite and climate observations — without needing a background in data science or remote sensing.
 
@@ -75,8 +75,8 @@ Iris provides two complementary ways to investigate Earth system trends:
 **Track A — Live Ad-Hoc Discovery**
 You ask a question → Iris searches live NASA and NOAA catalogs → You select data → Iris extracts and analyzes it. Best for custom regions, time windows, or variables.
 
-**Track B — Global Trend Cube**
-Browse pre-computed trend results covering the entire planet from 1981 to 2025. Instantly see which regions are warming, drying, or losing vegetation. Best for global exploration and comparisons.
+**Track B — Global Trend Cube & Living Globe**
+Browse authentic NASA monthly gridded spatial fields on the Living Globe and query pre-computed anchor node trend results spanning 1981 to 2025 across core climate and land variables. Best for global spatial inspection and baseline comparisons.
 
 Both tracks feed into the same **Scientific Analysis Engine** that applies identical statistical rigor to all results.
 

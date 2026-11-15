@@ -34,7 +34,7 @@ Iris provides two parallel investigation workflows that share the same statistic
 For custom, user-directed investigations using live data from NASA and NOAA.
 
 ```
-System Intelligence
+Super Intelligence
        ↓
 Data Selection
        ↓
@@ -61,18 +61,32 @@ Use this track to explore pre-computed global trends and open selected locations
 
 ---
 
+### Forecast-First Track — Future Environmental & Weather Outlooks
+
+For short-term multi-variable future predictions (`/workspace/forecasts`) trained on genuine historical data or linking ECMWF ensembles with recent NASA satellite context:
+
+```
+Landing Globe Story Cards / Sidebar
+         ↓
+Forecast Workspace (/workspace/forecasts?forecastId=...&target=...)
+```
+
+Use this track to evaluate immediate environmental risk across 6 configured benchmark points.
+
+---
+
 ## Workspace sections
 
-### 🤖 System Intelligence
+### Super Intelligence
 *Entry point for Track A.*
 
 A natural language interface that translates your investigation question into structured data catalog searches across NASA CMR, POWER, AppEEARS, and other providers.
 
-[Learn more →](#system-intelligence)
+[Learn more →](#super-intelligence)
 
 ---
 
-### 📊 Data Selection
+### Data Selection
 *Step 2 of Track A.*
 
 Configure your extraction parameters: dataset, time window, spatial extent, cadence, and aggregation method. Includes an interactive map for spatial selection.
@@ -81,7 +95,7 @@ Configure your extraction parameters: dataset, time window, spatial extent, cade
 
 ---
 
-### 👁️ Data Preview
+### Data Preview
 *Step 3 of Track A.*
 
 Inspect the extracted time-series before analysis. Shows a gap-aware chart, quality KPIs, a footprint map, and allows CSV/JSON export of raw observations.
@@ -90,32 +104,41 @@ Inspect the extracted time-series before analysis. Shows a gap-aware chart, qual
 
 ---
 
-### 📈 Data Analysis (Case File)
+### Data Analysis (Interactive Workbench & Case File)
 *The shared scientific analysis engine for both tracks.*
 
-Runs the full statistical pipeline: STL seasonal decomposition, Mann-Kendall trend test, Sen's slope, change-point detection, and anomaly identification. Produces a complete, exportable Case File.
+An interactive statistical workbench with dataset compatibility profiling, card-based method selection, adjustable parameters, step-by-step cumulative execution, and downloadable high-resolution charts. Runs STL seasonal decomposition, Mann-Kendall trend tests, Sen's slope, change-point detection, anomaly reviews, and multi-window diagnostics to generate verifiable Case Files.
 
-[Learn more →](#visualize)
+[Learn more →](#data-analysis)
 
 ---
 
-### 🌐 Living Globe
-*Entry point for Track B.*
+### Living Globe
+*Spatial Observation Viewer & Global Reference.*
 
-A 3D interactive globe showing pre-computed trend direction and significance for every 0.5° × 0.5° grid cell on Earth across six core climate variables.
+An interactive 3D globe (and 2D map fallback) rendering authentic monthly spatial fields from NASA POWER AWS S3 direct-access Zarr stores across 11 physical variables (temperature, precipitation rate, soil wetness, snow depth, solar radiation, pressure, wind). Grid cells can be inspected for numeric values, bounding footprints, and source provenance. It operates alongside the backend Global Trend Cube (`/api/v1/cube/globe`), which indexes 20 pre-computed study anchor nodes and decadal trends.
 
 [Learn more →](#globe)
 
 ---
 
-### 📋 Case Studies
+### Case Studies
 Pre-built, guided investigations that demonstrate how Iris works. Each case study is based on real data and walks through the full evidence trail for a known environmental event or trend.
 
 [Learn more →](#case-studies)
 
 ---
 
-### 📄 Existing Research
+### Dataset & Machine Learning Forecasts
+*Future environmental outlook engine (`/workspace/forecasts`).*
+
+Trains local gradient-boosted quantile regression models directly on historical observations across multi-variable Earthdata targets (rainfall, soil moisture, temperature, vegetation, evapotranspiration, snow cover). Features 3-horizon direct predictions ($h_0, h_1, h_2$), 10th–90th percentile uncertainty ranges, baseline gating against persistence/climatology, and labeled experimental previews. Also provides access to legacy 72-hour 51-member ECMWF precipitation ensembles and antecedent 7-day NASA GPM IMERG satellite context.
+
+[Learn more →](#forecasts)
+
+---
+
+### Existing Research
 Connects the active dataset to published peer-reviewed literature, NASA technical reports, and IPCC references relevant to the variable and region under investigation.
 
 ---

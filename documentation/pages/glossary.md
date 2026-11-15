@@ -36,7 +36,7 @@ Iris's structured output for a completed investigation. Contains the statistical
 The temporal frequency of observations. Common cadences in Iris include daily, 8-day, 16-day, monthly, seasonal, and annual.
 
 **Catalog state**
-Whether a dataset has been indexed and is discoverable in Iris's provider catalog. A dataset with catalog state "available" can be found through System Intelligence but may not yet support live data extraction.
+Whether a dataset has been indexed and is discoverable in Iris's provider catalog. A dataset with catalog state "available" can be found through Super Intelligence but may not yet support live data extraction.
 
 **Change point**
 A date at which a statistically significant structural shift (step change) occurs in a time series, detected using the Pettitt test. Can indicate a real environmental shift, a policy change, or a sensor artifact.
@@ -61,6 +61,9 @@ A computation that always produces the same output from the same input, with no 
 
 ## E
 
+**ECMWF Ensemble / Member-First Accumulation**
+Numerical weather prediction using 51 ensemble members (1 control + 50 perturbed). In Iris, accumulations across multi-hour or multi-day windows are strictly calculated by summing constituent intervals *within each individual member first*, before taking distribution percentiles (10th, 50th, 90th). Summing subdaily marginal percentiles across hours is mathematically invalid and strictly prevented.
+
 **Evidence grade**
 A quality rating (A through D) assigned to each Case File based on data length, completeness, and statistical robustness. Grade A is the highest confidence; Grade D is preliminary.
 
@@ -84,12 +87,18 @@ Iris's pre-computed database of trend statistics for every 0.5° × 0.5° grid c
 **GCMD keywords**
 Global Change Master Directory keywords — a hierarchical vocabulary maintained by NASA for standardizing the naming of Earth science variables, instruments, platforms, and locations. Used internally by Iris to match plain-language queries to dataset metadata.
 
+**GPM IMERG Early Daily**
+NASA's Global Precipitation Measurement Integrated Multi-satellitE Retrievals for GPM. Iris accesses product `GPM_3IMERGDE.07` at 0.1° resolution via Earthdata Cloud DAP4 to supply authentic antecedent daily precipitation context for forecast benchmark points.
+
 ---
 
 ## H
 
 **Hamed-Rao correction**
 A modification to the Mann-Kendall test (Hamed & Rao, 1998) that accounts for autocorrelation in the time series. Prevents artificially inflated significance due to serially correlated observations. Applied by default in Iris for all series with n ≥ 10 years of monthly data.
+
+**Hindsight Leakage**
+An epistemic error in retrospective disaster analysis where post-event situational reports, revised models, or later-published observations are falsely assumed to have been available prior to the disaster. Iris prevents hindsight leakage by explicitly separating document publication dates from event timelines and requiring hindsight reveal toggles.
 
 ---
 
@@ -119,6 +128,13 @@ A statistical test that makes no assumptions about the underlying distribution o
 
 ---
 
+## O
+
+**OpenAlex / DataCite**
+Global scholarly metadata infrastructures queried by Iris's Existing Research module. OpenAlex indexes over 250 million academic publications, authors, institutions, and citation counts; DataCite provides persistent DOI registration for scientific datasets. Iris queries both APIs to connect active investigations to published research.
+
+---
+
 ## P
 
 **p-value**
@@ -140,6 +156,9 @@ The Benjamini-Hochberg FDR-adjusted version of a p-value. Accounts for the fact 
 ---
 
 ## S
+
+**Seasonal Kendall test**
+A non-parametric trend test tailored for monthly data. Evaluates the Mann–Kendall statistic and variance separately across like calendar months (comparing Januaries across years, Februaries across years, etc.) and sums them. Controls for recurring annual seasonality without requiring explicit signal deseasonalization.
 
 **Sen's slope**
 A robust estimator of the rate of change in a time series. Computed as the median of all pairwise slopes between observations. Resistant to outliers because it uses the median rather than the mean.
@@ -164,7 +183,7 @@ A statistical relationship between climate anomalies at geographically distant l
 The process of combining observations at a fine time resolution into a coarser one (e.g., daily → monthly). The appropriate aggregation method depends on the variable: sum for precipitation, mean for temperature.
 
 **Track A / Track B**
-Iris's two investigation workflows. Track A is live ad-hoc discovery (System Intelligence → Data Selection → Data Preview → Visualize). Track B uses the pre-computed Global Trend Cube (Living Globe → Visualize).
+Iris's two investigation workflows. Track A is live ad-hoc discovery (Super Intelligence → Data Selection → Data Preview → Visualize). Track B uses the pre-computed Global Trend Cube (Living Globe → Visualize).
 
 **Trend**
 A consistent, directional change in a time series over a sustained period. In Iris, trends are defined as monotonic (consistently increasing or decreasing) and are tested using the Mann-Kendall method.
@@ -175,6 +194,9 @@ A consistent, directional change in a time series over a sustained period. In Ir
 
 **Z-score**
 A standardized measure of how many standard deviations an observation is from the mean. Z = (observation − mean) / standard deviation. Used in Iris for anomaly detection.
+
+**Zarr / NASA POWER AWS S3 Direct Access**
+A cloud-native multi-dimensional array storage format enabling bounded, chunked data slicing. Living Globe reads authentic monthly spatial fields directly from public NASA POWER Zarr stores on AWS S3 without requiring Earthdata authentication.
 
 ---
 

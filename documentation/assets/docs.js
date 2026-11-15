@@ -4,52 +4,54 @@ const NAV = [
   {
     section: "Getting Started",
     items: [
-      { id: "getting-started",    title: "Introduction",         icon: "🌍" },
-      { id: "quick-start",        title: "Quick Start Guide",    icon: "⚡" },
+      { id: "getting-started", title: "Platform Introduction" },
+      { id: "quick-start", title: "Quick Start" },
+      { id: "local-running", title: "Local Running" },
+      { id: "workspace-overview", title: "Workspace Overview" },
     ],
   },
   {
-    section: "Using the Workspace",
+    section: "User Guide",
     items: [
-      { id: "workspace-overview",    title: "Workspace Overview",      icon: "🗺️" },
-      { id: "system-intelligence",   title: "System Intelligence",     icon: "🤖" },
-      { id: "data-selection",        title: "Data Selection",          icon: "📊" },
-      { id: "data-preview",          title: "Data Preview",            icon: "👁️" },
-      { id: "data-analysis",         title: "Data Analysis",            icon: "📈" },
-      { id: "visualize",             title: "Plot & Visualize",         icon: "↗️" },
-    ],
-  },
-  {
-    section: "Global Evidence",
-    items: [
-      { id: "globe",       title: "Living Globe",         icon: "🌐" },
-      { id: "case-studies", title: "Case Studies",        icon: "📋" },
+      { id: "dashboard", title: "Dashboard" },
+      { id: "super-intelligence", title: "Super Intelligence" },
+      { id: "data-selection", title: "Data Selection" },
+      { id: "data-preview", title: "Data Preview" },
+      { id: "data-analysis", title: "Data Analysis" },
+      { id: "visualize", title: "Plot & Visualize" },
+      { id: "globe", title: "Living Globe" },
+      { id: "case-studies", title: "Case Studies" },
+      { id: "forecasts", title: "Dataset & ML Forecasts" },
+      { id: "hazards", title: "Hazard Investigations" },
+      { id: "research", title: "Existing Research" },
     ],
   },
   {
     section: "Analysis Methods",
     items: [
-      { id: "method-ols",                    title: "OLS Linear Trend t-Test",     icon: "📐" },
-      { id: "method-hamed-rao-mk",           title: "Mann–Kendall (Hamed–Rao)",    icon: "📊" },
-      { id: "method-seasonal-kendall",       title: "Seasonal Kendall Test",       icon: "🗓️" },
-      { id: "method-sen-slope",              title: "Sen's Slope Estimator",       icon: "📏" },
-      { id: "method-pettitt",                title: "Pettitt Change-Point Screen", icon: "⚡" },
-      { id: "method-anomalies",              title: "Anomaly Review (Z-Score)",    icon: "🔍" },
-      { id: "method-seasonal-fingerprint",   title: "Seasonal Fingerprint",        icon: "🌡️" },
-      { id: "method-case-file-diagnostics",  title: "Full Case File Diagnostics",  icon: "🧾" },
+      { id: "method-ols", title: "OLS Linear Trend t-Test", icon: "📐" },
+      { id: "method-hamed-rao-mk", title: "Mann–Kendall (Hamed–Rao)", icon: "📊" },
+      { id: "method-seasonal-kendall", title: "Seasonal Kendall Test", icon: "🗓️" },
+      { id: "method-sen-slope", title: "Sen's Slope Estimator", icon: "📏" },
+      { id: "method-pettitt", title: "Pettitt Change-Point Screen", icon: "⚡" },
+      { id: "method-anomalies", title: "Anomaly Review (Z-Score)", icon: "🔍" },
+      { id: "method-seasonal-fingerprint", title: "Seasonal Fingerprint", icon: "🌡️" },
+      { id: "method-case-file-diagnostics", title: "Full Case File Diagnostics", icon: "🧾" },
     ],
   },
   {
-    section: "Science & Methods",
+    section: "Scientific Foundations",
     items: [
-      { id: "methodology",   title: "Scientific Methodology",   icon: "🔬" },
-      { id: "data-sources",  title: "Data Sources & Variables", icon: "🛰️" },
+      { id: "architecture-overview", title: "Architecture Overview" },
+      { id: "methodology", title: "Scientific Methodology" },
+      { id: "data-sources", title: "Data Sources & Variables" },
     ],
   },
   {
     section: "Reference",
     items: [
-      { id: "glossary", title: "Glossary", icon: "📖" },
+      { id: "glossary", title: "Glossary" },
+      { id: "comprehensive-documentation", title: "Complete Platform Reference" },
     ],
   },
 ];
@@ -70,22 +72,21 @@ function buildSidebar() {
   if (!nav) return;
   nav.innerHTML = NAV.map(
     (group) => `
-    <div class="docs-nav-section">
-      <span class="docs-nav-section-label">${group.section}</span>
-      ${group.items
-        .map(
-          (item) => `
-        <a
-          class="docs-nav-link"
-          href="#${item.id}"
-          data-page="${item.id}"
-        >
-          <span class="nav-icon">${item.icon}</span>
-          ${item.title}
-        </a>`
-        )
-        .join("")}
-    </div>`
+    <details class="docs-nav-section" open>
+      <summary class="docs-nav-section-label">${group.section}</summary>
+      <div class="docs-nav-section-items">
+        ${group.items
+          .map(
+            (item) => `
+          <a
+            class="docs-nav-link"
+            href="#${item.id}"
+            data-page="${item.id}"
+          >${item.title}</a>`
+          )
+          .join("")}
+      </div>
+    </details>`
   ).join("");
 
   nav.querySelectorAll("[data-page]").forEach((link) => {
@@ -153,21 +154,53 @@ function loadPage(id) {
 }
 
 function renderPage(id, markdown) {
-  const page = PAGE_INDEX[id] || { title: id, icon: "📄" };
+  const page = PAGE_INDEX[id] || { title: id };
   const html = window.marked ? window.marked.parse(markdown) : markdown;
 
   // Find section label
   const section = NAV.find((g) => g.items.some((i) => i.id === id));
   const sectionLabel = section ? section.section : "Docs";
 
+  // Build pagination links (Previous / Next)
+  const currentIndex = ALL_PAGES.findIndex((p) => p.id === id);
+  const prevPage = currentIndex > 0 ? ALL_PAGES[currentIndex - 1] : null;
+  const nextPage =
+    currentIndex >= 0 && currentIndex < ALL_PAGES.length - 1
+      ? ALL_PAGES[currentIndex + 1]
+      : null;
+
+  let paginationHtml = "";
+  if (prevPage || nextPage) {
+    paginationHtml = `
+      <nav class="docs-pagination" aria-label="Page navigation">
+        ${
+          prevPage
+            ? `<a class="docs-pagination-link docs-pagination-prev" href="#${prevPage.id}" data-page="${prevPage.id}">
+                <span class="docs-pagination-sub">Previous</span>
+                <span class="docs-pagination-title">← ${prevPage.title}</span>
+              </a>`
+            : `<div class="docs-pagination-empty"></div>`
+        }
+        ${
+          nextPage
+            ? `<a class="docs-pagination-link docs-pagination-next" href="#${nextPage.id}" data-page="${nextPage.id}">
+                <span class="docs-pagination-sub">Next</span>
+                <span class="docs-pagination-title">${nextPage.title} →</span>
+              </a>`
+            : `<div class="docs-pagination-empty"></div>`
+        }
+      </nav>`;
+  }
+
   document.getElementById("content-area").innerHTML = `
-    <div class="docs-breadcrumb">
-      <span>${sectionLabel}</span>
-      <span>›</span>
-      ${page.title}
-    </div>
     <article class="docs-content">
+      <div class="docs-breadcrumb">
+        <span>${sectionLabel}</span>
+        <span>›</span>
+        ${page.title}
+      </div>
       ${html}
+      ${paginationHtml}
       <div class="docs-page-footer">
         <span>Last updated: November 2026 · Draft</span>
         <a href="https://github.com/search?q=Iris&type=repositories" target="_blank" rel="noreferrer">
@@ -178,6 +211,18 @@ function renderPage(id, markdown) {
 
   // Scroll to top
   window.scrollTo({ top: 0 });
+
+  // Attach pagination click handlers
+  document.querySelectorAll(".docs-pagination-link").forEach((link) => {
+    link.addEventListener("click", (e) => {
+      e.preventDefault();
+      const targetId = link.getAttribute("data-page");
+      if (targetId) {
+        navigate(targetId, true);
+        closeSidebar();
+      }
+    });
+  });
 
   // Build in-page TOC
   buildTOC();
@@ -238,8 +283,7 @@ function buildTOC() {
 
 function initTheme() {
   const saved = localStorage.getItem("iris-docs-theme");
-  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-  const theme = saved || (prefersDark ? "dark" : "light");
+  const theme = saved || "light";
   document.documentElement.setAttribute("data-theme", theme);
   updateThemeButton(theme);
 }
@@ -254,7 +298,15 @@ function toggleTheme() {
 
 function updateThemeButton(theme) {
   const btn = document.getElementById("theme-toggle");
-  if (btn) btn.textContent = theme === "dark" ? "☀️" : "🌙";
+  if (!btn) return;
+
+  const isDark = theme === "dark";
+  const icon = isDark ? "light_mode" : "dark_mode";
+  const label = isDark ? "Switch to light mode" : "Switch to dark mode";
+
+  btn.innerHTML = `<span class="material-symbols-outlined material-icons" aria-hidden="true">${icon}</span>`;
+  btn.setAttribute("aria-label", label);
+  btn.setAttribute("title", label);
 }
 
 /* ─── Mobile sidebar ─────────────────────────────────────────────────────── */
@@ -278,7 +330,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Initial page
   navigate(getPageFromHash(), false);
 
-  // Handle back/forward and hash navigation
+  // Handle back/forward and hash changes
   window.addEventListener("popstate", () => {
     const id = getPageFromHash();
     currentPage = null; // force reload
@@ -286,9 +338,10 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   window.addEventListener("hashchange", () => {
-    const hash = window.location.hash.replace("#", "").trim();
-    if (PAGE_INDEX[hash] && hash !== currentPage) {
-      navigate(hash, false);
+    const id = getPageFromHash();
+    if (currentPage !== id) {
+      currentPage = null;
+      navigate(id, false);
     }
   });
 });
