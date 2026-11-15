@@ -2,6 +2,17 @@ import { test,expect } from '@playwright/test';
 import { VisualizationPage } from './VisualizationPage';
 import { product,fixture,field } from './fixtures';
 
+test('workspace header has theme toggle and repository link without the context chip',async({page})=>{
+ await page.addInitScript(()=>localStorage.setItem('iris-theme','light'));
+ await page.goto('/workspace');
+ await expect(page.locator('.dashboard-context-chip')).toHaveCount(0);
+ const themeToggle=page.locator('.dashboard-topbar').getByRole('button',{name:'Switch to dark mode',exact:true});
+ await expect(themeToggle).toBeVisible();
+ const repository=page.locator('.dashboard-sidebar-footer').getByRole('link',{name:'GitHub repository',exact:true});
+ await expect(repository).toHaveAttribute('href','https://github.com/Iris-NASC26/iris');
+ await expect(repository).toHaveAttribute('target','_blank');
+});
+
 test.beforeEach(async({page})=>{
  await page.route('**/api/v1/si/discover',route=>route.fulfill({json:{products:[product],query:'test',queried_sources:['NASA POWER']}}));
  await page.route('**/api/v1/timeseries/jobs/*/preview?*',route=>route.fulfill({json:fixture()}));
