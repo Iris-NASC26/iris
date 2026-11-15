@@ -31,8 +31,8 @@
   border: 1px solid var(--border);
   border-radius: 12px;
   background:
-    radial-gradient(ellipse at 45% 38%, var(--green-soft), transparent 70%),
-    var(--bg);
+    radial-gradient(ellipse at 45% 38%, var(--accent-soft, var(--green-soft)), transparent 70%),
+    var(--background, var(--bg));
 }
 .viz-record-mount {
   position: absolute;
@@ -56,13 +56,13 @@
   font: 10px/1.4 monospace;
   color: var(--muted);
   white-space: nowrap;
-  background: var(--panel);
+  background: var(--surface-secondary, var(--panel));
   padding: 2px 5px;
   border-radius: 4px;
   opacity: 0.88;
 }
 .viz-record-labels [data-kind="month"] {
-  color: var(--text);
+  color: var(--foreground, var(--text));
   font-weight: 600;
 }
 .viz-record-scene-caption {
@@ -81,7 +81,7 @@
 }
 .viz-record-scene-caption button {
   pointer-events: auto;
-  background: var(--panel);
+  background: var(--surface, var(--panel));
   color: var(--muted);
   border: 1px solid var(--border);
   border-radius: 6px;
@@ -89,6 +89,15 @@
   cursor: pointer;
   font-size: 10px;
   letter-spacing: normal;
+  box-shadow: var(--iris-shadow-xs);
+  transition:
+    background-color var(--iris-duration-fast, 150ms) var(--ease-out, ease),
+    border-color var(--iris-duration-fast, 150ms) var(--ease-out, ease),
+    color var(--iris-duration-fast, 150ms) var(--ease-out, ease);
+}
+.viz-record-scene-caption button:hover {
+  color: var(--foreground, var(--text));
+  border-color: var(--accent, var(--green));
 }
 .viz-record-tooltip {
   position: absolute;
@@ -96,14 +105,14 @@
   top: 14px;
   display: grid;
   gap: 5px;
-  background: var(--panel);
+  background: var(--overlay, var(--panel));
   border: 1px solid var(--border);
-  box-shadow: 0 8px 25px #001a1218;
+  box-shadow: var(--overlay-shadow, 0 8px 25px #001a1218);
   padding: 12px 15px;
   border-radius: 9px;
   pointer-events: none;
   font-size: 12px;
-  color: var(--text);
+  color: var(--overlay-foreground, var(--text));
 }
 .viz-record-tooltip small {
   color: var(--muted);
@@ -115,10 +124,11 @@
   gap: 15px;
   flex-shrink: 0;
   padding: 12px 15px;
-  background: var(--bg);
+  background: var(--surface, var(--bg));
   border: 1px solid var(--border);
   border-radius: 10px;
   font-size: 11px;
+  box-shadow: var(--iris-shadow-xs);
 }
 .viz-observation-nav > div:first-child {
   display: grid;
@@ -167,13 +177,20 @@
   accent-color: var(--viz-accent);
 }
 .viz-observation-scrub button {
-  background: var(--panel);
-  color: var(--text);
+  background: var(--surface-secondary, var(--panel));
+  color: var(--foreground, var(--text));
   border: 1px solid var(--border);
   width: 24px;
   height: 25px;
   border-radius: 6px;
   cursor: pointer;
+  transition:
+    background-color var(--iris-duration-fast, 150ms) var(--ease-out, ease),
+    border-color var(--iris-duration-fast, 150ms) var(--ease-out, ease);
+}
+.viz-observation-scrub button:hover:not(:disabled) {
+  border-color: var(--accent, var(--green));
+  background: var(--accent-soft, var(--green-soft));
 }
 .viz-observation-scrub button:disabled {
   opacity: 0.3;
@@ -209,7 +226,7 @@
 .viz-cycle-key strong {
   margin-left: auto;
   font-weight: 500;
-  color: var(--text);
+  color: var(--foreground, var(--text));
 }
 .viz-series-overview {
   display: flex;
@@ -217,7 +234,7 @@
   align-items: center;
   padding: 9px 12px;
   border-left: 2px solid var(--viz-accent);
-  background: var(--bg);
+  background: var(--surface-secondary, var(--bg));
   border-radius: 0 7px 7px 0;
   font-size: 10px;
   color: var(--muted);
@@ -225,7 +242,7 @@
   flex-shrink: 0;
 }
 .viz-series-overview strong {
-  color: var(--text);
+  color: var(--foreground, var(--text));
   font-weight: 500;
   margin-left: 5px;
 }
@@ -242,7 +259,7 @@
 }
 .viz-record-scene :is(button):focus-visible,
 .viz-observation-nav :is(input, button):focus-visible {
-  outline: 2px solid #2993c2;
+  outline: 2px solid var(--focus, #10b981);
   outline-offset: 3px;
 }
 @media (max-width: 600px) {

@@ -20,25 +20,25 @@
 - [x] **T1.6** Redesign Workspace Floating AI Assistant (`.iris-assistant*`) using HeroUI v3 Overlay, Message Bubble, and Field recipes
 - [x] **T1.7** Verify zero edits to `src/app/workspace/layout.tsx` (all states, `useEffect`s, handlers, and JSX identical) and run unit tests + production build
 
-## Phase 2 — Core Workspace Pages (Next Up)
-- [ ] **T2.1** System Intelligence (`.si-*`, `.si-chat-*`, `.si-review-*`) — HeroUI v3 Card, SearchField, Chip, and Composer styling
-- [ ] **T2.2** Data Selection (`.ds-*`) — HeroUI v3 Product Cards, Filter Controls, Source Checkboxes, and Retrieval Queue styling
-- [ ] **T2.3** Data Preview (`.dp-*`, `.preview-*`, `.data-table-*`) — HeroUI v3 Table, Quality Metric Chips, and Control Cards
+## Phase 2 — Core Workspace Pages
+- [x] **T2.1** System Intelligence (`.si-*`, `.si-chat-*`, `.si-review-*`) — HeroUI v3 Card, SearchField, Chip, and Composer styling
+- [x] **T2.2** Data Selection (`.ds-*`) — HeroUI v3 Product Cards, Filter Controls, Source Checkboxes, and Retrieval Queue styling
+- [x] **T2.3** Data Preview (`.dp-*`, `.preview-*`, `.data-table-*`) — HeroUI v3 Table, Quality Metric Chips, and Control Cards
 
 ## Phase 3 — Data Analysis Workbench & Case Studies / Research
-- [ ] **T3.1** Data Analysis Workbench (`.da-*`) — Method cards, compatibility badges, info popovers, step sections, and primary/clear buttons
-- [ ] **T3.2** Existing Research & Case Studies (`.research-*`, `.case-*`, `src/features/hazards/hazards.css`)
+- [x] **T3.1** Data Analysis Workbench (`.da-*`) — Method cards, compatibility badges, info popovers, step sections, and primary/clear buttons
+- [x] **T3.2** Existing Research & Case Studies (`.research-*`, `.case-*`, `src/features/hazards/hazards.css`)
 
 ## Phase 4 — Forecasts & ML Forecast Workbench
-- [ ] **T4.1** Forecasts & ML Forecast section (`src/features/forecasts/forecasts.css`) — HeroUI v3 surfaces & controls while keeping `.result-warning` test-locked RGB values exact
+- [x] **T4.1** Forecasts & ML Forecast section (`src/features/forecasts/forecasts.css`) — HeroUI v3 surfaces & controls while keeping `.result-warning` test-locked RGB values exact
 
 ## Phase 5 — Visualization Studio, Living Globe & 3D Presentation Chrome
-- [ ] **T5.1** Visualization Studio (`src/features/visualization/visualization.css`, `presentation.css`) — Bridge `.viz-immersive` light/dark environment tokens to HeroUI semantic tokens
-- [ ] **T5.2** Living Globe & MapLibre HUD (`.srs-*`, `.iris-map*`, `.iris-hud*`, `.iris-tool*` in `src/app/globals.css`)
+- [x] **T5.1** Visualization Studio (`src/features/visualization/visualization.css`, `src/features/visualization/presentation/presentation.css`) — Bridge `.viz-immersive` light/dark environment tokens to HeroUI semantic tokens
+- [x] **T5.2** Living Globe & MapLibre HUD (`.srs-*`, `.iris-map*`, `.iris-hud*`, `.iris-tool*` in `src/app/globals.css`)
 
 ## Phase 6 — Public Site & Marketing Pages
-- [ ] **T6.1** Landing page (`.landing-*`, `.product-window`, `.signal-*`, `.capability-*`)
-- [ ] **T6.2** Platform, Methodology, Data Catalog & About pages (`.page-*`, `.platform-*`, `.method-*`, `.catalog-*`, `.about-*`)
+- [x] **T6.1** Landing page (`.landing-*`, `.product-window`, `.signal-*`, `.capability-*`)
+- [x] **T6.2** Platform, Methodology, Data Catalog & About pages (`.page-*`, `.platform-*`, `.method-*`, `.catalog-*`, `.about-*`)
 
 ## Phase 7 — Final QA & Regression Sign-off
-- [ ] **T7.1** Full test suite, build verification, and final changelog audit
+- [x] **T7.1** Full test suite, build verification, and final changelog audit

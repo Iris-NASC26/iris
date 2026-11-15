@@ -1,6 +1,6 @@
 .hazard-workspace,
 .hazard-cases {
-  color: var(--text);
+  color: var(--foreground, var(--text));
 }
 .hazard-workspace *,
 .hazard-cases * {
@@ -8,7 +8,7 @@
 }
 .hazard-kicker {
   display: block;
-  color: var(--green);
+  color: var(--accent-soft-foreground, var(--green));
   font: 10px/1.6 monospace;
   letter-spacing: 0.12em;
 }
@@ -38,14 +38,20 @@
   display: grid;
   gap: 12px;
   padding: 22px;
-  background: var(--card);
+  background: var(--surface, var(--card));
   border: 1px solid var(--border);
   border-radius: 12px;
   text-decoration: none;
-  color: var(--text);
+  color: var(--foreground, var(--text));
+  box-shadow: var(--surface-shadow);
+  transition:
+    border-color var(--iris-duration-fast, 150ms) var(--ease-smooth, ease),
+    box-shadow var(--iris-duration-fast, 150ms) var(--ease-smooth, ease),
+    transform var(--iris-duration-fast, 150ms) var(--ease-out, ease);
 }
 .hazard-case-card:hover {
-  border-color: var(--green);
+  border-color: var(--accent, var(--green));
+  box-shadow: var(--iris-shadow-md);
 }
 .hazard-case-card > span {
   font-size: 10px;
@@ -59,7 +65,7 @@
 }
 .hazard-case-card strong {
   font-size: 12px;
-  color: var(--green);
+  color: var(--accent-soft-foreground, var(--green));
   font-weight: 500;
 }
 .hazard-breadcrumb {
@@ -70,7 +76,7 @@
   margin-bottom: 20px;
 }
 .hazard-breadcrumb a {
-  color: var(--green);
+  color: var(--accent-soft-foreground, var(--green));
 }
 .hazard-heading {
   display: flex;
@@ -78,7 +84,7 @@
   justify-content: space-between;
   align-items: start;
   padding-bottom: 24px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--separator, var(--border));
 }
 .hazard-heading h1 {
   font-size: clamp(26px, 3vw, 40px);
@@ -96,7 +102,8 @@
   flex-shrink: 0;
   max-width: 230px;
   padding: 14px;
-  background: var(--green-soft);
+  background: var(--accent-soft, var(--green-soft));
+  border: 1px solid color-mix(in srgb, var(--accent) 22%, var(--border));
   border-radius: 8px;
 }
 .hazard-location span {
@@ -113,7 +120,7 @@
 .hazard-switch a,
 .hazard-view-tabs button {
   padding: 10px 14px;
-  background: var(--card);
+  background: var(--surface, var(--card));
   border: 1px solid var(--border);
   border-radius: 7px;
   color: var(--muted);
@@ -122,16 +129,27 @@
   line-height: 1.6;
   text-decoration: none;
   cursor: pointer;
+  box-shadow: var(--iris-shadow-xs);
+  transition:
+    background-color var(--iris-duration-fast, 150ms) var(--ease-out, ease),
+    border-color var(--iris-duration-fast, 150ms) var(--ease-out, ease),
+    color var(--iris-duration-fast, 150ms) var(--ease-out, ease);
+}
+.hazard-switch a:hover,
+.hazard-view-tabs button:hover {
+  color: var(--foreground, var(--text));
+  border-color: var(--border-secondary, var(--border-strong));
 }
 .hazard-switch [aria-current="page"],
 .hazard-view-tabs [aria-pressed="true"] {
-  background: var(--green-soft);
-  color: var(--green);
-  border-color: var(--green);
+  background: var(--accent-soft, var(--green-soft));
+  color: var(--accent-soft-foreground, var(--green));
+  border-color: var(--accent, var(--green));
 }
 .hazard-question {
   padding: 18px 22px;
-  background: var(--green-soft);
+  background: var(--accent-soft, var(--green-soft));
+  border: 1px solid color-mix(in srgb, var(--accent) 22%, var(--border));
   border-radius: 10px;
 }
 .hazard-question p {
@@ -149,10 +167,11 @@
 }
 .hazard-panel {
   padding: 24px;
-  background: var(--card);
+  background: var(--surface, var(--card));
   border: 1px solid var(--border);
   border-radius: 12px;
   min-width: 0;
+  box-shadow: var(--surface-shadow);
 }
 .hazard-panel h2 {
   font-size: 23px;
@@ -185,15 +204,26 @@
 }
 .hazard-panel input:not([type="checkbox"]) {
   display: block;
-  background: var(--panel);
-  color: var(--text);
+  background: var(--field-background, var(--panel));
+  color: var(--field-foreground, var(--text));
   padding: 10px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--field-border, var(--border));
   border-radius: 6px;
   margin-top: 6px;
   font-family: inherit;
   font-size: 12px;
   max-width: 100%;
+  box-shadow: var(--field-shadow);
+  transition:
+    border-color var(--iris-duration-fast, 150ms) var(--ease-smooth, ease),
+    box-shadow var(--iris-duration-fast, 150ms) var(--ease-smooth, ease);
+}
+.hazard-panel input:not([type="checkbox"]):hover {
+  border-color: var(--field-border-hover, var(--border-strong));
+}
+.hazard-panel input:not([type="checkbox"]):focus {
+  border-color: var(--field-border-focus, var(--focus));
+  box-shadow: 0 0 0 3px var(--focus-ring);
 }
 .hazard-button {
   display: inline-flex;
@@ -203,16 +233,23 @@
   padding: 11px 14px;
   border: 1px solid var(--border);
   border-radius: 7px;
-  background: var(--panel);
-  color: var(--text);
+  background: var(--surface-secondary, var(--panel));
+  color: var(--foreground, var(--text));
   text-decoration: none;
   font-family: inherit;
   font-size: 12px;
   line-height: 1.6;
   cursor: pointer;
+  box-shadow: var(--iris-shadow-xs);
+  transition:
+    background-color var(--iris-duration-fast, 150ms) var(--ease-out, ease),
+    border-color var(--iris-duration-fast, 150ms) var(--ease-out, ease),
+    color var(--iris-duration-fast, 150ms) var(--ease-out, ease);
 }
 .hazard-button:hover {
-  border-color: var(--green);
+  border-color: var(--accent, var(--green));
+  background: var(--accent-soft, var(--green-soft));
+  color: var(--accent-soft-foreground, var(--green));
 }
 .hazard-button:disabled {
   opacity: 0.5;
@@ -220,10 +257,10 @@
 }
 .hazard-workspace .hazard-note {
   padding: 13px 15px;
-  background: var(--green-soft);
-  border-left: 2px solid var(--green);
+  background: var(--accent-soft, var(--green-soft));
+  border-left: 2px solid var(--accent, var(--green));
   border-radius: 0 7px 7px 0;
-  color: var(--text);
+  color: var(--foreground, var(--text));
   font-size: 11px;
   line-height: 1.8;
 }
@@ -234,7 +271,7 @@
   margin-top: 16px;
 }
 .hazard-check input {
-  accent-color: var(--green);
+  accent-color: var(--accent, var(--green));
 }
 .hazard-timeline {
   margin: 20px 0;
@@ -244,17 +281,17 @@
   grid-template-columns: 86px minmax(0, 1fr);
   gap: 16px;
   padding: 18px 0;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--separator, var(--border));
 }
 .hazard-timeline article time {
   font: 11px/1.7 monospace;
-  color: var(--green);
+  color: var(--accent-soft-foreground, var(--green));
 }
 .hazard-timeline article a {
   display: block;
   font-size: 10px;
   line-height: 1.7;
-  color: var(--green);
+  color: var(--accent-soft-foreground, var(--green));
   margin-top: 9px;
 }
 .hazard-timeline [data-after-cutoff] {
@@ -262,7 +299,8 @@
   padding-left: 12px;
 }
 .hazard-source-status {
-  background: var(--panel);
+  background: var(--surface-secondary, var(--panel));
+  border: 1px solid var(--border);
   padding: 15px;
   border-radius: 8px;
 }
@@ -322,7 +360,7 @@
 }
 .hazard-provenance summary {
   cursor: pointer;
-  color: var(--green);
+  color: var(--accent-soft-foreground, var(--green));
 }
 .hazard-provenance dl {
   display: grid;
@@ -340,7 +378,8 @@
 }
 .hazard-error {
   margin-bottom: 18px;
-  border: 1px solid #bb8167;
+  border: 1px solid color-mix(in srgb, var(--danger, #bb8167) 42%, var(--border));
+  background: var(--danger-soft, transparent);
   padding: 16px;
   border-radius: 8px;
   font-size: 12px;
@@ -354,9 +393,10 @@
 }
 .hazard-metrics > div {
   padding: 18px;
-  background: var(--panel);
+  background: var(--surface-secondary, var(--panel));
   border: 1px solid var(--border);
   border-radius: 9px;
+  box-shadow: var(--iris-shadow-xs);
 }
 .hazard-metrics span {
   font-size: 10px;
@@ -384,7 +424,8 @@
   align-items: center;
   gap: 20px;
   padding: 18px;
-  background: var(--panel);
+  background: var(--surface-secondary, var(--panel));
+  border: 1px solid var(--border);
   border-radius: 9px;
   margin: 20px 0;
 }
@@ -396,12 +437,20 @@
   gap: 8px;
 }
 .hazard-layer-links a {
-  color: var(--green);
+  color: var(--accent-soft-foreground, var(--green));
   font-size: 11px;
   text-decoration: none;
   border: 1px solid var(--border);
+  background: var(--surface, var(--card));
   border-radius: 6px;
   padding: 9px;
+  transition:
+    background-color var(--iris-duration-fast, 150ms) var(--ease-out, ease),
+    border-color var(--iris-duration-fast, 150ms) var(--ease-out, ease);
+}
+.hazard-layer-links a:hover {
+  border-color: var(--accent, var(--green));
+  background: var(--accent-soft, var(--green-soft));
 }
 .hazard-layer-links p {
   font-size: 10px;
@@ -455,7 +504,7 @@
 }
 .hazard-workspace :is(button, a, input):focus-visible,
 .hazard-cases a:focus-visible {
-  outline: 2px solid #1589c9;
+  outline: 2px solid var(--focus, #10b981);
   outline-offset: 3px;
 }
 
@@ -473,7 +522,7 @@
 .hazard-table-scroll th,
 .hazard-table-scroll td {
   padding: 10px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--separator, var(--border));
   font-weight: 400;
   white-space: nowrap;
 }

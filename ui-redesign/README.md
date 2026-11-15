@@ -1,6 +1,6 @@
 # Iris UI Redesign — HeroUI v3 Design Language
 
-> **Status:** Phase 0 (Discovery, Design System & Plan) — ✅ complete · Phase 1 (Token Bridge & Workspace Dashboard Layout) — ✅ complete · Phase 2 — ⏳ next up
+> **Status:** Phase 0 (Discovery, Design System & Plan) — ✅ complete · Phase 1 (Token Bridge & Workspace Dashboard Layout) — ✅ complete · Phase 2 (Core Workspace Pages) — ✅ complete · Phase 3 (Data Analysis, Research & Hazards) — ✅ complete · Phase 4 (Forecasts & ML Workbench) — ✅ complete · Phase 5 (Visualization Studio, Living Globe & MapLibre HUD) — ✅ complete · Phase 6 (Public Site & Marketing Pages) — ✅ complete · Phase 7 (Final QA & Verification) — ✅ complete
 > **Branch:** `ui-redesign` · **Baseline commit:** `9a935d8` · **Started:** 2026-11-15
 
 This folder is the single source of truth for the Iris UI redesign. Any agent (human or AI) working on the
