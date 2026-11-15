@@ -348,7 +348,7 @@ async def run_extraction_pipeline(req: ExtractionRequest) -> PreviewResponse:
 
     job_id = f"job-{uuid.uuid4().hex[:10]}"
     now_iso = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-    spatial_semantics = (
+    spatial_semantics = live_meta.get("spatial_semantics") or (
         "point_exact"
         if req.spatial_Submode == "point"
         else f"centroid_representative_sample ({lat:.3f}N, {lon:.3f}E)"

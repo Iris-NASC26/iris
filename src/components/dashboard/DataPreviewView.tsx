@@ -10,6 +10,7 @@ import {
   type ObservationRow,
   type PreviewResponse,
 } from "@/lib/dataRetrievalEngine";
+import { isDevelopmentDemoProduct } from "@/lib/developmentDemoData";
 
 const IrisMap = dynamic(
   () => import("@/components/map/IrisMap").then((module) => module.IrisMap),
@@ -145,6 +146,7 @@ export function DataPreviewView({ routeJobId }: { routeJobId?: string }) {
   const preview = extractedPreview;
 
   const { product, extraction_config: cfg, summary_stats: stats, chart_series: series } = preview;
+  const isDemoProduct = isDevelopmentDemoProduct(product.product_id);
   const coverageGeoJSON = useMemo(() => {
     const [minLon, minLat, maxLon, maxLat] =
       cfg.spatial_level === "global" ? [-170, -75, 170, 75] : cfg.bbox;
@@ -240,8 +242,16 @@ export function DataPreviewView({ routeJobId }: { routeJobId?: string }) {
         <div className="dp-pipeline-steps">
           {(
             jobStatus?.steps ?? [
-              { step: 1, label: `Request Routed to ${product.source_api}`, status: "completed" },
-              { step: 2, label: "Spatial Subsetting & QA Masking", status: "completed" },
+                {
+                  step: 1,
+                  label: isDemoProduct ? "Local development fixture loaded" : `Request Routed to ${product.source_api}`,
+                  status: "completed",
+                },
+                {
+                  step: 2,
+                  label: isDemoProduct ? "Demo region applied locally" : "Spatial Subsetting & QA Masking",
+                  status: "completed",
+                },
               {
                 step: 3,
                 label: `Temporal Resampling (${cfg.target_frequency} · ${cfg.temporal_aggregation})`,
@@ -271,6 +281,11 @@ export function DataPreviewView({ routeJobId }: { routeJobId?: string }) {
               <span className="dp-api-badge">
                 <Icon name="globe" size={12} /> {product.source_api}
               </span>
+              {isDemoProduct && (
+                <span className="dp-demo-badge">
+                  Demo data — no provider API call
+                </span>
+              )}
               <span className="dp-freq-badge">{cfg.target_frequency} Series</span>
               <span className="dp-scope-badge">
                 {cfg.spatial_level === "global" ? "Global Grid" : `Regional · ${cfg.region_name}`}
@@ -320,7 +335,7 @@ export function DataPreviewView({ routeJobId }: { routeJobId?: string }) {
           <div>
             <small>SRS v1.0 Provenance & Spatial Semantics</small>
             <strong>
-              Mode: {preview.provenance_mode || "live_upstream"} ·{" "}
+              Mode: {isDemoProduct ? "development_demo" : preview.provenance_mode || "live_upstream"} ·{" "}
               {preview.spatial_semantics_applied || "point_exact"}
             </strong>
           </div>

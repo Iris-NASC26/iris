@@ -10,7 +10,7 @@
     "docs:dev": "npx serve documentation -p 3001",
     "test:visualization": "node --experimental-strip-types --import ./tests/register-loader.mjs --test tests/visualization/*.test.ts",
     "test:visualization:browser": "playwright test -c playwright.visualization.config.ts",
-    "postinstall": "node scripts/copy-cesium-assets.mjs"
+    "postinstall": "node scripts/copy-cesium-assets.mjs && node scripts/copy-maplibre-worker.mjs"
   },
   "dependencies": {
     "@mapbox/mapbox-gl-draw": "^1.5.2",

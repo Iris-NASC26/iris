@@ -1,18 +1,13 @@
-"""
-NASA POWER API Provider (Isolated Module)
-Official Docs: https://power.larc.nasa.gov/docs/services/api/
-- Catalog Discovery: GET https://power.larc.nasa.gov/api/system/manager/parameters?community=ag&temporal=monthly
-- Single Parameter Details: GET https://power.larc.nasa.gov/api/system/manager/parameters/{param}?community=ag&temporal=monthly
-- Point Time-Series Extraction:
-  * Monthly: GET https://power.larc.nasa.gov/api/temporal/monthly/point
-  * Daily:   GET https://power.larc.nasa.gov/api/temporal/daily/point
-- Zero synthetic data: all metadata and observations come directly from NASA POWER JSON responses.
-"""
+"""NASA POWER catalog and point/regional time-series extraction."""
 
 from __future__ import annotations
 
+import datetime as dt
+import math
 import re
+import statistics
 import time
+from collections import defaultdict
 from typing import Dict, List, Optional, Tuple
 
 import httpx
@@ -23,6 +18,11 @@ from schemas import DataProduct, ExtractionRequest, VariableLayer
 # Cache of the live NASA POWER parameter catalog response (TTL 6 hours)
 _POWER_CATALOG_CACHE: Tuple[float, Dict[str, dict]] = (0.0, {})
 CACHE_TTL = 21600
+MAX_REGIONAL_SPAN_DEGREES = 20.0
+MAX_REGIONAL_GRID_TIME_VALUES = 2_000_000
+REGIONAL_MIN_LATITUDE_SPAN_DEGREES = 2.0
+POWER_GRID_LATITUDE_SPAN_DEGREES = 0.5
+POWER_GRID_LONGITUDE_SPAN_DEGREES = 0.625
 
 
 async def _fetch_live_power_parameter_dict(client: httpx.AsyncClient) -> Dict[str, dict]:
@@ -160,30 +160,100 @@ async def extract_nasa_power_timeseries(
     client: httpx.AsyncClient,
 ) -> Tuple[pd.Series, Dict[str, str], str]:
     """
-    Executes a live time-series extraction request against NASA POWER's REST API:
-    - Monthly/Seasonal/Yearly -> /api/temporal/monthly/point
-    - Daily -> /api/temporal/daily/point
+    Executes a live time-series extraction request against NASA POWER's REST API.
+    Eligible bounding boxes use the regional endpoint and are reduced across returned
+    grid cells; smaller boxes retain the point endpoint because POWER requires at least
+    a two-degree latitude span for regional requests.
     Returns (pandas Series indexed by Timestamp, live header metadata dict, exact URL called).
     Raises RuntimeError if upstream returns no valid data.
     """
     param = req.variable_id.replace("NASA_POWER_", "").strip()
     start_yr = max(1981, int(req.start_date[:4]))
     end_yr = min(2025, int(req.end_date[:4]))
+    use_bbox = req.spatial_Submode == "bbox"
+
+    if use_bbox:
+        if len(req.bbox) != 4 or not all(math.isfinite(value) for value in req.bbox):
+            raise RuntimeError("NASA POWER regional extraction requires four finite bounding-box coordinates.")
+        min_lon, min_lat, max_lon, max_lat = req.bbox
+        if (
+            min_lon < -180
+            or max_lon > 180
+            or min_lat < -90
+            or max_lat > 90
+            or min_lon >= max_lon
+            or min_lat >= max_lat
+        ):
+            raise RuntimeError("NASA POWER regional extraction received invalid bounding-box coordinates.")
+
+        width = max_lon - min_lon
+        height = max_lat - min_lat
+        if width > MAX_REGIONAL_SPAN_DEGREES or height > MAX_REGIONAL_SPAN_DEGREES:
+            raise RuntimeError(
+                f"NASA POWER regional extraction is limited to {MAX_REGIONAL_SPAN_DEGREES:g} degrees per side."
+            )
+
+    regional_fallback_reason: Optional[str] = None
+    use_regional = False
+    if use_bbox:
+        if height < REGIONAL_MIN_LATITUDE_SPAN_DEGREES:
+            regional_fallback_reason = (
+                "NASA POWER regional requests require at least a 2-degree north-south span"
+            )
+        elif req.spatial_reduction == "grid":
+            regional_fallback_reason = (
+                "the time-series preview cannot retain NASA POWER's per-grid-cell output"
+            )
+        else:
+            use_regional = True
+            estimated_cells = (
+                math.ceil(width / POWER_GRID_LONGITUDE_SPAN_DEGREES) + 1
+            ) * (math.ceil(height / POWER_GRID_LATITUDE_SPAN_DEGREES) + 1)
+            if req.target_frequency in ("Daily", "8-Day", "16-Day"):
+                start_date = dt.date.fromisoformat(req.start_date[:10])
+                end_date = dt.date.fromisoformat(req.end_date[:10])
+                time_steps = max(0, (end_date - start_date).days + 1)
+            else:
+                time_steps = max(0, (end_yr - start_yr + 1) * 12)
+            estimated_values = estimated_cells * time_steps
+            if estimated_values > MAX_REGIONAL_GRID_TIME_VALUES:
+                raise RuntimeError(
+                    "NASA POWER regional request is estimated to contain "
+                    f"{estimated_values:,} grid-cell time values, above the "
+                    f"{MAX_REGIONAL_GRID_TIME_VALUES:,} safety limit. Reduce the area or date range, "
+                    "or choose a coarser frequency."
+                )
 
     if req.target_frequency in ("Daily", "8-Day", "16-Day"):
         start_ymd = req.start_date.replace("-", "")[:8]
         end_ymd = req.end_date.replace("-", "")[:8]
-        url = (
-            "https://power.larc.nasa.gov/api/temporal/daily/point"
-            f"?parameters={param}&community=ag&longitude={lon}&latitude={lat}"
-            f"&start={start_ymd}&end={end_ymd}&format=JSON"
-        )
+        if use_regional:
+            url = (
+                "https://power.larc.nasa.gov/api/temporal/daily/regional"
+                f"?parameters={param}&community=ag&longitude-min={min_lon}&longitude-max={max_lon}"
+                f"&latitude-min={min_lat}&latitude-max={max_lat}"
+                f"&start={start_ymd}&end={end_ymd}&format=JSON"
+            )
+        else:
+            url = (
+                "https://power.larc.nasa.gov/api/temporal/daily/point"
+                f"?parameters={param}&community=ag&longitude={lon}&latitude={lat}"
+                f"&start={start_ymd}&end={end_ymd}&format=JSON"
+            )
     else:
-        url = (
-            "https://power.larc.nasa.gov/api/temporal/monthly/point"
-            f"?parameters={param}&community=ag&longitude={lon}&latitude={lat}"
-            f"&start={start_yr}&end={end_yr}&format=JSON"
-        )
+        if use_regional:
+            url = (
+                "https://power.larc.nasa.gov/api/temporal/monthly/regional"
+                f"?parameters={param}&community=ag&longitude-min={min_lon}&longitude-max={max_lon}"
+                f"&latitude-min={min_lat}&latitude-max={max_lat}"
+                f"&start={start_yr}&end={end_yr}&format=JSON"
+            )
+        else:
+            url = (
+                "https://power.larc.nasa.gov/api/temporal/monthly/point"
+                f"?parameters={param}&community=ag&longitude={lon}&latitude={lat}"
+                f"&start={start_yr}&end={end_yr}&format=JSON"
+            )
 
     resp = await client.get(url, timeout=35.0)
     if resp.status_code != 200:
@@ -195,27 +265,40 @@ async def extract_nasa_power_timeseries(
     header = payload.get("header", {})
     fill_value = float(header.get("fill_value", -999.0))
     param_meta = payload.get("parameters", {}).get(param, {})
-    series_dict = payload.get("properties", {}).get("parameter", {}).get(param, {})
+    if use_regional:
+        records, cell_count = _reduce_regional_grid(payload, param, fill_value, req.spatial_reduction)
+        if not records:
+            raise RuntimeError(
+                f"NASA POWER returned no valid regional grid-cell observations for '{param}'."
+            )
+        if req.spatial_reduction == "median":
+            spatial_semantics = f"NASA POWER median of {cell_count} regional grid cells"
+        else:
+            spatial_semantics = (
+                f"NASA POWER cosine-latitude weighted mean of {cell_count} regional grid cells"
+            )
+    else:
+        series_dict = payload.get("properties", {}).get("parameter", {}).get(param, {})
+        if not series_dict:
+            raise RuntimeError(f"NASA POWER returned an empty parameter dictionary for '{param}'.")
 
-    if not series_dict:
-        raise RuntimeError(f"NASA POWER returned an empty parameter dictionary for '{param}'.")
-
-    records: Dict[pd.Timestamp, Optional[float]] = {}
-    for key, val in series_dict.items():
-        # Monthly keys are YYYYMM, with YYYY13 representing annual average (exclude 13)
-        if len(key) == 6:
-            if key.endswith("13"):
+        records = {}
+        for key, val in series_dict.items():
+            timestamp = _parse_power_timestamp(key)
+            if timestamp is None:
                 continue
-            ts = pd.Timestamp(f"{key[:4]}-{key[4:6]}-01")
-            fval = float(val)
-            records[ts] = None if fval == fill_value else fval
-        elif len(key) == 8:
-            ts = pd.Timestamp(f"{key[:4]}-{key[4:6]}-{key[6:8]}")
-            fval = float(val)
-            records[ts] = None if fval == fill_value else fval
-
-    if not records:
-        raise RuntimeError(f"No valid timestamps parsed from NASA POWER response for '{param}'.")
+            value = float(val)
+            if math.isfinite(value) and value != fill_value:
+                records[timestamp] = value
+        if not records:
+            raise RuntimeError(f"No valid timestamps parsed from NASA POWER response for '{param}'.")
+        if use_bbox:
+            spatial_semantics = (
+                f"NASA POWER centroid point sample ({lat:.3f}, {lon:.3f}); "
+                f"{regional_fallback_reason or 'regional extraction was not requested'}"
+            )
+        else:
+            spatial_semantics = "NASA POWER point sample"
 
     meta_out = {
         "unit": str(param_meta.get("units", req.unit or "")),
@@ -223,6 +306,60 @@ async def extract_nasa_power_timeseries(
         "title": str(header.get("title", "NASA POWER Native Resolution API")),
         "sources": ", ".join(header.get("sources", ["MERRA-2"])),
         "api_version": str(header.get("api", {}).get("version", "v2.10.0")),
+        "spatial_semantics": spatial_semantics,
     }
 
     return pd.Series(records, dtype=object).sort_index(), meta_out, url
+
+
+def _parse_power_timestamp(key: str) -> Optional[pd.Timestamp]:
+    if len(key) == 6:
+        if key.endswith("13"):
+            return None
+        return pd.Timestamp(f"{key[:4]}-{key[4:6]}-01")
+    if len(key) == 8:
+        return pd.Timestamp(f"{key[:4]}-{key[4:6]}-{key[6:8]}")
+    return None
+
+
+def _reduce_regional_grid(
+    payload: dict,
+    param: str,
+    fill_value: float,
+    spatial_reduction: str,
+) -> Tuple[Dict[pd.Timestamp, float], int]:
+    values_by_timestamp: Dict[pd.Timestamp, List[Tuple[float, float]]] = defaultdict(list)
+    cell_count = 0
+
+    for feature in payload.get("features", []):
+        coordinates = feature.get("geometry", {}).get("coordinates", [])
+        parameter_values = feature.get("properties", {}).get("parameter", {}).get(param, {})
+        if not isinstance(coordinates, list) or len(coordinates) < 2 or not isinstance(parameter_values, dict):
+            continue
+
+        latitude = float(coordinates[1])
+        weight = math.cos(math.radians(latitude))
+        if weight <= 0 or not math.isfinite(weight):
+            continue
+        cell_count += 1
+
+        for key, raw_value in parameter_values.items():
+            timestamp = _parse_power_timestamp(key)
+            if timestamp is None:
+                continue
+            value = float(raw_value)
+            if math.isfinite(value) and value != fill_value:
+                values_by_timestamp[timestamp].append((value, weight))
+
+    records: Dict[pd.Timestamp, float] = {}
+    for timestamp, weighted_values in values_by_timestamp.items():
+        if spatial_reduction == "median":
+            records[timestamp] = float(statistics.median(value for value, _ in weighted_values))
+        else:
+            total_weight = sum(weight for _, weight in weighted_values)
+            if total_weight > 0:
+                records[timestamp] = sum(
+                    value * weight for value, weight in weighted_values
+                ) / total_weight
+
+    return records, cell_count

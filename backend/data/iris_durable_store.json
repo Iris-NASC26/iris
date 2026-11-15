@@ -93846,6 +93846,2990 @@
         "api_endpoint_called": "https://power.larc.nasa.gov/api/temporal/monthly/point?parameters=T2M&community=ag&longitude=79.8487&latitude=6.9355&start=2018&end=2024&format=JSON",
         "retrieved_at": "2026-11-14T15:41:22Z"
       }
+    },
+    "job-7f542ee6fd": {
+      "created_at": 1794697156.3495233,
+      "result_id": "res-83be6f0642fc868f",
+      "req": {
+        "product_id": "OPENDAP_M2TMNXFLX_5_12_4",
+        "variable_id": "PRECTOT",
+        "variable_name": "Total Surface Precipitation Flux (OPeNDAP .ascii Slice)",
+        "source_api": "OPeNDAP",
+        "unit": "kg m-2 s-1",
+        "start_date": "2015-01-01",
+        "end_date": "2024-12-31",
+        "target_frequency": "Monthly",
+        "temporal_aggregation": "mean",
+        "spatial_level": "regional",
+        "spatial_Submode": "bbox",
+        "region_name": "Selected area (10.14\u00b0, -3.06\u00b0)",
+        "bbox": [
+          -3.633121451437404,
+          9.62088232950775,
+          -2.4769627987128615,
+          10.662205567218095
+        ],
+        "point_lat": 10.14,
+        "point_lon": -3.06,
+        "spatial_reduction": "mean",
+        "additional_products": [
+          {
+            "product_id": "GES_DISC_GLDAS_NOAH025_3H_2_1_Rainf_f_tavg",
+            "variable_id": "GLDAS_NOAH025_3H_2_1_Rainf_f_tavg"
+          }
+        ]
+      },
+      "preview": {
+        "job_id": "job-7f542ee6fd",
+        "result_id": "res-83be6f0642fc868f",
+        "status": "completed",
+        "product": {
+          "product_id": "OPENDAP_M2TMNXFLX_5_12_4",
+          "variable_id": "PRECTOT",
+          "variable_name": "Total Surface Precipitation Flux (OPeNDAP .ascii Slice)",
+          "title": "MERRA-2 2d Monthly Mean Surface Flux Diagnostics V5.12.4 (OPeNDAP Cloud Slice)",
+          "category": "Hydrology & Surface Fluxes",
+          "source_api": "OPeNDAP",
+          "provider_agency": "NASA GES DISC / Earthdata OPeNDAP Hyrax in the Cloud",
+          "mission_or_instrument": "NASA GMAO MERRA-2 / Hyrax OPeNDAP Server",
+          "source_url": "https://opendap.earthdata.nasa.gov/collections/C1276812820-GES_DISC",
+          "citation_doi": "https://doi.org/10.5067/AP1B0BA5PD2K",
+          "description": "Direct OPeNDAP constraint-expression slicing of MERRA-2 surface flux NetCDF-4 granules (precipitation, evaporation) on opendap.earthdata.nasa.gov.",
+          "what_it_measures": "Direct array index slicing (`[time][lat][lon]`) over OPeNDAP Hyrax in the Cloud for M2TMNXFLX.",
+          "unit": "kg m-2 s-1",
+          "native_frequency": "Monthly",
+          "supported_frequencies": [
+            "Monthly",
+            "Seasonal",
+            "Yearly"
+          ],
+          "temporal_start": "1980-01-01",
+          "temporal_end": "2025-12-31",
+          "spatial_resolution": "0.5\u00b0 \u00d7 0.625\u00b0 (361\u00d7576 DAP2/DAP4 Grid)",
+          "spatial_resolution_km": 50.0,
+          "spatial_coverage": "Global",
+          "spatial_bbox": [
+            -180.0,
+            -90.0,
+            180.0,
+            90.0
+          ],
+          "gcmd_keywords": [
+            "opendap",
+            "merra-2",
+            "m2tmnxflx",
+            "prectot"
+          ],
+          "ai_match_reason": "Verified NASA Earthdata OPeNDAP Hyrax cloud collection (C1276812820-GES_DISC) with live .dds/.ascii slicing.",
+          "relevance_score": 92.0,
+          "is_async": false,
+          "available_layers": [
+            {
+              "variable_id": "PRECTOT",
+              "variable_name": "Total Surface Precipitation Flux (OPeNDAP .ascii Slice)",
+              "unit": "kg m-2 s-1",
+              "description": "Total precipitation flux from atmospheric model physics",
+              "native_frequency": "Monthly",
+              "supported_frequencies": [
+                "Monthly",
+                "Seasonal",
+                "Yearly"
+              ],
+              "recommended_aggregation": "mean",
+              "min_valid": null,
+              "max_valid": null
+            },
+            {
+              "variable_id": "EVAP",
+              "variable_name": "Surface Evaporation Flux (OPeNDAP .ascii Slice)",
+              "unit": "kg m-2 s-1",
+              "description": "Surface evaporation flux",
+              "native_frequency": "Monthly",
+              "supported_frequencies": [
+                "Monthly",
+                "Seasonal",
+                "Yearly"
+              ],
+              "recommended_aggregation": "mean",
+              "min_valid": null,
+              "max_valid": null
+            }
+          ],
+          "capability_state": "extract_verified",
+          "supported_spatial_modes": [
+            "point"
+          ],
+          "requires_credentials": true,
+          "catalog_freshness_utc": "2026-11-14T22:55:10Z"
+        },
+        "extraction_config": {
+          "product_id": "OPENDAP_M2TMNXFLX_5_12_4",
+          "variable_id": "PRECTOT",
+          "variable_name": "Total Surface Precipitation Flux (OPeNDAP .ascii Slice)",
+          "source_api": "OPeNDAP",
+          "unit": "kg m-2 s-1",
+          "start_date": "2015-01-01",
+          "end_date": "2024-12-31",
+          "target_frequency": "Monthly",
+          "temporal_aggregation": "mean",
+          "spatial_level": "regional",
+          "spatial_Submode": "bbox",
+          "region_name": "Selected area (10.14\u00b0, -3.06\u00b0)",
+          "bbox": [
+            -3.633121451437404,
+            9.62088232950775,
+            -2.4769627987128615,
+            10.662205567218095
+          ],
+          "point_lat": 10.14,
+          "point_lon": -3.06,
+          "spatial_reduction": "mean",
+          "additional_products": [
+            {
+              "product_id": "GES_DISC_GLDAS_NOAH025_3H_2_1_Rainf_f_tavg",
+              "variable_id": "GLDAS_NOAH025_3H_2_1_Rainf_f_tavg"
+            }
+          ]
+        },
+        "summary_stats": {
+          "count": 12,
+          "valid_count": 12,
+          "flagged_count": 0,
+          "missing_count": 0,
+          "completeness_pct": 100.0,
+          "missing_pct": 0.0,
+          "missing_warning": false,
+          "mean": 0.0,
+          "median": 0.0,
+          "std_dev": 0.0,
+          "min_val": 0.0,
+          "min_date": "2017-01-01",
+          "max_val": 0.0,
+          "max_date": "2016-07-01",
+          "decadal_slope": 0.0,
+          "unit": "kg m-2 s-1"
+        },
+        "chart_series": [
+          {
+            "timestamp": "2015-01",
+            "value": 0.0,
+            "secondary_value": 0.0,
+            "rolling_avg": 0.0,
+            "anomaly_z": -1.0,
+            "unit": "kg m-2 s-1",
+            "variable_id": "PRECTOT",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2015-04",
+            "value": 0.0,
+            "secondary_value": 0.0,
+            "rolling_avg": 0.0,
+            "anomaly_z": -0.63,
+            "unit": "kg m-2 s-1",
+            "variable_id": "PRECTOT",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2015-07",
+            "value": 0.0,
+            "secondary_value": 0.0,
+            "rolling_avg": 0.0,
+            "anomaly_z": 0.73,
+            "unit": "kg m-2 s-1",
+            "variable_id": "PRECTOT",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2015-10",
+            "value": 0.0,
+            "secondary_value": 0.0,
+            "rolling_avg": 0.0,
+            "anomaly_z": 0.41,
+            "unit": "kg m-2 s-1",
+            "variable_id": "PRECTOT",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2016-01",
+            "value": 0.0,
+            "secondary_value": 0.0,
+            "rolling_avg": 0.0,
+            "anomaly_z": -1.0,
+            "unit": "kg m-2 s-1",
+            "variable_id": "PRECTOT",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2016-04",
+            "value": 0.0,
+            "secondary_value": 0.0,
+            "rolling_avg": 0.0,
+            "anomaly_z": -0.1,
+            "unit": "kg m-2 s-1",
+            "variable_id": "PRECTOT",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2016-07",
+            "value": 0.0,
+            "secondary_value": 0.0,
+            "rolling_avg": 0.0,
+            "anomaly_z": 1.94,
+            "unit": "kg m-2 s-1",
+            "variable_id": "PRECTOT",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2016-10",
+            "value": 0.0,
+            "secondary_value": 0.0,
+            "rolling_avg": 0.0,
+            "anomaly_z": -0.25,
+            "unit": "kg m-2 s-1",
+            "variable_id": "PRECTOT",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2017-01",
+            "value": 0.0,
+            "secondary_value": 0.0,
+            "rolling_avg": 0.0,
+            "anomaly_z": -1.0,
+            "unit": "kg m-2 s-1",
+            "variable_id": "PRECTOT",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2017-04",
+            "value": 0.0,
+            "secondary_value": 0.0,
+            "rolling_avg": 0.0,
+            "anomaly_z": -0.16,
+            "unit": "kg m-2 s-1",
+            "variable_id": "PRECTOT",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2017-07",
+            "value": 0.0,
+            "secondary_value": 0.0,
+            "rolling_avg": 0.0,
+            "anomaly_z": 1.65,
+            "unit": "kg m-2 s-1",
+            "variable_id": "PRECTOT",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2017-10",
+            "value": 0.0,
+            "secondary_value": 0.0,
+            "rolling_avg": 0.0,
+            "anomaly_z": -0.6,
+            "unit": "kg m-2 s-1",
+            "variable_id": "PRECTOT",
+            "qa_flag": "Valid"
+          }
+        ],
+        "raw_rows": [
+          {
+            "timestamp": "2015-01",
+            "value": 0.0,
+            "secondary_value": 0.0,
+            "rolling_avg": 0.0,
+            "anomaly_z": -1.0,
+            "unit": "kg m-2 s-1",
+            "variable_id": "PRECTOT",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2015-04",
+            "value": 0.0,
+            "secondary_value": 0.0,
+            "rolling_avg": 0.0,
+            "anomaly_z": -0.63,
+            "unit": "kg m-2 s-1",
+            "variable_id": "PRECTOT",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2015-07",
+            "value": 0.0,
+            "secondary_value": 0.0,
+            "rolling_avg": 0.0,
+            "anomaly_z": 0.73,
+            "unit": "kg m-2 s-1",
+            "variable_id": "PRECTOT",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2015-10",
+            "value": 0.0,
+            "secondary_value": 0.0,
+            "rolling_avg": 0.0,
+            "anomaly_z": 0.41,
+            "unit": "kg m-2 s-1",
+            "variable_id": "PRECTOT",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2016-01",
+            "value": 0.0,
+            "secondary_value": 0.0,
+            "rolling_avg": 0.0,
+            "anomaly_z": -1.0,
+            "unit": "kg m-2 s-1",
+            "variable_id": "PRECTOT",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2016-04",
+            "value": 0.0,
+            "secondary_value": 0.0,
+            "rolling_avg": 0.0,
+            "anomaly_z": -0.1,
+            "unit": "kg m-2 s-1",
+            "variable_id": "PRECTOT",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2016-07",
+            "value": 0.0,
+            "secondary_value": 0.0,
+            "rolling_avg": 0.0,
+            "anomaly_z": 1.94,
+            "unit": "kg m-2 s-1",
+            "variable_id": "PRECTOT",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2016-10",
+            "value": 0.0,
+            "secondary_value": 0.0,
+            "rolling_avg": 0.0,
+            "anomaly_z": -0.25,
+            "unit": "kg m-2 s-1",
+            "variable_id": "PRECTOT",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2017-01",
+            "value": 0.0,
+            "secondary_value": 0.0,
+            "rolling_avg": 0.0,
+            "anomaly_z": -1.0,
+            "unit": "kg m-2 s-1",
+            "variable_id": "PRECTOT",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2017-04",
+            "value": 0.0,
+            "secondary_value": 0.0,
+            "rolling_avg": 0.0,
+            "anomaly_z": -0.16,
+            "unit": "kg m-2 s-1",
+            "variable_id": "PRECTOT",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2017-07",
+            "value": 0.0,
+            "secondary_value": 0.0,
+            "rolling_avg": 0.0,
+            "anomaly_z": 1.65,
+            "unit": "kg m-2 s-1",
+            "variable_id": "PRECTOT",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2017-10",
+            "value": 0.0,
+            "secondary_value": 0.0,
+            "rolling_avg": 0.0,
+            "anomaly_z": -0.6,
+            "unit": "kg m-2 s-1",
+            "variable_id": "PRECTOT",
+            "qa_flag": "Valid"
+          }
+        ],
+        "total_rows": 12,
+        "page": 1,
+        "page_size": 12,
+        "upstream_live_fetched": true,
+        "provenance_mode": "live_upstream",
+        "sha256_hash": "bc6b4b95f4665a18f7e97424622c5884df16294bda9b8e39e7e54ccd9f8ca805",
+        "spatial_semantics_applied": "centroid_representative_sample (10.142N, -3.055E)",
+        "qa_summary_note": "Retrieval QA flags reflect upstream fill-value and physical range checks. Scientific anomaly detection (|Z| >= 2.0 on deseasonalized residuals) is performed in the Case File.",
+        "secondary_jobs": [
+          {
+            "product_id": "GES_DISC_GLDAS_NOAH025_3H_2_1_Rainf_f_tavg",
+            "variable_id": "GLDAS_NOAH025_3H_2_1_Rainf_f_tavg",
+            "source_api": "NASA GES DISC",
+            "status": "completed",
+            "message": "Retrieved 29223 observations from NASA GES DISC"
+          }
+        ],
+        "api_endpoint_called": "https://opendap.earthdata.nasa.gov/collections/C1276812868-GES_DISC/granules/M2TMNXFLX.5.12.4%3AMERRA2_400.tavgM_2d_flx_Nx.201710.nc4.ascii?PRECTOT%5B0:1:0%5D%5B200:1:200%5D%5B283:1:283%5D",
+        "retrieved_at": "2026-11-14T22:59:16Z"
+      }
+    },
+    "job-edf4a5917d": {
+      "created_at": 1794697394.2033303,
+      "result_id": "res-59ec74f4776a7999",
+      "req": {
+        "product_id": "NASA_POWER_TSURF",
+        "variable_id": "TSURF",
+        "variable_name": "Surface Temperature of Land and Snow",
+        "source_api": "NASA POWER",
+        "unit": "C",
+        "start_date": "2015-01-01",
+        "end_date": "2024-12-31",
+        "target_frequency": "Monthly",
+        "temporal_aggregation": "mean",
+        "spatial_level": "regional",
+        "spatial_Submode": "bbox",
+        "region_name": "Nepal",
+        "bbox": [
+          80.0,
+          26.3,
+          88.2,
+          30.5
+        ],
+        "point_lat": 28.4,
+        "point_lon": 84.1,
+        "spatial_reduction": "mean",
+        "additional_products": []
+      },
+      "preview": {
+        "job_id": "job-edf4a5917d",
+        "result_id": "res-59ec74f4776a7999",
+        "status": "completed",
+        "product": {
+          "product_id": "NASA_POWER_TSURF",
+          "variable_id": "TSURF",
+          "variable_name": "Surface Temperature of Land and Snow",
+          "title": "NASA POWER \u2014 Surface Temperature of Land and Snow (TSURF)",
+          "category": "Meteorology",
+          "source_api": "NASA POWER",
+          "provider_agency": "NASA Langley Research Center (LaRC) POWER Project (SOURCE)",
+          "mission_or_instrument": "NASA POWER / SOURCE Assimilation",
+          "source_url": "https://power.larc.nasa.gov/docs/services/api/",
+          "citation_doi": "https://power.larc.nasa.gov/",
+          "description": " The estimate of surface temperature of land and snow; 0 to 0.018 m depth.",
+          "what_it_measures": "Surface Temperature of Land and Snow (C) derived from SOURCE for community AG.",
+          "unit": "C",
+          "native_frequency": "Daily",
+          "supported_frequencies": [
+            "Daily",
+            "Monthly",
+            "Seasonal",
+            "Yearly"
+          ],
+          "temporal_start": "1981-01-01",
+          "temporal_end": "2025-12-31",
+          "spatial_resolution": "0.5\u00b0 \u00d7 0.625\u00b0 (MERRA-2) / 1.0\u00b0 (CERES)",
+          "spatial_resolution_km": 50.0,
+          "spatial_coverage": "Global",
+          "spatial_bbox": [
+            -180.0,
+            -90.0,
+            180.0,
+            90.0
+          ],
+          "gcmd_keywords": [
+            "surface temperature of land and snow",
+            "tsurf",
+            "meteorology",
+            "source"
+          ],
+          "ai_match_reason": "Live NASA POWER parameter 'TSURF' (Surface Temperature of Land and Snow) matched via /api/system/manager/parameters.",
+          "relevance_score": 99.0,
+          "is_async": false,
+          "available_layers": [
+            {
+              "variable_id": "TSURF",
+              "variable_name": "Surface Temperature of Land and Snow",
+              "unit": "C",
+              "description": " The estimate of surface temperature of land and snow; 0 to 0.018 m depth.",
+              "native_frequency": "Daily",
+              "supported_frequencies": [
+                "Daily",
+                "Monthly",
+                "Seasonal",
+                "Yearly"
+              ],
+              "recommended_aggregation": "mean",
+              "min_valid": null,
+              "max_valid": null
+            }
+          ],
+          "capability_state": "extract_verified",
+          "supported_spatial_modes": [
+            "point",
+            "bbox"
+          ],
+          "requires_credentials": false,
+          "catalog_freshness_utc": "2026-11-14T23:00:48Z"
+        },
+        "extraction_config": {
+          "product_id": "NASA_POWER_TSURF",
+          "variable_id": "TSURF",
+          "variable_name": "Surface Temperature of Land and Snow",
+          "source_api": "NASA POWER",
+          "unit": "C",
+          "start_date": "2015-01-01",
+          "end_date": "2024-12-31",
+          "target_frequency": "Monthly",
+          "temporal_aggregation": "mean",
+          "spatial_level": "regional",
+          "spatial_Submode": "bbox",
+          "region_name": "Nepal",
+          "bbox": [
+            80.0,
+            26.3,
+            88.2,
+            30.5
+          ],
+          "point_lat": 28.4,
+          "point_lon": 84.1,
+          "spatial_reduction": "mean",
+          "additional_products": []
+        },
+        "summary_stats": {
+          "count": 120,
+          "valid_count": 120,
+          "flagged_count": 0,
+          "missing_count": 0,
+          "completeness_pct": 100.0,
+          "missing_pct": 0.0,
+          "missing_warning": false,
+          "mean": 5.022,
+          "median": 5.695,
+          "std_dev": 6.573,
+          "min_val": -7.38,
+          "min_date": "2020-01-01",
+          "max_val": 13.97,
+          "max_date": "2024-07-01",
+          "decadal_slope": 1.2217,
+          "unit": "C"
+        },
+        "chart_series": [
+          {
+            "timestamp": "2015-01",
+            "value": -6.78,
+            "secondary_value": null,
+            "rolling_avg": -6.78,
+            "anomaly_z": -1.8,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2015-02",
+            "value": -2.96,
+            "secondary_value": null,
+            "rolling_avg": -4.87,
+            "anomaly_z": -1.21,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2015-03",
+            "value": -0.75,
+            "secondary_value": null,
+            "rolling_avg": -3.4967,
+            "anomaly_z": -0.88,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2015-04",
+            "value": 4.12,
+            "secondary_value": null,
+            "rolling_avg": -1.5925,
+            "anomaly_z": -0.14,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2015-05",
+            "value": 8.21,
+            "secondary_value": null,
+            "rolling_avg": 0.368,
+            "anomaly_z": 0.48,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2015-06",
+            "value": 11.38,
+            "secondary_value": null,
+            "rolling_avg": 2.2033,
+            "anomaly_z": 0.97,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2015-07",
+            "value": 13.54,
+            "secondary_value": null,
+            "rolling_avg": 5.59,
+            "anomaly_z": 1.3,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2015-08",
+            "value": 12.73,
+            "secondary_value": null,
+            "rolling_avg": 8.205,
+            "anomaly_z": 1.17,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2015-09",
+            "value": 11.21,
+            "secondary_value": null,
+            "rolling_avg": 10.1983,
+            "anomaly_z": 0.94,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2015-10",
+            "value": 5.32,
+            "secondary_value": null,
+            "rolling_avg": 10.3983,
+            "anomaly_z": 0.05,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2015-11",
+            "value": 1.03,
+            "secondary_value": null,
+            "rolling_avg": 9.2017,
+            "anomaly_z": -0.61,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2015-12",
+            "value": -3.75,
+            "secondary_value": null,
+            "rolling_avg": 6.68,
+            "anomaly_z": -1.33,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2016-01",
+            "value": -4.66,
+            "secondary_value": null,
+            "rolling_avg": 3.6467,
+            "anomaly_z": -1.47,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2016-02",
+            "value": -1.52,
+            "secondary_value": null,
+            "rolling_avg": 1.2717,
+            "anomaly_z": -1.0,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2016-03",
+            "value": 1.67,
+            "secondary_value": null,
+            "rolling_avg": -0.3183,
+            "anomaly_z": -0.51,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2016-04",
+            "value": 7.33,
+            "secondary_value": null,
+            "rolling_avg": 0.0167,
+            "anomaly_z": 0.35,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2016-05",
+            "value": 9.88,
+            "secondary_value": null,
+            "rolling_avg": 1.4917,
+            "anomaly_z": 0.74,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2016-06",
+            "value": 12.76,
+            "secondary_value": null,
+            "rolling_avg": 4.2433,
+            "anomaly_z": 1.18,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2016-07",
+            "value": 12.73,
+            "secondary_value": null,
+            "rolling_avg": 7.1417,
+            "anomaly_z": 1.17,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2016-08",
+            "value": 12.67,
+            "secondary_value": null,
+            "rolling_avg": 9.5067,
+            "anomaly_z": 1.16,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2016-09",
+            "value": 11.51,
+            "secondary_value": null,
+            "rolling_avg": 11.1467,
+            "anomaly_z": 0.99,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2016-10",
+            "value": 6.07,
+            "secondary_value": null,
+            "rolling_avg": 10.9367,
+            "anomaly_z": 0.16,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2016-11",
+            "value": 0.08,
+            "secondary_value": null,
+            "rolling_avg": 9.3033,
+            "anomaly_z": -0.75,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2016-12",
+            "value": -1.51,
+            "secondary_value": null,
+            "rolling_avg": 6.925,
+            "anomaly_z": -0.99,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2017-01",
+            "value": -4.63,
+            "secondary_value": null,
+            "rolling_avg": 4.0317,
+            "anomaly_z": -1.47,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2017-02",
+            "value": -1.07,
+            "secondary_value": null,
+            "rolling_avg": 1.7417,
+            "anomaly_z": -0.93,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2017-03",
+            "value": -0.24,
+            "secondary_value": null,
+            "rolling_avg": -0.2167,
+            "anomaly_z": -0.8,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2017-04",
+            "value": 4.01,
+            "secondary_value": null,
+            "rolling_avg": -0.56,
+            "anomaly_z": -0.15,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2017-05",
+            "value": 8.25,
+            "secondary_value": null,
+            "rolling_avg": 0.8017,
+            "anomaly_z": 0.49,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2017-06",
+            "value": 12.04,
+            "secondary_value": null,
+            "rolling_avg": 3.06,
+            "anomaly_z": 1.07,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2017-07",
+            "value": 13.1,
+            "secondary_value": null,
+            "rolling_avg": 6.015,
+            "anomaly_z": 1.23,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2017-08",
+            "value": 12.29,
+            "secondary_value": null,
+            "rolling_avg": 8.2417,
+            "anomaly_z": 1.11,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2017-09",
+            "value": 11.73,
+            "secondary_value": null,
+            "rolling_avg": 10.2367,
+            "anomaly_z": 1.02,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2017-10",
+            "value": 7.36,
+            "secondary_value": null,
+            "rolling_avg": 10.795,
+            "anomaly_z": 0.36,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2017-11",
+            "value": 0.63,
+            "secondary_value": null,
+            "rolling_avg": 9.525,
+            "anomaly_z": -0.67,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2017-12",
+            "value": -2.06,
+            "secondary_value": null,
+            "rolling_avg": 7.175,
+            "anomaly_z": -1.08,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2018-01",
+            "value": -3.87,
+            "secondary_value": null,
+            "rolling_avg": 4.3467,
+            "anomaly_z": -1.35,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2018-02",
+            "value": -1.53,
+            "secondary_value": null,
+            "rolling_avg": 2.0433,
+            "anomaly_z": -1.0,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2018-03",
+            "value": 1.52,
+            "secondary_value": null,
+            "rolling_avg": 0.3417,
+            "anomaly_z": -0.53,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2018-04",
+            "value": 5.23,
+            "secondary_value": null,
+            "rolling_avg": -0.0133,
+            "anomaly_z": 0.03,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2018-05",
+            "value": 8.57,
+            "secondary_value": null,
+            "rolling_avg": 1.31,
+            "anomaly_z": 0.54,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2018-06",
+            "value": 12.55,
+            "secondary_value": null,
+            "rolling_avg": 3.745,
+            "anomaly_z": 1.15,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2018-07",
+            "value": 13.17,
+            "secondary_value": null,
+            "rolling_avg": 6.585,
+            "anomaly_z": 1.24,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2018-08",
+            "value": 12.69,
+            "secondary_value": null,
+            "rolling_avg": 8.955,
+            "anomaly_z": 1.17,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2018-09",
+            "value": 11.57,
+            "secondary_value": null,
+            "rolling_avg": 10.63,
+            "anomaly_z": 1.0,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2018-10",
+            "value": 4.6,
+            "secondary_value": null,
+            "rolling_avg": 10.525,
+            "anomaly_z": -0.06,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2018-11",
+            "value": 0.31,
+            "secondary_value": null,
+            "rolling_avg": 9.1483,
+            "anomaly_z": -0.72,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2018-12",
+            "value": -3.82,
+            "secondary_value": null,
+            "rolling_avg": 6.42,
+            "anomaly_z": -1.35,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2019-01",
+            "value": -5.18,
+            "secondary_value": null,
+            "rolling_avg": 3.3617,
+            "anomaly_z": -1.55,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2019-02",
+            "value": -5.16,
+            "secondary_value": null,
+            "rolling_avg": 0.3867,
+            "anomaly_z": -1.55,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2019-03",
+            "value": -1.6,
+            "secondary_value": null,
+            "rolling_avg": -1.8083,
+            "anomaly_z": -1.01,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2019-04",
+            "value": 5.23,
+            "secondary_value": null,
+            "rolling_avg": -1.7033,
+            "anomaly_z": 0.03,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2019-05",
+            "value": 8.01,
+            "secondary_value": null,
+            "rolling_avg": -0.42,
+            "anomaly_z": 0.45,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2019-06",
+            "value": 11.8,
+            "secondary_value": null,
+            "rolling_avg": 2.1833,
+            "anomaly_z": 1.03,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2019-07",
+            "value": 13.01,
+            "secondary_value": null,
+            "rolling_avg": 5.215,
+            "anomaly_z": 1.22,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2019-08",
+            "value": 13.35,
+            "secondary_value": null,
+            "rolling_avg": 8.3,
+            "anomaly_z": 1.27,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2019-09",
+            "value": 10.76,
+            "secondary_value": null,
+            "rolling_avg": 10.36,
+            "anomaly_z": 0.87,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2019-10",
+            "value": 6.39,
+            "secondary_value": null,
+            "rolling_avg": 10.5533,
+            "anomaly_z": 0.21,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2019-11",
+            "value": 1.39,
+            "secondary_value": null,
+            "rolling_avg": 9.45,
+            "anomaly_z": -0.55,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2019-12",
+            "value": -6.08,
+            "secondary_value": null,
+            "rolling_avg": 6.47,
+            "anomaly_z": -1.69,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2020-01",
+            "value": -7.38,
+            "secondary_value": null,
+            "rolling_avg": 3.0717,
+            "anomaly_z": -1.89,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2020-02",
+            "value": -4.8,
+            "secondary_value": null,
+            "rolling_avg": 0.0467,
+            "anomaly_z": -1.49,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2020-03",
+            "value": -0.71,
+            "secondary_value": null,
+            "rolling_avg": -1.865,
+            "anomaly_z": -0.87,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2020-04",
+            "value": 3.34,
+            "secondary_value": null,
+            "rolling_avg": -2.3733,
+            "anomaly_z": -0.26,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2020-05",
+            "value": 7.16,
+            "secondary_value": null,
+            "rolling_avg": -1.4117,
+            "anomaly_z": 0.33,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2020-06",
+            "value": 12.09,
+            "secondary_value": null,
+            "rolling_avg": 1.6167,
+            "anomaly_z": 1.08,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2020-07",
+            "value": 12.85,
+            "secondary_value": null,
+            "rolling_avg": 4.9883,
+            "anomaly_z": 1.19,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2020-08",
+            "value": 13.42,
+            "secondary_value": null,
+            "rolling_avg": 8.025,
+            "anomaly_z": 1.28,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2020-09",
+            "value": 11.92,
+            "secondary_value": null,
+            "rolling_avg": 10.13,
+            "anomaly_z": 1.05,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2020-10",
+            "value": 6.77,
+            "secondary_value": null,
+            "rolling_avg": 10.7017,
+            "anomaly_z": 0.27,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2020-11",
+            "value": -0.1,
+            "secondary_value": null,
+            "rolling_avg": 9.4917,
+            "anomaly_z": -0.78,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2020-12",
+            "value": -2.66,
+            "secondary_value": null,
+            "rolling_avg": 7.0333,
+            "anomaly_z": -1.17,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2021-01",
+            "value": -2.94,
+            "secondary_value": null,
+            "rolling_avg": 4.4017,
+            "anomaly_z": -1.21,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2021-02",
+            "value": -1.54,
+            "secondary_value": null,
+            "rolling_avg": 1.9083,
+            "anomaly_z": -1.0,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2021-03",
+            "value": 1.6,
+            "secondary_value": null,
+            "rolling_avg": 0.1883,
+            "anomaly_z": -0.52,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2021-04",
+            "value": 4.29,
+            "secondary_value": null,
+            "rolling_avg": -0.225,
+            "anomaly_z": -0.11,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2021-05",
+            "value": 9.21,
+            "secondary_value": null,
+            "rolling_avg": 1.3267,
+            "anomaly_z": 0.64,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2021-06",
+            "value": 12.18,
+            "secondary_value": null,
+            "rolling_avg": 3.8,
+            "anomaly_z": 1.09,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2021-07",
+            "value": 13.38,
+            "secondary_value": null,
+            "rolling_avg": 6.52,
+            "anomaly_z": 1.27,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2021-08",
+            "value": 12.49,
+            "secondary_value": null,
+            "rolling_avg": 8.8583,
+            "anomaly_z": 1.14,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2021-09",
+            "value": 11.03,
+            "secondary_value": null,
+            "rolling_avg": 10.43,
+            "anomaly_z": 0.91,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2021-10",
+            "value": 6.77,
+            "secondary_value": null,
+            "rolling_avg": 10.8433,
+            "anomaly_z": 0.27,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2021-11",
+            "value": 0.39,
+            "secondary_value": null,
+            "rolling_avg": 9.3733,
+            "anomaly_z": -0.7,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2021-12",
+            "value": -3.88,
+            "secondary_value": null,
+            "rolling_avg": 6.6967,
+            "anomaly_z": -1.35,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2022-01",
+            "value": -5.93,
+            "secondary_value": null,
+            "rolling_avg": 3.4783,
+            "anomaly_z": -1.67,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2022-02",
+            "value": -6.26,
+            "secondary_value": null,
+            "rolling_avg": 0.3533,
+            "anomaly_z": -1.72,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2022-03",
+            "value": 2.26,
+            "secondary_value": null,
+            "rolling_avg": -1.1083,
+            "anomaly_z": -0.42,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2022-04",
+            "value": 6.82,
+            "secondary_value": null,
+            "rolling_avg": -1.1,
+            "anomaly_z": 0.27,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2022-05",
+            "value": 9.07,
+            "secondary_value": null,
+            "rolling_avg": 0.3467,
+            "anomaly_z": 0.62,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2022-06",
+            "value": 11.76,
+            "secondary_value": null,
+            "rolling_avg": 2.9533,
+            "anomaly_z": 1.03,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2022-07",
+            "value": 13.35,
+            "secondary_value": null,
+            "rolling_avg": 6.1667,
+            "anomaly_z": 1.27,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2022-08",
+            "value": 12.77,
+            "secondary_value": null,
+            "rolling_avg": 9.3383,
+            "anomaly_z": 1.18,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2022-09",
+            "value": 11.02,
+            "secondary_value": null,
+            "rolling_avg": 10.7983,
+            "anomaly_z": 0.91,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2022-10",
+            "value": 5.0,
+            "secondary_value": null,
+            "rolling_avg": 10.495,
+            "anomaly_z": -0.0,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2022-11",
+            "value": 0.92,
+            "secondary_value": null,
+            "rolling_avg": 9.1367,
+            "anomaly_z": -0.62,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2022-12",
+            "value": -2.78,
+            "secondary_value": null,
+            "rolling_avg": 6.7133,
+            "anomaly_z": -1.19,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2023-01",
+            "value": -4.11,
+            "secondary_value": null,
+            "rolling_avg": 3.8033,
+            "anomaly_z": -1.39,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2023-02",
+            "value": -1.04,
+            "secondary_value": null,
+            "rolling_avg": 1.5017,
+            "anomaly_z": -0.92,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2023-03",
+            "value": 0.7,
+            "secondary_value": null,
+            "rolling_avg": -0.2183,
+            "anomaly_z": -0.66,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2023-04",
+            "value": 3.94,
+            "secondary_value": null,
+            "rolling_avg": -0.395,
+            "anomaly_z": -0.16,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2023-05",
+            "value": 7.48,
+            "secondary_value": null,
+            "rolling_avg": 0.6983,
+            "anomaly_z": 0.37,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2023-06",
+            "value": 12.42,
+            "secondary_value": null,
+            "rolling_avg": 3.2317,
+            "anomaly_z": 1.13,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2023-07",
+            "value": 13.59,
+            "secondary_value": null,
+            "rolling_avg": 6.1817,
+            "anomaly_z": 1.3,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2023-08",
+            "value": 12.87,
+            "secondary_value": null,
+            "rolling_avg": 8.5,
+            "anomaly_z": 1.19,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2023-09",
+            "value": 11.7,
+            "secondary_value": null,
+            "rolling_avg": 10.3333,
+            "anomaly_z": 1.02,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2023-10",
+            "value": 6.38,
+            "secondary_value": null,
+            "rolling_avg": 10.74,
+            "anomaly_z": 0.21,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2023-11",
+            "value": 1.62,
+            "secondary_value": null,
+            "rolling_avg": 9.7633,
+            "anomaly_z": -0.52,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2023-12",
+            "value": -2.19,
+            "secondary_value": null,
+            "rolling_avg": 7.3283,
+            "anomaly_z": -1.1,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2024-01",
+            "value": -4.47,
+            "secondary_value": null,
+            "rolling_avg": 4.3183,
+            "anomaly_z": -1.44,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2024-02",
+            "value": -2.72,
+            "secondary_value": null,
+            "rolling_avg": 1.72,
+            "anomaly_z": -1.18,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2024-03",
+            "value": 1.76,
+            "secondary_value": null,
+            "rolling_avg": 0.0633,
+            "anomaly_z": -0.5,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2024-04",
+            "value": 7.37,
+            "secondary_value": null,
+            "rolling_avg": 0.2283,
+            "anomaly_z": 0.36,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2024-05",
+            "value": 10.52,
+            "secondary_value": null,
+            "rolling_avg": 1.7117,
+            "anomaly_z": 0.84,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2024-06",
+            "value": 12.28,
+            "secondary_value": null,
+            "rolling_avg": 4.1233,
+            "anomaly_z": 1.1,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2024-07",
+            "value": 13.97,
+            "secondary_value": null,
+            "rolling_avg": 7.1967,
+            "anomaly_z": 1.36,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2024-08",
+            "value": 13.17,
+            "secondary_value": null,
+            "rolling_avg": 9.845,
+            "anomaly_z": 1.24,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2024-09",
+            "value": 11.73,
+            "secondary_value": null,
+            "rolling_avg": 11.5067,
+            "anomaly_z": 1.02,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2024-10",
+            "value": 7.88,
+            "secondary_value": null,
+            "rolling_avg": 11.5917,
+            "anomaly_z": 0.43,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2024-11",
+            "value": 3.27,
+            "secondary_value": null,
+            "rolling_avg": 10.3833,
+            "anomaly_z": -0.27,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2024-12",
+            "value": -2.96,
+            "secondary_value": null,
+            "rolling_avg": 7.8433,
+            "anomaly_z": -1.21,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          }
+        ],
+        "raw_rows": [
+          {
+            "timestamp": "2015-01",
+            "value": -6.78,
+            "secondary_value": null,
+            "rolling_avg": -6.78,
+            "anomaly_z": -1.8,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2015-02",
+            "value": -2.96,
+            "secondary_value": null,
+            "rolling_avg": -4.87,
+            "anomaly_z": -1.21,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2015-03",
+            "value": -0.75,
+            "secondary_value": null,
+            "rolling_avg": -3.4967,
+            "anomaly_z": -0.88,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2015-04",
+            "value": 4.12,
+            "secondary_value": null,
+            "rolling_avg": -1.5925,
+            "anomaly_z": -0.14,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2015-05",
+            "value": 8.21,
+            "secondary_value": null,
+            "rolling_avg": 0.368,
+            "anomaly_z": 0.48,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2015-06",
+            "value": 11.38,
+            "secondary_value": null,
+            "rolling_avg": 2.2033,
+            "anomaly_z": 0.97,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2015-07",
+            "value": 13.54,
+            "secondary_value": null,
+            "rolling_avg": 5.59,
+            "anomaly_z": 1.3,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2015-08",
+            "value": 12.73,
+            "secondary_value": null,
+            "rolling_avg": 8.205,
+            "anomaly_z": 1.17,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2015-09",
+            "value": 11.21,
+            "secondary_value": null,
+            "rolling_avg": 10.1983,
+            "anomaly_z": 0.94,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2015-10",
+            "value": 5.32,
+            "secondary_value": null,
+            "rolling_avg": 10.3983,
+            "anomaly_z": 0.05,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2015-11",
+            "value": 1.03,
+            "secondary_value": null,
+            "rolling_avg": 9.2017,
+            "anomaly_z": -0.61,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2015-12",
+            "value": -3.75,
+            "secondary_value": null,
+            "rolling_avg": 6.68,
+            "anomaly_z": -1.33,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2016-01",
+            "value": -4.66,
+            "secondary_value": null,
+            "rolling_avg": 3.6467,
+            "anomaly_z": -1.47,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2016-02",
+            "value": -1.52,
+            "secondary_value": null,
+            "rolling_avg": 1.2717,
+            "anomaly_z": -1.0,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2016-03",
+            "value": 1.67,
+            "secondary_value": null,
+            "rolling_avg": -0.3183,
+            "anomaly_z": -0.51,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2016-04",
+            "value": 7.33,
+            "secondary_value": null,
+            "rolling_avg": 0.0167,
+            "anomaly_z": 0.35,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2016-05",
+            "value": 9.88,
+            "secondary_value": null,
+            "rolling_avg": 1.4917,
+            "anomaly_z": 0.74,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2016-06",
+            "value": 12.76,
+            "secondary_value": null,
+            "rolling_avg": 4.2433,
+            "anomaly_z": 1.18,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2016-07",
+            "value": 12.73,
+            "secondary_value": null,
+            "rolling_avg": 7.1417,
+            "anomaly_z": 1.17,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2016-08",
+            "value": 12.67,
+            "secondary_value": null,
+            "rolling_avg": 9.5067,
+            "anomaly_z": 1.16,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2016-09",
+            "value": 11.51,
+            "secondary_value": null,
+            "rolling_avg": 11.1467,
+            "anomaly_z": 0.99,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2016-10",
+            "value": 6.07,
+            "secondary_value": null,
+            "rolling_avg": 10.9367,
+            "anomaly_z": 0.16,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2016-11",
+            "value": 0.08,
+            "secondary_value": null,
+            "rolling_avg": 9.3033,
+            "anomaly_z": -0.75,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2016-12",
+            "value": -1.51,
+            "secondary_value": null,
+            "rolling_avg": 6.925,
+            "anomaly_z": -0.99,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2017-01",
+            "value": -4.63,
+            "secondary_value": null,
+            "rolling_avg": 4.0317,
+            "anomaly_z": -1.47,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2017-02",
+            "value": -1.07,
+            "secondary_value": null,
+            "rolling_avg": 1.7417,
+            "anomaly_z": -0.93,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2017-03",
+            "value": -0.24,
+            "secondary_value": null,
+            "rolling_avg": -0.2167,
+            "anomaly_z": -0.8,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2017-04",
+            "value": 4.01,
+            "secondary_value": null,
+            "rolling_avg": -0.56,
+            "anomaly_z": -0.15,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2017-05",
+            "value": 8.25,
+            "secondary_value": null,
+            "rolling_avg": 0.8017,
+            "anomaly_z": 0.49,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2017-06",
+            "value": 12.04,
+            "secondary_value": null,
+            "rolling_avg": 3.06,
+            "anomaly_z": 1.07,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2017-07",
+            "value": 13.1,
+            "secondary_value": null,
+            "rolling_avg": 6.015,
+            "anomaly_z": 1.23,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2017-08",
+            "value": 12.29,
+            "secondary_value": null,
+            "rolling_avg": 8.2417,
+            "anomaly_z": 1.11,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2017-09",
+            "value": 11.73,
+            "secondary_value": null,
+            "rolling_avg": 10.2367,
+            "anomaly_z": 1.02,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2017-10",
+            "value": 7.36,
+            "secondary_value": null,
+            "rolling_avg": 10.795,
+            "anomaly_z": 0.36,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2017-11",
+            "value": 0.63,
+            "secondary_value": null,
+            "rolling_avg": 9.525,
+            "anomaly_z": -0.67,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2017-12",
+            "value": -2.06,
+            "secondary_value": null,
+            "rolling_avg": 7.175,
+            "anomaly_z": -1.08,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2018-01",
+            "value": -3.87,
+            "secondary_value": null,
+            "rolling_avg": 4.3467,
+            "anomaly_z": -1.35,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2018-02",
+            "value": -1.53,
+            "secondary_value": null,
+            "rolling_avg": 2.0433,
+            "anomaly_z": -1.0,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2018-03",
+            "value": 1.52,
+            "secondary_value": null,
+            "rolling_avg": 0.3417,
+            "anomaly_z": -0.53,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2018-04",
+            "value": 5.23,
+            "secondary_value": null,
+            "rolling_avg": -0.0133,
+            "anomaly_z": 0.03,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2018-05",
+            "value": 8.57,
+            "secondary_value": null,
+            "rolling_avg": 1.31,
+            "anomaly_z": 0.54,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2018-06",
+            "value": 12.55,
+            "secondary_value": null,
+            "rolling_avg": 3.745,
+            "anomaly_z": 1.15,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2018-07",
+            "value": 13.17,
+            "secondary_value": null,
+            "rolling_avg": 6.585,
+            "anomaly_z": 1.24,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2018-08",
+            "value": 12.69,
+            "secondary_value": null,
+            "rolling_avg": 8.955,
+            "anomaly_z": 1.17,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2018-09",
+            "value": 11.57,
+            "secondary_value": null,
+            "rolling_avg": 10.63,
+            "anomaly_z": 1.0,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2018-10",
+            "value": 4.6,
+            "secondary_value": null,
+            "rolling_avg": 10.525,
+            "anomaly_z": -0.06,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2018-11",
+            "value": 0.31,
+            "secondary_value": null,
+            "rolling_avg": 9.1483,
+            "anomaly_z": -0.72,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2018-12",
+            "value": -3.82,
+            "secondary_value": null,
+            "rolling_avg": 6.42,
+            "anomaly_z": -1.35,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2019-01",
+            "value": -5.18,
+            "secondary_value": null,
+            "rolling_avg": 3.3617,
+            "anomaly_z": -1.55,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2019-02",
+            "value": -5.16,
+            "secondary_value": null,
+            "rolling_avg": 0.3867,
+            "anomaly_z": -1.55,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2019-03",
+            "value": -1.6,
+            "secondary_value": null,
+            "rolling_avg": -1.8083,
+            "anomaly_z": -1.01,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2019-04",
+            "value": 5.23,
+            "secondary_value": null,
+            "rolling_avg": -1.7033,
+            "anomaly_z": 0.03,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2019-05",
+            "value": 8.01,
+            "secondary_value": null,
+            "rolling_avg": -0.42,
+            "anomaly_z": 0.45,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2019-06",
+            "value": 11.8,
+            "secondary_value": null,
+            "rolling_avg": 2.1833,
+            "anomaly_z": 1.03,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2019-07",
+            "value": 13.01,
+            "secondary_value": null,
+            "rolling_avg": 5.215,
+            "anomaly_z": 1.22,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2019-08",
+            "value": 13.35,
+            "secondary_value": null,
+            "rolling_avg": 8.3,
+            "anomaly_z": 1.27,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2019-09",
+            "value": 10.76,
+            "secondary_value": null,
+            "rolling_avg": 10.36,
+            "anomaly_z": 0.87,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2019-10",
+            "value": 6.39,
+            "secondary_value": null,
+            "rolling_avg": 10.5533,
+            "anomaly_z": 0.21,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2019-11",
+            "value": 1.39,
+            "secondary_value": null,
+            "rolling_avg": 9.45,
+            "anomaly_z": -0.55,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2019-12",
+            "value": -6.08,
+            "secondary_value": null,
+            "rolling_avg": 6.47,
+            "anomaly_z": -1.69,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2020-01",
+            "value": -7.38,
+            "secondary_value": null,
+            "rolling_avg": 3.0717,
+            "anomaly_z": -1.89,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2020-02",
+            "value": -4.8,
+            "secondary_value": null,
+            "rolling_avg": 0.0467,
+            "anomaly_z": -1.49,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2020-03",
+            "value": -0.71,
+            "secondary_value": null,
+            "rolling_avg": -1.865,
+            "anomaly_z": -0.87,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2020-04",
+            "value": 3.34,
+            "secondary_value": null,
+            "rolling_avg": -2.3733,
+            "anomaly_z": -0.26,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2020-05",
+            "value": 7.16,
+            "secondary_value": null,
+            "rolling_avg": -1.4117,
+            "anomaly_z": 0.33,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2020-06",
+            "value": 12.09,
+            "secondary_value": null,
+            "rolling_avg": 1.6167,
+            "anomaly_z": 1.08,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2020-07",
+            "value": 12.85,
+            "secondary_value": null,
+            "rolling_avg": 4.9883,
+            "anomaly_z": 1.19,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2020-08",
+            "value": 13.42,
+            "secondary_value": null,
+            "rolling_avg": 8.025,
+            "anomaly_z": 1.28,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2020-09",
+            "value": 11.92,
+            "secondary_value": null,
+            "rolling_avg": 10.13,
+            "anomaly_z": 1.05,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2020-10",
+            "value": 6.77,
+            "secondary_value": null,
+            "rolling_avg": 10.7017,
+            "anomaly_z": 0.27,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2020-11",
+            "value": -0.1,
+            "secondary_value": null,
+            "rolling_avg": 9.4917,
+            "anomaly_z": -0.78,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2020-12",
+            "value": -2.66,
+            "secondary_value": null,
+            "rolling_avg": 7.0333,
+            "anomaly_z": -1.17,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2021-01",
+            "value": -2.94,
+            "secondary_value": null,
+            "rolling_avg": 4.4017,
+            "anomaly_z": -1.21,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2021-02",
+            "value": -1.54,
+            "secondary_value": null,
+            "rolling_avg": 1.9083,
+            "anomaly_z": -1.0,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2021-03",
+            "value": 1.6,
+            "secondary_value": null,
+            "rolling_avg": 0.1883,
+            "anomaly_z": -0.52,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2021-04",
+            "value": 4.29,
+            "secondary_value": null,
+            "rolling_avg": -0.225,
+            "anomaly_z": -0.11,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2021-05",
+            "value": 9.21,
+            "secondary_value": null,
+            "rolling_avg": 1.3267,
+            "anomaly_z": 0.64,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2021-06",
+            "value": 12.18,
+            "secondary_value": null,
+            "rolling_avg": 3.8,
+            "anomaly_z": 1.09,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2021-07",
+            "value": 13.38,
+            "secondary_value": null,
+            "rolling_avg": 6.52,
+            "anomaly_z": 1.27,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2021-08",
+            "value": 12.49,
+            "secondary_value": null,
+            "rolling_avg": 8.8583,
+            "anomaly_z": 1.14,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2021-09",
+            "value": 11.03,
+            "secondary_value": null,
+            "rolling_avg": 10.43,
+            "anomaly_z": 0.91,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2021-10",
+            "value": 6.77,
+            "secondary_value": null,
+            "rolling_avg": 10.8433,
+            "anomaly_z": 0.27,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2021-11",
+            "value": 0.39,
+            "secondary_value": null,
+            "rolling_avg": 9.3733,
+            "anomaly_z": -0.7,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2021-12",
+            "value": -3.88,
+            "secondary_value": null,
+            "rolling_avg": 6.6967,
+            "anomaly_z": -1.35,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2022-01",
+            "value": -5.93,
+            "secondary_value": null,
+            "rolling_avg": 3.4783,
+            "anomaly_z": -1.67,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2022-02",
+            "value": -6.26,
+            "secondary_value": null,
+            "rolling_avg": 0.3533,
+            "anomaly_z": -1.72,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2022-03",
+            "value": 2.26,
+            "secondary_value": null,
+            "rolling_avg": -1.1083,
+            "anomaly_z": -0.42,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2022-04",
+            "value": 6.82,
+            "secondary_value": null,
+            "rolling_avg": -1.1,
+            "anomaly_z": 0.27,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2022-05",
+            "value": 9.07,
+            "secondary_value": null,
+            "rolling_avg": 0.3467,
+            "anomaly_z": 0.62,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2022-06",
+            "value": 11.76,
+            "secondary_value": null,
+            "rolling_avg": 2.9533,
+            "anomaly_z": 1.03,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2022-07",
+            "value": 13.35,
+            "secondary_value": null,
+            "rolling_avg": 6.1667,
+            "anomaly_z": 1.27,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2022-08",
+            "value": 12.77,
+            "secondary_value": null,
+            "rolling_avg": 9.3383,
+            "anomaly_z": 1.18,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2022-09",
+            "value": 11.02,
+            "secondary_value": null,
+            "rolling_avg": 10.7983,
+            "anomaly_z": 0.91,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2022-10",
+            "value": 5.0,
+            "secondary_value": null,
+            "rolling_avg": 10.495,
+            "anomaly_z": -0.0,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2022-11",
+            "value": 0.92,
+            "secondary_value": null,
+            "rolling_avg": 9.1367,
+            "anomaly_z": -0.62,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2022-12",
+            "value": -2.78,
+            "secondary_value": null,
+            "rolling_avg": 6.7133,
+            "anomaly_z": -1.19,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2023-01",
+            "value": -4.11,
+            "secondary_value": null,
+            "rolling_avg": 3.8033,
+            "anomaly_z": -1.39,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2023-02",
+            "value": -1.04,
+            "secondary_value": null,
+            "rolling_avg": 1.5017,
+            "anomaly_z": -0.92,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2023-03",
+            "value": 0.7,
+            "secondary_value": null,
+            "rolling_avg": -0.2183,
+            "anomaly_z": -0.66,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2023-04",
+            "value": 3.94,
+            "secondary_value": null,
+            "rolling_avg": -0.395,
+            "anomaly_z": -0.16,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2023-05",
+            "value": 7.48,
+            "secondary_value": null,
+            "rolling_avg": 0.6983,
+            "anomaly_z": 0.37,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2023-06",
+            "value": 12.42,
+            "secondary_value": null,
+            "rolling_avg": 3.2317,
+            "anomaly_z": 1.13,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2023-07",
+            "value": 13.59,
+            "secondary_value": null,
+            "rolling_avg": 6.1817,
+            "anomaly_z": 1.3,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2023-08",
+            "value": 12.87,
+            "secondary_value": null,
+            "rolling_avg": 8.5,
+            "anomaly_z": 1.19,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2023-09",
+            "value": 11.7,
+            "secondary_value": null,
+            "rolling_avg": 10.3333,
+            "anomaly_z": 1.02,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2023-10",
+            "value": 6.38,
+            "secondary_value": null,
+            "rolling_avg": 10.74,
+            "anomaly_z": 0.21,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2023-11",
+            "value": 1.62,
+            "secondary_value": null,
+            "rolling_avg": 9.7633,
+            "anomaly_z": -0.52,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2023-12",
+            "value": -2.19,
+            "secondary_value": null,
+            "rolling_avg": 7.3283,
+            "anomaly_z": -1.1,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2024-01",
+            "value": -4.47,
+            "secondary_value": null,
+            "rolling_avg": 4.3183,
+            "anomaly_z": -1.44,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2024-02",
+            "value": -2.72,
+            "secondary_value": null,
+            "rolling_avg": 1.72,
+            "anomaly_z": -1.18,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2024-03",
+            "value": 1.76,
+            "secondary_value": null,
+            "rolling_avg": 0.0633,
+            "anomaly_z": -0.5,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2024-04",
+            "value": 7.37,
+            "secondary_value": null,
+            "rolling_avg": 0.2283,
+            "anomaly_z": 0.36,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2024-05",
+            "value": 10.52,
+            "secondary_value": null,
+            "rolling_avg": 1.7117,
+            "anomaly_z": 0.84,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2024-06",
+            "value": 12.28,
+            "secondary_value": null,
+            "rolling_avg": 4.1233,
+            "anomaly_z": 1.1,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2024-07",
+            "value": 13.97,
+            "secondary_value": null,
+            "rolling_avg": 7.1967,
+            "anomaly_z": 1.36,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2024-08",
+            "value": 13.17,
+            "secondary_value": null,
+            "rolling_avg": 9.845,
+            "anomaly_z": 1.24,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2024-09",
+            "value": 11.73,
+            "secondary_value": null,
+            "rolling_avg": 11.5067,
+            "anomaly_z": 1.02,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2024-10",
+            "value": 7.88,
+            "secondary_value": null,
+            "rolling_avg": 11.5917,
+            "anomaly_z": 0.43,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2024-11",
+            "value": 3.27,
+            "secondary_value": null,
+            "rolling_avg": 10.3833,
+            "anomaly_z": -0.27,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          },
+          {
+            "timestamp": "2024-12",
+            "value": -2.96,
+            "secondary_value": null,
+            "rolling_avg": 7.8433,
+            "anomaly_z": -1.21,
+            "unit": "C",
+            "variable_id": "TSURF",
+            "qa_flag": "Valid"
+          }
+        ],
+        "total_rows": 120,
+        "page": 1,
+        "page_size": 120,
+        "upstream_live_fetched": true,
+        "provenance_mode": "live_upstream",
+        "sha256_hash": "56330122996a3a8e8f9c2436b3286a60d921aede728d5b29fc26b41fdf27e67b",
+        "spatial_semantics_applied": "centroid_representative_sample (28.400N, 84.100E)",
+        "qa_summary_note": "Retrieval QA flags reflect upstream fill-value and physical range checks. Scientific anomaly detection (|Z| >= 2.0 on deseasonalized residuals) is performed in the Case File.",
+        "secondary_jobs": [],
+        "api_endpoint_called": "https://power.larc.nasa.gov/api/temporal/monthly/point?parameters=TSURF&community=ag&longitude=84.1&latitude=28.4&start=2015&end=2024&format=JSON",
+        "retrieved_at": "2026-11-14T23:03:14Z"
+      }
     }
   },
   "cache_index": {
@@ -93862,6 +96846,8 @@
     "res-3176afabb4932d4f": "job-78586755a2",
     "res-aa6589ca960a15ed": "job-8bfb7f1123",
     "res-f601fe20a9c8e7b6": "job-297381c0c1",
-    "res-bf9ed6a435a5ad36": "job-bea7dd0116"
+    "res-bf9ed6a435a5ad36": "job-bea7dd0116",
+    "res-83be6f0642fc868f": "job-7f542ee6fd",
+    "res-59ec74f4776a7999": "job-edf4a5917d"
   }
 }

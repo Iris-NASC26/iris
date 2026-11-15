@@ -12,6 +12,14 @@ import {
   type PreviewResponse,
   type TemporalFrequency,
 } from "@/lib/dataRetrievalEngine";
+import {
+  createDevelopmentDemoPreview,
+  DEVELOPMENT_DEMO_BBOX,
+  DEVELOPMENT_DEMO_DISCOVERY,
+  DEVELOPMENT_DEMO_PRODUCTS,
+  isDevelopmentDemoProduct,
+} from "@/lib/developmentDemoData";
+import { MAX_SELECTION_SPAN_DEGREES } from "@/lib/spatialLimits";
 
 const IrisMap = dynamic(
   () => import("@/components/map/IrisMap").then((module) => module.IrisMap),
@@ -42,6 +50,7 @@ const SOURCE_ORIGINS: Record<string, string> = {
 };
 
 function canRetrieve(product: DataProduct) {
+  if (isDevelopmentDemoProduct(product.product_id)) return true;
   if (product.capability_state) return product.capability_state === "extract_verified";
   return EXTRACTABLE_SOURCES.has(product.source_api);
 }
@@ -104,6 +113,7 @@ function DataSelectionWorkspaceInner() {
     activeProduct,
     selectedProducts,
     setSelectedProducts,
+    setDiscoveryResult,
     extractionConfig,
     setExtractionConfig,
     setExtractedPreview,
@@ -121,6 +131,29 @@ function DataSelectionWorkspaceInner() {
 
   const products = discoveryResult.products;
   const retrievableProducts = products.filter(canRetrieve);
+
+  const loadDevelopmentDemoData = () => {
+    const [primaryProduct] = DEVELOPMENT_DEMO_PRODUCTS;
+    setDiscoveryResult(DEVELOPMENT_DEMO_DISCOVERY);
+    setSelectedProducts(DEVELOPMENT_DEMO_PRODUCTS);
+    setExtractedPreview(null);
+    setError("");
+    setSelectionNotice("");
+    selectProductForConfiguration(primaryProduct, {
+      regionName: DEVELOPMENT_DEMO_DISCOVERY.intent.inferred_region_name,
+      spatialLevel: "regional",
+      bbox: DEVELOPMENT_DEMO_BBOX,
+      center: DEVELOPMENT_DEMO_DISCOVERY.intent.inferred_Center,
+      startDate: DEVELOPMENT_DEMO_DISCOVERY.intent.inferred_start_date,
+      endDate: DEVELOPMENT_DEMO_DISCOVERY.intent.inferred_end_date,
+      frequency: "Monthly",
+    });
+    setExtractionConfig((previous) => ({
+      ...previous,
+      spatial_level: "regional",
+      spatial_Submode: "bbox",
+    }));
+  };
 
   useEffect(() => {
     if (products.length === 0) return;
@@ -297,6 +330,13 @@ function DataSelectionWorkspaceInner() {
       setError("The map area is invalid. Check that the west/south coordinates are below the east/north coordinates.");
       return;
     }
+    if (
+      maxLon - minLon > MAX_SELECTION_SPAN_DEGREES ||
+      maxLat - minLat > MAX_SELECTION_SPAN_DEGREES
+    ) {
+      setError(`The selected area cannot exceed ${MAX_SELECTION_SPAN_DEGREES}° in either dimension.`);
+      return;
+    }
 
     setError("");
     setExtracting(true);
@@ -318,6 +358,20 @@ function DataSelectionWorkspaceInner() {
           .slice(0, 4)
           .map((item) => ({ product_id: item.product_id, variable_id: item.variable_id })),
       };
+
+      if (isDevelopmentDemoProduct(product.product_id)) {
+        const data = createDevelopmentDemoPreview(payload, product);
+        setExtractedPreview(data);
+        setLocation(payload.region_name);
+        setRegion(payload.region_name);
+        setBbox(
+          `${minLat.toFixed(2)}, ${minLon.toFixed(2)}, ${maxLat.toFixed(2)}, ${maxLon.toFixed(2)}`,
+        );
+        setStartYear(Number(payload.start_date.slice(0, 4)) || 2015);
+        setEndYear(Number(payload.end_date.slice(0, 4)) || 2024);
+        router.push(`/workspace/data-preview?jobId=${encodeURIComponent(data.job_id)}`);
+        return;
+      }
 
       const response = await fetch("/api/v1/timeseries/extract", {
         method: "POST",
@@ -371,6 +425,15 @@ function DataSelectionWorkspaceInner() {
             >
               Open System Intelligence <Icon name="arrow" size={14} />
             </button>
+            {process.env.NODE_ENV === "development" && (
+              <button
+                className="ds-link-btn"
+                onClick={loadDevelopmentDemoData}
+                type="button"
+              >
+                Load local demo data
+              </button>
+            )}
           </div>
         </section>
         <section className="dashboard-card ds-products-column">
@@ -397,6 +460,7 @@ function DataSelectionWorkspaceInner() {
   }
 
   const product = activeProduct ?? products[0];
+  const isDemoProduct = isDevelopmentDemoProduct(product.product_id);
   const productEndDate =
     product.temporal_end === "Present"
       ? new Date().toISOString().slice(0, 10)
@@ -421,6 +485,12 @@ function DataSelectionWorkspaceInner() {
               {product.source_api} · {product.provider_agency}
             </p>
           </header>
+
+          {isDemoProduct && (
+            <div className="ds-demo-notice" role="status">
+              Local development fixture — illustrative values only; retrieval makes no provider API calls.
+            </div>
+          )}
 
           {!canRetrieve(product) && (
             <div className="ds-capability-notice" role="status">
@@ -585,7 +655,7 @@ function DataSelectionWorkspaceInner() {
               <Icon name="globe" size={13} /> Area of interest
             </span>
             <h2>{extractionConfig.region_name}</h2>
-            <p>Draw a rectangle or polygon to update the retrieval area.</p>
+            <p>Draw a rectangle on the map or adjust its coordinates below.</p>
           </header>
           <IrisMap
             bbox={extractionConfig.bbox}
@@ -617,8 +687,10 @@ function DataSelectionWorkspaceInner() {
             ))}
           </div>
           <p className="ds-spatial-note">
-            The map bounding box is included in the request. Station sources search within the area;
-            point-based sources sample its center.
+            NASA POWER can average its regional grid cells for areas at least 2° tall; smaller areas
+            use a center-point sample. Large daily requests may hit response-size limits. Other
+            point-based sources also sample the center. Selections may be up to{" "}
+            {MAX_SELECTION_SPAN_DEGREES}° per side.
           </p>
         </section>
       </section>
@@ -632,13 +704,24 @@ function DataSelectionWorkspaceInner() {
             <h2>{discoveryResult.intent.subject_domain}</h2>
             <p>{products.length} matching datasets · select up to 5</p>
           </div>
-          <button
-            className="ds-link-btn"
-            onClick={() => router.push("/workspace/intelligence")}
-            type="button"
-          >
-            New search <Icon name="arrow" size={12} />
-          </button>
+          <div className="ds-product-header-actions">
+            {process.env.NODE_ENV === "development" && (
+              <button
+                className="ds-link-btn"
+                onClick={loadDevelopmentDemoData}
+                type="button"
+              >
+                Load demo data
+              </button>
+            )}
+            <button
+              className="ds-link-btn"
+              onClick={() => router.push("/workspace/intelligence")}
+              type="button"
+            >
+              New search <Icon name="arrow" size={12} />
+            </button>
+          </div>
         </div>
         <div className="ds-identified-keywords">
           {discoveryResult.intent.keywords.map((keyword) => (

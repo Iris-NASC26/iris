@@ -1,27 +1,34 @@
 "use client";
 
 import { bbox as turfBbox, bboxPolygon } from "@turf/turf";
-import MapboxDraw from "@mapbox/mapbox-gl-draw";
 import type { Feature, FeatureCollection, Geometry, MultiPolygon, Polygon } from "geojson";
 import {
+  AttributionControl,
   Layer,
   Map,
   NavigationControl,
   ScaleControl,
   Source,
-  useControl,
   type LayerProps,
   type MapRef,
 } from "react-map-gl/maplibre";
 import { useCallback, useEffect, useRef, useState } from "react";
 import * as maplibregl from "maplibre-gl";
-import type { IControl } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
-import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
 import { Icon } from "@/components/ui/Icon";
+import {
+  MAX_SELECTION_SPAN_DEGREES,
+  MIN_SELECTION_SPAN_DEGREES,
+} from "@/lib/spatialLimits";
 
-const MIN_SPAN = 0.1;
-const MAX_SPAN = 5;
+maplibregl.setWorkerUrl(
+  process.env.NODE_ENV === "development"
+    ? "/maplibre-gl-worker-dev.mjs"
+    : "/maplibre-gl-worker.mjs",
+);
+
+const MIN_SPAN = MIN_SELECTION_SPAN_DEGREES;
+const MAX_SPAN = MAX_SELECTION_SPAN_DEGREES;
 
 const OSM_STYLE = {
   version: 8 as const,
@@ -53,13 +60,19 @@ const coverageLine: LayerProps = {
 const bboxFill: LayerProps = {
   id: "iris-bbox-fill",
   type: "fill",
-  paint: { "fill-color": "#059669", "fill-opacity": 0.12 },
+  paint: { "fill-color": "#f59e0b", "fill-opacity": 0.28 },
+};
+
+const bboxHalo: LayerProps = {
+  id: "iris-bbox-halo",
+  type: "line",
+  paint: { "line-color": "#ffffff", "line-width": 7, "line-opacity": 0.95 },
 };
 
 const bboxLine: LayerProps = {
   id: "iris-bbox-line",
   type: "line",
-  paint: { "line-color": "#047857", "line-width": 2, "line-dasharray": [4, 2] },
+  paint: { "line-color": "#c2410c", "line-width": 4 },
 };
 
 export type IrisMapBbox = [number, number, number, number];
@@ -78,55 +91,6 @@ export interface IrisMapProps {
   height?: string;
   className?: string;
   regionName?: string;
-}
-
-interface DrawControlProps {
-  drawRef: React.MutableRefObject<MapboxDraw | null>;
-  onDrawChange: (features: Feature[]) => void;
-}
-
-function DrawControl({ drawRef, onDrawChange }: DrawControlProps) {
-  const onDrawCreate = useCallback(
-    (event: { features: Feature[] }) => onDrawChange(event.features),
-    [onDrawChange],
-  );
-  const onDrawUpdate = useCallback(
-    (event: { features: Feature[] }) => onDrawChange(event.features),
-    [onDrawChange],
-  );
-
-  const draw = useControl(
-    () =>
-      new MapboxDraw({
-        displayControlsDefault: false,
-        controls: {},
-        defaultMode: "simple_select",
-      }) as unknown as IControl & MapboxDraw,
-    ({ map }) => {
-      const eventMap = map as unknown as {
-        on: (type: string, listener: (event: { features: Feature[] }) => void) => void;
-      };
-      eventMap.on("draw.create", onDrawCreate);
-      eventMap.on("draw.update", onDrawUpdate);
-    },
-    ({ map }) => {
-      const eventMap = map as unknown as {
-        off: (type: string, listener: (event: { features: Feature[] }) => void) => void;
-      };
-      eventMap.off("draw.create", onDrawCreate);
-      eventMap.off("draw.update", onDrawUpdate);
-    },
-    { position: "top-left" },
-  );
-
-  useEffect(() => {
-    drawRef.current = draw;
-    return () => {
-      drawRef.current = null;
-    };
-  }, [draw, drawRef]);
-
-  return null;
 }
 
 function validateFeature(feature: Feature): { bbox?: IrisMapBbox; error?: string } {
@@ -225,10 +189,10 @@ export function IrisMap({
 }: IrisMapProps) {
   const mapRef = useRef<MapRef>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const drawRef = useRef<MapboxDraw | null>(null);
   const rectangleStartRef = useRef<[number, number] | null>(null);
+  const rectangleStartPointRef = useRef<{ x: number; y: number } | null>(null);
 
-  const [activeTool, setActiveTool] = useState<"rectangle" | "polygon" | null>(null);
+  const [activeTool, setActiveTool] = useState<"rectangle" | null>(null);
   const [rectanglePreview, setRectanglePreview] = useState<Feature<Polygon> | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -331,79 +295,62 @@ export function IrisMap({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [handleApplyAndExit, isExpanded]);
 
-  const handleDrawChange = useCallback(
-    (features: Feature[]) => {
-      const feature = features.at(-1);
-      if (!feature) return;
-
-      const result = validateFeature(feature);
-      if (result.error) {
-        setValidationError(result.error);
-        drawRef.current?.deleteAll();
-        return;
-      }
-
-      setValidationError(null);
-      setActiveTool(null);
-      if (result.bbox) {
-        setStagedBbox(result.bbox);
-        setStagedRegionName(undefined);
-        if (!isExpanded) {
-          onRegionSelect?.(result.bbox);
-        }
-      }
-    },
-    [isExpanded, onRegionSelect],
-  );
-
-  const clearSelection = () => {
-    drawRef.current?.deleteAll();
+  const cancelDrawing = () => {
     rectangleStartRef.current = null;
+    rectangleStartPointRef.current = null;
     setRectanglePreview(null);
     setValidationError(null);
     setActiveTool(null);
   };
 
-  const selectTool = (tool: "rectangle" | "polygon") => {
-    drawRef.current?.deleteAll();
+  const selectTool = (tool: "rectangle") => {
     rectangleStartRef.current = null;
+    rectangleStartPointRef.current = null;
     setRectanglePreview(null);
     setValidationError(null);
     setActiveTool(tool);
-    if (tool === "polygon") {
-      drawRef.current?.changeMode("draw_polygon");
-    } else {
-      drawRef.current?.changeMode("simple_select");
-    }
+  };
+
+  const handleMapMouseDown = (event: {
+    lngLat: { lng: number; lat: number };
+    point: { x: number; y: number };
+    originalEvent: MouseEvent;
+  }) => {
+    if (activeTool !== "rectangle" || event.originalEvent.button !== 0) return;
+    const coordinate: [number, number] = [event.lngLat.lng, event.lngLat.lat];
+    rectangleStartRef.current = coordinate;
+    rectangleStartPointRef.current = event.point;
+    setRectanglePreview(null);
+    setValidationError(null);
   };
 
   const handleMapClick = (event: { lngLat: { lng: number; lat: number } }) => {
     const coordinate: [number, number] = [event.lngLat.lng, event.lngLat.lat];
     if (activeTool !== "rectangle") {
-      if (activeTool === null) onMapClick?.(coordinate);
-      return;
+      onMapClick?.(coordinate);
     }
+  };
 
+  const handleMapMouseUp = (event: {
+    lngLat: { lng: number; lat: number };
+    point: { x: number; y: number };
+  }) => {
     const first = rectangleStartRef.current;
-    if (!first) {
-      rectangleStartRef.current = coordinate;
-      setRectanglePreview(getRectangleFeature(coordinate, coordinate));
-      setValidationError(null);
-      return;
-    }
+    const startPoint = rectangleStartPointRef.current;
+    if (activeTool !== "rectangle" || !first || !startPoint) return;
 
-    const feature = getRectangleFeature(first, coordinate);
-    const result = validateFeature(feature);
     rectangleStartRef.current = null;
+    rectangleStartPointRef.current = null;
     setRectanglePreview(null);
+    if (Math.hypot(event.point.x - startPoint.x, event.point.y - startPoint.y) < 3) return;
+
+    const feature = getRectangleFeature(first, [event.lngLat.lng, event.lngLat.lat]);
+    const result = validateFeature(feature);
     if (result.error) {
       setValidationError(result.error);
       return;
     }
 
-    drawRef.current?.deleteAll();
-    drawRef.current?.add(feature);
-    drawRef.current?.changeMode("simple_select");
     setActiveTool(null);
     setValidationError(null);
     if (result.bbox) {
@@ -415,9 +362,18 @@ export function IrisMap({
     }
   };
 
-  const handleMapMove = (event: { lngLat: { lng: number; lat: number } }) => {
+  const handleMapMove = (event: {
+    lngLat: { lng: number; lat: number };
+    point: { x: number; y: number };
+  }) => {
     const first = rectangleStartRef.current;
-    if (activeTool === "rectangle" && first) {
+    const startPoint = rectangleStartPointRef.current;
+    if (
+      activeTool === "rectangle" &&
+      first &&
+      startPoint &&
+      Math.hypot(event.point.x - startPoint.x, event.point.y - startPoint.y) >= 3
+    ) {
       setRectanglePreview(getRectangleFeature(first, [event.lngLat.lng, event.lngLat.lat]));
     }
   };
@@ -425,10 +381,6 @@ export function IrisMap({
   // Jump to location helper
   const handleJumpToPreset = (presetBbox: IrisMapBbox, name?: string) => {
     setStagedBbox(presetBbox);
-    const feature = bboxPolygon(presetBbox);
-    drawRef.current?.deleteAll();
-    drawRef.current?.add(feature);
-    drawRef.current?.changeMode("simple_select");
     setStagedRegionName(name);
     fitToBbox(presetBbox);
     setValidationError(null);
@@ -477,6 +429,16 @@ export function IrisMap({
     ? [[activeBboxToRender[0], activeBboxToRender[1]], [activeBboxToRender[2], activeBboxToRender[3]]]
     : [[-170, -75], [170, 75]];
   const bboxFeature = bboxIsRenderable && activeBboxToRender ? bboxPolygon(activeBboxToRender) : null;
+  const selectionFeatures: FeatureCollection<Polygon> | null =
+    bboxFeature || rectanglePreview
+      ? {
+          type: "FeatureCollection",
+          features: [
+            ...(bboxFeature ? [bboxFeature] : []),
+            ...(rectanglePreview ? [rectanglePreview] : []),
+          ],
+        }
+      : null;
 
   // Live HUD metrics for the bottom-left floating pill
   const activeBox = stagedBbox ?? bbox ?? [-122.6, 35.0, -118.5, 40.8];
@@ -504,8 +466,8 @@ export function IrisMap({
         ref={containerRef}
         className={
           isExpanded
-            ? "iris-map-fullscreen-container"
-            : `iris-map-root ${className}`
+            ? `iris-map-fullscreen-container${activeTool === "rectangle" ? " is-drawing" : ""}`
+            : `iris-map-root${activeTool === "rectangle" ? " is-drawing" : ""} ${className}`
         }
         style={isExpanded ? undefined : { height }}
       >
@@ -520,23 +482,13 @@ export function IrisMap({
             >
               Rectangle
             </button>
-            <button
-              aria-pressed={activeTool === "polygon"}
-              className={`iris-tool-btn${activeTool === "polygon" ? " active" : ""}`}
-              onClick={() => selectTool("polygon")}
-              type="button"
-            >
-              Polygon
-            </button>
-            <button className="iris-tool-btn" onClick={clearSelection} type="button">
-              Clear
+            <button className="iris-tool-btn" onClick={cancelDrawing} type="button">
+              Cancel
             </button>
             <span className="iris-tool-hint">
               {activeTool === "rectangle"
-                ? "Click two opposite corners"
-                : activeTool === "polygon"
-                  ? "Click to add vertices; double-click to finish"
-                  : `Draw ${MIN_SPAN}° to ${MAX_SPAN}° per side`}
+                ? "Drag to draw a rectangle"
+                : `Draw ${MIN_SPAN}° to ${MAX_SPAN}° per side`}
             </span>
             <button
               aria-label="Expand map to full screen"
@@ -565,16 +517,8 @@ export function IrisMap({
                 >
                   Rectangle
                 </button>
-                <button
-                  aria-pressed={activeTool === "polygon"}
-                  className={`iris-tool-btn${activeTool === "polygon" ? " active" : ""}`}
-                  onClick={() => selectTool("polygon")}
-                  type="button"
-                >
-                  Polygon
-                </button>
-                <button className="iris-tool-btn" onClick={clearSelection} type="button">
-                  Clear
+                <button className="iris-tool-btn" onClick={cancelDrawing} type="button">
+                  Cancel
                 </button>
               </div>
 
@@ -679,23 +623,23 @@ export function IrisMap({
           <Map
             ref={mapRef}
             mapLib={maplibregl}
-            attributionControl={{ compact: true }}
-            doubleClickZoom={activeTool !== "polygon"}
+            attributionControl={false}
+            dragPan={activeTool !== "rectangle"}
+            doubleClickZoom
             initialViewState={{
               bounds,
               fitBoundsOptions: { padding: 48 },
             }}
             mapStyle={OSM_STYLE}
             onClick={handleMapClick}
+            onMouseDown={handleMapMouseDown}
             onMouseMove={handleMapMove}
+            onMouseUp={handleMapMouseUp}
             style={{ width: "100%", height: "100%" }}
           >
             <NavigationControl position="top-right" />
-            <ScaleControl position="bottom-right" unit="metric" />
-
-            {mode === "selection" && (
-              <DrawControl drawRef={drawRef} onDrawChange={handleDrawChange} />
-            )}
+            <ScaleControl position="top-left" unit="metric" />
+            <AttributionControl compact position="top-left" />
 
             {mode === "preview" && coverageGeoJSON && (
               <Source data={coverageGeoJSON} id="iris-coverage" type="geojson">
@@ -704,23 +648,17 @@ export function IrisMap({
               </Source>
             )}
 
-            {mode === "selection" && bboxFeature && activeTool === null && !rectanglePreview && (
-              <Source data={bboxFeature} id="iris-selected-bbox" type="geojson">
+            {mode === "selection" && selectionFeatures && (
+              <Source data={selectionFeatures} id="iris-selected-bbox" type="geojson">
                 <Layer {...bboxFill} />
+                <Layer {...bboxHalo} />
                 <Layer {...bboxLine} />
               </Source>
             )}
 
-            {mode === "selection" && rectanglePreview && (
-              <Source data={rectanglePreview} id="iris-rectangle-preview" type="geojson">
-                <Layer {...bboxFill} />
-                <Layer {...bboxLine} />
-              </Source>
-            )}
-
-            {mode === "preview" && bboxFeature && !coverageGeoJSON && (
+            {mode === "preview" && bboxFeature && (
               <Source data={bboxFeature} id="iris-selected-bbox" type="geojson">
-                <Layer {...bboxFill} />
+                <Layer {...bboxHalo} />
                 <Layer {...bboxLine} />
               </Source>
             )}
