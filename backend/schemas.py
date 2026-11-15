@@ -518,10 +518,11 @@ class CaseFileAnalysisRequest(BaseModel):
     parameter_code: str = "T2M"
     unit: str = "°C"
     location: str = "Los Angeles County, CA"
-    latitude: float = 34.05
-    longitude: float = -118.24
+    latitude: Optional[float] = 34.05
+    longitude: Optional[float] = -118.24
     start_year: int = 2005
     end_year: int = 2025
+    cadence: Literal["Daily", "8-Day", "16-Day", "Monthly", "Seasonal", "Yearly"] = "Monthly"
     alpha: float = 0.05
     seasonal_adjustment: Literal[
         "auto", "calendar_climatology", "stl", "none"
@@ -549,6 +550,20 @@ class CaseFileAnalysisRequest(BaseModel):
             "case_file_diagnostics",
         ]
     )
+    # Adjustable per-method parameters
+    ols_autocorrelation_adjustment: bool = True
+    mk_autocorrelation_correction: Literal["hamed_rao", "none", "standard"] = "hamed_rao"
+    mk_max_lag: int = Field(default=24, ge=3, le=60)
+    seasonal_kendall_min_years: int = Field(default=2, ge=2, le=15)
+    sens_confidence_level: float = Field(default=0.95, ge=0.80, le=0.999)
+    sens_rate_scale: Literal["decade", "year"] = "decade"
+    pettitt_min_segment: int = Field(default=2, ge=1, le=36)
+    anomaly_z_threshold: float = Field(default=2.0, ge=1.0, le=4.0)
+    anomaly_dispersion_method: Literal["std", "mad", "robust_mad", "sample_sd"] = "std"
+    fingerprint_color_cap: float = Field(default=2.5, ge=1.5, le=4.0)
+    outlook_horizon_years: int = Field(default=10, ge=3, le=30)
+    stripes_min_months: int = Field(default=10, ge=1, le=12)
+    triangle_min_window_years: int = Field(default=5, ge=3, le=15)
 
 
 class CaseFileAnalysisResponse(BaseModel):
@@ -563,6 +578,7 @@ class CaseFileAnalysisResponse(BaseModel):
     location: str
     start_year: int
     end_year: int
+    cadence: str = "Monthly"
     completeness_pct: float
     valid_months_count: int
     seasonal_adjustment_method: str
@@ -584,13 +600,24 @@ class CaseFileAnalysisResponse(BaseModel):
     ols_p_value: float
     ols_ci_low_decadal: float
     ols_ci_high_decadal: float
+    ols_intercept: Optional[float] = None
+    ols_r_squared: Optional[float] = None
+    ols_std_error_decadal: Optional[float] = None
     seasonal_kendall_z: Optional[float] = None
     seasonal_kendall_p: Optional[float] = None
     change_point_timestamp: Optional[str] = Field(
-        None, description="Monthly calendar period in YYYY-MM format; no time zone"
+        None, description="Calendar period in YYYY-MM or YYYY-MM-DD format; no time zone"
     )
     change_point_statistic: Optional[float] = None
     change_point_p_value: Optional[float] = None
+    pettitt_mean_before: Optional[float] = None
+    pettitt_mean_after: Optional[float] = None
+    pettitt_ut_series: List[Dict[str, object]] = Field(default_factory=list)
+    lag_autocorrelations: List[Dict[str, float]] = Field(default_factory=list)
+    anomaly_threshold_used: float = 2.0
+    anomaly_dispersion_used: str = "std"
+    anomaly_count: int = 0
+    applied_parameters: Dict[str, object] = Field(default_factory=dict)
     analysis_series: List[CaseFileObservation]
     # Evidence Grade
     evidence_grade: Literal["A", "B", "C", "D"]

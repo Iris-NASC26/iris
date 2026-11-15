@@ -27,6 +27,19 @@ const NAV = [
     ],
   },
   {
+    section: "Analysis Methods",
+    items: [
+      { id: "method-ols",                    title: "OLS Linear Trend t-Test",     icon: "📐" },
+      { id: "method-hamed-rao-mk",           title: "Mann–Kendall (Hamed–Rao)",    icon: "📊" },
+      { id: "method-seasonal-kendall",       title: "Seasonal Kendall Test",       icon: "🗓️" },
+      { id: "method-sen-slope",              title: "Sen's Slope Estimator",       icon: "📏" },
+      { id: "method-pettitt",                title: "Pettitt Change-Point Screen", icon: "⚡" },
+      { id: "method-anomalies",              title: "Anomaly Review (Z-Score)",    icon: "🔍" },
+      { id: "method-seasonal-fingerprint",   title: "Seasonal Fingerprint",        icon: "🌡️" },
+      { id: "method-case-file-diagnostics",  title: "Full Case File Diagnostics",  icon: "🧾" },
+    ],
+  },
+  {
     section: "Science & Methods",
     items: [
       { id: "methodology",   title: "Scientific Methodology",   icon: "🔬" },
@@ -265,10 +278,17 @@ document.addEventListener("DOMContentLoaded", () => {
   // Initial page
   navigate(getPageFromHash(), false);
 
-  // Handle back/forward
+  // Handle back/forward and hash navigation
   window.addEventListener("popstate", () => {
     const id = getPageFromHash();
     currentPage = null; // force reload
     navigate(id, false);
+  });
+
+  window.addEventListener("hashchange", () => {
+    const hash = window.location.hash.replace("#", "").trim();
+    if (PAGE_INDEX[hash] && hash !== currentPage) {
+      navigate(hash, false);
+    }
   });
 });
