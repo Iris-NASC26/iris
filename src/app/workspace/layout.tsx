@@ -58,7 +58,8 @@ function DashboardFrame({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const forecastPage = pathname === '/workspace/forecasts';
   const activeInvestigation = pathname?.startsWith('/workspace/case-studies/') ? investigation(pathname.split('/').pop() ?? '') : undefined;
-  const { dataset, region, extractedPreview, activeProduct, selectedProducts } = useDashboard();
+  const { dataset, region, extractedPreview } = useDashboard();
+  const isEmptyDataPreview = extractedPreview === null;
   const { dark, toggleTheme } = useTheme();
   const [collapsed, setCollapsed] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);

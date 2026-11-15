@@ -531,10 +531,17 @@ async def analyze_scientific_case_file(req: CaseFileAnalysisRequest) -> CaseFile
                 detail=f"Extraction job '{req.job_id}' was not found or has no preview.",
             )
         series, preview = loaded
-        if preview.extraction_config.target_frequency != "Monthly":
+        freq = preview.extraction_config.target_frequency
+        monthly_only_methods = {"seasonal_kendall", "seasonal_fingerprint"}
+        incompatible_requested = [m for m in req.analysis_methods if m in monthly_only_methods]
+        if freq != "Monthly" and incompatible_requested:
             raise HTTPException(
                 status_code=422,
-                detail="Data Analysis currently requires a monthly time series. Re-extract or resample this product to Monthly before analysis.",
+                detail=(
+                    f"Selected method(s) ({', '.join(incompatible_requested)}) require a Monthly time series, "
+                    f"but this extracted dataset has '{freq}' cadence. Deselect monthly-only methods or "
+                    "re-extract the dataset at Monthly frequency."
+                ),
             )
         s_yr = int(preview.extraction_config.start_date[:4])
         e_yr = int(preview.extraction_config.end_date[:4])
@@ -546,6 +553,7 @@ async def analyze_scientific_case_file(req: CaseFileAnalysisRequest) -> CaseFile
                 "location": preview.extraction_config.region_name,
                 "start_year": s_yr,
                 "end_year": e_yr,
+                "cadence": freq,
             }
         )
         try:
@@ -562,8 +570,8 @@ async def analyze_scientific_case_file(req: CaseFileAnalysisRequest) -> CaseFile
     param = req.parameter_code or "T2M"
     series = await fetch_nasa_power_monthly_strict(
         parameter=param,
-        lat=req.latitude,
-        lon=req.longitude,
+        lat=req.latitude if req.latitude is not None else 34.05,
+        lon=req.longitude if req.longitude is not None else -118.24,
         start_year=req.start_year,
         end_year=req.end_year,
     )
