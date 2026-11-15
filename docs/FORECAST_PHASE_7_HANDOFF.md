@@ -16,7 +16,7 @@ Owned files (all additive, zero edits to Phase 1–6 sources):
 ## Implemented vs integrated vs verified
 
 | Capability | Implemented | Tested | Live-wired |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | Schedules/leases/coalescing | yes | yes | CLI/callable only |
 | Release promote/rollback/audit | yes | yes | CLI/callable only |
 | Family adapters + generate/reopen | yes | yes (synthetic fitted states) | CLI/callable only |

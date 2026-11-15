@@ -4,7 +4,7 @@ Branch `feat/forecast-phase-1-locations`. Phase 6 already committed
 (`95e9326`) — no concurrent ownership conflicts. Phase-7 work is additive.
 
 | Item | Status | Evidence |
-|---|---|---|
+| --- | --- | --- |
 | Durable schedules (persist/enable/due/UTC clock) | implemented + tested | `operations/schedules.py`; `test_phase7` |
 | Missed-run coalescing (single catch-up, no storm) | implemented + tested | `complete()` skips all fully-missed slots |
 | Atomic claim / lease expiry / no job theft | implemented + tested | single-statement UPDATE lease; restart recovery clears expired leases only |

@@ -7,7 +7,7 @@ Windows, Node 24, Python 3.13 venv, Next 15.5.29, Chromium Playwright.
 ## Results
 
 | Gate | Command | Result |
-|---|---|---|
+| --- | --- | --- |
 | Complete backend | `cd backend; .venv/Scripts/python.exe -m pytest -q` | **299 passed**, 0 failed (46s) |
 | Frontend unit | `npm run test:visualization` | **122 passed**, 0 failed |
 | Type check | `npx tsc --noEmit --incremental false` | **clean**, exit 0 |
