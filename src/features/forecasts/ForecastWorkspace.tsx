@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ChartCanvas } from "@/features/visualization/Charts";
+import { MlForecastSection } from "./MlForecastSection";
 import { useTheme } from "@/context/ThemeContext";
 import {
   FORECAST_REGIONS,
@@ -40,6 +41,31 @@ function exportForecast(value: Forecast) {
 }
 
 export function ForecastWorkspace({
+  id,
+  artifactId,
+}: {
+  id: string;
+  artifactId?: string;
+}) {
+  const router = useRouter();
+  const site = forecastRegion(id);
+  if (artifactId && /^[a-f0-9]{64}$/.test(artifactId)) {
+    return <ProviderForecastWorkspace id={id} artifactId={artifactId} />;
+  }
+  if (!site) return <div className="dashboard-page-inner"><h1>Forecast not found</h1><Link href={forecastHref("colombo")}>Open supported forecasts</Link></div>;
+  return <div className="forecast-workspace dashboard-page-inner">
+    <header className="forecast-header"><div>
+      <span className="forecast-kicker">IRIS / DATASET FORECASTS</span>
+      <h1>What comes next in {site.name}?</h1>
+      <p>Local machine learning from historical records, with source quality and measured model skill.</p>
+    </div><label>Forecast location<select aria-label="Forecast location" value={id} onChange={e => router.push(forecastHref(e.target.value))}>
+      {FORECAST_REGIONS.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
+    </select></label></header>
+    <MlForecastSection id={id} artifactId={artifactId} />
+  </div>;
+}
+
+function ProviderForecastWorkspace({
   id,
   artifactId,
 }: {

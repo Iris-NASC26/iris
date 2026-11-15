@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { mockForecasts } from "./forecastMocks";
-import { forecastFixture, catalogueFixture } from "../forecastFixtures";
+import { forecastFixture } from "../forecastFixtures";
+import { FORECAST_REGIONS } from "../../../src/features/forecasts/model";
 
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() =>
@@ -25,7 +26,7 @@ test("every landing marker opens future forecasts directly, not a location or pa
   for (const href of await markers.evaluateAll((nodes) =>
     nodes.map((n) => (n as HTMLAnchorElement).getAttribute("href")),
   ))
-    expect(href).toContain("/workspace/data-analysis?forecastId=");
+    expect(href).toContain("/workspace/forecasts?forecastId=");
   await expect(
     page
       .locator("a.landing-cobe-marker")
@@ -38,6 +39,12 @@ test("every landing marker opens future forecasts directly, not a location or pa
     page.getByRole("heading", { name: "What comes next in Colombo?" }),
   ).toBeVisible();
   await expect(page.locator(".forecast-metrics")).toContainText("20");
+  await expect(page).toHaveURL(/\/workspace\/forecasts\?forecastId=colombo&run=/);
+  const explore = page.locator(".dashboard-nav-group").filter({
+    has: page.getByText("Explore", { exact: true }),
+  });
+  await expect(explore.getByRole("link", { name: "Forecasts", exact: true })).toHaveAttribute("aria-current", "page");
+  await expect(page.getByRole("link", { name: "Data Analysis", exact: true })).not.toHaveClass(/active/);
   await expect(page.locator(".forecast-chart canvas").first()).toBeVisible();
   await expect(
     page.getByRole("button", { name: "Load current 72-hour outlook" }),
@@ -49,7 +56,7 @@ test("forecast customizations preserve source quantities, member evidence and ex
 }) => {
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
-  await page.goto("/workspace/data-analysis?forecastId=colombo");
+  await page.goto("/workspace/forecasts?forecastId=colombo&run=" + "a".repeat(64));
   await expect(page.locator(".forecast-chart canvas").first()).toBeVisible();
   await page.getByLabel("Forecast accumulation").selectOption("rolling");
   await page.getByLabel("Forecast display").selectOption("members");
@@ -74,6 +81,7 @@ test("forecast customizations preserve source quantities, member evidence and ex
     "iris-colombo-forecast.json",
   );
   await page.getByLabel("Forecast location").selectOption("kathmandu");
+  await expect(page).toHaveURL("/workspace/forecasts?forecastId=kathmandu");
   await expect(
     page.getByRole("heading", { name: "What comes next in Kathmandu?" }),
   ).toBeVisible();
@@ -83,6 +91,31 @@ test("forecast customizations preserve source quantities, member evidence and ex
   expect(errors).toEqual([]);
 });
 
+test("Explore opens the forecast section and every configured location stays there", async ({ page }) => {
+  await page.goto("/workspace/forecasts?forecastId=kathmandu");
+  await page.getByRole("link", { name: "Forecasts", exact: true }).click();
+  await expect(page).toHaveURL("/workspace/forecasts");
+  await expect(page.getByLabel("Forecast location")).toHaveValue(FORECAST_REGIONS[0].id);
+  for (const site of FORECAST_REGIONS) {
+    await page.getByLabel("Forecast location").selectOption(site.id);
+    await expect(page).toHaveURL(`/workspace/forecasts?forecastId=${site.id}`);
+    await expect(page.getByRole("heading", { name: `What comes next in ${site.name}?` })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Local predictions from verified history." })).toBeVisible();
+  }
+  await expect(page.getByRole("button", { name: "Generate forecast from datasets", exact: true })).toBeVisible();
+});
+
+test("old forecast links preserve their location and snapshot when redirected", async ({ page }) => {
+  const snapshot = forecastFixture(FORECAST_REGIONS[1]);
+  await page.route(`**/api/v1/forecasts/${snapshot.id}?artifact_id=*`, route =>
+    route.fulfill({ json: snapshot }),
+  );
+  await page.goto(`/workspace/data-analysis?forecastId=${snapshot.id}&run=${snapshot.artifact_id}`);
+  await expect(page).toHaveURL(`/workspace/forecasts?forecastId=${snapshot.id}&run=${snapshot.artifact_id}`);
+  await expect(page.getByRole("heading", { name: `What comes next in ${snapshot.location.name}?` })).toBeVisible();
+  await expect(page.locator(".forecast-metrics")).toBeVisible();
+});
+
 test("expired predictions cannot drive current exceedance claims and failures never manufacture predictions", async ({
   page,
 }) => {
@@ -90,7 +123,7 @@ test("expired predictions cannot drive current exceedance claims and failures ne
   await page.route("**/api/v1/forecasts/colombo*", (route) =>
     route.fulfill({ json: old }),
   );
-  await page.goto("/workspace/data-analysis?forecastId=colombo");
+  await page.goto("/workspace/forecasts?forecastId=colombo&run=" + "a".repeat(64));
   await expect(
     page.getByText("Expired snapshot · refresh required", { exact: true }),
   ).toBeVisible();
@@ -113,10 +146,10 @@ test("expired predictions cannot drive current exceedance claims and failures ne
 
 test("mobile layout and dark theme remain readable", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("/workspace/data-analysis?forecastId=colombo");
+  await page.goto("/workspace/forecasts?forecastId=colombo&run=" + "a".repeat(64));
   await expect(page.locator(".forecast-metrics")).toBeVisible();
   await expect(
-    page.getByRole("heading", { name: "Upcoming conditions", exact: true }),
+    page.getByRole("heading", { name: "Forecasts", exact: true }),
   ).toBeVisible();
   expect(
     await page.evaluate(

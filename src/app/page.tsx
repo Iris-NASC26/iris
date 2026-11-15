@@ -6,6 +6,7 @@ import dynamic from "next/dynamic";
 import { Icon, type IconName } from "@/components/ui/Icon";
 import { PublicNavbar } from "@/components/layout/PublicNavbar";
 import { useTheme } from "@/context/ThemeContext";
+import { forecastHref } from "@/features/forecasts/model";
 
 const CobeGlobe = dynamic(
   () => import("@/features/landing/CobeGlobe").then(m => m.CobeGlobe),
@@ -102,13 +103,13 @@ export default function LandingPage() {
             <CobeGlobe dark={dark} />
             <div className="landing-globe-copy">
               <div className="landing-kicker">Explore upcoming conditions</div>
-              <h2>See what the next 72 hours may bring.</h2>
+              <h2>See what the historical record can tell us next.</h2>
               <p>
-                Open a rainfall forecast to explore 51 model members, expected accumulations and
-                the range of predicted outcomes. These are forecasts at six configured points;
-                the globe is a navigation view, not a global warning map.
+                Explore local machine-learning forecasts, prediction ranges and model evaluations
+                built from historical weather and Earth observation records at six configured points.
+                Each forecast includes its source data and measured skill.
               </p>
-              <Link href="/workspace/data-analysis?forecastId=colombo">
+              <Link href={forecastHref("colombo")}>
                 Explore a forecast <Icon name="arrow" size={15} />
               </Link>
             </div>
