@@ -108,6 +108,9 @@ function DashboardFrame({ children }: { children: ReactNode }) {
     "Iris workspace",
     "Earth system intelligence",
   ];
+  if (pathname?.startsWith("/workspace/case-studies/") && pathname !== "/workspace/case-studies") {
+    return <main style={{ minHeight: "100vh", backgroundColor: "var(--case-background, #08131B)" }}>{children}</main>;
+  }
   return (
     <div
       className={`${dark ? "dark " : ""}app-shell dashboard-shell${

@@ -85,6 +85,62 @@ const publicCaseStudies = [
     description:
       "Testing whether recent rainfall extremes represent a trend or remain within natural variability.",
   },
+  {
+    id: "NASA–01",
+    title: "Nepal 2026: Mountain Climate and Flood Risk",
+    location: "Rasuwa, Nepal",
+    phenomenon: "Extreme heat",
+    finding: "+0.15 °C / yr warming",
+    confidence: "99.84%",
+    years: "2020–2026",
+    icon: "globe" as IconName,
+    tone: "ice",
+    description:
+      "Investigating temperature warming, snowpack surges, and glacier-flood disasters in Rasuwa.",
+    href: "/case-studies/nepal-2026",
+  },
+  {
+    id: "NASA–02",
+    title: "Cyclone Ditwah: Sri Lanka's Hydrological Shock",
+    location: "Sri Lanka",
+    phenomenon: "Drought",
+    finding: "+8.97σ runoff spike",
+    confidence: "99.99%",
+    years: "2014–2026",
+    icon: "activity" as IconName,
+    tone: "monsoon",
+    description:
+      "Standardized satellite audit of pre-saturated soils, rainfall rates, and runoff surge.",
+    href: "/case-studies/cyclone-ditwah-2025",
+  },
+  {
+    id: "NASA–03",
+    title: "Hajj 2024: Investigating Extreme Heat",
+    location: "Mecca, Saudi Arabia",
+    phenomenon: "Extreme heat",
+    finding: "+1.15 °C June anomaly",
+    confidence: "99.90%",
+    years: "2004–2026",
+    icon: "thermometer" as IconName,
+    tone: "heat",
+    description:
+      "Satellite infrared sounder analysis of surface air temperature and the June 2024 heat dome.",
+    href: "/case-studies/saudi-arabia-heat-2024",
+  },
+  {
+    id: "NASA–04",
+    title: "Extreme Floods: Libya and Pakistan",
+    location: "Libya & Pakistan",
+    phenomenon: "Drought",
+    finding: "100.2 mm/d · 31.3 kg/m²",
+    confidence: "99.95%",
+    years: "2004–2026",
+    icon: "layers" as IconName,
+    tone: "sahel",
+    description:
+      "Comparative satellite audit of Storm Daniel in Derna and Pakistan antecedent soil saturation.",
+    href: "/case-studies/libya-pakistan-floods",
+  },
 ];
 
 export default function CaseStudiesPage() {
@@ -199,7 +255,7 @@ export default function CaseStudiesPage() {
                     <small>Confidence</small>
                     <strong>{item.confidence}</strong>
                   </div>
-                  <Link aria-label={`Open ${item.title}`} href="/workspace">
+                  <Link aria-label={`Open ${item.title}`} href={(item as any).href || "/workspace"}>
                     <Icon name="arrow" size={16} />
                   </Link>
                 </div>
