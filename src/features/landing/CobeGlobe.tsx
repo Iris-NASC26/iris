@@ -160,17 +160,18 @@ export function CobeGlobe({ dark }: { dark: boolean }) {
                 </svg>
             </div>
         ) : (
-            <canvas ref={canvas} className="landing-cobe-canvas" role="img" aria-label="Rotating globe with six precipitation forecast links. Each opens future predictions in the workspace." />
+            <canvas ref={canvas} className="landing-cobe-canvas" role="img" aria-label="Rotating globe with six dataset forecast links. Each opens local predictions in the Forecasts workspace." />
         )}
         {SPOTS.map(spot => (
-            <Link key={spot.id} href={forecastHref(spot.id, cards.find(c => c.id === spot.id)?.artifact_id)} className="landing-cobe-marker" style={anchors && !failed ? { ...anchorStyle(spot.id), opacity: `var(--cobe-visible-${spot.id}, 0)`, pointerEvents: `var(--cobe-visible-${spot.id}, none)` } as unknown as CSSProperties : undefined}>
-                <strong>{spot.short}</strong>
-                <small>{spot.name} / 72 forecast hours</small>
+            <Link key={spot.id} href={forecastHref(spot.id, cards.find(c => c.id === spot.id)?.artifact_id) + (cards.find(c => c.id === spot.id)?.target ? `&target=${encodeURIComponent(cards.find(c => c.id === spot.id)!.target!)}` : "")} className="landing-cobe-marker" style={anchors && !failed ? { ...anchorStyle(spot.id), opacity: `var(--cobe-visible-${spot.id}, 0)`, pointerEvents: `var(--cobe-visible-${spot.id}, none)` } as unknown as CSSProperties : undefined}>
+                <strong>{cards.find(c => c.id === spot.id)?.target_label || spot.short}</strong>
+                <small>{spot.name} / {cards.find(c => c.id === spot.id)?.quality_status === "experimental_preview" ? "experimental preview" : "local ML predictions"}</small>
                 <small>{(() => {
                     const card = cards.find(c => c.id === spot.id);
                     if (!card) return catalogueError ? 'Forecast unavailable' : 'Preparing forecast...';
                     if (card.state !== 'fresh') return card.state === 'stale' ? 'Expired / open to refresh' : 'Forecast unavailable';
-                    return card.peak_24h ? `${card.peak_24h.median?.toFixed(1)} mm / wettest 24 h median` : 'Incomplete ensemble coverage';
+                    if (card.kind === 'local_model' && card.median != null) return `${card.median.toFixed(2)} ${card.unit} / first forecast window`;
+                    return card.peak_24h ? `${card.peak_24h.median?.toFixed(1)} mm / largest forecast-day median` : 'Open dataset forecasts';
                 })()}</small>
             </Link>
         ))}

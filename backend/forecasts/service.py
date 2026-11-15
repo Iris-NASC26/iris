@@ -106,7 +106,7 @@ def _refresh_loop():
 def start():
     global _worker
     if (
-        os.environ.get("FORECAST_REFRESH_ENABLED", "true").lower() == "false"
+        os.environ.get("FORECAST_REFRESH_ENABLED", "false").lower() == "false"
         or _worker
         and _worker.is_alive()
     ):
