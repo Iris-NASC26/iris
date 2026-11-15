@@ -8,20 +8,20 @@ The Iris workspace is the analytical dashboard where all investigation work happ
 
 ```
 ┌──────────────┬──────────────────────────────────────────────┐
-│              │  Top bar: active dataset, region, job ID     │
+│              │  Top bar: page title, theme toggle          │
 │   Sidebar    ├──────────────────────────────────────────────┤
 │              │                                              │
 │  Navigation  │          Main content area                   │
 │  groups      │          (changes per page)                  │
 │              │                                              │
-│  Theme /     │                                              │
-│  Docs footer │                                              │
+│  Docs /       │                                             │
+│  GitHub footer│                                             │
 └──────────────┴──────────────────────────────────────────────┘
 ```
 
 **The sidebar** can be collapsed to icons-only mode using the chevron button at the top. On mobile, it opens as a drawer.
 
-**The top bar** shows context about the active investigation: the current dataset code, the selected region, and a unique job ID when a data extraction is active.
+**The top bar** shows the current page title and provides the theme toggle at the right.
 
 ---
 
@@ -129,20 +129,10 @@ Connects the active dataset to published peer-reviewed literature, NASA technica
 
 ---
 
-## Context chip (top bar)
-
-The top bar shows three pieces of active context:
-
-- **Dataset code** — the short identifier for the currently loaded dataset (e.g., `T2M` for near-surface temperature)
-- **Region** — the name or coordinates of the active spatial selection
-- **Job ID** — appears when a data extraction result is loaded; this is a unique immutable ID that can be used to reload the same extraction later
-
----
-
 ## Sidebar footer
 
-The sidebar footer contains three persistent controls:
+The sidebar footer contains persistent controls:
 
 - **Replay tour** — reopens the onboarding walkthrough
 - **Documentation** — opens this documentation in a new tab
-- **Theme toggle** — switches between light and dark mode
+- **GitHub repository** — opens the project repository in a new tab
