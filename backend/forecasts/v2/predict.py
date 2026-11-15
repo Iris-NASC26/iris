@@ -24,6 +24,24 @@ RUNS_ROOT = Path(STORE_PATH).parent / "v2" / "runs"
 HORIZONS = (0, 1, 2)
 
 
+def _input_snapshot(records: list[dict], issue: datetime) -> dict:
+    """Immutable lineage of the actual inference inputs (P2-05): content
+    hash over canonical rows + issue cutoff + availability evidence."""
+    import hashlib
+    canon = sorted(
+        ({"variable": r.get("variable"), "source_id": r.get("source_id"),
+          "interval_start": r.get("interval_start"),
+          "interval_end": r.get("interval_end"), "value": r.get("value"),
+          "available_at": r.get("available_at")} for r in records),
+        key=lambda r: (str(r["source_id"]), str(r["interval_start"])))
+    blob = json.dumps(canon, sort_keys=True, separators=(",", ":")).encode()
+    return {"records_sha256": hashlib.sha256(blob).hexdigest(),
+            "records": len(canon),
+            "issue_cutoff": issue.isoformat(),
+            "availability_evidence": ("estimated_availability" if any(
+                r.get("available_at") for r in canon) else "unknown")}
+
+
 def _active_model(location_id: str, horizon: int, target: str = "precip_24h") -> dict | None:
     registry_p = training.MODELS_ROOT / location_id / "registry.json"
     if not registry_p.exists():
@@ -60,7 +78,7 @@ def _preview_model(location_id: str, horizon: int, target: str) -> dict | None:
 
 
 def predict(location_id: str, records: list[dict], issue_ts: str | None = None,
-            target: str = "precip_24h") -> dict:
+            target: str = "precip_24h", *, location: dict | None = None) -> dict:
     """Generate local results, retaining quality failures as visible metadata."""
     import numpy as np
     from threadpoolctl import threadpool_limits
@@ -134,6 +152,21 @@ def predict(location_id: str, records: list[dict], issue_ts: str | None = None,
         evaluation_ref=windows[0].model_id, predictions=windows, target=target,
         horizons_unavailable=unavailable,
         quality_status="experimental_preview" if any(w.quality_status == "experimental_preview" for w in windows) else "passed_checks",
+        location_id=location_id,
+        # Saved runs keep their actual spatial scope — a point estimate never
+        # becomes an area value by moving a label, and vice versa.
+        spatial={"mode": (location or {}).get("spatial_mode", "point"),
+                 "support": ("area_mean" if (location or {}).get("spatial_mode") == "area_mean"
+                             else "point"),
+                 "label": ("Area average" if (location or {}).get("spatial_mode") == "area_mean"
+                           else "Point / grid-cell estimate"),
+                 "requested_geometry": (location or {}).get("geometry"),
+                 "bbox": (location or {}).get("bbox"),
+                 "location_name": (location or {}).get("name"),
+                 "timezone": (location or {}).get("timezone", "UTC")},
+        # P2-05: freeze the actual inference inputs, separate from the
+        # training revision — reproduction must not read changed staging.
+        input_snapshot=_input_snapshot(records, issue),
         scope="experimental_preview" if any(w.quality_status == "experimental_preview" for w in windows) else "experimental_local_model")
     out = {**asdict(run), "state": "available"}
     rdir = RUNS_ROOT / location_id

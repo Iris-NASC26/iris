@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { readFile } from "node:fs/promises";
+import { v2CompatibilityFixture, v2LocationsFixture } from "./forecastMocks";
 
 const capabilities = {
   schema_version: "iris.ml-forecast.v2", credentials: { configured: false },
@@ -36,6 +37,8 @@ test("dataset generation completes, displays local predictions and exports evide
     const path = url.pathname;
     const target = url.searchParams.get("target") || "smap_surface_sm";
     if (path.endsWith("/capabilities")) return route.fulfill({ json: capabilities });
+    if (path.endsWith("/locations")) return route.fulfill({ json: v2LocationsFixture() });
+    if (path.endsWith("/compatibility")) return route.fulfill({ json: v2CompatibilityFixture() });
     if (path.endsWith("/generate")) {
       expect(route.request().postDataJSON().variable).toBe("smap_surface_sm");
       return route.fulfill({ json: { job_id: "v2-test", kind: "pipeline", status: "queued", progress: .1, checkpoint: {}, error: null } });
@@ -73,6 +76,8 @@ test("saved local runs load without generating a new prediction", async ({ page 
     if (route.request().method() === "POST") mutations.push(route.request().url());
     const path = new URL(route.request().url()).pathname;
     if (path.endsWith("/capabilities")) return route.fulfill({ json: capabilities });
+    if (path.endsWith("/locations")) return route.fulfill({ json: v2LocationsFixture() });
+    if (path.endsWith("/compatibility")) return route.fulfill({ json: v2CompatibilityFixture() });
     if (path.includes("/runs/")) return route.fulfill({ json: forecast("merra2_t2m") });
     if (path.endsWith("/history")) return route.fulfill({ json: { state: "unavailable", source_id: "M2T1NXSLV.5.12.4", records: [], coverage: { complete_days: 0 } } });
     return route.fulfill({ json: { datasets: [], models: [], reports: [], job: null } });
@@ -90,6 +95,8 @@ test("experimental forecast displays red baseline errors and preserves saved nav
     const path = new URL(route.request().url()).pathname;
     if (route.request().method() === "POST") mutations.push(path);
     if (path.endsWith("/capabilities")) return route.fulfill({ json: capabilities });
+    if (path.endsWith("/locations")) return route.fulfill({ json: v2LocationsFixture() });
+    if (path.endsWith("/compatibility")) return route.fulfill({ json: v2CompatibilityFixture() });
     if (path.endsWith("/published")) return route.fulfill({ json: { forecasts: [forecast("merra2_t2m")] } });
     if (path.includes("/runs/")) return route.fulfill({ json: forecast("merra2_t2m") });
     if (path.endsWith("/jobs")) return route.fulfill({ json: { job: {
@@ -130,6 +137,8 @@ test("default page selects an already published forecast for presentation", asyn
   await page.route("**/api/v1/forecasts/v2/**", route => {
     const path = new URL(route.request().url()).pathname;
     if (path.endsWith("/capabilities")) return route.fulfill({ json: capabilities });
+    if (path.endsWith("/locations")) return route.fulfill({ json: v2LocationsFixture() });
+    if (path.endsWith("/compatibility")) return route.fulfill({ json: v2CompatibilityFixture() });
     if (path.endsWith("/published")) return route.fulfill({ json: { forecasts: [forecast("merra2_t2m")] } });
     if (path.endsWith("/prediction")) return route.fulfill({ json: forecast("merra2_t2m") });
     if (path.endsWith("/history")) return route.fulfill({ json: { state: "unavailable", records: [], coverage: { complete_days: 0 } } });
@@ -147,6 +156,8 @@ test("generation from a saved run exits the archive and shows the new result", a
   await page.route("**/api/v1/forecasts/v2/**", route => {
     const path = new URL(route.request().url()).pathname;
     if (path.endsWith("/capabilities")) return route.fulfill({ json: capabilities });
+    if (path.endsWith("/locations")) return route.fulfill({ json: v2LocationsFixture() });
+    if (path.endsWith("/compatibility")) return route.fulfill({ json: v2CompatibilityFixture() });
     if (path.endsWith("/generate")) { generated = true; return route.fulfill({ json: latest }); }
     if (path.includes("/runs/")) return route.fulfill({ json: forecast("merra2_t2m") });
     if (path.endsWith("/prediction")) return route.fulfill({ json: generated ? latest : forecast("merra2_t2m") });
@@ -176,6 +187,8 @@ test("mobile dark preview keeps warnings readable and exports quality metadata",
   await page.route("**/api/v1/forecasts/v2/**", route => {
     const path = new URL(route.request().url()).pathname;
     if (path.endsWith("/capabilities")) return route.fulfill({ json: capabilities });
+    if (path.endsWith("/locations")) return route.fulfill({ json: v2LocationsFixture() });
+    if (path.endsWith("/compatibility")) return route.fulfill({ json: v2CompatibilityFixture() });
     if (path.endsWith("/prediction")) return route.fulfill({ json: preview });
     if (path.endsWith("/history")) return route.fulfill({ json: { state: "unavailable", records: [], coverage: { complete_days: 0 } } });
     return route.fulfill({ json: { datasets: [], models: [], reports: [], job: null } });

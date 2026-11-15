@@ -118,10 +118,10 @@ export function Globe({ field, points, onPick, extentBox = null, frameSignal = 0
         let created: GlobeEngine | null = null;
         void (async () => {
             try {
-                const module = await import('./cesium/engine');
+                const engineModule = await import('./cesium/engine');
                 if (cancelled || !mount.current)
                     return;
-                created = await module.GlobeEngine.create(mount.current, {
+                created = await engineModule.GlobeEngine.create(mount.current, {
                     reducedMotion: reducedMotion.current,
                     onPick: (lat, lon) => inspectRef.current(lat, lon),
                     onStatus: s => {
