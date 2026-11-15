@@ -1,0 +1,14 @@
+.git
+node_modules
+.next
+artifacts/
+backend/.env
+backend/.venv/
+backend/data/
+**/__pycache__/
+**/.pytest_cache/
+**/tests/
+docs/
+documentation/
+ui-redesign/
+*.md

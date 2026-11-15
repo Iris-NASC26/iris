@@ -1,5 +1,11 @@
 # Iris FastAPI backend — visualization_app (forecasts v1+v2, hazards,
-# analysis, geocode, ops). Build context: backend/ only.
+# analysis, geocode, ops).
+#
+# Build from the REPOSITORY ROOT — the code resolves repo-relative paths
+# (backend/forecasts/catalog.py: parents[2], shared/*.json):
+#     docker build -f backend/Dockerfile -t iris-backend .
+#
+# Image layout mirrors the repo: /app/backend, /app/shared, /app/artifacts.
 FROM python:3.13-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -10,16 +16,18 @@ WORKDIR /app/backend
 
 # visualization-requirements.txt transitively -r's the other two files;
 # copy them first so dependency install stays cached across source edits.
-COPY requirements.txt visualization-requirements.txt ./
-COPY hazards/requirements.txt hazards/requirements.txt
-COPY forecasts/requirements.txt forecasts/requirements.txt
+COPY backend/requirements.txt backend/visualization-requirements.txt ./
+COPY backend/hazards/requirements.txt hazards/requirements.txt
+COPY backend/forecasts/requirements.txt forecasts/requirements.txt
 RUN pip install --upgrade pip && \
     pip install -r visualization-requirements.txt
 
-COPY . /app/backend
+COPY backend/ /app/backend/
+COPY shared/ /app/shared/
 
 # Runtime state lives outside the image: /app/artifacts (forecast catalogue,
-# datasets, eval/release artifacts) and /app/backend/data (durable store).
+# datasets, eval/release artifacts, hazard NASA caches) and
+# /app/backend/data (durable store). Mount volumes there.
 RUN useradd --system --uid 1001 iris && \
     mkdir -p /app/artifacts /app/backend/data && \
     chown -R iris:iris /app
