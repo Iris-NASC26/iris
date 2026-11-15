@@ -116,6 +116,12 @@ def validate(raw: dict) -> dict:
     unknown_baselines = [b for b in spec["baselines"] if b not in BASELINE_CHOICES]
     if unknown_baselines or not spec["baselines"]:
         _fail(f"baselines must be chosen from {BASELINE_CHOICES}")
+    fcols = spec.get("feature_columns")
+    if fcols is not None:
+        if (not isinstance(fcols, list) or not fcols
+                or len(fcols) > 64
+                or any(not isinstance(c, str) or not c for c in fcols)):
+            _fail("feature_columns must be a non-empty list of <=64 names")
     if spec.get("availability_policy", "estimated_availability") not in EVIDENCE_LEVELS:
         _fail(f"availability_policy must be one of {EVIDENCE_LEVELS}")
     leaves = spec["estimator"]["leaves_candidates"]

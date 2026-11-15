@@ -73,7 +73,8 @@ def _age_policy(spec, history, lag, dev_cases):
     return {"max_input_age_days": declared, "basis": "source_declared"}
 
 
-def _evaluate_context(ctx, spec, manifest_fn, load_fn, resolve_fn):
+def _evaluate_context(ctx, spec, manifest_fn, load_fn, resolve_fn,
+                      feature_fn=None):
     loc, manifest, records = _context_data(ctx, manifest_fn, load_fn, resolve_fn)
     lag = splits.lag_hours(manifest)
     history = History(records, ctx["target"], manifest["source_id"], lag)
@@ -86,7 +87,8 @@ def _evaluate_context(ctx, spec, manifest_fn, load_fn, resolve_fn):
     dev_issues = [i for i in issues if i < boundary]
     holdout_issues = [i for i in issues if i >= boundary]
     dev_cases, exclusions = splits.cases(history, manifest, spec["horizons"],
-                                         spec["issue"], boundary)
+                                         spec["issue"], boundary,
+                                         feature_fn=feature_fn)
     spatial_mode = manifest.get("spatial_mode", "point")
     result = {"location_id": ctx["location_id"], "dataset_id": ctx["dataset_id"],
               "target": ctx["target"], "source_id": manifest["source_id"],
@@ -129,11 +131,12 @@ def _evaluate_context(ctx, spec, manifest_fn, load_fn, resolve_fn):
         reference = [r for r in history.rows
                      if r["start"] < plan["test_start"]]
         base = bl.Baselines(history, reference)
+        columns = spec.get("feature_columns")
         fitted = est.select_and_fit(parts["train"], parts["validation"],
                                     spec["estimator"], spec["seed"],
-                                    spec["limits"])
+                                    spec["limits"], columns=columns)
         correction = est.conformal_correction(fitted, parts["calibration"],
-                                              ctx["target"])
+                                              ctx["target"], columns=columns)
         fold_rec["candidate"] = fitted["selected"]
         fold_rec["calibration_correction"] = correction
         fold_rec["case_rows"] = []
@@ -145,7 +148,8 @@ def _evaluate_context(ctx, spec, manifest_fn, load_fn, resolve_fn):
                 row["predictions"]["candidate"] = None
                 row["excluded_reason"] = "outside_operational_age_policy"
             else:
-                pred = est.predict_quantiles(fitted, [case], ctx["target"])
+                pred = est.predict_quantiles(fitted, [case], ctx["target"],
+                                             columns=columns)
                 pred = est.apply_correction(pred, correction, ctx["target"])
                 row["predictions"]["candidate"] = {"q": pred[0].tolist()}
             for name in spec["baselines"]:
@@ -204,13 +208,19 @@ def _baseline_champion(contexts):
 
 
 def run(spec_dict, *, manifest_fn=None, load_fn=None, resolve_fn=None,
-        store_dir=None) -> dict:
+        store_dir=None, feature_fn=None) -> dict:
     """Development-mode evaluation: walk-forward backtests, holdout reserved
-    but never scored. Returns the report dict (also persisted)."""
+    but never scored. Returns the report dict (also persisted).
+
+    `feature_fn(issue, horizon)` is the Phase-4 extension point: when
+    provided it supplies each case's feature dict instead of
+    `History.feature`; pair it with `feature_columns` in the spec so the
+    estimator matrix uses the declared schema."""
     spec = spec_mod.validate(spec_dict)
     fp = spec_mod.fingerprint(spec, PROTOCOL_VERSION)
     manifest_fn, load_fn, resolve_fn = _adapters(manifest_fn, load_fn, resolve_fn)
-    contexts = [_evaluate_context(c, spec, manifest_fn, load_fn, resolve_fn)
+    contexts = [_evaluate_context(c, spec, manifest_fn, load_fn, resolve_fn,
+                                  feature_fn=feature_fn)
                 for c in spec["contexts"]]
     planned = sum(len(c["folds"]) for c in contexts)
     done = sum(c.get("walk_forward_folds_run", 0) for c in contexts)
@@ -243,7 +253,8 @@ def run(spec_dict, *, manifest_fn=None, load_fn=None, resolve_fn=None,
 
 
 def run_final_assessment(spec_dict, *, manifest_fn=None, load_fn=None,
-                         resolve_fn=None, store_dir=None) -> dict:
+                         resolve_fn=None, store_dir=None,
+                         feature_fn=None) -> dict:
     """One explicit assessment of the frozen spec on the reserved period.
 
     The fold plan is a single outer block: the holdout issues. Inner
@@ -260,24 +271,27 @@ def run_final_assessment(spec_dict, *, manifest_fn=None, load_fn=None,
         issues = sorted({r["start"] for r in history.rows})
         boundary = splits.holdout_boundary(issues, spec["final_holdout"])
         dev_cases, _ = splits.cases(history, manifest, spec["horizons"],
-                                    spec["issue"], boundary)
+                                    spec["issue"], boundary,
+                                    feature_fn=feature_fn)
         hold_cases, hold_excl = splits.cases(
             history, manifest, spec["horizons"], spec["issue"],
-            datetime(2100, 1, 1, tzinfo=UTC))
+            datetime(2100, 1, 1, tzinfo=UTC), feature_fn=feature_fn)
         hold_cases = [c for c in hold_cases if _stamp(c["issue"]) >= boundary]
         parts = splits.inner_split(dev_cases, spec["development"])
+        columns = spec.get("feature_columns")
         fitted = est.select_and_fit(parts["train"], parts["validation"],
                                     spec["estimator"], spec["seed"],
-                                    spec["limits"])
+                                    spec["limits"], columns=columns)
         correction = est.conformal_correction(fitted, parts["calibration"],
-                                              ctx["target"])
+                                              ctx["target"], columns=columns)
         reference = [r for r in history.rows if r["start"] < boundary]
         base = bl.Baselines(history, reference)
         for case in hold_cases:
             row = {**case, "methods": list(spec["baselines"]) + ["candidate"],
                    "predictions": {}, "fold": "final",
                    "season": _season(_stamp(case["issue"]))}
-            pred = est.predict_quantiles(fitted, [case], ctx["target"])
+            pred = est.predict_quantiles(fitted, [case], ctx["target"],
+                                         columns=columns)
             row["predictions"]["candidate"] = {
                 "q": est.apply_correction(pred, correction, ctx["target"])[0].tolist()}
             for name in spec["baselines"]:

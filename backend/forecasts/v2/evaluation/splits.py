@@ -53,7 +53,8 @@ def make_history(records, target, source, lag):
     return History(records, target, source, lag)
 
 
-def cases(history, manifest, horizons, issue_cfg, dev_end) -> list:
+def cases(history, manifest, horizons, issue_cfg, dev_end,
+          feature_fn=None) -> list:
     """Scored case rows: one per issue × horizon through `dev_end`.
 
     A case is scored only when the dataset genuinely holds its native
@@ -75,7 +76,8 @@ def cases(history, manifest, horizons, issue_cfg, dev_end) -> list:
             if label is None or label["end"] != end:
                 excluded["missing_target_window"] += 1
                 continue
-            x = history.feature(issue, h)
+            x = (feature_fn(issue, h) if feature_fn is not None
+                 else history.feature(issue, h))
             if x is None:
                 excluded["insufficient_inputs"] += 1
                 continue
