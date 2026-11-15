@@ -20,7 +20,7 @@
    - 6.6 [Living Globe (Spatial Visualization)](#66-living-globe-spatial-visualization)
    - 6.7 [Case Studies](#67-case-studies)
    - 6.8 [Existing Research](#68-existing-research)
-   - 6.9 [Precipitation Forecasts Workspace](#69-precipitation-forecasts-workspace)
+   - 6.9 [Dataset & ML Forecasts Workspace](#69-dataset--ml-forecasts-workspace)
    - 6.10 [Disaster & Hazard Evidence Investigations](#610-disaster--hazard-evidence-investigations)
 7. [Investigation Workflows](#7-investigation-workflows)
    - 7.1 [Track A — Live Ad-Hoc Discovery](#71-track-a--live-ad-hoc-discovery)
@@ -33,7 +33,7 @@
 12. [Global Trend Cube (SRS v1.0)](#12-global-trend-cube-srs-v10)
 13. [Evidence Grades & Validation](#13-evidence-grades--validation)
 14. [AI / Super Intelligence Governance](#14-ai--super-intelligence-governance)
-15. [Precipitation Forecast System](#15-precipitation-forecast-system)
+15. [Dataset & Machine Learning Forecast System](#15-dataset--machine-learning-forecast-system)
 16. [Immersive Visualization Studio](#16-immersive-visualization-studio)
 17. [Use Cases](#17-use-cases)
 18. [Deployment & Local Development](#18-deployment--local-development)
@@ -385,6 +385,7 @@ The sidebar can be collapsed to icons-only mode. On mobile, it opens as a drawer
 | `/workspace/globe` | Living Globe | 3D CesiumJS globe with spatial field overlays |
 | `/workspace/case-studies` | Case Studies | Curated benchmark investigations |
 | `/workspace/case-studies/[caseId]` | Individual Case | Specific case study (e.g., nepal-floods-2024) |
+| `/workspace/forecasts` | Forecasts | Multi-variable historical ML forecasts and legacy ensembles |
 | `/workspace/research` | Existing Research | Dataset-matched peer-reviewed literature |
 
 ---
@@ -774,11 +775,18 @@ The search is seeded automatically from the active dataset's metadata (variable 
 
 ---
 
-### 6.9 Precipitation Forecasts Workspace
+### 6.9 Dataset & ML Forecasts Workspace
 
-**Route:** `/workspace/data-analysis?forecastId=<id>&run=<artifact-id>`
+**Route:** `/workspace/forecasts?forecastId=<id>&target=<target>&run=<artifact-id>`
 
-Precipitation forecast exploration for six configured points worldwide.
+The dedicated forecast workspace providing both Iris's history-only machine learning forecasts (`iris.ml-forecast.v2`) across multi-variable Earth system targets and an auditable archive of legacy 51-member ECMWF precipitation ensemble predictions.
+
+#### Core Capabilities:
+1. **Historical Dataset ML Forecasts (Default)**: Trains gradient-boosted quantile regression models directly on historical observations. Generates direct 3-horizon predictions ($h_0, h_1, h_2$) with 10th–90th percentile uncertainty ranges.
+2. **Multi-Variable Earthdata Targets**: Supports rainfall (`precip_24h`), soil moisture (SMAP surface/root-zone, GLDAS), air and surface temperature (MERRA-2, MODIS LST), vegetation (MODIS/VIIRS NDVI/EVI), evapotranspiration, and snow cover.
+3. **Rigorous Activation Gates & Experimental Previews**: Models must beat persistence and seasonal climatology on held-out test data. Candidates missing activation checks generate labeled **Experimental Previews** with explicit baseline error comparisons (`100 × (model MAE / baseline MAE − 1)`).
+4. **Durable Jobs & Staged Dataset Controls**: Long-running NASA extractions and model training jobs run asynchronously and recover across page reloads.
+5. **Legacy Provider Ensemble Archive**: ECMWF 51-member ensemble precipitation outlooks using member-first accumulation, with recent NASA GPM IMERG 7-day satellite context.
 
 #### Configured Forecast Points
 
@@ -791,38 +799,12 @@ Precipitation forecast exploration for six configured points worldwide.
 | `mediterranean` | Mediterranean Basin, Southern Europe |
 | `siberia` | Eastern Siberian Permafrost (Yakutia) |
 
-#### Forecast Data
-
-| Property | Description |
-|---|---|
-| **Source** | Meteomatics / ECMWF ensemble (51 members) |
-| **Parameter** | `precip_3h:mm` — 3-hour accumulation in mm |
-| **Ensemble** | `source=ecmwf-ens`, `ens_select=member:0,member:1-50` |
-| **Horizon** | 72-hour point forecast |
-| **Member 0** | ECMWF control member |
-| **Members 1–50** | Perturbed ensemble members |
-
-#### Chart Options
-
-| View | Description |
-|---|---|
-| **Median/range ribbon** | Ensemble median ± 10th–90th percentile ribbon (central 80% range) |
-| **Median bars** | Bar chart of 3-hour accumulation medians |
-| **All 51 members** | Individual spaghetti plot of all ensemble members |
-
-#### Accumulation Windows
-
-| Window | Description |
-|---|---|
-| **3-hour accumulations** | Raw 3-hour interval precipitation (preceding hours) |
-| **Rolling 24-hour totals** | Sum of 8 consecutive 3-hour intervals; 17 overlapping windows in 72-hour series |
-| **Three forecast-day totals** | Sum of 24 consecutive hours for each of three forecast days |
-
-> **Scientific integrity:** Per-member accumulations are summed first, then percentiles are computed across members. Summing subdaily marginal percentiles is mathematically incorrect and is prevented by regression tests.
-
-#### Forecast Inspection Features
-
-- Inspect individual intervals by clicking the chart
+#### Interactive Features:
+- Target variable selector with dynamic unit conversion (°C / K)
+- 3 window summary cards with per-window error comparisons vs baseline
+- Shaded 10th–90th percentile uncertainty ribbon and median outlook chart
+- Permanent run preservation (**Save link**) and full evidence export (JSON)
+- Inspection of staged datasets, model cards, and retrospective trend reports
 - Change location and timezone within the workspace
 - View exact ensemble member values in the data table
 - Export complete forecast/member evidence as CSV/JSON
@@ -1397,35 +1379,49 @@ Plain-language explanation (templated from computed metrics)
 
 ---
 
-## 15. Precipitation Forecast System
+## 15. Dataset & Machine Learning Forecast System
 
-### Data Source
+The **Dataset & Machine Learning Forecast System** (`iris.ml-forecast.v2`, `backend/forecasts/v2/`) is Iris's production-ready environmental forecasting engine. It trains local machine learning models directly on historical observations and reanalysis, delivering transparent, auditable forward outlooks without relying on external future weather predictions.
 
-**Provider:** Meteomatics AG  
-**Underlying Model:** ECMWF ensemble (IFS)  
-**Parameter:** `precip_3h:mm` — 3-hour accumulated liquid/frozen water equivalent  
-**Ensemble Selection:** `source=ecmwf-ens`, `ens_select=member:0,member:1-50`  
-**Horizon:** 72 hours (24 × 3-hour intervals)
+### Core Architecture: History-Only Learning
 
-**References:**
-- [Meteomatics model documentation](https://www.meteomatics.com/en/api/request/optional-parameters/data-source/)
-- [Meteomatics ensemble selection](https://www.meteomatics.com/en/api/request/optional-parameters/ensemble-member-selection/)
+1. **No Future Provider Values as Features**: The model is trained exclusively on past observational records. External future predictions are strictly prohibited from entering feature sets.
+2. **Chronological 4-Way Splitting**: Data is partitioned into Development (60%), Validation (15%), Calibration (10%), and Test (15%) folds strictly by time. Random shuffling and random early stopping are disabled to eliminate hindsight leakage.
+3. **Availability Lag Enforcement**: Accounts for real-world remote sensing delays (e.g., 144-hour lag for ERA5, ~14-day composite lag for MODIS). Observations whose release window has not elapsed are excluded from feature vectors.
+4. **Direct Horizon Quantile Models**: Fits direct Histogram Gradient Boosting regressors for three future windows ($h_0, h_1, h_2$), producing calibrated 10th, 50th (median), and 90th percentile ranges.
 
-### Accumulation Rules
+### Multi-Variable Earthdata Targets
 
-For rolling 24-hour window totals:
-1. **Sum the 8 constituent 3-hour accumulations within each member first**
-2. **Then compute linear 10th, 50th, and 90th percentiles across all 51 member totals**
+| Target Key | Variable | Unit | Source Product | Cadence / Delay |
+|---|---|---|---|---|
+| `precip_24h` | Daily Rainfall | `mm` | Meteomatics `era5` / `mix` | Daily · 144h / 3h |
+| `smap_surface_sm` | Surface Soil Moisture | `m³/m³` | SMAP `SPL3SMP_E.006` | Daily · ~3d |
+| `smap_l4_surface_sm` | Root-Zone Soil Moisture | `m³/m³` | SMAP `SPL4SMGP.008` | 3-hourly · ~2.5d |
+| `merra2_t2m` | Air Temperature | `K` / `°C` | MERRA-2 `M2T1NXSLV` | Hourly · ~1mo |
+| `modis_lst_day` | Land Surface Temperature | `K` / `°C` | MODIS `MOD11A1.061` | Daily · ~2wk |
+| `modis_ndvi` | Vegetation Index | Index (`0..1`) | MODIS `MOD13Q1.061` | 16-day · ~10d |
+| `viirs_ndvi` | Vegetation Index | Index (`0..1`) | VIIRS `VNP13A1.002` | 16-day · ~10d |
+| `modis_et` | Evapotranspiration | `kg/m²/8day` | MODIS `MOD16A2GF` | 8-day · year-end gap fill |
+| `gldas_soilm` | Soil Moisture | `kg/m²` | GLDAS `GLDAS_NOAH025_3H` | 3-hourly · ~1–2mo |
+| `modis_snow_cover` | Snow Cover Fraction | `%` | MODIS `MOD10A1.061` | Daily · ~2wk |
 
-Summing subdaily marginal percentiles (not member-first) is mathematically incorrect and is prevented by regression tests.
+### Model Activation Gates & Experimental Preview Mode
 
-### Forecast Store
+- **Activation Checks**: A candidate model must outperform both the Persistence baseline and the Seasonal Climatology baseline on held-out test data while maintaining non-crossing, calibrated quantiles.
+- **Experimental Preview Mode**: If a model fails activation checks (e.g., GLDAS soil moisture where persistence proves superior), Iris publishes an **Experimental Preview** with an explicit amber badge and baseline relative error metrics:
+  $$\text{Baseline Relative Error (\%)} = 100 \times \left(\frac{\text{Model MAE}}{\text{Baseline MAE}} - 1\right)$$
+- An indicator such as `+8.0% more error than baseline` ensures full scientific transparency without manufacturing optimistic accuracy figures.
 
-Forecasts cache for 15 minutes (keyed by case + account fingerprint). A local limit of 100 remote requests per UTC day/process applies as a conservative safeguard.
+### Durable Jobs & Auto-Renewal
 
-### Iris ML Learning (Offline Experiment Only)
+- Background jobs (NASA downloads, dataset freezing, model fitting) persist in `backend/data/iris_durable_store.json` across client restarts.
+- An idle worker checks every 5 minutes to automatically renew active predictions when new staged observations are available.
 
-An offline ML training experiment (`backend/forecasts/learning.py`) is implemented but not in production. No genuine Iris model has been trained. The UI reports this honestly: `human_reviewed=false` and `production_enabled=false`.
+### Legacy Provider Ensemble Archive (ECMWF 51-Member)
+
+For comparative baseline studies, Iris maintains an explicit archive path (`ENABLE_PROVIDER_FORECASTS=true` or via 64-character SHA-256 snapshot links) for 72-hour ECMWF ensemble precipitation forecasts (`precip_3h:mm`).
+- **Member-First Rule**: Sums subdaily 3-hour accumulations within each of the 51 members first before calculating the 10th, 50th, and 90th percentiles across all 51 totals.
+- **NASA GPM IMERG Context**: Loads authentic 7-day satellite precipitation estimates (`GPM_3IMERGDE.07`) preceding the forecast horizon.
 
 ---
 

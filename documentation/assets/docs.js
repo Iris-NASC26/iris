@@ -21,9 +21,22 @@ const NAV = [
       { id: "visualize", title: "Plot & Visualize" },
       { id: "globe", title: "Living Globe" },
       { id: "case-studies", title: "Case Studies" },
-      { id: "forecasts", title: "Precipitation Forecasts" },
+      { id: "forecasts", title: "Dataset & ML Forecasts" },
       { id: "hazards", title: "Hazard Investigations" },
       { id: "research", title: "Existing Research" },
+    ],
+  },
+  {
+    section: "Analysis Methods",
+    items: [
+      { id: "method-ols", title: "OLS Linear Trend t-Test" },
+      { id: "method-hamed-rao-mk", title: "Mann–Kendall (Hamed–Rao)" },
+      { id: "method-seasonal-kendall", title: "Seasonal Kendall Test" },
+      { id: "method-sen-slope", title: "Sen's Slope Estimator" },
+      { id: "method-pettitt", title: "Pettitt Change-Point Screen" },
+      { id: "method-anomalies", title: "Anomaly Review (Z-Score)" },
+      { id: "method-seasonal-fingerprint", title: "Seasonal Fingerprint" },
+      { id: "method-case-file-diagnostics", title: "Full Case File Diagnostics" },
     ],
   },
   {

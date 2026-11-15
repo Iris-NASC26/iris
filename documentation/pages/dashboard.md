@@ -12,7 +12,7 @@ The workspace brings together:
 - statistical analysis and evidence scoring (Case File)
 - visualization and export workflows
 - global 3D/2D spatial field rendering (Living Globe)
-- short-term precipitation ensembles (Forecasts)
+- historical dataset ML predictions & precipitation ensembles (Forecasts)
 - forensic disaster evidence timelines (Hazards)
 - research and literature linkage (OpenAlex / DataCite)
 
@@ -39,7 +39,7 @@ The workspace is structured as a left-side operational flow with active panels. 
 | Plot & Visualize | `/workspace/visualize` | Charting and study exploration | Figures, exports, comparisons |
 | Living Globe | `/workspace/globe` | Spatial field exploration | 3D/2D gridded NASA POWER fields |
 | Case Studies | `/workspace/case-studies` | Pre-built investigations | Solved case files & checkpoints |
-| Forecasts | `/workspace/data-analysis?forecastId=...` | Future precipitation outlook | 51-member ECMWF ensemble curves |
+| Forecasts | `/workspace/forecasts` | Multi-variable ML forecasts & legacy ensembles | 3-horizon quantiles, baseline metrics, ensemble curves |
 | Hazards | `/workspace/case-studies/[caseId]` | Disaster evidence | Official timelines & rainfall |
 | Existing Research | `/workspace/research` | Literature context | Scholarly citations & Open Access |
 

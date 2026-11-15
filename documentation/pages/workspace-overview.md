@@ -61,17 +61,17 @@ Use this track to explore pre-computed global trends and open selected locations
 
 ---
 
-### Forecast-First Track — Future Precipitation Outlooks
+### Forecast-First Track — Future Environmental & Weather Outlooks
 
-For short-term (72-hour) probabilistic weather predictions linking future ECMWF ensembles with recent NASA GPM IMERG satellite context:
+For short-term multi-variable future predictions (`/workspace/forecasts`) trained on genuine historical data or linking ECMWF ensembles with recent NASA satellite context:
 
 ```
-Landing Globe Story Cards
+Landing Globe Story Cards / Sidebar
          ↓
-Data Analysis (Forecast Workspace · ?forecastId=...)
+Forecast Workspace (/workspace/forecasts?forecastId=...&target=...)
 ```
 
-Use this track to evaluate immediate precipitation risk across 6 configured benchmark points.
+Use this track to evaluate immediate environmental risk across 6 configured benchmark points.
 
 ---
 
@@ -104,12 +104,12 @@ Inspect the extracted time-series before analysis. Shows a gap-aware chart, qual
 
 ---
 
-### Data Analysis (Case File)
+### Data Analysis (Interactive Workbench & Case File)
 *The shared scientific analysis engine for both tracks.*
 
-Runs the full statistical pipeline: STL seasonal decomposition, Mann-Kendall trend test, Sen's slope, change-point detection, and anomaly identification. Produces a complete, exportable Case File.
+An interactive statistical workbench with dataset compatibility profiling, card-based method selection, adjustable parameters, step-by-step cumulative execution, and downloadable high-resolution charts. Runs STL seasonal decomposition, Mann-Kendall trend tests, Sen's slope, change-point detection, anomaly reviews, and multi-window diagnostics to generate verifiable Case Files.
 
-[Learn more →](#visualize)
+[Learn more →](#data-analysis)
 
 ---
 
@@ -129,10 +129,10 @@ Pre-built, guided investigations that demonstrate how Iris works. Each case stud
 
 ---
 
-### Precipitation Forecasts
-*Future weather prediction engine.*
+### Dataset & Machine Learning Forecasts
+*Future environmental outlook engine (`/workspace/forecasts`).*
 
-Presents 72-hour 51-member ECMWF precipitation ensembles across 3-hour increments, rolling 24-hour totals, and daily sums. Displays the central 80% ensemble uncertainty ribbon alongside antecedent 7-day NASA GPM IMERG daily satellite observations.
+Trains local gradient-boosted quantile regression models directly on historical observations across multi-variable Earthdata targets (rainfall, soil moisture, temperature, vegetation, evapotranspiration, snow cover). Features 3-horizon direct predictions ($h_0, h_1, h_2$), 10th–90th percentile uncertainty ranges, baseline gating against persistence/climatology, and labeled experimental previews. Also provides access to legacy 72-hour 51-member ECMWF precipitation ensembles and antecedent 7-day NASA GPM IMERG satellite context.
 
 [Learn more →](#forecasts)
 

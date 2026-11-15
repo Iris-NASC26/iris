@@ -55,16 +55,32 @@ documentation/
 └── pages/                  # One .md file per documentation page
     ├── getting-started.md
     ├── quick-start.md
+    ├── local-running.md
     ├── workspace-overview.md
+    ├── dashboard.md
     ├── super-intelligence.md
     ├── data-selection.md
     ├── data-preview.md
+    ├── data-analysis.md
     ├── visualize.md
     ├── globe.md
     ├── case-studies.md
+    ├── forecasts.md
+    ├── hazards.md
+    ├── research.md
+    ├── method-ols.md
+    ├── method-hamed-rao-mk.md
+    ├── method-seasonal-kendall.md
+    ├── method-sen-slope.md
+    ├── method-pettitt.md
+    ├── method-anomalies.md
+    ├── method-seasonal-fingerprint.md
+    ├── method-case-file-diagnostics.md
+    ├── architecture-overview.md
     ├── methodology.md
     ├── data-sources.md
-    └── glossary.md
+    ├── glossary.md
+    └── comprehensive-documentation.md
 ```
 
 ## Deployment
