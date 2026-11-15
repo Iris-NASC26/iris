@@ -185,24 +185,6 @@ const PIPELINE_STEPS = [
   },
 ];
 
-/* ─── Hands-on Testing Benchmark Suites (4 Suites with Placeholders) ───── */
-
-/* ─── Hands-on Testing Photos (5 Slots for Laptop Usage) ──────────────── */
-
-interface TestingPhoto {
-  id: number;
-  src: string;
-  label: string;
-}
-
-const HANDS_ON_PHOTOS: TestingPhoto[] = [
-  { id: 1, src: "/testing (1).jpeg", label: "01" },
-  { id: 2, src: "/testing (2).jpeg", label: "02" },
-  { id: 3, src: "/testing (3).jpeg", label: "03" },
-  { id: 4, src: "/testing (4).jpeg", label: "04" },
-  { id: 5, src: "/testing (5).jpeg", label: "05" },
-];
-
 /* ─── Significant Benchmark Cases (3 Items) ────────────────────────────── */
 
 interface SignificantCase {
@@ -341,7 +323,6 @@ export default function LandingPage() {
   const { dark, toggleTheme } = useTheme();
   const [activeOffering, setActiveOffering] = useState<number>(0);
   const [activeSignalMode, setActiveSignalMode] = useState<"all" | "slope" | "anomalies">("all");
-  const [activePhoto, setActivePhoto] = useState<number | null>(null);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
   const toggleFaq = (index: number) => {
@@ -653,45 +634,6 @@ export default function LandingPage() {
                 </div>
               </div>
             </div>
-          </div>
-        </section>
-
-        {/* ─── 5. HANDS-ON TESTING (INTERACTIVE PHOTO BOUQUET) ────────── */}
-        <section className="testing-section" id="testing">
-          <div className="landing-section-heading centered" style={{ marginBottom: 16 }}>
-            <h2>Hands-on Testing</h2>
-          </div>
-
-          <div className="photo-bouquet-stage" aria-label="Hands-on testing photo gallery">
-            {HANDS_ON_PHOTOS.map((photo, idx) => (
-              <div
-                key={photo.id}
-                className={`photo-bouquet-card${activePhoto === idx ? " is-active" : ""}`}
-                onClick={() => setActivePhoto(activePhoto === idx ? null : idx)}
-              >
-                <div className="photo-card-inner">
-                  <div className="photo-card-topbar">
-                    <span className="photo-topbar-dot" />
-                    <span className="photo-topbar-dot" />
-                    <span className="photo-topbar-dot" />
-                  </div>
-                  <div className="photo-card-media">
-                    <div className="photo-card-placeholder">
-                      <Icon name="box" size={26} />
-                      <span>LAPTOP SESSION · {photo.label}</span>
-                    </div>
-                    <img
-                      src={photo.src}
-                      alt={`Hands-on testing ${photo.label}`}
-                      className="photo-card-img"
-                      onError={(e) => {
-                        (e.currentTarget as HTMLElement).style.display = "none";
-                      }}
-                    />
-                  </div>
-                </div>
-              </div>
-            ))}
           </div>
         </section>
 

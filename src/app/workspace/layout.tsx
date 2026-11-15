@@ -28,7 +28,7 @@ const navigation: Array<{
       ],
     },
     {
-      label: "Global Evidence Cube",
+      label: "Global Data",
       tag: "In Development",
       items: [
         {

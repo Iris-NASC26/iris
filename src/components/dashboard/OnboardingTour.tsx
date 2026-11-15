@@ -137,7 +137,7 @@ export const TOUR_STEPS: TourStep[] = [
   {
     id: "globe",
     route: "/workspace/globe",
-    group: "Global Evidence Cube",
+    group: "Global Data",
     badge: "In Development",
     eyebrow: "Step 6 · 3D Planetary Evidence",
     title: "Geometric Visualization",
