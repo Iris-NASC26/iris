@@ -68,9 +68,9 @@ def test_anomaly_endpoint_validation():
     client = TestClient(app)
 
     # lat_min >= lat_max must reject
-    res = client.get("/anomaly?lat_min=10&lat_max=5")
+    res = client.get("/api/v1/visualization/anomaly?lat_min=10&lat_max=5")
     assert res.status_code == 422
 
     # baseline_start >= baseline_end must reject
-    res = client.get("/anomaly?baseline_start=2020&baseline_end=1990")
+    res = client.get("/api/v1/visualization/anomaly?baseline_start=2020&baseline_end=1990")
     assert res.status_code == 422

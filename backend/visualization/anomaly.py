@@ -18,9 +18,10 @@ from typing import Any
 import httpx
 import numpy as np
 
-from .catalog import STORES, VARIABLES
+from .catalog import VARIABLES
 from .power_zarr import (
     MAX_FIELD_CELLS,
+    STORES,
     FieldRejected,
     SourceFormatError,
     SourceUnavailable,
@@ -107,10 +108,10 @@ def read_anomaly(
         raise FieldRejected(
             "Enter ordered finite latitude/longitude bounds; dateline wrap is unsupported"
         )
-    if baseline_start_year >= baseline_end_year:
+    if baseline_start_year > baseline_end_year:
         raise FieldRejected("Baseline start year must precede end year")
-    if min_valid_years < 1 or min_valid_years > (baseline_end_year - baseline_start_year + 1):
-        raise FieldRejected("min_valid_years exceeds baseline span or is non-positive")
+    if min_valid_years < 1:
+        raise FieldRejected("min_valid_years must be at least 1")
 
     ctx = _open(variable_id, root=root, client=client)
     if target_month not in ctx.months:

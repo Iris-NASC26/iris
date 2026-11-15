@@ -603,3 +603,27 @@ async def search_existing_research(req: ResearchSearchRequest) -> ResearchSearch
         raise HTTPException(
             status_code=502, detail=f"Research literature search error: {exc}"
         ) from exc
+
+
+# ============================================================================
+# 6. SPATIAL VISUALIZATION, HAZARDS, AND FORECASTS ROUTERS
+# ============================================================================
+
+try:
+    from visualization.router import router as visualization_router
+    app.include_router(visualization_router)
+except ImportError:
+    pass
+
+try:
+    from hazards.router import router as hazards_router
+    app.include_router(hazards_router)
+except ImportError:
+    pass
+
+try:
+    from forecasts.router import router as forecast_router
+    app.include_router(forecast_router)
+except ImportError:
+    pass
+
