@@ -55,9 +55,9 @@ export function ForecastWorkspace({
   if (!site) return <div className="dashboard-page-inner"><h1>Forecast not found</h1><Link href={forecastHref("colombo")}>Open supported forecasts</Link></div>;
   return <div className="forecast-workspace dashboard-page-inner">
     <header className="forecast-header"><div>
-      <span className="forecast-kicker">IRIS / DATASET FORECASTS</span>
-      <h1>What comes next in {site.name}?</h1>
-      <p>Local machine learning from historical records, with source quality and measured model skill.</p>
+      <span className="forecast-kicker">EXPLORE / FORECASTS</span>
+      <h1>{site.name} outlook</h1>
+      <p>Historical data. A view of what comes next.</p>
     </div><label>Forecast location<select aria-label="Forecast location" value={id} onChange={e => router.push(forecastHref(e.target.value))}>
       {FORECAST_REGIONS.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
     </select></label></header>

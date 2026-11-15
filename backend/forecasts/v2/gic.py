@@ -9,10 +9,10 @@ import csv
 import hashlib
 import io
 import math
-import os
 from datetime import UTC, datetime, timedelta
 
-from .appeears import credentials
+from config import get_earthdata_token
+from .appeears import configured as login_configured, credentials
 from .variables import PRODUCTS, VARIABLES
 
 FIELDS = {
@@ -23,12 +23,19 @@ FIELDS = {
 _token = None
 
 
+def configured() -> bool:
+    return bool(get_earthdata_token()) or login_configured()
+
+
 def token(client):
     global _token
+    # Reload backend/.env and prefer an explicitly supplied token, even when
+    # an earlier login-generated token is already cached in this process.
+    supplied = get_earthdata_token()
+    if supplied:
+        return supplied
     if _token:
         return _token
-    if os.getenv("EARTHDATA_TOKEN"):
-        return os.environ["EARTHDATA_TOKEN"]
     response = client.post("https://urs.earthdata.nasa.gov/api/users/find_or_create_token", auth=credentials())
     if response.status_code != 200:
         raise RuntimeError(f"Earthdata time-series authentication failed (HTTP {response.status_code}).")
@@ -99,6 +106,8 @@ def extract(target, lat, lon, start, end, *, checkpoint=None, budget=None):
         for attempt in range(2):
             with client.stream("GET", url, headers={"Authorization": "Bearer " + token(client)}) as response:
                 if response.status_code in (401, 403) and attempt == 0:
+                    if get_earthdata_token():
+                        raise RuntimeError(f"Earthdata rejected EARTHDATA_TOKEN (HTTP {response.status_code}); update it in backend/.env.")
                     _token = None
                     continue
                 if response.status_code != 200:

@@ -83,7 +83,7 @@ test("forecast customizations preserve source quantities, member evidence and ex
   await page.getByLabel("Forecast location").selectOption("kathmandu");
   await expect(page).toHaveURL("/workspace/forecasts?forecastId=kathmandu");
   await expect(
-    page.getByRole("heading", { name: "What comes next in Kathmandu?" }),
+    page.getByRole("heading", { name: "Kathmandu outlook" }),
   ).toBeVisible();
   await expect(
     page.getByText("TEST-ONLY synthetic observation context."),
@@ -99,8 +99,8 @@ test("Explore opens the forecast section and every configured location stays the
   for (const site of FORECAST_REGIONS) {
     await page.getByLabel("Forecast location").selectOption(site.id);
     await expect(page).toHaveURL(`/workspace/forecasts?forecastId=${site.id}`);
-    await expect(page.getByRole("heading", { name: `What comes next in ${site.name}?` })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Local predictions from verified history." })).toBeVisible();
+    await expect(page.getByRole("heading", { name: `${site.name} outlook` })).toBeVisible();
+    await expect(page.getByLabel("ML forecast target")).toBeVisible();
   }
   await expect(page.getByRole("button", { name: "Generate forecast from datasets", exact: true })).toBeVisible();
 });

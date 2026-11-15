@@ -111,6 +111,11 @@ function DashboardFrame({ children }: { children: ReactNode }) {
     "Iris workspace",
     "Earth system intelligence",
   ];
+  const isEmptyDataPreview =
+    pathname?.startsWith("/workspace/data-preview") &&
+    !extractedPreview &&
+    !activeProduct &&
+    selectedProducts.length === 0;
   return (
     <div
       className={`${dark ? "dark " : ""}app-shell dashboard-shell${

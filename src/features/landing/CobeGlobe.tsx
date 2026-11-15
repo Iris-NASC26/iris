@@ -165,7 +165,7 @@ export function CobeGlobe({ dark }: { dark: boolean }) {
         {SPOTS.map(spot => (
             <Link key={spot.id} href={forecastHref(spot.id, cards.find(c => c.id === spot.id)?.artifact_id) + (cards.find(c => c.id === spot.id)?.target ? `&target=${encodeURIComponent(cards.find(c => c.id === spot.id)!.target!)}` : "")} className="landing-cobe-marker" style={anchors && !failed ? { ...anchorStyle(spot.id), opacity: `var(--cobe-visible-${spot.id}, 0)`, pointerEvents: `var(--cobe-visible-${spot.id}, none)` } as unknown as CSSProperties : undefined}>
                 <strong>{cards.find(c => c.id === spot.id)?.target_label || spot.short}</strong>
-                <small>{spot.name} / local ML predictions</small>
+                <small>{spot.name} / {cards.find(c => c.id === spot.id)?.quality_status === "experimental_preview" ? "experimental preview" : "local ML predictions"}</small>
                 <small>{(() => {
                     const card = cards.find(c => c.id === spot.id);
                     if (!card) return catalogueError ? 'Forecast unavailable' : 'Preparing forecast...';

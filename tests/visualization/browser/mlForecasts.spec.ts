@@ -41,7 +41,7 @@ test.beforeEach(async ({ page }) => {
 
 test("ML panel shows honest unavailable states and never requests provider futures", async ({ page }) => {
   await page.goto("/workspace/forecasts?forecastId=colombo");
-  await expect(page.getByRole("heading", { name: "Local predictions from verified history." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Colombo outlook" })).toBeVisible();
   const selector = page.getByLabel("ML forecast target");
   await expect(selector).toBeVisible();
   await selector.selectOption("smap_surface_sm");
@@ -53,6 +53,7 @@ test("ML panel shows honest unavailable states and never requests provider futur
   await expect(page.locator(".ml-forecast")).toContainText("None");
   // Precip ingest stays disabled without Meteomatics credentials — no fake action.
   await selector.selectOption("precip_24h");
+  await page.getByText("Advanced pipeline controls", { exact: true }).click();
   await expect(
     page.getByRole("button", { name: /Queue history ingest \(era5/ }),
   ).toBeDisabled();
@@ -73,10 +74,12 @@ test("prediction request surfaces the unavailable contract, not a fake run", asy
     }),
   );
   await page.goto("/workspace/forecasts?forecastId=colombo");
+  await page.getByText("Advanced pipeline controls", { exact: true }).click();
   const btn = page.getByRole("button", { name: "Predict from active models" });
   await btn.scrollIntoViewIfNeeded();
   await page.waitForTimeout(400); // scroll-behavior: smooth settles
   await btn.click();
+  await page.getByText("Why is there no forecast?", { exact: true }).click();
   await expect(page.locator(".ml-forecast")).toContainText(
     "Prediction unavailable: no horizon produced a verified local prediction",
   );

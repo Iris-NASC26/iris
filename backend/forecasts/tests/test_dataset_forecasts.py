@@ -10,7 +10,7 @@ import pytest
 
 from forecasts.v2 import appeears, datasets, fitting, jobs, predict, qa, training, workers
 from forecasts.v2.schemas import ModelCard
-from forecasts.v2 import gic
+from forecasts.v2 import gic, router as api
 
 
 def test_appeears_resumes_same_remote_task_and_never_double_scales():
@@ -149,3 +149,169 @@ def test_worker_yields_remote_wait_without_losing_original_spec(tmp_path, monkey
     assert result["status"] == "queued"
     assert result["checkpoint"]["variable"] == "modis_ndvi"
     assert result["checkpoint"]["ingest_checkpoint"]["task_id"] == "retained"
+
+
+def test_generate_reuses_frozen_dataset_without_remote_credentials(tmp_path, monkeypatch):
+    monkeypatch.delenv("IRIS_ML_ADMIN_TOKEN", raising=False)
+    monkeypatch.setattr(jobs, "DB_PATH", tmp_path / "jobs.sqlite")
+    monkeypatch.setattr(predict, "predict", lambda *a, **kw: {"state": "unavailable"})
+    monkeypatch.setattr(workers, "staged_records", lambda *a: [])
+    monkeypatch.setattr(appeears, "configured", lambda: False)
+    manifest = {"dataset_id": "ds-" + "1" * 16, "variables": ["gldas_sm"], "source_id": "GLDAS_NOAH025_3H.2.1"}
+    monkeypatch.setattr(datasets, "manifests", lambda loc: [manifest])
+    monkeypatch.setattr(datasets, "manifest", lambda *a: manifest)
+    job = api.generate("colombo", {"variable": "gldas_sm"}, None)
+    assert job["checkpoint"]["phase"] == "train"
+    assert job["checkpoint"]["dataset_id"] == manifest["dataset_id"]
+    # A newer non-pipeline action must not hide a pending extraction/training.
+    jobs.enqueue("trend", "colombo", spec={"variable": "gldas_sm"})
+    assert api.generate("colombo", {"variable": "gldas_sm"}, None)["job_id"] == job["job_id"]
+
+
+def test_generate_keys_include_requested_dataset_revision(tmp_path, monkeypatch):
+    monkeypatch.delenv("IRIS_ML_ADMIN_TOKEN", raising=False)
+    monkeypatch.setattr(jobs, "DB_PATH", tmp_path / "jobs.sqlite")
+    monkeypatch.setattr(datasets, "manifest", lambda loc, ds: {
+        "source_id": "GLDAS_NOAH025_3H.2.1", "variables": ["gldas_sm"]})
+    first = api.generate("colombo", {"variable": "gldas_sm", "dataset_id": "ds-" + "1" * 16}, None)
+    jobs.begin(first["job_id"])
+    jobs.finish(first["job_id"], True)
+    second = api.generate("colombo", {"variable": "gldas_sm", "dataset_id": "ds-" + "2" * 16}, None)
+    assert first["job_id"] != second["job_id"]
+
+
+def test_published_forecasts_do_not_run_training_or_inference(monkeypatch):
+    monkeypatch.setattr(predict, "current", lambda loc, target: {
+        "state": "available" if target == "merra2_t2m" else "unavailable", "target": target})
+    monkeypatch.setattr(predict, "predict", lambda *a, **kw: pytest.fail("read must not predict"))
+    assert api.published_predictions("colombo")["forecasts"] == [{"state": "available", "target": "merra2_t2m"}]
+
+
+def test_saved_forecast_expiry_is_computed_without_mutating_artifact(tmp_path, monkeypatch):
+    monkeypatch.setattr(predict, "RUNS_ROOT", tmp_path)
+    folder = tmp_path / "colombo"
+    folder.mkdir()
+    run_id = "run-" + "a" * 16
+    path = folder / f"{run_id}.json"
+    raw = json.dumps({"run_id": run_id, "valid_until": "2020-01-01T00:00:00+00:00"})
+    path.write_text(raw)
+    assert predict.get_run("colombo", run_id)["stale"] is True
+    assert path.read_text() == raw
+
+
+@pytest.fixture
+def rejected_candidate(tmp_path, monkeypatch):
+    """Isolated deterministic fixture, never a claim of actual forecast skill."""
+    import numpy as np
+    from sklearn.dummy import DummyRegressor
+    monkeypatch.setattr(training, "MODELS_ROOT", tmp_path / "models")
+    monkeypatch.setattr(predict, "RUNS_ROOT", tmp_path / "runs")
+    metrics = {"target": "smap_surface_sm", "engine_version": fitting.VERSION,
+               "model_mae": 2.7, "baseline_mae": 2.5, "n_eval": 100, "coverage_80": .7}
+    models = {key: DummyRegressor(strategy="constant", constant=value).fit(np.zeros((2, 1)), np.zeros(2))
+              for key, value in (("q10", .2), ("median", .3), ("q90", .4))}
+    bundle = {"engine_version": fitting.VERSION, "models": models, "feature_columns": ["recent_1"],
+              "source_id": "SPL3SMP_E.006", "variable": "smap_surface_sm", "lag_hours": 24,
+              "max_input_age_days": 10, "dataset_id": "ds-" + "a" * 16,
+              "dataset_hash": "a" * 64, "evaluation": metrics}
+    blob = pickle.dumps(bundle)
+    import hashlib
+    card = ModelCard(model_id="m-preview-h0", location_id="colombo", horizon_index=0, state="rejected",
+                     trained_at="2024-01-01T00:00:00+00:00",
+                     metrics={**metrics, "model_sha256": hashlib.sha256(blob).hexdigest()},
+                     eligibility_reasons=["Model did not beat the seasonal baseline."])
+    training._persist(card, blob)
+    start = datetime(2024, 1, 1, tzinfo=UTC)
+    records = [{"source_id": "SPL3SMP_E.006", "variable": "smap_surface_sm", "value": .3,
+                "interval_start": (start + timedelta(days=i)).isoformat(),
+                "interval_end": (start + timedelta(days=i + 1)).isoformat(),
+                "available_at": (start + timedelta(days=i + 2)).isoformat()} for i in range(30)]
+    return card, records, start + timedelta(days=30)
+
+
+def test_rejected_model_has_explicit_preview_errors_without_activation(rejected_candidate):
+    card, records, issue = rejected_candidate
+    assert training.load_verified("colombo", card.model_id) is None
+    with pytest.raises(ValueError, match="eligible"):
+        training.activate("colombo", card.model_id)
+    run = predict.predict("colombo", records, issue.isoformat(), "smap_surface_sm")
+    assert run["state"] == "available"
+    assert run["scope"] == run["quality_status"] == "experimental_preview"
+    window = run["predictions"][0]
+    assert window["error_vs_baseline_pct"] == pytest.approx(8.0)
+    assert window["quality_reasons"] == card.eligibility_reasons
+    assert window["evaluation"]["model_mae"] == 2.7
+    assert training.list_models("colombo")[0]["state"] == "rejected"
+    assert predict.get_run("colombo", run["run_id"])["quality_status"] == "experimental_preview"
+
+
+def test_preview_still_rejects_corrupt_artifacts_stale_inputs_and_missing_data(rejected_candidate):
+    card, records, issue = rejected_candidate
+    assert predict.predict("colombo", [], issue.isoformat(), "smap_surface_sm")["state"] == "unavailable"
+    stale = predict.predict("colombo", records, (issue + timedelta(days=100)).isoformat(), "smap_surface_sm")
+    assert stale["state"] == "unavailable"
+    (training.MODELS_ROOT / "colombo" / card.model_id / "model.pkl").write_bytes(b"corrupt")
+    assert predict.predict("colombo", records, issue.isoformat(), "smap_surface_sm")["state"] == "unavailable"
+
+
+def test_active_model_is_preferred_over_rejected_preview(rejected_candidate, monkeypatch):
+    card, records, issue = rejected_candidate
+    loaded = training.load_verified("colombo", card.model_id, allow_rejected=True)
+    loaded["entry"]["state"] = "active"
+    loaded["model_id"] = "m-active-h0"
+    monkeypatch.setattr(predict, "_active_model", lambda loc, h, target: loaded if h == 0 else None)
+    run = predict.predict("colombo", records, issue.isoformat(), "smap_surface_sm")
+    assert run["quality_status"] == "passed_checks"
+    assert run["predictions"][0]["model_id"] == "m-active-h0"
+
+
+def test_env_token_overrides_cached_login_and_reloads_file(tmp_path, monkeypatch):
+    import config
+    env = tmp_path / ".env"
+    monkeypatch.setattr(config, "_ENV_PATH", env)
+    monkeypatch.setenv("EARTHDATA_TOKEN", "")
+    monkeypatch.setattr(gic, "_token", "test-only-previous-login-token")
+    monkeypatch.setattr(gic, "login_configured", lambda: False)
+
+    class NoLogin:
+        def post(self, *a, **kw):
+            pytest.fail("A supplied bearer token must not call the login API")
+
+    for value in ("test-only-env-token-a", "test-only-env-token-b"):
+        env.write_text(f'EARTHDATA_TOKEN=" {value} "\n')
+        assert gic.configured()
+        assert gic.token(NoLogin()) == value
+
+
+@pytest.mark.parametrize("status", [401, 403])
+def test_rejected_env_token_reports_variable_without_exposing_secret(monkeypatch, status):
+    import httpx
+    monkeypatch.setattr(gic, "get_earthdata_token", lambda: "test-only-env-token")
+
+    class Denied:
+        status_code = status
+        def __enter__(self): return self
+        def __exit__(self, *args): pass
+
+    class Client:
+        def __init__(self, **kw): pass
+        def __enter__(self): return self
+        def __exit__(self, *args): pass
+        def stream(self, method, url, headers):
+            assert headers["Authorization"] == "Bearer test-only-env-token"
+            return Denied()
+        def post(self, *a, **kw):
+            pytest.fail("Invalid configured tokens must not silently switch to another account")
+
+    monkeypatch.setattr(httpx, "Client", Client)
+    with pytest.raises(RuntimeError, match="EARTHDATA_TOKEN") as error:
+        gic.extract("merra2_t2m", 7, 80, datetime(2024, 1, 1, tzinfo=UTC), datetime(2024, 1, 2, tzinfo=UTC))
+    assert "test-only-env-token" not in str(error.value)
+
+
+def test_token_only_credentials_are_accepted_for_giovanni_not_appeears(monkeypatch):
+    monkeypatch.setattr(gic, "configured", lambda: True)
+    monkeypatch.setattr(appeears, "configured", lambda: False)
+    assert api._earthdata_configured("merra2_t2m")
+    assert api._earthdata_configured("gldas_sm")
+    assert not api._earthdata_configured("smap_surface_sm")
