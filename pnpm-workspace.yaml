@@ -1,4 +1,7 @@
+packages:
+  - .
 minimumReleaseAge: 1440
 strictPeerDependencies: true
+virtualStoreDirMaxLength: 60
 overrides:
   "@maplibre/maplibre-gl-style-spec": "26.6.0"

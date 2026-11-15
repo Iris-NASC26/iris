@@ -91,6 +91,69 @@ export function DataPreviewView({ routeJobId }: { routeJobId?: string }) {
     };
   }, [effectiveJobId, extractedPreview, setExtractedPreview]);
 
+  const previewCfg = extractedPreview?.extraction_config;
+  const series = useMemo(
+    () => extractedPreview?.chart_series ?? [],
+    [extractedPreview],
+  );
+
+  const coverageGeoJSON = useMemo(() => {
+    const cfg = previewCfg;
+    if (!cfg) return null;
+    const [minLon, minLat, maxLon, maxLat] =
+      cfg.spatial_level === "global" ? [-170, -75, 170, 75] : cfg.bbox;
+    return {
+      type: "Feature" as const,
+      properties: {},
+      geometry: {
+        type: "Polygon" as const,
+        coordinates: [[
+          [minLon, minLat],
+          [maxLon, minLat],
+          [maxLon, maxLat],
+          [minLon, maxLat],
+          [minLon, minLat],
+        ]],
+      },
+    };
+  }, [previewCfg]);
+
+  const visibleSeries = useMemo(() => {
+    const count = Math.max(12, Math.round((series.length * zoomEndPct) / 100));
+    return series.slice(0, count);
+  }, [series, zoomEndPct]);
+
+  const filteredRows = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    const list = series.filter((row) => {
+      if (qaFilter !== "ALL" && row.qa_flag !== qaFilter) return false;
+      if (!q) return true;
+      return (
+        row.timestamp.toLowerCase().includes(q) ||
+        String(row.value ?? "missing").toLowerCase().includes(q) ||
+        row.qa_flag.toLowerCase().includes(q)
+      );
+    });
+
+    list.sort((a, b) => {
+      if (sortField === "timestamp") {
+        return sortAsc
+          ? a.timestamp.localeCompare(b.timestamp)
+          : b.timestamp.localeCompare(a.timestamp);
+      }
+      const va = a.value ?? -999999;
+      const vb = b.value ?? -999999;
+      return sortAsc ? va - vb : vb - va;
+    });
+    return list;
+  }, [qaFilter, searchQuery, series, sortAsc, sortField]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredRows.length / pageSize));
+  const paginatedRows = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return filteredRows.slice(start, start + pageSize);
+  }, [currentPage, filteredRows, pageSize]);
+
   if (!extractedPreview) {
     const hasSelectedDataset = Boolean(activeProduct || selectedProducts.length);
 
@@ -162,62 +225,8 @@ export function DataPreviewView({ routeJobId }: { routeJobId?: string }) {
 
   const preview = extractedPreview;
 
-  const { product, extraction_config: cfg, summary_stats: stats, chart_series: series } = preview;
+  const { product, extraction_config: cfg, summary_stats: stats } = preview;
   const isDemoProduct = isDevelopmentDemoProduct(product.product_id);
-  const coverageGeoJSON = useMemo(() => {
-    const [minLon, minLat, maxLon, maxLat] =
-      cfg.spatial_level === "global" ? [-170, -75, 170, 75] : cfg.bbox;
-    return {
-      type: "Feature" as const,
-      properties: {},
-      geometry: {
-        type: "Polygon" as const,
-        coordinates: [[
-          [minLon, minLat],
-          [maxLon, minLat],
-          [maxLon, maxLat],
-          [minLon, maxLat],
-          [minLon, minLat],
-        ]],
-      },
-    };
-  }, [cfg.bbox, cfg.spatial_level]);
-
-  const visibleSeries = useMemo(() => {
-    const count = Math.max(12, Math.round((series.length * zoomEndPct) / 100));
-    return series.slice(0, count);
-  }, [series, zoomEndPct]);
-
-  const filteredRows = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
-    const list = series.filter((row) => {
-      if (qaFilter !== "ALL" && row.qa_flag !== qaFilter) return false;
-      if (!q) return true;
-      return (
-        row.timestamp.toLowerCase().includes(q) ||
-        String(row.value ?? "missing").toLowerCase().includes(q) ||
-        row.qa_flag.toLowerCase().includes(q)
-      );
-    });
-
-    list.sort((a, b) => {
-      if (sortField === "timestamp") {
-        return sortAsc
-          ? a.timestamp.localeCompare(b.timestamp)
-          : b.timestamp.localeCompare(a.timestamp);
-      }
-      const va = a.value ?? -999999;
-      const vb = b.value ?? -999999;
-      return sortAsc ? va - vb : vb - va;
-    });
-    return list;
-  }, [qaFilter, searchQuery, series, sortAsc, sortField]);
-
-  const totalPages = Math.max(1, Math.ceil(filteredRows.length / pageSize));
-  const paginatedRows = useMemo(() => {
-    const start = (currentPage - 1) * pageSize;
-    return filteredRows.slice(start, start + pageSize);
-  }, [currentPage, filteredRows]);
 
   const downloadFile = (format: "csv" | "json") => {
     if (format === "json") {

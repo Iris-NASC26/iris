@@ -2,11 +2,52 @@ import type { Page } from "@playwright/test";
 import { FORECAST_REGIONS } from "../../../src/features/forecasts/model";
 import { forecastFixture, catalogueFixture } from "../forecastFixtures";
 
+/** Phase-1 registry shape — the six seeds as the backend returns them. */
+export function v2LocationsFixture(extra: object[] = []) {
+  return {
+    locations: [
+      ...FORECAST_REGIONS.map((r, i) => ({
+        schema_version: "iris.forecast-location.v1",
+        location_id: r.id,
+        name: r.name,
+        latitude: r.latitude,
+        longitude: r.longitude,
+        timezone: r.timezone || "UTC",
+        geometry: { type: "Point", coordinates: [r.longitude, r.latitude] },
+        spatial_mode: "point",
+        source: "seed",
+        created_at: "2025-01-01T00:00:00Z",
+        _i: i,
+      })),
+      ...extra,
+    ].map(({ _i, ...l }) => l),
+    total: FORECAST_REGIONS.length + extra.length,
+  };
+}
+
+export function v2CompatibilityFixture(overrides: object = {}) {
+  return {
+    state: "needs_history",
+    reasons: ["no_dataset"],
+    message: "No frozen historical dataset yet — prepare data first.",
+    location_id: "colombo",
+    location_name: "Colombo",
+    target: "precip_24h",
+    suggested_dataset_id: null,
+    dataset: null,
+    ...overrides,
+  };
+}
+
 export async function mockForecasts(page: Page) {
   const now = Date.now();
   await page.route("**/api/v1/forecasts/**", (route) => {
     const path = new URL(route.request().url()).pathname.split("/"),
       id = path[4];
+    if (id === "v2" && path[5] === "locations")
+      return route.fulfill({ json: v2LocationsFixture() });
+    if (id === "v2" && path[5] === "compatibility")
+      return route.fulfill({ json: v2CompatibilityFixture() });
     if (id === "v2" && path[5] === "catalogue")
       return route.fulfill({ json: catalogueFixture(now) });
     if (id === "catalogue")

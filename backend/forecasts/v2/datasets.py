@@ -31,8 +31,14 @@ def _canonical(rec) -> dict:
 
 
 def build(location_id: str, source_id: str, valid_records: list,
-          quarantined: list[dict], *, spec: dict) -> dict:
-    """Persist a new dataset revision (or return the existing identical one)."""
+          quarantined: list[dict], *, spec: dict, location: dict | None = None,
+          coverage: list[dict] | None = None) -> dict:
+    """Persist a new dataset revision (or return the existing identical one).
+
+    `location` supplies the registered spatial contract; `coverage` is the
+    bounded per-interval support accounting for aggregated (area) series —
+    written as a sidecar, never folded into the content hash.
+    """
     canon = [_canonical(r) for r in valid_records]
     canon.sort(key=lambda r: (r["variable"], r["interval_start"]))
     jsonl = b"\n".join(
@@ -40,8 +46,26 @@ def build(location_id: str, source_id: str, valid_records: list,
     )
     payload = json.dumps(canon, sort_keys=True, separators=(",", ":")).encode()
     content_hash = hashlib.sha256(payload).hexdigest()
-    dataset_id = f"ds-{content_hash[:16]}"
+    # P2-06: semantic identity binds scientific policy/support alongside the
+    # record hash — a changed aggregation/support policy cannot silently
+    # reuse the old manifest when the values coincide.
+    semantic = {"source_id": source_id,
+                "variables": sorted({r["variable"] for r in canon}),
+                "spatial_mode": (location or {}).get("spatial_mode", "point"),
+                "requested_geometry": (location or {}).get("geometry"),
+                "aggregation": (spec.get("aggregation")
+                                if (location or {}).get("spatial_mode") == "area_mean"
+                                else None),
+                "qa_policy": spec.get("qa_policy", "default"),
+                "units": {r["variable"]: spec.get("units") for r in canon
+                          if spec.get("units")},
+                "policy_version": "semantic-v1"}
+    semantic_hash = hashlib.sha256(
+        json.dumps(semantic, sort_keys=True,
+                   separators=(",", ":")).encode()).hexdigest()
+    dataset_id = f"ds-{hashlib.sha256((content_hash + semantic_hash).encode()).hexdigest()[:16]}"
     days = sorted({r["interval_start"][:10] for r in canon})
+    resolved = _resolved_cell(canon)
     manifest = {
         "schema_version": "iris.ml-forecast.v2",
         "dataset_id": dataset_id,
@@ -57,6 +81,28 @@ def build(location_id: str, source_id: str, valid_records: list,
         "quarantine": {"count": len(quarantined),
                        "reasons": sorted({q["reason"] for q in quarantined})},
         "content_sha256": content_hash,
+        "semantic_sha256": semantic_hash,
+        "semantic": semantic,
+        # Phase-2 spatial contract: a dataset is exactly the support its
+        # manifest declares — a single point/grid-cell series, or an
+        # area-weighted mean over native cells. Neither may be relabelled
+        # as the other.
+        "spatial_mode": (location or {}).get("spatial_mode", "point"),
+        "spatial_support": ("area_mean" if (location or {}).get("spatial_mode") == "area_mean"
+                            else "point"),
+        "requested_geometry": (location or {}).get("geometry"),
+        "resolved_coordinates": resolved,
+        "spatial_extent": ({"known": True,
+                           "kind": "area_mean",
+                           "bbox": (location or {}).get("bbox"),
+                           "note": "cos(lat)-weighted mean over native cells whose centres fall inside the requested box"}
+                          if (location or {}).get("spatial_mode") == "area_mean"
+                          else {"known": resolved is not None,
+                                "kind": "point",
+                                "note": "single source grid cell; not an area average"}),
+        "aggregation": (spec.get("aggregation") if (location or {}).get("spatial_mode") == "area_mean"
+                        else None),
+        "coverage_summary": _coverage_summary(coverage),
         "spec": spec,
         "immutable": True,
     }
@@ -67,8 +113,46 @@ def build(location_id: str, source_id: str, valid_records: list,
         return json.loads(mpath.read_text())
     (ddir / "records.jsonl").write_bytes(jsonl + (b"\n" if jsonl else b""))
     (ddir / "quarantine.json").write_text(json.dumps(quarantined, indent=1))
+    if coverage:
+        (ddir / "coverage.json").write_text(json.dumps(coverage, indent=1))
     mpath.write_text(json.dumps(manifest, indent=1))
     return manifest
+
+
+def _coverage_summary(coverage: list[dict] | None) -> dict | None:
+    if not coverage:
+        return None
+    fractions = [c["valid_area_fraction"] for c in coverage
+                 if isinstance(c.get("valid_area_fraction"), (int, float))]
+    return {"intervals": len(coverage),
+            "min_valid_area_fraction": min(fractions) if fractions else None,
+            "mean_valid_area_fraction": (round(sum(fractions) / len(fractions), 4)
+                                         if fractions else None),
+            "policy": "valid-area fraction = contributing cos(lat) weight / intended-box weight",
+            "sidecar": "coverage.json"}
+
+
+def _resolved_cell(canon: list[dict]) -> dict | None:
+    """Modal (lat, lon) across records — the actual source cell, if known."""
+    cells = [(r.get("lat"), r.get("lon")) for r in canon
+             if isinstance(r.get("lat"), (int, float)) and isinstance(r.get("lon"), (int, float))]
+    if not cells:
+        return None
+    lat, lon = max(set(cells), key=cells.count)
+    return {"latitude": lat, "longitude": lon}
+
+
+def _adapt(manifest: dict) -> dict:
+    """Read-time defaults for pre-Phase-1 manifests. Old manifests are never
+    rewritten; unknown spatial support is honestly marked unknown."""
+    m = dict(manifest)
+    m.setdefault("spatial_mode", "point")
+    m.setdefault("spatial_support", "unknown")
+    m.setdefault("requested_geometry", None)
+    m.setdefault("resolved_coordinates", None)
+    m.setdefault("spatial_extent", {"known": False, "kind": "point",
+                                  "note": "legacy manifest; spatial support not recorded"})
+    return m
 
 
 def load(location_id: str, dataset_id: str) -> list[dict] | None:
@@ -87,7 +171,7 @@ def manifests(location_id: str) -> list[dict]:
     out = []
     for m in sorted(base.glob("*/manifest.json")):
         try:
-            out.append(json.loads(m.read_text()))
+            out.append(_adapt(json.loads(m.read_text())))
         except json.JSONDecodeError:
             continue
     return sorted(out, key=lambda item: item.get("created_at", ""))
@@ -97,4 +181,34 @@ def manifest(location_id: str, dataset_id: str) -> dict | None:
     if not re.fullmatch(r"ds-[a-f0-9]{16}", dataset_id):
         return None
     p = ROOT / "datasets" / location_id / dataset_id / "manifest.json"
-    return json.loads(p.read_text()) if p.exists() else None
+    return _adapt(json.loads(p.read_text())) if p.exists() else None
+
+
+def find(dataset_id: str) -> dict | None:
+    """Locate a manifest across all registered contexts. A dataset id is only
+    meaningful with its bound location — this lookup returns the bound copy,
+    never relabels it for another point."""
+    if not re.fullmatch(r"ds-[a-f0-9]{16}", dataset_id):
+        return None
+    for p in sorted(ROOT.glob(f"datasets/*/{dataset_id}/manifest.json")):
+        try:
+            return _adapt(json.loads(p.read_text()))
+        except json.JSONDecodeError:
+            continue
+    return None
+
+
+def inventory(limit: int = 50, offset: int = 0) -> dict:
+    """Populated revisions across all contexts, newest first, bounded."""
+    out = []
+    for m in sorted(ROOT.glob("datasets/*/ds-*/manifest.json")):
+        try:
+            out.append(_adapt(json.loads(m.read_text())))
+        except json.JSONDecodeError:
+            continue
+    out.sort(key=lambda item: item.get("created_at", ""), reverse=True)
+    total = len(out)
+    limit = max(1, min(int(limit), 200))
+    offset = max(0, int(offset))
+    return {"datasets": out[offset:offset + limit], "total": total,
+            "limit": limit, "offset": offset}

@@ -62,6 +62,40 @@ class TestSources:
         assert all(r["source_artifact_hash"] for r in out["records_raw"])
         assert out["source"]["declared_availability_lag_hours"] == 144
 
+    def test_unfinalized_tail_never_requested(self, monkeypatch):
+        """The declared availability lag bounds what the provider can have
+        published — the request end is clipped to now - lag rather than
+        hitting a guaranteed 404 on the unfinalized tail."""
+        monkeypatch.setattr(sources, "_credentials", lambda: ("u", "p"))
+        calls = []
+
+        def transport(url, auth, params, timeout):
+            calls.append(url)
+            return 200, _payload(30), {}
+
+        start = datetime.now(UTC) - timedelta(days=30)
+        end = datetime.now(UTC)  # request reaches into era5's 6-day lag
+        out = sources.fetch_history("loc", 6.9, 79.8, "era5", start, end,
+                                    transport=transport, sleep=lambda s: None)
+        assert out["records_raw"]
+        for url in calls:
+            window = url.split("precip_24h:mm/")[0]
+            req_end = window.split("--")[1].split(":")[0]
+            assert req_end <= (datetime.now(UTC) - timedelta(hours=144)
+                             ).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+    def test_fully_unfinalized_window_is_empty_not_failed(self, monkeypatch):
+        monkeypatch.setattr(sources, "_credentials", lambda: ("u", "p"))
+
+        def transport(url, auth, params, timeout):
+            raise AssertionError("no request may be issued for unfinalized data")
+
+        start = datetime.now(UTC) - timedelta(days=2)
+        end = datetime.now(UTC) - timedelta(hours=1)
+        out = sources.fetch_history("loc", 6.9, 79.8, "era5", start, end,
+                                    transport=transport, sleep=lambda s: None)
+        assert out["records_raw"] == []
+
     def test_retry_after_honored_and_retry_exhaustion(self, monkeypatch):
         monkeypatch.setattr(sources, "_credentials", lambda: ("u", "p"))
         waits = []

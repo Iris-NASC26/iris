@@ -48,6 +48,18 @@ VARIABLES: dict[str, dict] = {
         "nonnegative": False,
         "sources": ["M2T1NXSLV.5.12.4"],
     },
+    "power_t2m": {
+        # Distinct source identity from merra2_t2m: NASA POWER is a separate
+        # public API serving its own daily product (T2M in °C -> K). Never
+        # merged into another source's series or model identity.
+        "label": "2 m air temperature (NASA POWER daily)",
+        "unit": "K",
+        "aggregation": "mean",
+        "min": 150.0, "max": 340.0,
+        "composite_days": 1,
+        "nonnegative": False,
+        "sources": ["nasa_power"],
+    },
     "modis_lst_day": {
         "label": "Daytime land-surface temperature (MODIS)",
         "unit": "K",

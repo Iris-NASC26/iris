@@ -1525,7 +1525,7 @@ function MethodParameterControls({
               >
                 i
                 <span className="da-info-tooltip" role="tooltip">
-                  Two-sided non-parametric rank corridor for Sen's median slope estimator. 95% corridor indicates the range of probable decadal trajectories.
+                  Two-sided non-parametric rank corridor for Sen&apos;s median slope estimator. 95% corridor indicates the range of probable decadal trajectories.
                 </span>
               </span>
             </div>

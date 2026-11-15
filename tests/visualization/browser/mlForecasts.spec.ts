@@ -1,5 +1,9 @@
 import { test, expect } from "@playwright/test";
-import { mockForecasts } from "./forecastMocks";
+import {
+  mockForecasts,
+  v2CompatibilityFixture,
+  v2LocationsFixture,
+} from "./forecastMocks";
 
 const v2 = {
   capabilities: {
@@ -34,6 +38,8 @@ test.beforeEach(async ({ page }) => {
   await page.route("**/api/v1/forecasts/v2/**", (route) => {
     const path = new URL(route.request().url()).pathname;
     if (path.endsWith("/capabilities")) return route.fulfill({ json: v2.capabilities });
+    if (path.endsWith("/locations")) return route.fulfill({ json: v2LocationsFixture() });
+    if (path.endsWith("/compatibility")) return route.fulfill({ json: v2CompatibilityFixture() });
     return route.fulfill({ json: v2.empty });
   });
   (page as unknown as { __reqs: string[] }).__reqs = requests;

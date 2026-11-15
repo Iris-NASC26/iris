@@ -2,9 +2,11 @@
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ChartCanvas } from "@/features/visualization/Charts";
 import { MlForecastSection } from "./MlForecastSection";
+import { LocationPicker } from "./LocationPicker";
+import { useLocations } from "./useLocations";
 import { useTheme } from "@/context/ThemeContext";
 import {
   FORECAST_REGIONS,
@@ -47,22 +49,114 @@ export function ForecastWorkspace({
   id: string;
   artifactId?: string;
 }) {
-  const router = useRouter();
-  const site = forecastRegion(id);
   if (artifactId && /^[a-f0-9]{64}$/.test(artifactId)) {
     return <ProviderForecastWorkspace id={id} artifactId={artifactId} />;
   }
-  if (!site) return <div className="dashboard-page-inner"><h1>Forecast not found</h1><Link href={forecastHref("colombo")}>Open supported forecasts</Link></div>;
-  return <div className="forecast-workspace dashboard-page-inner">
-    <header className="forecast-header"><div>
-      <span className="forecast-kicker">EXPLORE / FORECASTS</span>
-      <h1>{site.name} outlook</h1>
-      <p>Historical data. A view of what comes next.</p>
-    </div><label>Forecast location<select aria-label="Forecast location" value={id} onChange={e => router.push(forecastHref(e.target.value))}>
-      {FORECAST_REGIONS.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
-    </select></label></header>
-    <MlForecastSection id={id} artifactId={artifactId} />
-  </div>;
+  return <MlWorkspace id={id} artifactId={artifactId} />;
+}
+
+/** Dataset-forecast workspace for any registered point — seeds and
+ * user-created contexts resolve through the server registry. */
+function MlWorkspace({
+  id,
+  artifactId,
+}: {
+  id: string;
+  artifactId?: string;
+}) {
+  const router = useRouter();
+  const params = useSearchParams();
+  const { locations, error, reload } = useLocations();
+  const [adding, setAdding] = useState(false);
+  const site = locations?.find((l) => l.location_id === id) ?? null;
+  const selectLocation = (next: string) => {
+    const q = new URLSearchParams(params.toString());
+    q.set("forecastId", next);
+    q.delete("run");
+    router.push(`/workspace/forecasts?${q.toString()}`);
+  };
+  return (
+    <div className="forecast-workspace dashboard-page-inner">
+      <header className="forecast-header">
+        <div>
+          <span className="forecast-kicker">EXPLORE / FORECASTS</span>
+          <h1>{site ? `${site.name} outlook` : "Dataset forecasts"}</h1>
+          <p>
+            {site
+              ? site.spatial_mode === "area_mean" && site.bbox
+                ? `Bounding-box area [${site.bbox.map((b) => b.toFixed(2)).join(", ")}] — a weighted mean over source grid cells, never the centre point.`
+                : `One point at ${site.latitude}°, ${site.longitude}° — not an area or district average.`
+              : "Choose a registered forecast point or area, or add a new one."}
+          </p>
+        </div>
+        <div className="forecast-location-controls">
+          <label>
+            Forecast location
+            <select
+              aria-label="Forecast location"
+              value={site ? id : ""}
+              onChange={(e) => e.target.value && selectLocation(e.target.value)}
+            >
+              {!site && (
+                <option value="" disabled>
+                  {locations ? "Unknown location — choose one" : "Loading locations…"}
+                </option>
+              )}
+              {(locations ?? []).map((l) => (
+                <option key={l.location_id} value={l.location_id}>
+                  {l.spatial_mode === "area_mean" ? `${l.name} (area)` : l.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <button
+            type="button"
+            className="location-new"
+            aria-expanded={adding}
+            onClick={() => setAdding((a) => !a)}
+          >
+            {adding ? "Close" : "+ New point or area"}
+          </button>
+        </div>
+      </header>
+      {adding && (
+        <LocationPicker
+          onCreated={(lid) => {
+            setAdding(false);
+            void reload().then(() => router.push(forecastHref(lid)));
+          }}
+          onCancel={() => setAdding(false)}
+        />
+      )}
+      {locations && !site && (
+        <div className="forecast-notice" role="status">
+          <strong>{id}</strong> is not a registered forecast context. Choose a
+          location above or add a new one — no data or model is borrowed
+          from another place.
+        </div>
+      )}
+      {error && !locations && (
+        <div className="forecast-notice" role="alert">
+          {error} — registered locations cannot be listed right now.
+        </div>
+      )}
+      {site && (
+        <>
+          <MlForecastSection id={id} artifactId={artifactId} location={site} />
+          <ForecastMap
+            key={id}
+            site={{
+              id: site.location_id,
+              name: site.name,
+              latitude: site.latitude,
+              longitude: site.longitude,
+              timezone: site.timezone,
+            }}
+          />
+        </>
+      )}
+    </div>
+  );
 }
 
 function ProviderForecastWorkspace({

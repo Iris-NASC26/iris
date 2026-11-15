@@ -140,6 +140,14 @@ def fetch_history(location_id: str, lat: float, lon: float, source_id: str,
     rng = rng or random.Random()
     param_source, lag_hours, role = SOURCE_OPTIONS[source_id]
     auth = _credentials()
+    # Providers only publish finalized data up to now - declared lag; a request
+    # whose tail lands inside that window is guaranteed to 404 (verified for
+    # ecmwf-era5). Clip the end instead of asking for data that cannot exist —
+    # the missing tail is honestly absent, not a retrieval failure.
+    now = now or datetime.now(UTC)
+    latest = now - timedelta(hours=lag_hours)
+    if end > latest:
+        end = latest
     plan = chunks(start, end)
     done = int((checkpoint or {}).get("chunk_index", -1))
     rows: list[dict] = []

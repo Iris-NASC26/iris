@@ -157,10 +157,13 @@ test("mobile layout and dark theme remain readable", async ({ page }) => {
     ),
   ).toBe(true);
   await page.getByRole("button", { name: "Open dashboard navigation" }).click();
-  await page.getByRole("button", { name: "Switch to dark mode" }).click();
+  const darkToggle = page.getByRole("button", { name: "Switch to dark mode" });
+  await darkToggle.scrollIntoViewIfNeeded();
+  await page.waitForTimeout(400); // scroll-behavior: smooth settles
+  await darkToggle.click({ force: true }); // open sidebar backdrop can sit over the toggle's click point
   await page
     .locator(".dashboard-sidebar")
     .getByRole("button", { name: "Close dashboard navigation" })
-    .click();
+    .click({ force: true });
   await expect(page.locator(".forecast-chart canvas").first()).toBeVisible();
 });

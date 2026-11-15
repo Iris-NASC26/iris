@@ -348,7 +348,7 @@ export default function LandingPage() {
           </div>
           <h1>
             Detect environmental trends
-            <em> before they become headlines.</em>
+            <em>before they become headlines.</em>
           </h1>
           <p>
             Turn 40+ years of NASA, NOAA, and ECMWF Earth observations into transparent,
@@ -914,86 +914,12 @@ function ProductPreview() {
           </div>
           <span>IR</span>
         </div>
-        <div className="preview-app">
-          <aside>
-            <div className="preview-logo">
-              <Icon name="globe" size={15} />
-              Iris
-            </div>
-            <div className="preview-step">Investigation setup</div>
-            <label>Location</label>
-            <div className="preview-input">
-              <Icon name="search" size={12} />
-              Los Angeles County, CA
-            </div>
-            <label>Phenomenon</label>
-            <div className="preview-pills">
-              <span>Heat</span>
-              <i>Drought</i>
-              <i>Vegetation</i>
-            </div>
-            <label>Investigation period</label>
-            <div className="preview-range">
-              <i />
-            </div>
-            <button type="button">Run forensic analysis</button>
-            <div className="preview-variable">
-              <Icon name="thermometer" size={15} />
-              <span>
-                <small>Selected variable</small>Near-surface temperature (T2M)
-              </span>
-            </div>
-          </aside>
-          <section>
-            <div className="preview-header">
-              <div>
-                <small>Case IR–042</small>
-                <strong>Temperature trend investigation</strong>
-              </div>
-              <span>Analysis complete</span>
-            </div>
-            <div className="preview-verdict">
-              <Icon name="arrow" size={17} />
-              <div>
-                <small>Detective verdict</small>
-                <strong>Significant warming trend detected</strong>
-                <p>Surface temperature has risen by +0.42°C per decade.</p>
-              </div>
-              <b>p = 0.0014</b>
-            </div>
-            <div className="preview-metrics">
-              <span>
-                <small>Decadal rate</small>
-                <b>+0.42°C</b>
-              </span>
-              <span>
-                <small>Hamed–Rao n_eff</small>
-                <b>184</b>
-              </span>
-              <span>
-                <small>MK p-value</small>
-                <b>0.0014</b>
-              </span>
-              <span>
-                <small>95% CI</small>
-                <b>0.31–0.53</b>
-              </span>
-            </div>
-            <div className="preview-chart">
-              <div>
-                <strong>Temperature over time</strong>
-                <span>Deseasonalized (STL period 12)</span>
-              </div>
-              <svg viewBox="0 0 500 160">
-                {[30, 65, 100, 135].map((y) => (
-                  <line key={y} x1="10" x2="490" y1={y} y2={y} />
-                ))}
-                <path d="M10 130 C55 118 70 130 110 105 S180 112 220 90 S275 80 320 71 S380 57 420 50 S465 31 490 24" />
-                <path className="preview-slope" d="M10 137 L490 28" />
-              </svg>
-            </div>
-          </section>
-        </div>
+        <img
+          src="/hero-section.jpeg"
+          alt="Iris Earth Intelligence Platform - 3D Seasonal Orbit & Time Series Analysis"
+          className="product-window-img"
+          loading="eager"
+        />
       </div>
       <div className="floating-insight insight-left">
         <span>
