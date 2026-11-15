@@ -4,7 +4,7 @@ import { Suspense, useCallback, useEffect, useState, type ReactNode } from "reac
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Icon, type IconName } from "@/components/ui/Icon";
-import { DashboardProvider } from "@/context/DashboardContext";
+import { DashboardProvider, useDashboard } from "@/context/DashboardContext";
 import { useTheme } from "@/context/ThemeContext";
 import { OnboardingTour } from "@/components/dashboard/OnboardingTour";
 import { VisualizationProvider } from "@/features/visualization/store";
@@ -58,6 +58,7 @@ function DashboardFrame({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const forecastPage = pathname === '/workspace/forecasts';
   const activeInvestigation = pathname?.startsWith('/workspace/case-studies/') ? investigation(pathname.split('/').pop() ?? '') : undefined;
+  const { dataset, region, extractedPreview, activeProduct, selectedProducts } = useDashboard();
   const { dark, toggleTheme } = useTheme();
   const [collapsed, setCollapsed] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -109,6 +110,11 @@ function DashboardFrame({ children }: { children: ReactNode }) {
     "Iris workspace",
     "Earth system intelligence",
   ];
+  const isEmptyDataPreview =
+    pathname?.startsWith("/workspace/data-preview") &&
+    !extractedPreview &&
+    !activeProduct &&
+    selectedProducts.length === 0;
   return (
     <div
       className={`${dark ? "dark " : ""}app-shell dashboard-shell${
