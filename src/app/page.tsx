@@ -348,7 +348,7 @@ export default function LandingPage() {
           </div>
           <h1>
             Detect environmental trends
-            <em> before they become headlines.</em>
+            <em>before they become headlines.</em>
           </h1>
           <p>
             Turn 40+ years of NASA, NOAA, and ECMWF Earth observations into transparent,
