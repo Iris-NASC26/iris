@@ -1,0 +1,294 @@
+﻿LOCATORS:
+  #forecast-result .forecast-kicker
+  #forecast-result caption
+  .cesium-credit-wrapper
+  .cesium-viewer
+  .dashboard-context-chip
+  .dashboard-nav-group
+  .dashboard-sidebar
+  .dashboard-sidebar-footer
+  .dashboard-topbar
+  .dv-tabs-and-actions-container
+  .dv-tabs-container
+  .forecast-chart canvas
+  .forecast-detail-grid
+  .forecast-metrics
+  .forecast-workspace
+  .hazard-chart canvas
+  .hazard-heading
+  .hazard-metrics
+  .hazard-provenance
+  .hazard-research
+  .hazard-workspace
+  .landing-cobe
+  .landing-cobe div[style*=
+  .landing-cobe-canvas
+  .landing-cobe-fallback
+  .landing-cobe-paused
+  .ml-forecast
+  .ml-forecast table
+  .ml-forecast-chart canvas
+  .result-badge
+  .result-big-number
+  .result-days
+  .result-error.quality-warning
+  .result-warning
+  .viz-basemap-credit
+  .viz-chart-canvas canvas
+  .viz-chart-frame
+  .viz-cycle-panel
+  .viz-cycle-panel .viz-record-mount canvas
+  .viz-evidence
+  .viz-field-legend
+  .viz-field-source
+  .viz-flat-map
+  .viz-flat-map rect
+  .viz-flat-map rect.viz-extent-outline
+  .viz-flat-map rect:not(.viz-extent-outline)
+  .viz-immersive
+  .viz-landscape-canvas
+  .viz-landscape-canvas canvas
+  .viz-landscape-panel .viz-chart-canvas canvas
+  .viz-landscape-panel .viz-panel-foot
+  .viz-layer-controls
+  .viz-map-applied
+  .viz-map-inspector
+  .viz-map-layers
+  .viz-map-topbar
+  .viz-map-workspace, .viz-three-mount
+  .viz-observation-nav
+  .viz-observation-value
+  .viz-panel .viz-control-section
+  .viz-readout
+  .viz-record-mount canvas
+  .viz-studio-dock
+  .viz-studio-mobile
+  .viz-studio-mobile > label select
+  .viz-three-mount
+  .viz-three-mount canvas
+  .viz-time-control
+  .viz-timeseries-panel
+  .viz-timeseries-panel .viz-record-mount canvas
+  [data-after-cutoff]
+  a.landing-cobe-marker
+  a.landing-cobe-marker[href^=
+  option
+ROLE/NAME QUERIES:
+  "0 independently verified issue-time records admitted")
+  "Advanced pipeline controls", { exact: true })
+  "Exceedance screen withheld for an expired snapshot.")
+  "Expired snapshot · refresh required", { exact: true })
+  "Exploratory 24-hour threshold")
+  "Explore", { exact: true })
+  "Forecast accumulation")
+  "Forecast display")
+  "Forecast location")
+  "Forecast research threshold")
+  "Forecast values and reproducibility", { exact: true })
+  "Highlight seasonal year")
+  "Include after-cutoff context (hindsight)
+  "Inspect source observation")
+  "Inspect the values", { exact: true })
+  "ML forecast target")
+  "Panel", { exact: true })
+  "Reconstruction cutoff")
+  "Show details in UTC")
+  "Source, timing and reproducibility", { exact: true })
+  "TEST-ONLY synthetic observation context.")
+  "Why is there no forecast?", { exact: true })
+  "alert")
+  "button", { name: "3D Seasonal orbit", exact: true })
+  "button", { name: "3D Track", exact: true })
+  "button", { name: "Area", exact: true })
+  "button", { name: "Close dashboard navigation" })
+  "button", { name: "Current precipitation outlook", exact: true })
+  "button", { name: "Export forecast & member evidence" })
+  "button", { name: "Export forecast and evidence" })
+  "button", { name: "Export historical evidence" })
+  "button", { name: "Export outlook evidence" })
+  "button", { name: "Generate forecast from datasets" })
+  "button", { name: "Generate forecast from datasets", exact: true })
+  "button", { name: "Line", exact: true })
+  "button", { name: "Load NASA historical context", exact: true })
+  "button", { name: "Load current 72-hour outlook" })
+  "button", { name: "Load recent NASA context" })
+  "button", { name: "Next source observation" })
+  "button", { name: "Open dashboard navigation" })
+  "button", { name: "Predict from active models" })
+  "button", { name: "Preparing dataset forecast…" })
+  "button", { name: "Refresh current outlook" })
+  "button", { name: "Rolling 24 hours", exact: true })
+  "button", { name: "Seasonal profile", exact: true })
+  "button", { name: "Switch temperature unit" })
+  "button", { name: "Switch to dark mode" })
+  "button", { name: "Switch to dark mode", exact: true })
+  "button", { name: "Year-by-month", exact: true })
+  "button", { name: /Queue history ingest \(era5/ })
+  "cell", { name: "Missing", exact: true })
+  "heading", { name: "Colombo outlook" })
+  "heading", { name: "Forecasts", exact: true })
+  "heading", { name: "Kathmandu outlook" })
+  "heading", { name: "Reported cyclone landfall" })
+  "heading", { name: "The documented event window begins" })
+  "heading", { name: "What comes next in Colombo?" })
+  "heading", { name: `${site.name} outlook` })
+  "heading", { name: `What comes next in ${snapshot.location.name}?` })
+  "img", {
+      name: /NASA POWER historical daily precipitation context/,
+    })
+  "img", { name: /Area for/ })
+  "img", { name: /Interactive 3D seasonal orbit/ })
+  "img", { name: /Interactive 3D time track/ })
+  "img", { name: /Monthly heatmap/ })
+  "img", { name: /Seasonal profile for/ })
+  "img", { name: /Time series for/ })
+  "link", { name: "Air temperature — View saved forecast" })
+  "link", { name: "Cyclone Ditwah", exact: true })
+  "link", { name: "Data Analysis", exact: true })
+  "link", { name: "Forecasts", exact: true })
+  "link", { name: "Open permanent link to this forecast" })
+  "region", { name: "Generated forecast" })
+  "status")
+  "tab", { name: "Seasonal cycles", exact: true })
+  "tab", { name: "Time series", exact: true })
+  '3 of 4 native cells contain values', { exact: false })
+  '3 of 4 native cells contain values',{exact:false})
+  '3D globe ready', { exact: true })
+  '3D globe ready',{exact:true})
+  '4 (2 missing/excluded)
+  '5 (1 missing/excluded)
+  'Colour ramp')
+  'Colour range')
+  'Datasets')
+  'East longitude')
+  'Explore the record now.')
+  'Find a dataset')
+  'Landscape quantity')
+  'Native grid cells. No spatial smoothing.')
+  'No demonstration values are loaded.')
+  'No field loaded for this selection')
+  'North latitude')
+  'Observation end')
+  'Observation start')
+  'Observation time')
+  'Palette')
+  'Panel', { exact: true })
+  'Primary series')
+  'Selected record')
+  'Signal', { exact: true })
+  'South latitude')
+  'Spatial extent')
+  'Spatial month')
+  'Spatial variable')
+  'Visualization controls')
+  'WebGL is unavailable. The equivalent 2D heatmap is shown.')
+  'West longitude')
+  'alert')
+  'button')
+  'button', { name: '2D Heatmap', exact: true })
+  'button', { name: '2D map', exact: true })
+  'button', { name: '3D Columns', exact: true })
+  'button', { name: '3D globe', exact: true })
+  'button', { name: 'Clear selection', exact: true })
+  'button', { name: 'Data controls', exact: true })
+  'button', { name: 'Draw box on 2D map', exact: true })
+  'button', { name: 'Frame selected extent' })
+  'button', { name: 'Hide data controls', exact: true })
+  'button', { name: 'Load selected datasets', exact: true })
+  'button', { name: 'Load spatial field', exact: true })
+  'button', { name: 'Move Scientific field down', exact: true })
+  'button', { name: 'Move Scientific field up', exact: true })
+  'button', { name: 'Pause spatial playback', exact: true })
+  'button', { name: 'Pause', exact: true })
+  'button', { name: 'Play observations', exact: true })
+  'button', { name: 'Play spatial field', exact: true })
+  'button', { name: 'Reset workspace', exact: true })
+  'button', { name: 'Restore default styling', exact: true })
+  'button', { name: 'Retry tiled imagery', exact: true })
+  'button', { name: 'Seasonal profile', exact: true })
+  'button', { name: 'Switch to dark mode', exact: true })
+  'button', { name: 'Switch to light mode', exact: true })
+  'button', { name: 'Zoom in', exact: true })
+  'button', { name: /Run selected analysis/ })
+  'button', { name: /^(Focus|Exit focus)
+  'button', { name: /^Close / })
+  'button', {name:'Year-by-month',exact:true})
+  'button',{name,exact:true})
+  'button',{name:'2D map',exact:true})
+  'button',{name:'3D globe',exact:true})
+  'button',{name:'Data controls',exact:true})
+  'button',{name:'Export CSV',exact:true})
+  'button',{name:'Export JSON',exact:true})
+  'button',{name:'Focus on spatial field',exact:true})
+  'button',{name:'Living globe',exact:true})
+  'button',{name:'Load selected datasets',exact:true})
+  'button',{name:'Load spatial field',exact:true})
+  'button',{name:'Search',exact:true})
+  'button',{name:'Seasonal profile',exact:true})
+  'button',{name:'Switch to dark mode',exact:true})
+  'checkbox', { name, exact: true })
+  'checkbox', { name: 'Observation points', exact: true })
+  'checkbox', { name: 'Scientific field', exact: true })
+  'checkbox', { name: 'Sync spatial field to observation month' })
+  'checkbox', { name: /Mann.*Kendall trend test/ })
+  'checkbox', { name: /Sen.*s slope/ })
+  'checkbox', { name: /Test air temperature/ })
+  'checkbox',{name:'Include provider-flagged values'})
+  'checkbox',{name:/Test air temperature/})
+  'checkbox',{name:/^Temperature at 2 Meters NASA POWER/})
+  'combobox')
+  'heading',{name:'Make the change visible.'})
+  'heading',{name:'Scientific Case File',exact:true})
+  'img', { name: 'Equirectangular world map with retrieved data only' })
+  'img', { name: /Interactive 3D seasonal landscape/ })
+  'img', { name: /Interactive 3D seasonal orbit/ })
+  'img', { name: /Monthly heatmap/ })
+  'img', { name: /Seasonal profile for/ })
+  'img', { name: /Submitted analysis-adjusted observations/ })
+  'img', { name: /Time series for/ })
+  'img', { name: /Trend estimates and 95% confidence intervals/ })
+  'img',{name:'Equirectangular world map with retrieved data only'})
+  'img',{name:/Aligned pairs/})
+  'img',{name:/Exact values are available in CSV and JSON exports/})
+  'img',{name:/Monthly heatmap/})
+  'img',{name:/Seasonal profile for/})
+  'img',{name:/Time series for Temperature at 2 Meters/})
+  'img',{name:/Time series for Test air temperature/})
+  'link', { name: 'Data Analysis', exact: true })
+  'link', { name: 'Open visualization studio' })
+  'link', { name: /Explore in Visualization Studio/ })
+  'link',{name:'Data Analysis',exact:true})
+  'link',{name:'GitHub repository',exact:true})
+  'option')
+  'option', { name, exact: true })
+  'point_exact', { exact: false })
+  'region',{name:'Visualization results'})
+  'spinbutton',{name:'Latitude',exact:true})
+  'spinbutton',{name:'Longitude',exact:true})
+  'status')
+  'tab', { name, exact: true })
+  'tab', { name: 'Compare', exact: true })
+  'tab', { name: 'Living Earth' })
+  'tab', { name: 'Observations', exact: true })
+  'tab', { name: 'Outlook', exact: true })
+  'tab', { name: 'Seasonal cycles', exact: true })
+  'tab', { name: 'Seasonal landscape', exact: true })
+  'tab', { name: 'Source & selection', exact: true })
+  'tab', { name: 'Time series', exact: true })
+  'tab', { name: 'Trend intervals', exact: true })
+  'tab',{name:'Living Earth',exact:true})
+  'tab',{name:'Relationship',exact:true})
+  'tab',{name:'Seasonal cycles',exact:true})
+  'tab',{name:'Source & selection',exact:true})
+  'tab',{name:'Time series',exact:true})
+  'toolbar', { name: 'Studio controls' })
+  'toolbar',{name:'Studio controls'})
+  /Automatic range: fitted to the currently loaded field/)
+  /Displayed range: 0 to 27 C/)
+  /Fixed physical scale \(-55 to 45 source units\)
+  /Interactive globe unavailable/)
+  /NASA EOSDIS GIBS WMTS/)
+  /Raw monthly model data/)
+  /coarser than the 0\.5° × 0\.6\d° source/)
+  /local NASA Blue Marble image — degraded offline mode/)
+  /series loaded/)
