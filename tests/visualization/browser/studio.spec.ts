@@ -20,6 +20,8 @@ test('clean toolbar and remaining tabs work without closing access to views', as
     }
     await expect(page.getByRole('button', { name: /^Close / })).toHaveCount(0);
     await page.getByRole('tab', { name: 'Seasonal cycles', exact: true }).click();
+    await expect(page.getByRole('img', { name: /Interactive 3D seasonal orbit/ })).toBeVisible();
+    await page.getByRole('button', {name:'Year-by-month',exact:true}).click();
     await expect(page.getByRole('img', { name: /Monthly heatmap/ })).toBeVisible();
     await page.getByRole('button', { name: 'Seasonal profile', exact: true }).click();
     await expect(page.getByRole('img', { name: /Seasonal profile for/ })).toBeVisible();
