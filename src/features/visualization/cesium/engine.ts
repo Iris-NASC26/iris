@@ -133,7 +133,15 @@ export class GlobeEngine {
             this.opts.onPick(Cesium.Math.toDegrees(c.latitude), Cesium.Math.toDegrees(c.longitude));
         }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
         this.progressListener = scene.globe.tileLoadProgressEvent.addEventListener(() => this.emitStatus());
+        this.viewer.resize();
+        this.render();
         this.emitStatus();
+    }
+
+    resize() {
+        if (this.disposed) return;
+        this.viewer.resize();
+        this.render();
     }
 
     private lastTileError = "";

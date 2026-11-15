@@ -34,8 +34,8 @@ function ScientificView({ jobId }: {
 function View() {
     const params = useSearchParams(), jobId = params.get('jobId');
     return params.get('view') === 'analysis' ? <>
-    <div style={{ padding: '16px 24px' }}><Link href={`/workspace/visualize${jobId ? `?jobId=${encodeURIComponent(jobId)}` : ''}`}>Back to visualization studio</Link></div>
+    <div style={{ padding: '16px 24px' }}><Link href={`/workspace/visualize${jobId ? `?jobId=${encodeURIComponent(jobId)}` : ''}`}>Back to Data Visualization</Link></div>
     <ScientificView jobId={jobId}/>
   </> : <VisualizationWorkspace />;
 }
-export default function Page() { return <Suspense fallback={<p>Loading visualization workspace...</p>}><View /></Suspense>; }
+export default function Page() { return <Suspense fallback={<p>Loading Data Visualization...</p>}><View /></Suspense>; }

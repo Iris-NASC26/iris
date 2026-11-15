@@ -1,0 +1,339 @@
+/* ============================================================================
+ * IRIS × HEROUI v3 DESIGN SYSTEM — SEMANTIC THEME & TOKEN BRIDGE
+ * ============================================================================
+ * Implements the HeroUI v3 CSS variable architecture (@heroui/styles contract)
+ * customized with Iris's signature Emerald & Green-Tinted Neutral palette
+ * across both Light and Dark modes.
+ *
+ * All legacy Iris custom properties (--bg, --panel, --card, --card-soft,
+ * --border, --border-strong, --text, --muted, --faint, --green, --green-bright,
+ * --green-soft) are preserved and aliased to the HeroUI semantic tokens.
+ * ========================================================================== */
+
+:root,
+.light,
+[data-theme="light"],
+.app-shell {
+  color-scheme: light;
+
+  /* 1. Primitive Constants & Brand Scale (Iris Emerald) */
+  --white: oklch(1 0 0);
+  --black: oklch(0 0 0);
+  --snow: oklch(0.9911 0 0);
+  --eclipse: oklch(0.2175 0.0063 179.01);
+
+  --iris-emerald-50: oklch(0.9793 0.0207 166.11);  /* #ecfdf5 */
+  --iris-emerald-100: oklch(0.9505 0.0507 163.05); /* #d1fae5 */
+  --iris-emerald-200: oklch(0.9049 0.0895 164.15); /* #a7f3d0 */
+  --iris-emerald-300: oklch(0.8452 0.1299 164.98); /* #6ee7b7 */
+  --iris-emerald-400: oklch(0.7729 0.1535 163.22); /* #34d399 */
+  --iris-emerald-500: oklch(0.6959 0.1491 162.48); /* #10b981 */
+  --iris-emerald-600: oklch(0.5960 0.1274 163.23); /* #059669 */
+  --iris-emerald-700: oklch(0.5292 0.1098 164.67); /* #087f5b */
+  --iris-emerald-800: oklch(0.4318 0.0865 166.91); /* #065f46 */
+  --iris-emerald-900: oklch(0.3780 0.0730 168.94); /* #064e3b */
+  --iris-emerald-950: oklch(0.2621 0.0487 172.55); /* #022c22 */
+
+  --iris-brand-mark: #097c5a;
+  --iris-brand-orbit: #a7f3d0;
+
+  /* 2. Typography, Spacing & Shape Tokens (HeroUI v3 Scale) */
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "DM Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --spacing: 0.25rem;
+  --border-width: 1px;
+  --field-border-width: 1px;
+  --disabled-opacity: 0.5;
+  --ring-offset-width: 2px;
+  --cursor-interactive: pointer;
+  --cursor-disabled: not-allowed;
+
+  --radius: 0.5rem;                        /* 8px base */
+  --field-radius: calc(var(--radius) * 1); /* 8px compact pro-tool field radius */
+  --radius-xs: calc(var(--radius) * 0.25); /* 2px */
+  --radius-sm: calc(var(--radius) * 0.5);  /* 4px */
+  --radius-md: calc(var(--radius) * 0.75); /* 6px */
+  --radius-lg: calc(var(--radius) * 1);    /* 8px */
+  --radius-xl: calc(var(--radius) * 1.5);  /* 12px */
+  --radius-2xl: calc(var(--radius) * 2);   /* 16px */
+  --radius-3xl: calc(var(--radius) * 3);   /* 24px */
+  --radius-4xl: calc(var(--radius) * 4);   /* 32px */
+
+  /* 3. Motion & Easing Tokens (HeroUI v3 Curves) */
+  --ease-smooth: ease;
+  --ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-out-cubic: cubic-bezier(0.215, 0.61, 0.355, 1);
+  --ease-out-quart: cubic-bezier(0.165, 0.84, 0.44, 1);
+  --ease-out-fluid: cubic-bezier(0.32, 0.72, 0, 1);
+  --iris-duration-fast: 120ms;
+  --iris-duration-base: 180ms;
+  --iris-duration-slow: 250ms;
+
+  /* 4. Semantic Canvas & Surface Hierarchy (Light Mode) */
+  --background: oklch(0.9850 0.0025 160);         /* #f9fbfa subtle green-tinted canvas */
+  --foreground: oklch(0.2175 0.0063 179.01);      /* #171b1a deep forest ink */
+
+  --surface: oklch(1 0 0);                        /* #ffffff pure crisp card surface */
+  --surface-foreground: var(--foreground);
+  --surface-hover: oklch(0.9820 0.0035 160);
+
+  --surface-secondary: oklch(0.9780 0.0030 160);  /* #f6f9f7 nested container / soft card */
+  --surface-secondary-foreground: var(--foreground);
+
+  --surface-tertiary: oklch(0.9660 0.0042 160);   /* #f2f6f4 recessed well / panel canvas */
+  --surface-tertiary-foreground: var(--foreground);
+
+  --overlay: oklch(1 0 0);                        /* #ffffff floating popovers, modals, drawers */
+  --overlay-foreground: var(--foreground);
+  --backdrop: oklch(0.18 0.015 168 / 0.52);
+
+  /* 5. Content & Neutral Interactive Tokens */
+  --muted: oklch(0.5351 0.0144 164.42);           /* #66706b (5.13:1 contrast) */
+  --iris-faint: oklch(0.6577 0.0127 161.87);      /* #8b948f overlines & tertiary captions */
+
+  --default: oklch(0.9540 0.0055 160);            /* #eef3f0 neutral button / hover fill */
+  --default-foreground: var(--foreground);
+  --default-hover: oklch(0.9320 0.0075 160);
+  --default-soft: oklch(0.9680 0.0040 160);
+  --default-soft-foreground: var(--muted);
+
+  /* 6. Primary Accent (Iris Emerald) */
+  --accent: #087f5b;                              /* oklch(0.5292 0.1098 164.67) — 5.00:1 with white */
+  --accent-foreground: #ffffff;
+  --accent-hover: #065f46;
+  --accent-soft: #eaf8f1;                         /* oklch(0.9668 0.0174 164.66) */
+  --accent-soft-foreground: #087f5b;              /* 4.57:1 contrast on accent-soft */
+  --accent-soft-hover: #d6f3e5;
+  --iris-accent-bright: #059669;
+
+  /* 7. Segmented & Form Field Tokens */
+  --segment: #ffffff;
+  --segment-foreground: var(--foreground);
+
+  --field-background: #ffffff;
+  --field-foreground: var(--foreground);
+  --field-placeholder: var(--iris-faint);
+  --field-border: #d5dad7;
+  --field-border-hover: #b8c2bd;
+  --field-border-focus: var(--focus);
+  --field-hover: oklch(0.9900 0.0020 160);
+
+  /* 8. Status Semantic Tokens */
+  --success: #059669;
+  --success-foreground: #ffffff;
+  --success-soft: #eaf8f1;
+  --success-soft-foreground: #087f5b;
+
+  --warning: #d97706;
+  --warning-foreground: #171b1a;
+  --warning-soft: #fef3c7;
+  --warning-soft-foreground: #b45309;
+
+  --danger: #dc2626;
+  --danger-foreground: #ffffff;
+  --danger-soft: #fee2e2;
+  --danger-soft-foreground: #b91c1c;
+
+  --info: #0284c7;
+  --info-foreground: #ffffff;
+  --info-soft: #e0f2fe;
+  --info-soft-foreground: #0369a1;
+
+  /* 9. Borders, Separators, Focus & Links */
+  --border: #e3e7e4;                              /* oklch(0.9241 0.0059 153.77) */
+  --border-secondary: #d5dad7;                    /* oklch(0.8837 0.0068 160.06) */
+  --border-tertiary: #c4ccc8;
+  --separator: #e8ece9;
+  --separator-secondary: #dce2de;
+
+  --focus: #059669;
+  --link: #087f5b;
+  --iris-focus-ring: 0 0 0 3px color-mix(in srgb, var(--focus) 18%, transparent);
+
+  /* 10. Elevation & Shadows (HeroUI v3 Layered Elevation) */
+  --surface-shadow:
+    0 2px 4px 0 rgba(12, 28, 22, 0.035),
+    0 1px 2px 0 rgba(12, 28, 22, 0.05),
+    0 0 1px 0 rgba(12, 28, 22, 0.06);
+  --surface-shadow-hover:
+    0 6px 16px -2px rgba(12, 28, 22, 0.07),
+    0 2px 6px -1px rgba(12, 28, 22, 0.05);
+  --overlay-shadow:
+    0 4px 16px 0 rgba(12, 28, 22, 0.08),
+    0 12px 32px -4px rgba(12, 28, 22, 0.12);
+  --field-shadow: 0 1px 2px 0 rgba(12, 28, 22, 0.03);
+
+  /* 11. Scrollbar Tokens */
+  --scrollbar-thumb: color-mix(in srgb, var(--foreground) 18%, transparent);
+  --scrollbar-track: transparent;
+  --scrollbar-width: thin;
+  --scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+
+  /* 12. Legacy Iris Variable Aliases (100% Backwards Compatibility) */
+  --bg: var(--background);
+  --panel: var(--surface-tertiary);
+  --card: var(--surface);
+  --card-soft: var(--surface-secondary);
+  --border-strong: var(--border-secondary);
+  --text: var(--foreground);
+  --faint: var(--iris-faint);
+  --green: var(--accent);
+  --green-bright: var(--iris-accent-bright);
+  --green-soft: var(--accent-soft);
+  --map-bg: #e9eee9;
+  --map-road: #fff;
+  --map-line: #cbd5cd;
+  --map-water: #cfe3e3;
+  --map-label: #6a746e;
+}
+
+/* ============================================================================
+ * DARK MODE — HEROUI v3 SEMANTIC TOKENS (IRIS EMERALD DARK)
+ * ========================================================================== */
+
+:root:has(.app-shell.dark),
+.dark,
+[data-theme="dark"],
+.app-shell.dark {
+  color-scheme: dark;
+
+  /* 1. Semantic Canvas & Surface Hierarchy (Dark Mode) */
+  --background: oklch(0.1950 0.0042 164);         /* #141716 deep obsidian-forest canvas */
+  --foreground: oklch(0.9703 0.0041 157.18);      /* #f3f6f4 crisp mist white */
+
+  --surface: oklch(0.2420 0.0058 158);            /* #1d211f elevated card surface */
+  --surface-foreground: var(--foreground);
+  --surface-hover: oklch(0.2680 0.0068 158);
+
+  --surface-secondary: oklch(0.2650 0.0062 158);  /* #232725 nested container / soft card */
+  --surface-secondary-foreground: var(--foreground);
+
+  --surface-tertiary: oklch(0.2200 0.0050 160);   /* #181b1a workspace frame / recessed well */
+  --surface-tertiary-foreground: var(--foreground);
+
+  --overlay: oklch(0.2580 0.0065 158);            /* #212523 floating popovers, modals, drawers */
+  --overlay-foreground: var(--foreground);
+  --backdrop: oklch(0.10 0.01 165 / 0.68);
+
+  /* 2. Content & Neutral Interactive Tokens */
+  --muted: oklch(0.7780 0.0113 158.77);           /* #b1b9b4 (8.81:1 contrast) */
+  --iris-faint: oklch(0.6511 0.0127 161.86);      /* #89928d (5.52:1 contrast) */
+
+  --default: oklch(0.2920 0.0075 160);            /* #2a2f2c neutral control / hover fill */
+  --default-foreground: var(--foreground);
+  --default-hover: oklch(0.3250 0.0085 160);
+  --default-soft: oklch(0.2650 0.0062 158);
+  --default-soft-foreground: var(--muted);
+
+  /* 3. Primary Accent (Iris Luminous Mint-Emerald) */
+  --accent: #34d399;                              /* oklch(0.7729 0.1535 163.22) — 9.19:1 on bg */
+  --accent-foreground: #042419;                   /* 8.45:1 contrast on #34d399 */
+  --accent-hover: #6ee7b7;
+  --accent-soft: #15382b;                         /* rich deep emerald tint */
+  --accent-soft-foreground: #34d399;              /* 6.42:1 contrast on accent-soft */
+  --accent-soft-hover: #1b4636;
+  --iris-accent-bright: #34d399;
+
+  /* 4. Segmented & Form Field Tokens */
+  --segment: oklch(0.3200 0.0085 160);
+  --segment-foreground: var(--foreground);
+
+  --field-background: oklch(0.2180 0.0052 160);   /* #181b19 */
+  --field-foreground: var(--foreground);
+  --field-placeholder: var(--iris-faint);
+  --field-border: #383e3b;
+  --field-border-hover: #4a524e;
+  --field-border-focus: var(--focus);
+  --field-hover: oklch(0.2350 0.0058 160);
+
+  /* 5. Status Semantic Tokens (Dark Mode) */
+  --success: #34d399;
+  --success-foreground: #042419;
+  --success-soft: #15382b;
+  --success-soft-foreground: #34d399;
+
+  --warning: #fbbf24;
+  --warning-foreground: #171b1a;
+  --warning-soft: rgba(245, 158, 11, 0.16);
+  --warning-soft-foreground: #fcd34d;
+
+  --danger: #f87171;
+  --danger-foreground: #171b1a;
+  --danger-soft: rgba(239, 68, 68, 0.16);
+  --danger-soft-foreground: #fca5a5;
+
+  --info: #38bdf8;
+  --info-foreground: #06202c;
+  --info-soft: rgba(14, 165, 233, 0.16);
+  --info-soft-foreground: #7dd3fc;
+
+  /* 6. Borders, Separators, Focus & Links */
+  --border: #323835;                              /* subtle structural boundary */
+  --border-secondary: #434a46;                    /* stronger interactive boundary */
+  --border-tertiary: #525a55;
+  --separator: #2a2f2c;
+  --separator-secondary: #343936;
+
+  --focus: #34d399;
+  --link: #34d399;
+  --iris-focus-ring: 0 0 0 3px color-mix(in srgb, var(--focus) 22%, transparent);
+
+  /* 7. Elevation & Shadows (HeroUI Dark Mode uses surface steps + subtle inner rim) */
+  --surface-shadow: 0 0 0 1px rgba(255, 255, 255, 0.02) inset;
+  --surface-shadow-hover: 0 4px 14px 0 rgba(0, 0, 0, 0.28);
+  --overlay-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.06) inset,
+    0 16px 40px -4px rgba(0, 0, 0, 0.55);
+  --field-shadow: 0 0 0 0 transparent inset;
+
+  /* 8. Scrollbar Tokens */
+  --scrollbar-thumb: color-mix(in srgb, var(--foreground) 20%, transparent);
+  --scrollbar-track: transparent;
+
+  /* 9. Legacy Iris Variable Aliases */
+  --bg: var(--background);
+  --panel: var(--surface-tertiary);
+  --card: var(--surface);
+  --card-soft: var(--surface-secondary);
+  --border-strong: var(--border-secondary);
+  --text: var(--foreground);
+  --faint: var(--iris-faint);
+  --green: var(--accent);
+  --green-bright: var(--iris-accent-bright);
+  --green-soft: var(--accent-soft);
+  --map-bg: #292e2b;
+  --map-road: #3d433f;
+  --map-line: #4c544f;
+  --map-water: #263e3e;
+  --map-label: #a7b0aa;
+}
+
+/* Tailwind CSS v4 @theme inline bridge for HeroUI semantic utilities */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-foreground: var(--surface-foreground);
+  --color-surface-secondary: var(--surface-secondary);
+  --color-surface-tertiary: var(--surface-tertiary);
+  --color-overlay: var(--overlay);
+  --color-overlay-foreground: var(--overlay-foreground);
+  --color-muted: var(--muted);
+  --color-default: var(--default);
+  --color-default-foreground: var(--default-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-soft-foreground: var(--accent-soft-foreground);
+  --color-accent-hover: var(--accent-hover);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-info: var(--info);
+  --color-border: var(--border);
+  --color-separator: var(--separator);
+  --color-focus: var(--focus);
+  --shadow-surface: var(--surface-shadow);
+  --shadow-overlay: var(--overlay-shadow);
+  --shadow-field: var(--field-shadow);
+}

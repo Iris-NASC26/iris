@@ -665,7 +665,7 @@ class ResearchSearchRequest(BaseModel):
         default_factory=lambda: ["openalex", "datacite"]
     )
     sort: Literal["relevance", "citations", "year"] = "relevance"
-    per_source_limit: int = Field(default=15, ge=1, le=50)
+    per_source_limit: int = Field(default=10, ge=1, le=50)
 
 
 class ResearchWorkItem(BaseModel):

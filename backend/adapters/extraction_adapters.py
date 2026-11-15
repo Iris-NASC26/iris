@@ -8,7 +8,9 @@ Routes extraction requests strictly to live NASA API provider modules:
 
 from __future__ import annotations
 
+import asyncio
 import datetime as dt
+import math
 import time
 import uuid
 from typing import Dict, List, Optional, Tuple
@@ -93,7 +95,7 @@ def _resample_series(
     return s_num
 
 
-async def _fetch_live_series_from_provider(
+async def _fetch_live_series_from_provider_single(
     req: ExtractionRequest,
     product: DataProduct,
     lat: float,
@@ -101,7 +103,7 @@ async def _fetch_live_series_from_provider(
     client: httpx.AsyncClient,
 ) -> Tuple[pd.Series, Dict[str, str], str]:
     """
-    Dispatches the extraction request strictly to the matching real NASA provider.
+    Dispatches the extraction request strictly to the matching real NASA provider for a single coordinate.
     Raises RuntimeError with exact upstream details if an API cannot return a point/area series.
     """
     api = req.source_api
@@ -161,6 +163,63 @@ async def _fetch_live_series_from_provider(
         )
 
     raise RuntimeError(f"Unsupported or unconfigured provider '{api}' for product '{req.product_id}'.")
+
+
+async def _fetch_live_series_from_provider(
+    req: ExtractionRequest,
+    product: DataProduct,
+    lat: float,
+    lon: float,
+    client: httpx.AsyncClient,
+) -> Tuple[pd.Series, Dict[str, str], str]:
+    """
+    Dispatches the extraction request to live NASA providers.
+    Supports both regional/point extraction and multi-zonal cosine-weighted global planetary averaging.
+    """
+    if req.spatial_level == "global":
+        # Global multi-zone cosine-weighted planetary average
+        # Sample representative zonal latitudes across Northern, Equatorial, and Southern latitudes
+        zonal_specs = [
+            (60.0, 0.0, math.cos(math.radians(60.0))),
+            (30.0, 0.0, math.cos(math.radians(30.0))),
+            (0.0, 0.0, math.cos(math.radians(0.0))),
+            (-30.0, 0.0, math.cos(math.radians(-30.0))),
+            (-60.0, 0.0, math.cos(math.radians(-60.0))),
+        ]
+        point_req = req.model_copy(update={"spatial_Submode": "point"})
+        tasks = [
+            _fetch_live_series_from_provider_single(point_req, product, z_lat, z_lon, client)
+            for z_lat, z_lon, _ in zonal_specs
+        ]
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+        valid_series = []
+        valid_weights = []
+        for (z_lat, z_lon, w), res in zip(zonal_specs, results):
+            if not isinstance(res, Exception):
+                s, _, _ = res
+                if len(s) > 0:
+                    valid_series.append(s)
+                    valid_weights.append(w)
+
+        if not valid_series:
+            first_err = next((r for r in results if isinstance(r, Exception)), None)
+            raise RuntimeError(f"Global planetary extraction failed: {first_err}")
+
+        # Compute cosine-weighted planetary average across all available zones
+        df = pd.DataFrame(valid_series).T
+        total_w = sum(valid_weights)
+        weights_arr = np.array(valid_weights) / total_w
+        global_vals = (df * weights_arr).sum(axis=1, min_count=1)
+        global_series = pd.Series(global_vals, index=df.index).dropna()
+        meta = {
+            "spatial_coverage": f"Global average ({len(valid_series)} planetary zones, cosine-weighted)",
+            "zones_sampled": str(len(valid_series)),
+            "source": product.source_api,
+        }
+        endpoint = f"{product.source_api} [5-zone planetary cosine-weighted global average]"
+        return global_series, meta, endpoint
+
+    return await _fetch_live_series_from_provider_single(req, product, lat, lon, client)
 
 
 async def run_extraction_pipeline(req: ExtractionRequest) -> PreviewResponse:

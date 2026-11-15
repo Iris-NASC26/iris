@@ -207,7 +207,7 @@ function VisualizationWorkspaceContent({ initialView }: { initialView: 'charts' 
             return;
         }
         if (!chosen.length) {
-            setError('Select a dataset from discovery or System Intelligence first.');
+            setError('Select a dataset from discovery or Iris Intelligence first.');
             return;
         }
         if (store.series.length + chosen.length > MAX_SERIES) {
@@ -389,8 +389,8 @@ function VisualizationWorkspaceContent({ initialView }: { initialView: 'charts' 
     const controls = <aside className="viz-controls" aria-label="Visualization controls">
     <section className="viz-control-section"><span className="viz-step">01 / CHOOSE YOUR DATA</span>
      <form onSubmit={discover}><label htmlFor="viz-prompt">Find a dataset</label><div className="viz-search"><input id="viz-prompt" value={prompt} onChange={e => setPrompt(e.target.value)} placeholder="Temperature, rain, sunlight..." maxLength={500}/><button disabled={searching || !prompt.trim()} type="submit">{searching ? 'Searching...' : 'Search'}</button></div></form>
-     <p className="viz-muted">Uses the same discovery API as SI, focused on NASA POWER. Products selected in SI appear here too.</p>
-     <div className="viz-product-list" aria-label="Datasets">{products.length ? products.map(product => <label key={productKey(product)} className="viz-product"><input type="checkbox" checked={chosen.some(p => productKey(p) === productKey(product))} onChange={e => { const current = chosen.map(productKey); setSelected(e.target.checked ? [...current, productKey(product)] : current.filter(key => key !== productKey(product))); }}/><span><strong>{product.variable_name}</strong><small>{product.source_api} / {product.unit}</small><small>{product.temporal_start.slice(0, 10)} to {product.temporal_end.slice(0, 10)}</small></span></label>) : <p className="viz-muted">Search above or select datasets in SI to begin. No observations are fetched on page load.</p>}</div>
+     <p className="viz-muted">Search NASA POWER and Earth observation products. Selected products will appear here.</p>
+     <div className="viz-product-list" aria-label="Datasets">{products.length ? products.map(product => <label key={productKey(product)} className="viz-product"><input type="checkbox" checked={chosen.some(p => productKey(p) === productKey(product))} onChange={e => { const current = chosen.map(productKey); setSelected(e.target.checked ? [...current, productKey(product)] : current.filter(key => key !== productKey(product))); }}/><span><strong>{product.variable_name}</strong><small>{product.source_api} / {product.unit}</small><small>{product.temporal_start.slice(0, 10)} to {product.temporal_end.slice(0, 10)}</small></span></label>) : <p className="viz-muted">Search above or select datasets in Data Selection to begin. No observations are fetched on page load.</p>}</div>
     </section>
     <section className="viz-control-section"><span className="viz-step">02 / LOCATE THE QUESTION</span>
      <label htmlFor="viz-place">Place or region centre</label><div className="viz-search"><input id="viz-place" value={place} onChange={e => setPlace(e.target.value)} maxLength={120}/><button onClick={() => void geocode()} disabled={!place.trim()}>Find</button></div>
@@ -414,7 +414,7 @@ function VisualizationWorkspaceContent({ initialView }: { initialView: 'charts' 
     const timeStrip = primary && primaryRows.length > 0 && <section className="viz-time-control"><button className="viz-button" onClick={() => setPlaying(p => !p)}>{playing ? 'Pause' : 'Play observations'}</button><label>Selected observation<input aria-label="Observation time" type="range" min={0} max={Math.max(0, times.length - 1)} value={primaryIndex} onChange={e => { setPlaying(false); setTimeIndex(Number(e.target.value)); const r = primaryRows[Number(e.target.value)]; if (r) setSelection({ seriesId: primary.id, time: r.time, timestamp: r.timestamp }); }}/></label><strong>{primaryRows[primaryIndex]?.timestamp} / {format(primaryRows[primaryIndex]?.value ?? null)} {primary.preview.summary_stats.unit}</strong><p>Step through retrieved timestamps and highlight the same observation across views.</p></section>;
     if (initialView === 'globe')
         return <div className="viz-workbench dashboard-page-inner">
-  <header className="viz-heading"><div><span className="viz-eyebrow">LIVING GLOBE / NASA SPATIAL LAYERS</span><h2>Make the change visible.</h2><p>Choose a spatial variable, region and month to paint real NASA grid values across the globe.</p></div><Link className="viz-button" href="/workspace/visualize"><Icon name="activity" size={16}/> Open visualization studio</Link></header>
+  <header className="viz-heading"><div><span className="viz-eyebrow">GEOMETRIC VISUALIZATION · SPATIAL LAYERS</span><h2>Geometric Visualization</h2><p>Inspect multi-dimensional Earth observation grids and coordinate bounds across 3D and 2D projections.</p></div><Link className="viz-primary-explore-btn" href="/workspace/visualize"><Icon name="chart" size={15}/> <span>Open Data Visualization</span></Link></header>
   <div className="viz-layout viz-spatial-layout">
    <section className="viz-results" aria-label="Visualization results" aria-busy={fieldBusy}>
     {notice && <p className="viz-notice" role="status">{notice}</p>}
@@ -423,7 +423,7 @@ function VisualizationWorkspaceContent({ initialView }: { initialView: 'charts' 
   </div>
  </div>;
     return <StudioContext.Provider value={studio}><div className="viz-workbench viz-immersive dashboard-page-inner" data-environment={display.dark ? 'dark' : 'light'}>
-  <header className="viz-heading"><div><span className="viz-eyebrow">IRIS / EARTH SYSTEM OBSERVATORY</span><h2>Make the change visible.</h2><p>Explore the shape of the record. Follow the evidence behind the trend.</p></div><Link className="viz-button" href="/workspace/intelligence"><Icon name="sparkles" size={16}/> Open SI discovery</Link></header>
+  <header className="viz-heading"><div><span className="viz-eyebrow">IRIS / EARTH SYSTEM OBSERVATORY</span><h2>Make the change visible.</h2><p>Explore the shape of the record. Follow the evidence behind the trend.</p></div></header>
   {primary && <section className="viz-context-strip" aria-label="Selected record"><div><span>WHAT</span><strong>{primary.preview.product.variable_name}</strong><small>{primary.preview.summary_stats.unit} · {primary.preview.product.source_api}</small></div><div><span>WHERE</span><strong>{primary.preview.extraction_config.region_name}</strong><small>{primary.preview.spatial_semantics_applied || 'Point sample; not a regional mean'}</small></div><div><span>WHEN</span><strong>{primary.preview.extraction_config.start_date} → {primary.preview.extraction_config.end_date}</strong><small>{primary.preview.extraction_config.target_frequency} · {stats.count} visible usable observations</small></div><div><span>ANALYSIS</span><strong>{binding ? 'Matching result attached' : 'Not yet attached'}</strong><small>{binding ? `${binding.result.start_year}–${binding.result.end_year} · display filters do not retest` : 'Complete selected methods on Data Analysis'}</small></div></section>}
   <div className="viz-layout" data-studio data-drawer={drawerOpen || undefined}>
    {drawerOpen && controls}
