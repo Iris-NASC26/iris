@@ -18,7 +18,7 @@ from . import datasets
 from .schemas import ModelCard
 from .variables import VARIABLES
 
-VERSION = "native-period-v2"
+VERSION = "native-period-v3"
 COLUMNS = ([f"recent_{i}" for i in range(1, 7)] +
            ["recent_mean", "recent_std", "recent_delta", "input_age_days",
             "lead_days", "sin_doy", "cos_doy"])
@@ -245,7 +245,9 @@ def fit(location, dataset_id, horizon, lag_hours, target, persist):
                "mean_interval_width": float(np.mean(pred[:, 2] - pred[:, 0])),
                "rmse": float(np.sqrt(np.mean((pred[:, 1] - y) ** 2))),
                "n_train": len(train), "n_validation": len(validation), "n_calibration": len(calibration),
-               "n_eval": len(test), "folds": 4, "test_start": test[0]["issue"].isoformat(),
+               "n_eval": len(test), "partitions": 4,
+               "protocol": "single_chronological_partition",
+               "folds": 1, "test_start": test[0]["issue"].isoformat(),
                "test_end": test[-1]["label"]["end"].isoformat(),
                "evaluation_scope": "chronological held-out history; source availability is estimated, not a verified vintage archive",
                "prediction_scope": "experimental_local_model"}
@@ -263,7 +265,10 @@ def fit(location, dataset_id, horizon, lag_hours, target, persist):
               "variable": target, "source_id": source, "dataset_id": dataset_id,
               "dataset_hash": manifest["content_sha256"], "horizon": horizon,
               "lag_hours": lag_hours, "interval_correction": correction,
-              "max_input_age_days": max(s["x"]["input_age_days"] for s in calibration + test) + VARIABLES[target]["composite_days"] * 2,
+              # EVAL-04: the live age policy uses permitted development data
+              # (calibration block) only — never outer-test feature ages.
+              "max_input_age_days": max(s["x"]["input_age_days"] for s in calibration) + VARIABLES[target]["composite_days"] * 2,
+              "age_policy_basis": "calibration_partition_only",
               "evaluation": metrics}
     blob = pickle.dumps(bundle)
     card.metrics["model_sha256"] = hashlib.sha256(blob).hexdigest()

@@ -521,10 +521,20 @@ def generate(identifier: str, payload: dict | None = None,
         raise HTTPException(422, "Unknown target.")
     source = VARIABLES[target]["sources"][0]
     pending = jobs.latest(r["location_id"], target, kind="pipeline")
+    # BIND-01: reuse only a job bound to the same requested dataset/source —
+    # a queued job for revision A must never serve a request for B.
+    if (pending and pending["status"] in ("queued", "running")
+            and spec.get("dataset_id")
+            and (pending.get("spec") or {}).get("dataset_id") != spec["dataset_id"]):
+        raise HTTPException(
+            409, f"A pipeline job is already queued for a different dataset "
+                 f"revision ({(pending.get('spec') or {}).get('dataset_id')}). "
+                 "Wait for it or cancel it before generating from "
+                 f"{spec['dataset_id']}.")
     if pending and pending["status"] in ("queued", "running"):
         return pending
     if not spec.get("dataset_id"):
-        existing = predict.predict(r["location_id"], workers.staged_records(r["location_id"], source), target=target)
+        existing = predict.predict(r["location_id"], workers.staged_records(r["location_id"], source), target=target, location=r)
         if existing.get("state") == "available":
             return existing
         # A frozen local dataset is sufficient for training. Do not submit
@@ -610,6 +620,10 @@ def update(identifier: str, payload: dict | None = None,
         raise HTTPException(503, "Configure EARTHDATA_TOKEN for MERRA-2/GLDAS, or Earthdata login credentials for AppEEARS products.")
     pending = jobs.latest(r["location_id"], target, kind="update")
     if pending and pending["status"] in ("queued", "running"):
+        if (pending.get("spec") or {}).get("source_id", source) != source:
+            raise HTTPException(
+                409, "An update job is already queued for a different source "
+                     "on this context; wait or cancel it first.")
         return pending
     return jobs.enqueue("update", r["location_id"],
                         spec.get("idem", f"update-{target}-{source}"), spec)

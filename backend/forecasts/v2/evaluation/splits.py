@@ -61,13 +61,22 @@ def cases(history, manifest, horizons, issue_cfg, dev_end,
     target window; missing windows become recorded exclusions.
     """
     rows = [r for r in history.rows if r["start"] < dev_end]
-    cases, excluded = [], {"missing_target_window": 0, "insufficient_inputs": 0}
+    cases, excluded = [], {"missing_target_window": 0, "insufficient_inputs": 0,
+                           "crosses_holdout_boundary": 0}
     cadence = timedelta(days=int(issue_cfg["cadence_days"]))
     target = history.target
-    for i, r in enumerate(rows):
-        if i % max(1, round(cadence.days / VARIABLES[target]["composite_days"])) != 0:
-            continue
-        issue = r["start"]
+    if not rows:
+        return cases, excluded
+    # EVAL-06a: fixed calendar issue grid anchored at the first observation —
+    # missing records produce exclusions, never shifted issue dates.
+    step = max(1, round(cadence.days / VARIABLES[target]["composite_days"]))
+    grid_step = timedelta(days=VARIABLES[target]["composite_days"] * step)
+    issues = []
+    t = rows[0]["start"]
+    while t < dev_end:
+        issues.append(t)
+        t = t + grid_step
+    for issue in issues:
         for h in horizons:
             start, end = window(issue, h, target)
             label = history.by_start.get(start)
@@ -76,8 +85,13 @@ def cases(history, manifest, horizons, issue_cfg, dev_end,
             if label is None or label["end"] != end:
                 excluded["missing_target_window"] += 1
                 continue
-            x = (feature_fn(issue, h) if feature_fn is not None
-                 else history.feature(issue, h))
+            # EVAL-02: a dev case whose target window crosses the reserved
+            # boundary leaks holdout truth into development — exclude+count.
+            if end > dev_end:
+                excluded["crosses_holdout_boundary"] += 1
+                continue
+            x = (feature_fn(issue, h, fit_cutoff=dev_end)
+                 if feature_fn is not None else history.feature(issue, h))
             if x is None:
                 excluded["insufficient_inputs"] += 1
                 continue
@@ -119,27 +133,39 @@ def fold_plan(issues, n_folds) -> list:
     return plans
 
 
-def inner_split(train_cases, dev_cfg):
+def inner_split(train_cases, dev_cfg, fit_cutoff=None):
     """Chronological train/validation/calibration partitions of one fold's
-    development cases, purged by label availability at each boundary."""
+    development cases, purged by label availability at each boundary AND
+    at the fold's outer fit cutoff (EVAL-01)."""
     ordered = sorted(train_cases, key=lambda c: _stamp(c["issue"]))
     n = len(ordered)
     train_f = float(dev_cfg.get("inner_train_fraction", 0.55))
     val_f = float(dev_cfg.get("inner_validation_fraction", 0.15))
+    cal_f = float(dev_cfg.get("inner_calibration_fraction", 0.15))
     a = _stamp(ordered[int(n * train_f)]["issue"])
     b = _stamp(ordered[int(n * (train_f + val_f))]["issue"])
+    # EVAL-06c: honour the declared calibration fraction; the remainder is
+    # counted as unused, not silently folded into another partition.
+    c_idx = min(n - 1, int(n * (train_f + val_f + cal_f)))
+    c = _stamp(ordered[c_idx]["issue"])
+    outer = _stamp(fit_cutoff) if fit_cutoff else datetime.now(UTC)
     embargo = timedelta(days=float(dev_cfg.get("embargo_days", 0) or 0))
 
-    def avail(c):
-        return _stamp(c["label_available"])
+    def avail(c_):
+        return _stamp(c_["label_available"])
 
-    def window_end(c):
-        return _stamp(c["window_end"])
+    def window_end(c_):
+        return _stamp(c_["window_end"])
 
-    train = [c for c in ordered if _stamp(c["issue"]) < a and avail(c) < a
-             and window_end(c) + embargo <= a]
-    val = [c for c in ordered if a <= _stamp(c["issue"]) < b and avail(c) < b]
-    cal = [c for c in ordered if _stamp(c["issue"]) >= b]
+    train = [x for x in ordered if _stamp(x["issue"]) < a and avail(x) < a
+             and window_end(x) + embargo <= a]
+    val = [x for x in ordered if a <= _stamp(x["issue"]) < b and avail(x) < b]
+    cal = [x for x in ordered if b <= _stamp(x["issue"]) < c
+           and avail(x) < outer]  # labels unusable at the outer fit are purged
+    unused = [x for x in ordered if _stamp(x["issue"]) >= c]
     return {"train": train, "validation": val, "calibration": cal,
+            "unused": unused,
             "boundaries": {"train_end": a.isoformat(),
-                           "validation_end": b.isoformat()}}
+                           "validation_end": b.isoformat(),
+                           "calibration_end": c.isoformat(),
+                           "outer_fit_cutoff": outer.isoformat()}}

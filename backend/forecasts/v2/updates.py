@@ -126,6 +126,25 @@ def freshness(location: dict, source_id: str, target: str,
     series = [r for r in staged if r.get("variable") == target
               and r.get("source_id") == source_id]
     mark = watermark(series)
+
+    def _usable(r):
+        """P2-04: an observation is usable only when its interval completed
+        and it was actually available by the check time — not merely stored."""
+        end = r.get("interval_end")
+        try:
+            end_ts = datetime.fromisoformat(str(end).replace("Z", "+00:00"))
+        except (TypeError, ValueError):
+            return False
+        av = r.get("available_at")
+        if av:
+            try:
+                return datetime.fromisoformat(str(av).replace("Z", "+00:00")) <= now
+            except (TypeError, ValueError):
+                return False
+        return end_ts <= now
+
+    usable_series = [r for r in series if _usable(r)]
+    usable_mark = watermark(usable_series)
     latest_dataset = None
     eligible = [m for m in manifests if m.get("source_id") == source_id
                 and target in m.get("variables", [])]
@@ -144,14 +163,16 @@ def freshness(location: dict, source_id: str, target: str,
            "spatial_mode": location.get("spatial_mode", "point"),
            "source_id": source_id, "target": target, "state": state,
            "latest_observation_end": mark,
+           "latest_usable_end": usable_mark,
            "availability_basis": availability_basis,
            "latest_dataset_id": latest_dataset,
            "last_check": (last or {}).get("checked_at"),
            "last_update": last,
            "checked_at": now.isoformat()}
-    if mark:
-        age_h = (now - datetime.fromisoformat(mark.replace("Z", "+00:00"))).total_seconds() / 3600
+    if usable_mark:
+        age_h = (now - datetime.fromisoformat(usable_mark.replace("Z", "+00:00"))).total_seconds() / 3600
         out["input_age_hours"] = round(age_h, 1)
+        out["stored_but_unusable"] = mark is not None and mark != usable_mark
         if state == "fresh" and age_h > 24 * 14:
             out["state"] = "delayed"
             out["message"] = ("The source's latest usable observation is "

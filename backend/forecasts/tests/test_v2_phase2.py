@@ -8,6 +8,7 @@ deliberately small and labelled synthetic; they verify mechanics, not
 weather skill.
 """
 import json
+import math
 import sqlite3
 from datetime import UTC, datetime, timedelta
 
@@ -127,49 +128,54 @@ def test_point_and_area_never_collide(store):
 def test_weighted_area_mean_differs_from_naive(store):
     """Unequal cos(lat) weights must shift the mean below the naive mean."""
     bbox = (79.0, -1.0, 81.0, 61.0)  # spans the equator: very unequal weights
-    cells = {
-        (80.0, 0.0): {"20240101": 10.0},    # weight ~1.0
-        (80.0, 60.0): {"20240101": 40.0},   # weight ~0.5
-    }
+    cells = {cell: {"20240101": 40.0}
+             for cell in power.intended_cells(bbox)}
+    for cell in power.intended_cells(bbox):
+        if abs(cell[1]) < 1.0:
+            cells[cell] = {"20240101": 10.0}  # near-equator: weight ~1.0
     out = power.parse_area_payload(_regional_payload(bbox, cells), "power_t2m",
                                    bbox, datetime(2024, 1, 5, tzinfo=UTC))
     rec = next(r for r in out["records"] if r["value"] is not None)
     weighted_c = rec["value"] - 273.15
-    naive = (10.0 + 40.0) / 2
-    expected = (10.0 * 1.0 + 40.0 * 0.5) / 1.5
+    weights = {c: math.cos(math.radians(c[1])) for c in cells}
+    expected = sum(v["20240101"] * weights[c]
+                   for c, v in cells.items()) / sum(weights.values())
+    naive = sum(v["20240101"] for v in cells.values()) / len(cells)
     assert weighted_c == pytest.approx(expected, abs=0.01)
-    assert weighted_c != pytest.approx(naive, abs=0.01)  # genuinely differs
+    assert weighted_c != pytest.approx(naive, abs=0.05)  # genuinely differs
 
 
 def test_area_mean_is_not_a_temporal_sum(store):
     bbox = (79.0, 5.0, 81.5, 8.0)
-    cells = {(79.5, 5.5): {"20240101": 10.0, "20240102": 20.0},
-             (80.0, 5.5): {"20240101": 14.0, "20240102": 26.0}}
+    cells = {cell: {"20240101": 10.0, "20240102": 20.0}
+             for cell in power.intended_cells(bbox)}
     out = power.parse_area_payload(_regional_payload(bbox, cells), "power_t2m",
                                    bbox, datetime(2024, 1, 5, tzinfo=UTC))
     recs = [r for r in out["records"] if r["value"] is not None]
     assert len(recs) == 2
     # each day is a mean of cells, never a sum across days or cells
-    assert recs[0]["value"] == pytest.approx((10.0 + 14.0) / 2 + 273.15, abs=0.02)
-    assert recs[1]["value"] == pytest.approx((20.0 + 26.0) / 2 + 273.15, abs=0.02)
+    assert recs[0]["value"] == pytest.approx(10.0 + 273.15, abs=0.02)
+    assert recs[1]["value"] == pytest.approx(20.0 + 273.15, abs=0.02)
     assert all(r["value"] < 300 for r in recs)  # a sum would be absurd
 
 
 def test_out_of_box_cells_and_invalid_values_dropped(store):
     bbox = (79.0, 5.0, 81.5, 8.0)
-    cells = {(79.5, 5.5): {"20240101": 20.0},
-             (80.0, 5.5): {"20240101": 24.0},
-             (80.5, 5.5): {"20240101": -999.0},   # fill value -> invalid
-             (95.0, 50.0): {"20240101": 999.0},   # centre outside -> excluded
-             }
+    intended = power.intended_cells(bbox)
+    cells = {cell: {"20240101": 20.0} for cell in intended}
+    cells[intended[0]] = {"20240101": -999.0}     # fill value -> invalid
+    cells[intended[1]] = {"20240101": -999.0}
+    cells[(95.0, 50.0)] = {"20240101": 999.0}      # centre outside -> excluded
     out = power.parse_area_payload(_regional_payload(bbox, cells), "power_t2m",
                                    bbox, datetime(2024, 1, 5, tzinfo=UTC))
     rec = out["records"][0]
-    assert rec["area_valid_cells"] == 2
-    assert rec["value"] == pytest.approx(22.0 + 273.15, abs=0.01)  # no 999 bleed
+    assert rec["area_valid_cells"] == len(intended) - 2
+    assert rec["value"] == pytest.approx(20.0 + 273.15, abs=0.01)  # no 999 bleed
     cov = out["coverage"][0]
-    assert cov["valid_cells"] == 2 and cov["eligible_cells"] == 3
-    assert out["queried_cells"] == 4
+    assert cov["valid_cells"] == len(intended) - 2
+    assert cov["eligible_cells"] == len(intended)
+    assert cov["expected_cells"] == len(intended)
+    assert out["queried_cells"] == len(intended) + 1
 
 
 def test_insufficient_area_coverage_is_missing_not_zerofill(store):
@@ -219,8 +225,8 @@ def test_fetch_area_checkpoint_resume(store):
 
     def transport(url, timeout):
         calls.append(url)
-        cells = {(79.5, 5.5): {"20240101": 20.0, "20240102": 21.0},
-                 (80.0, 5.5): {"20240101": 22.0, "20240102": 23.0}}
+        cells = {c: {"20240101": 20.0, "20240102": 21.0}
+                 for c in power.intended_cells(bbox)}
         return 200, _regional_payload(bbox, cells), {}
 
     # > CHUNK_DAYS so the plan has two chunks to pause between.
@@ -238,6 +244,16 @@ def test_fetch_area_checkpoint_resume(store):
 # ---------------- workers: ingest + update ----------------
 
 
+AREA_BBOX = (79.0, 5.0, 82.0, 9.0)
+
+
+def _full_cells(bbox, series: dict | float) -> dict:
+    """Every intended cell serves the given series — declared support met."""
+    if not isinstance(series, dict):
+        series = {"20240101": series}
+    return {cell: dict(series) for cell in power.intended_cells(bbox)}
+
+
 def _area(store):
     rec, _ = locations.register_area("Power area", [79.0, 5.0, 82.0, 9.0])
     return rec
@@ -245,7 +261,7 @@ def _area(store):
 
 def test_power_ingest_stages_kelvin_area_mean(store):
     area = _area(store)
-    cells = {(79.5, 5.5): {"20240101": 20.0}, (80.0, 5.5): {"20240101": 24.0}}
+    cells = _full_cells(AREA_BBOX, 22.0)
     transport = lambda url, t: (200, _regional_payload(
         (79.0, 5.0, 82.0, 9.0), cells), {})
     out = workers._power_ingest("j1", area["location_id"],
@@ -278,7 +294,7 @@ def test_power_ingest_point_mode(store):
 
 def test_area_dataset_manifest_and_sidecar(store):
     area = _area(store)
-    cells = {(79.5, 5.5): {"20240101": 20.0}, (80.0, 5.5): {"20240101": 24.0}}
+    cells = _full_cells(AREA_BBOX, 22.0)
     workers._power_ingest("j3", area["location_id"],
                           {"variable": "power_t2m",
                            "start": "2023-12-31T00:00:00+00:00",
@@ -302,7 +318,7 @@ def test_area_dataset_manifest_and_sidecar(store):
 def test_update_appends_and_builds_new_revision(store):
     area = _area(store)
     loc = area["location_id"]
-    initial = {(79.5, 5.5): {"20240101": 20.0}, (80.0, 5.5): {"20240101": 24.0}}
+    initial = _full_cells(AREA_BBOX, 20.0)
     workers._power_ingest("j4", loc, {"variable": "power_t2m",
                                       "start": "2023-12-31T00:00:00+00:00",
                                       "end": "2024-01-03T00:00:00+00:00"},
@@ -310,8 +326,7 @@ def test_update_appends_and_builds_new_revision(store):
                               (79.0, 5.0, 82.0, 9.0), initial), {}))
     first = workers._dataset(loc, {"source_id": "nasa_power", "variable": "power_t2m"})
     # update window sees day 20 (new) appended plus overlap refetch of day 0
-    later = {(79.5, 5.5): {"20240101": 20.0, "20240115": 26.0},
-             (80.0, 5.5): {"20240101": 24.0, "20240115": 30.0}}
+    later = _full_cells(AREA_BBOX, {"20240101": 20.0, "20240115": 26.0})
     out = workers._update("j5", loc, {"source_id": "nasa_power",
                                       "variable": "power_t2m",
                                       "overlap_days": 14},
@@ -328,29 +343,28 @@ def test_update_appends_and_builds_new_revision(store):
 def test_update_revised_value_builds_revision(store):
     area = _area(store)
     loc = area["location_id"]
-    v1 = {(79.5, 5.5): {"20240101": 20.0}, (80.0, 5.5): {"20240101": 24.0}}
+    v1 = _full_cells(AREA_BBOX, 20.0)
     workers._power_ingest("j6", loc, {"variable": "power_t2m",
                                       "start": "2023-12-31T00:00:00+00:00",
                                       "end": "2024-01-03T00:00:00+00:00"},
                           transport=lambda url, t: (200, _regional_payload(
                               (79.0, 5.0, 82.0, 9.0), v1), {}))
     first = workers._dataset(loc, {"source_id": "nasa_power", "variable": "power_t2m"})
-    v2 = {(79.5, 5.5): {"20240101": 21.0},   # provider corrected the cell
-          (80.0, 5.5): {"20240101": 24.0}}
+    v2 = _full_cells(AREA_BBOX, 21.0)  # provider corrected every cell
     out = workers._update("j7", loc, {"source_id": "nasa_power",
                                       "variable": "power_t2m", "overlap_days": 30},
                           transport=lambda url, t: (200, _regional_payload(
                               (79.0, 5.0, 82.0, 9.0), v2), {}), parser=None)
     assert out["state"] == "new_revision" and out["revised"] == 1
     staged = workers.staged_records(loc, "nasa_power")
-    assert staged[0]["value"] == pytest.approx(22.5 + 273.15, abs=0.02)
+    assert staged[0]["value"] == pytest.approx(21.0 + 273.15, abs=0.02)
 
 
 def test_no_change_update_creates_no_revision(store):
     """Identical values with only a newer retrieval clock are not new data."""
     area = _area(store)
     loc = area["location_id"]
-    cells = {(79.5, 5.5): {"20240101": 20.0}, (80.0, 5.5): {"20240101": 24.0}}
+    cells = _full_cells(AREA_BBOX, 22.0)
     workers._power_ingest("j8", loc, {"variable": "power_t2m",
                                       "start": "2023-12-31T00:00:00+00:00",
                                       "end": "2024-01-03T00:00:00+00:00"},
@@ -369,7 +383,7 @@ def test_no_change_update_creates_no_revision(store):
 def test_update_provider_failure_preserves_staging(store):
     area = _area(store)
     loc = area["location_id"]
-    cells = {(79.5, 5.5): {"20240101": 20.0}, (80.0, 5.5): {"20240101": 24.0}}
+    cells = _full_cells(AREA_BBOX, 22.0)
     workers._power_ingest("j10", loc, {"variable": "power_t2m",
                                        "start": "2023-12-31T00:00:00+00:00",
                                        "end": "2024-01-03T00:00:00+00:00"},
@@ -441,7 +455,7 @@ def test_point_area_identity_keeps_datasets_apart(store):
     """A point context and an area over it remain incompatible artifacts."""
     area = _area(store)
     pt, _ = locations.register("In-box point", 7.5, 80.5)
-    cells = {(79.5, 5.5): {"20240101": 20.0}, (80.0, 5.5): {"20240101": 24.0}}
+    cells = _full_cells(AREA_BBOX, 22.0)
     workers._power_ingest("j12", area["location_id"],
                           {"variable": "power_t2m",
                            "start": "2023-12-31T00:00:00+00:00",

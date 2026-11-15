@@ -9,6 +9,7 @@ from __future__ import annotations
 import json
 import os
 import tempfile
+from datetime import UTC, datetime
 from pathlib import Path
 
 from ...store import PATH as STORE_PATH
@@ -38,8 +39,37 @@ def allocate(spec_fp: str, mode: str, root=None) -> Path:
     return path
 
 
+def prior_exposure(root: Path, ctx_key: str, start: str, end: str) -> int:
+    """Recorded final assessments on this context+period lineage whose
+    scored range overlaps [start, end] (EVAL-05 persistent ledger)."""
+    ledger = Path(root) / "holdout_exposure.jsonl"
+    if not ledger.exists():
+        return 0
+    n = 0
+    for line in ledger.read_text().splitlines():
+        if not line.strip():
+            continue
+        e = json.loads(line)
+        if e.get("context_key") != ctx_key:
+            continue
+        if not (e["end"] < start or e["start"] > end):
+            n += 1
+    return n
+
+
+def record_exposure(root: Path, ctx_key: str, start: str, end: str,
+                    spec_hash=None) -> None:
+    Path(root).mkdir(parents=True, exist_ok=True)
+    with open(Path(root) / "holdout_exposure.jsonl", "a",
+              encoding="utf-8") as fh:
+        fh.write(json.dumps({"context_key": ctx_key, "start": start,
+                             "end": end, "spec_hash": spec_hash,
+                             "assessed_at": datetime.now(UTC).isoformat()})
+                 + "\n")
+
+
 def save_run(path: Path, *, spec: dict, fingerprint: str, report: dict,
-             cases: list, status: str) -> None:
+             cases: list, status: str, extra: dict = None) -> None:
     _write(path / "spec.json", json.dumps(spec, indent=2, default=str))
     _write(path / "report.json",
            json.dumps({**report, "spec_fingerprint": fingerprint,
@@ -47,6 +77,8 @@ def save_run(path: Path, *, spec: dict, fingerprint: str, report: dict,
     lines = "\n".join(json.dumps(c, default=str) for c in cases)
     _write(path / "predictions.jsonl", lines + ("\n" if lines else ""))
     _write(path / "report.md", markdown(report, fingerprint, status))
+    for name, payload in (extra or {}).items():
+        _write(path / name, json.dumps(payload, indent=2, default=str))
 
 
 def markdown(report: dict, fingerprint: str, status: str) -> str:

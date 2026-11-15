@@ -86,21 +86,42 @@ def grouped(rows, by):
             preds = [c["predictions"].get(name) for c in cases]
             scored = [(p, c["actual"]) for p, c in zip(preds, cases)
                       if p is not None]
+            deterministic = scored and all(
+                p.get("deterministic") for p, _ in scored)
             if scored:
-                q = np.array([p["q"] if "q" in p else [p["point"]] * 3
-                              for p, _ in scored])
                 yy = np.array([a for _, a in scored])
-                entry["methods"][name] = {**summarize_cases(q, yy),
-                                          "excluded": len(cases) - len(scored)}
+                if deterministic:
+                    # EVAL-06e: a point estimate is not an estimated
+                    # distribution — interval metrics stay unavailable.
+                    pts = np.array([p["point"] for p, _ in scored])
+                    entry["methods"][name] = {
+                        "n": len(scored),
+                        "excluded": len(cases) - len(scored),
+                        "mae": mae(pts, yy), "rmse": rmse(pts, yy),
+                        "bias": bias(pts, yy), "pinball": None,
+                        "coverage_80": None, "mean_width": None,
+                        "interval_score_80": None,
+                        "interval_metrics": "unavailable_deterministic"}
+                else:
+                    q = np.array([p["q"] for p, _ in scored])
+                    entry["methods"][name] = {**summarize_cases(q, yy),
+                                              "excluded": len(cases) - len(scored)}
             else:
                 entry["methods"][name] = {"n": 0, "excluded": len(cases),
                                           "mae": None}
             if common:
-                qc = np.array([c["predictions"][name]["q"]
-                               if "q" in c["predictions"][name]
-                               else [c["predictions"][name]["point"]] * 3
-                               for c in common])
                 yc = np.array([c["actual"] for c in common])
-                entry["common"][name] = summarize_cases(qc, yc)
+                pc = [c["predictions"][name] for c in common]
+                if all(p.get("deterministic") for p in pc):
+                    pts = np.array([p["point"] for p in pc])
+                    entry["common"][name] = {
+                        "n": len(common), "mae": mae(pts, yc),
+                        "rmse": rmse(pts, yc), "bias": bias(pts, yc),
+                        "pinball": None, "coverage_80": None,
+                        "mean_width": None, "interval_score_80": None,
+                        "interval_metrics": "unavailable_deterministic"}
+                else:
+                    qc = np.array([p["q"] for p in pc])
+                    entry["common"][name] = summarize_cases(qc, yc)
         out[key] = entry
     return out

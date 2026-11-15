@@ -54,7 +54,7 @@ SPEC = {"schema_version": "iris-eval-spec.v1",
         "final_holdout": {"fraction": 0.15},
         "estimator": {"max_iter": 20, "leaves_candidates": [3],
                       "min_samples_leaf": 10, "l2_regularization": 1.0},
-        "limits": {"max_folds": 6, "max_candidates": 4, "max_cases": 400,
+        "limits": {"max_folds": 6, "max_candidates": 4, "max_cases": 2000,
                    "max_fit_seconds": 300}}
 
 

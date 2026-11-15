@@ -46,7 +46,24 @@ def build(location_id: str, source_id: str, valid_records: list,
     )
     payload = json.dumps(canon, sort_keys=True, separators=(",", ":")).encode()
     content_hash = hashlib.sha256(payload).hexdigest()
-    dataset_id = f"ds-{content_hash[:16]}"
+    # P2-06: semantic identity binds scientific policy/support alongside the
+    # record hash — a changed aggregation/support policy cannot silently
+    # reuse the old manifest when the values coincide.
+    semantic = {"source_id": source_id,
+                "variables": sorted({r["variable"] for r in canon}),
+                "spatial_mode": (location or {}).get("spatial_mode", "point"),
+                "requested_geometry": (location or {}).get("geometry"),
+                "aggregation": (spec.get("aggregation")
+                                if (location or {}).get("spatial_mode") == "area_mean"
+                                else None),
+                "qa_policy": spec.get("qa_policy", "default"),
+                "units": {r["variable"]: spec.get("units") for r in canon
+                          if spec.get("units")},
+                "policy_version": "semantic-v1"}
+    semantic_hash = hashlib.sha256(
+        json.dumps(semantic, sort_keys=True,
+                   separators=(",", ":")).encode()).hexdigest()
+    dataset_id = f"ds-{hashlib.sha256((content_hash + semantic_hash).encode()).hexdigest()[:16]}"
     days = sorted({r["interval_start"][:10] for r in canon})
     resolved = _resolved_cell(canon)
     manifest = {
@@ -64,6 +81,8 @@ def build(location_id: str, source_id: str, valid_records: list,
         "quarantine": {"count": len(quarantined),
                        "reasons": sorted({q["reason"] for q in quarantined})},
         "content_sha256": content_hash,
+        "semantic_sha256": semantic_hash,
+        "semantic": semantic,
         # Phase-2 spatial contract: a dataset is exactly the support its
         # manifest declares — a single point/grid-cell series, or an
         # area-weighted mean over native cells. Neither may be relabelled

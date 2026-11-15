@@ -65,6 +65,10 @@ def get(job_id: str) -> dict:
         raise KeyError(job_id)
     out = dict(row)
     out["checkpoint"] = json.loads(out["checkpoint"])
+    # the table has no separate spec column — the request spec is the
+    # checkpoint payload the job was enqueued with (executor state is
+    # merged under namespaced keys like update_checkpoint)
+    out["spec"] = dict(out["checkpoint"])
     return out
 
 

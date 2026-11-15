@@ -28,16 +28,23 @@ class Baselines:
         self.history, self.reference = history, reference
         self.seasonal_window = int(seasonal_window)
 
-    def seasonal_values(self, doy: int) -> list:
-        in_window = [r["value"] for r in self.reference
+    def seasonal_values(self, doy: int, ref=None) -> list:
+        ref = self.reference if ref is None else ref
+        in_window = [r["value"] for r in ref
                      if _circular_doy_delta(r["start"].timetuple().tm_yday, doy)
                      <= self.seasonal_window]
-        return in_window or [r["value"] for r in self.reference]
+        return in_window or [r["value"] for r in ref]
 
     def predict(self, name: str, issue, horizon):
-        """Return (point_or_None, quantiles_or_None) for one baseline."""
-        available = self.history.inputs(_stamp(issue))
-        if not available or not self.reference:
+        """Return (point_or_None, quantiles_or_None) for one baseline.
+
+        EVAL-01: fitted references are filtered by availability at each
+        issue — climatology fitted on records published later is leakage.
+        EVAL-06e: deterministic baselines return no quantile array."""
+        issue = _stamp(issue)
+        available = self.history.inputs(issue)
+        ref = [r for r in self.reference if r["available"] <= issue]
+        if not available or not ref:
             return None, None
         start, _ = window(issue, horizon, self.history.target)
         doy = start.timetuple().tm_yday
@@ -45,7 +52,7 @@ class Baselines:
             return max(available, key=lambda r: r["end"])["value"], None
         if name == "seasonal_climatology":
             import numpy as np
-            return None, np.quantile(self.seasonal_values(doy), [.1, .5, .9])
+            return None, np.quantile(self.seasonal_values(doy, ref), [.1, .5, .9])
         if name == "seasonal_naive":
             step = timedelta(days=VARIABLES[self.history.target]["composite_days"])
             prior_start = start - timedelta(days=365)
@@ -53,7 +60,7 @@ class Baselines:
             if row is None:
                 # nearest native period whose start is within one composite step
                 best = min(
-                    (r for r in self.reference if r["available"] <= _stamp(issue)),
+                    (r for r in ref),
                     key=lambda r: abs((prior_start - r["start"]).total_seconds()),
                     default=None)
                 if (best is None
@@ -61,8 +68,7 @@ class Baselines:
                         > step.total_seconds()):
                     return None, None  # honest: no valid seasonal match
                 row = best
-            if row["available"] > _stamp(issue):
+            if row["available"] > issue:
                 return None, None
-            import numpy as np
-            return row["value"], np.array([row["value"]] * 3)
+            return row["value"], None
         raise KeyError(f"unknown baseline '{name}'")

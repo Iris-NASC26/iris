@@ -94,6 +94,7 @@ class ForecastRun:
     scope: str = "experimental_local_model"
     horizons_unavailable: list[dict] = field(default_factory=list)
     quality_status: str = "passed_checks"
+    input_snapshot: dict = field(default_factory=dict)
 
     def __post_init__(self):
         if not 1 <= len(self.predictions) <= 3:

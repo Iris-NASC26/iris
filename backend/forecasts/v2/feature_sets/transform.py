@@ -23,7 +23,9 @@ class SeasonalTransform:
         self.spec_fingerprint = None
 
     def fit(self, rows, cutoff, spec_fingerprint):
-        """rows: permitted History rows (end < cutoff only, enforced here)."""
+        """rows: permitted History rows. FS-01: both the interval cutoff
+        AND record availability are enforced — a record published after
+        the boundary cannot enter the fitted reference."""
         self.cutoff = cutoff.isoformat() if hasattr(cutoff, "isoformat") \
             else str(cutoff)
         self.spec_fingerprint = spec_fingerprint
@@ -31,6 +33,9 @@ class SeasonalTransform:
         for r in rows:
             if r["end"].isoformat() >= self.cutoff:
                 continue  # defence: nothing after the boundary enters
+            avail = r.get("available")
+            if avail is not None and avail.isoformat() >= self.cutoff:
+                continue  # published after the cutoff — not yet usable
             groups.setdefault(r["end"].month - 1, []).append(r["value"])
         for b in range(BUCKETS):
             vals = groups.get(b, [])

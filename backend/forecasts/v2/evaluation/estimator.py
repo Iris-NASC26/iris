@@ -27,6 +27,7 @@ def _hgb(q, leaves, cfg, seed):
     from sklearn.ensemble import HistGradientBoostingRegressor
     return HistGradientBoostingRegressor(
         loss="quantile", quantile=q,
+        learning_rate=float(cfg.get("learning_rate", 0.1)),
         max_iter=int(cfg["max_iter"]),
         max_leaf_nodes=int(leaves),
         min_samples_leaf=int(cfg["min_samples_leaf"]),

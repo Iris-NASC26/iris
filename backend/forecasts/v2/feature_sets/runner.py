@@ -99,12 +99,31 @@ def materialize(spec_dict, *, manifest_fn=None, load_fn=None, resolve_fn=None,
     return out
 
 
-def _feature_fn_for(spec_dict, histories, transform):
-    """Closure passed to Phase-3: issue+horizon -> feature dict or None."""
-    spec = spec_mod.validate(spec_dict)
+def _feature_fn_for(spec_dict, histories, transform=None):
+    """Closure passed to Phase-3/5: issue+horizon+fit_cutoff -> feature dict.
 
-    def fn(issue, horizon):
-        row = mat.build_row(spec, histories, issue, horizon, transform)
+    FS-01: learned transforms are fitted lazily under EACH cutoff the
+    evaluator supplies (fold boundary / holdout boundary / dev end), on
+    rows whose interval end AND availability precede that cutoff — the
+    evaluator's per-fold calls never reuse a transform fitted on nearly
+    all history."""
+    spec = spec_mod.validate(spec_dict)
+    fp = spec_mod.fingerprint(spec)
+    needs_transform = spec["profile"] != "legacy_v1"
+    cache = {}
+
+    def _transform_for(cutoff):
+        if not needs_transform:
+            return None
+        key = cutoff.isoformat() if hasattr(cutoff, "isoformat") else str(cutoff)
+        if key not in cache:
+            rows = histories[spec["target"]["dataset_id"]].rows
+            cache[key] = SeasonalTransform().fit(rows, cutoff, fp)
+        return cache[key]
+
+    def fn(issue, horizon, fit_cutoff=None):
+        t = transform if fit_cutoff is None else _transform_for(fit_cutoff)
+        row = mat.build_row(spec, histories, issue, horizon, t)
         return None if row is None else row["x"]
     return fn
 
@@ -162,16 +181,13 @@ def ablate(eval_spec: dict, feature_specs: dict, *, manifest_fn=None,
         manifest_fn2, load_fn2, _ = _adapters(manifest_fn, load_fn, resolve_fn)
         _bindings(fspec, manifest_fn2, load_fn2)
         histories = mat.load_histories(fspec, load_fn2)
-        thist = histories[fspec["target"]["dataset_id"]]
-        transform = (None if fspec["profile"] == "legacy_v1"
-                     else SeasonalTransform().fit(
-                         thist.rows, thist.rows[-1]["end"], fp))
+        # FS-01: no pre-fitted transform is injected — the evaluator calls
+        # feature_fn with each fold's cutoff and transforms fit inside.
         es = dict(eval_spec)
         es["feature_columns"] = mat.columns_for(fspec)
         rep = eval_runner.run(es, manifest_fn=manifest_fn2, load_fn=load_fn2,
                               resolve_fn=resolve_fn, store_dir=store_dir,
-                              feature_fn=_feature_fn_for(
-                                  fspec_dict, histories, transform))
+                              feature_fn=_feature_fn_for(fspec_dict, histories))
         profiles[name] = {"feature_fingerprint": fp,
                           "profile": fspec["profile"],
                           "columns": len(es["feature_columns"]),
@@ -194,16 +210,39 @@ def ablate(eval_spec: dict, feature_specs: dict, *, manifest_fn=None,
 
 
 def _compare(profiles: dict) -> dict:
-    """Common-case candidate MAE per profile/horizon — no claims beyond."""
-    comp = {}
+    """Cross-profile candidate MAE on SHARED scored cases only (FS-02).
+
+    Each profile reports metrics on its own common subset; comparing those
+    directly can contrast different case populations. We instead intersect
+    the stable case_ids each profile's candidate actually scored, then
+    compute MAE over that identical set per horizon."""
+    per_profile = {}  # name -> {horizon -> {case_id: (q50, actual)}}
     for name, p in profiles.items():
+        scored = {}
         for ctx in p["report"].get("contexts", []):
-            for g in ctx.get("groups", []):
-                if g["group_by"] != "horizon":
-                    continue
-                cand = (g.get("common") or {}).get("candidate") or {}
-                comp.setdefault(g["group"], {})[name] = {
-                    "common_n": g.get("common_n"),
-                    "candidate_mae": cand.get("mae"),
-                    "candidate_coverage": cand.get("coverage_80")}
+            for f in ctx.get("folds", []):
+                for r in f.get("case_rows", []):
+                    pred = r.get("predictions", {}).get("candidate")
+                    if pred is None or r.get("actual") is None:
+                        continue
+                    point = pred["q"][1] if "q" in pred else pred["point"]
+                    scored.setdefault(r["horizon"], {})[r["case_id"]] = \
+                        (point, r["actual"])
+        per_profile[name] = scored
+    names = list(per_profile)
+    comp = {}
+    horizons = sorted({h for s in per_profile.values() for h in s})
+    for h in horizons:
+        sets = [set(per_profile[n].get(h, {})) for n in names]
+        shared = set.intersection(*sets) if sets else set()
+        for n in names:
+            cases = per_profile[n].get(h, {})
+            pairs = [cases[c] for c in shared if c in cases]
+            mae = (sum(abs(a - b) for a, b in pairs) / len(pairs)
+                   if pairs else None)
+            comp.setdefault(h, {})[n] = {
+                "profile_scored_n": len(cases),
+                "common_n": len(pairs),
+                "shared_case_ids": True,
+                "candidate_mae": mae}
     return comp

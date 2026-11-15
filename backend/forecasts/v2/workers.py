@@ -36,7 +36,8 @@ def staging_path(location_id: str, source_id: str) -> Path:
 
 def staged_records(location_id: str, source_id: str | None = None) -> list[dict]:
     files = ([staging_path(location_id, source_id)] if source_id
-             else sorted((STAGING / location_id).glob("*.jsonl")))
+             else sorted(f for f in (STAGING / location_id).glob("*.jsonl")
+                         if not f.name.endswith(".updates.jsonl")))
     out: list[dict] = []
     for f in files:
         if f.exists():
@@ -139,32 +140,42 @@ def _update(job_id: str, loc: str, spec: dict, *, transport, parser) -> dict:
     path = staging_path(loc, source_id)
     existing = staged_records(loc, source_id)
     before = updates.watermark(existing, var_name)
-    start, end = updates.update_window(
-        existing, var_name,
-        overlap_days=int(spec.get("overlap_days", updates.DEFAULT_OVERLAP_DAYS)),
-        backfill_days=int(spec.get("backfill_days", 366)))
+    # P2-03: pin the window across retry passes and resume the provider's
+    # actual checkpoint instead of restarting the first chunk forever.
+    pinned = spec.get("update_window")
+    if pinned:
+        start, end = (datetime.fromisoformat(pinned[0]),
+                      datetime.fromisoformat(pinned[1]))
+    else:
+        start, end = updates.update_window(
+            existing, var_name,
+            overlap_days=int(spec.get("overlap_days", updates.DEFAULT_OVERLAP_DAYS)),
+            backfill_days=int(spec.get("backfill_days", 366)))
+    uckpt = spec.get("update_checkpoint")
     budget = {**DEFAULT_BUDGET, **(spec.get("budget") or {})}
     try:
         if source_id == power.SOURCE_ID:
             if region.get("spatial_mode") == "area_mean":
                 out = power.fetch_area(var_name, tuple(region["bbox"]), start, end,
-                                       transport=transport, budget=budget)
+                                       transport=transport, budget=budget,
+                                       checkpoint=uckpt)
             else:
                 out = power.fetch_point(var_name, float(region["latitude"]),
                                         float(region["longitude"]), start, end,
-                                        transport=transport, budget=budget)
+                                        transport=transport, budget=budget,
+                                        checkpoint=uckpt)
             lag_hours = power.DELAY_HOURS
         elif source_id in sources.SOURCE_OPTIONS:
             out = sources.fetch_history(
                 loc, float(region["latitude"]), float(region["longitude"]), source_id,
-                start, end, transport=transport, budget=budget, checkpoint=None)
+                start, end, transport=transport, budget=budget, checkpoint=uckpt)
             lag_hours = sources.SOURCE_OPTIONS.get(source_id, (None, 24 * 6, ""))[1]
         else:
             from .variables import PRODUCTS
             out = earthdata.fetch_series(
                 var_name, float(region["latitude"]), float(region["longitude"]),
                 start, end, transport=transport, parser=parser, budget=budget,
-                checkpoint=None)
+                checkpoint=uckpt)
             lag_hours = 24 * PRODUCTS.get(source_id, {}).get("delay_days", 30)
     except Exception as e:
         updates.append_log(loc, source_id, {
@@ -175,7 +186,8 @@ def _update(job_id: str, loc: str, spec: dict, *, transport, parser) -> dict:
         raise
     if out.get("exhausted") or out.get("pending"):
         return {"pending": True,
-                "checkpoint": {"update_checkpoint": out.get("next_checkpoint", {})},
+                "checkpoint": {"update_checkpoint": out.get("next_checkpoint", {}),
+                               "update_window": [start.isoformat(), end.isoformat()]},
                 "message": "Update continues on the next worker pass."}
     fetched_raw = out["records_raw"]
     for r in fetched_raw:

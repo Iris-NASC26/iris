@@ -43,7 +43,7 @@ CHUNK_DAYS = 366 * 2
 # behind; we do not claim a verified issue-time archive.
 DELAY_HOURS = 72.0
 MIN_AREA_FRACTION = 0.6  # documented minimum valid-area coverage per interval
-AGGREGATION_POLICY = "coslat_weighted_mean_v1"
+AGGREGATION_POLICY = "coslat_weighted_mean_v2"
 
 PARAMETERS = {
     "power_t2m": {"param": "T2M", "native_unit": "C", "offset": 273.15,
@@ -184,6 +184,18 @@ def parse_point_payload(body: bytes, target: str, lat: float, lon: float,
     return rows
 
 
+def intended_cells(bbox: tuple[float, float, float, float]
+                   ) -> list[tuple[float, float]]:
+    """Declared grid support: (lon, lat) cell centres for a request box —
+    the single definition shared by coverage accounting and tests."""
+    w, s, e, n = bbox
+    lats = [s + (i + 0.5) * GRID_LAT_DEG
+            for i in range(int(round((n - s) / GRID_LAT_DEG)))]
+    lons = [w + (j + 0.5) * GRID_LON_DEG
+            for j in range(int(round((e - w) / GRID_LON_DEG)))]
+    return [(lo, la) for la in lats for lo in lons]
+
+
 def reduce_area(features: list[dict], target: str,
                 bbox: tuple[float, float, float, float],
                 digest: str, retrieved: datetime,
@@ -206,13 +218,28 @@ def reduce_area(features: list[dict], target: str,
         cells.append({"lat": clat, "lon": clon, "series": series,
                       "eligible": eligible,
                       "weight": math.cos(math.radians(clat)) if eligible else 0.0})
-    eligible = [c for c in cells if c["eligible"]]
-    # Expected support comes from the grid contract, not the response —
-    # a cell missing entirely from the payload must not shrink the basis.
-    expected = (math.ceil((e - w) / GRID_LON_DEG)
-                * math.ceil((n - s) / GRID_LAT_DEG))
-    total_weight = sum(c["weight"] for c in eligible)
+    # Intended support derives from the declared grid contract alone —
+    # returned cells can only lose coverage, never redefine it.
+    intended = intended_cells(bbox)
+    expected = len(intended)
+    intended_weight = sum(math.cos(math.radians(la)) for _, la in intended)
+    # Duplicate returned cells count once; omitted cells reduce coverage.
+    seen, eligible = set(), []
+    for c in cells:
+        if c["eligible"] and (c["lat"], c["lon"]) not in seen:
+            seen.add((c["lat"], c["lon"]))
+            eligible.append(c)
+    total_weight = intended_weight
     days = sorted({k for c in eligible for k in c["series"] if _day(k)})
+    # A date absent from every returned cell is a missing interval, not an
+    # uncounted gap: emit a zero-coverage record between observed bounds.
+    if days:
+        span = [(_day(k)) for k in (days[0], days[-1])]
+        full = {(span[0] + timedelta(days=i)) for i
+                in range((span[1] - span[0]).days + 1)}
+        days += [k.strftime("%Y%m%d") for k
+                 in sorted(full - {_day(k) for k in days})]
+        days.sort(key=_day)
     records, coverage = [], []
     for key in days:
         day = _day(key)
@@ -233,7 +260,8 @@ def reduce_area(features: list[dict], target: str,
                          "eligible_cells": len(eligible),
                          "valid_cells": len(valid),
                          "valid_area_fraction": round(fraction, 4),
-                         "support": "cell-centre inclusion; cos(lat) weights"})
+                         "support": "cell-centre inclusion; cos(lat) weights; "
+                                    "denominator is declared grid support (v2)"})
         if fraction < MIN_AREA_FRACTION:
             # Missing, not zero-filled — coverage.json explains the shortfall.
             records.append(_record(
