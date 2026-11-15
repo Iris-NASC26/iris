@@ -83,8 +83,10 @@ function MlWorkspace({
           <h1>{site ? `${site.name} outlook` : "Dataset forecasts"}</h1>
           <p>
             {site
-              ? `One point at ${site.latitude}°, ${site.longitude}° — not an area or district average.`
-              : "Choose a registered forecast point, or add a new one."}
+              ? site.spatial_mode === "area_mean" && site.bbox
+                ? `Bounding-box area [${site.bbox.map((b) => b.toFixed(2)).join(", ")}] — a weighted mean over source grid cells, never the centre point.`
+                : `One point at ${site.latitude}°, ${site.longitude}° — not an area or district average.`
+              : "Choose a registered forecast point or area, or add a new one."}
           </p>
         </div>
         <div className="forecast-location-controls">
@@ -97,12 +99,12 @@ function MlWorkspace({
             >
               {!site && (
                 <option value="" disabled>
-                  {locations ? "Unknown location — choose a point" : "Loading locations…"}
+                  {locations ? "Unknown location — choose one" : "Loading locations…"}
                 </option>
               )}
               {(locations ?? []).map((l) => (
                 <option key={l.location_id} value={l.location_id}>
-                  {l.name}
+                  {l.spatial_mode === "area_mean" ? `${l.name} (area)` : l.name}
                 </option>
               ))}
             </select>
@@ -113,7 +115,7 @@ function MlWorkspace({
             aria-expanded={adding}
             onClick={() => setAdding((a) => !a)}
           >
-            {adding ? "Close" : "+ New point"}
+            {adding ? "Close" : "+ New point or area"}
           </button>
         </div>
       </header>
@@ -128,8 +130,8 @@ function MlWorkspace({
       )}
       {locations && !site && (
         <div className="forecast-notice" role="status">
-          <strong>{id}</strong> is not a registered forecast point. Choose a
-          location above or add a new point — no data or model is borrowed
+          <strong>{id}</strong> is not a registered forecast context. Choose a
+          location above or add a new one — no data or model is borrowed
           from another place.
         </div>
       )}

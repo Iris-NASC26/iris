@@ -136,9 +136,14 @@ def predict(location_id: str, records: list[dict], issue_ts: str | None = None,
         quality_status="experimental_preview" if any(w.quality_status == "experimental_preview" for w in windows) else "passed_checks",
         location_id=location_id,
         # Saved runs keep their actual spatial scope — a point estimate never
-        # becomes an area value by moving a label.
-        spatial={"mode": "point",
+        # becomes an area value by moving a label, and vice versa.
+        spatial={"mode": (location or {}).get("spatial_mode", "point"),
+                 "support": ("area_mean" if (location or {}).get("spatial_mode") == "area_mean"
+                             else "point"),
+                 "label": ("Area average" if (location or {}).get("spatial_mode") == "area_mean"
+                           else "Point / grid-cell estimate"),
                  "requested_geometry": (location or {}).get("geometry"),
+                 "bbox": (location or {}).get("bbox"),
                  "location_name": (location or {}).get("name"),
                  "timezone": (location or {}).get("timezone", "UTC")},
         scope="experimental_preview" if any(w.quality_status == "experimental_preview" for w in windows) else "experimental_local_model")

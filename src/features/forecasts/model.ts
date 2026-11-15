@@ -274,11 +274,18 @@ export interface ForecastLocation {
   schema_version?: string;
   location_id: string;
   name: string;
+  // For area contexts these are the bbox centroid — display metadata only,
+  // never extraction coordinates.
   latitude: number;
   longitude: number;
   timezone: string;
-  geometry?: { type: "Point"; coordinates: [number, number] };
-  spatial_mode: "point";
+  geometry?:
+    | { type: "Point"; coordinates: [number, number] }
+    | { type: "Polygon"; coordinates: [number, number][][] };
+  spatial_mode: "point" | "area_mean";
+  // [west, south, east, north] — present only for area contexts.
+  bbox?: [number, number, number, number] | null;
+  centroid?: { latitude: number; longitude: number } | null;
   source: "seed" | "registered";
   created_at: string;
 }
@@ -294,10 +301,18 @@ function parseLocationRecord(v: unknown): ForecastLocation {
     !finite(l.longitude) ||
     Math.abs(l.latitude) > 90 ||
     Math.abs(l.longitude) > 180 ||
-    l.spatial_mode !== "point" ||
+    !["point", "area_mean"].includes(l.spatial_mode) ||
     (l.source !== "seed" && l.source !== "registered")
   )
     throw new Error("Invalid forecast location record.");
+  if (
+    l.spatial_mode === "area_mean" &&
+    (!Array.isArray(l.bbox) ||
+      l.bbox.length !== 4 ||
+      l.bbox.some((b) => !finite(b)) ||
+      !(l.bbox[0] < l.bbox[2] && l.bbox[1] < l.bbox[3]))
+  )
+    throw new Error("Invalid forecast area bounds.");
   return l;
 }
 export function parseLocation(value: unknown): ForecastLocation {
@@ -449,6 +464,24 @@ export interface MlCapabilities {
     string,
     { delay_days: number; daac: string; cadence: string; note: string }
   >;
+  source_capabilities?: Record<
+    string,
+    {
+      spatial_modes?: string[];
+      requires_credentials?: boolean;
+      access?: string;
+      delay_hours?: number;
+      delay_days?: number;
+      availability_basis?: string;
+      regional_limits?: {
+        min_lat_span_deg?: number;
+        max_span_deg?: number;
+        max_cell_days?: number;
+      };
+      aggregation_policy?: string;
+      note?: string;
+    }
+  >;
 }
 export function parseMlCapabilities(v: unknown): MlCapabilities {
   const c = v as MlCapabilities;
@@ -515,9 +548,23 @@ export interface MlDataset {
   variables?: string[];
   spatial_mode?: string;
   spatial_support?: string;
-  requested_geometry?: { type: "Point"; coordinates: [number, number] } | null;
+  requested_geometry?: { type: string; coordinates?: unknown } | null;
   resolved_coordinates?: { latitude: number; longitude: number } | null;
-  spatial_extent?: { known: boolean; kind: string; note: string };
+  spatial_extent?: { known: boolean; kind: string; note: string; bbox?: number[] | null };
+  aggregation?: {
+    policy: string;
+    weights?: string;
+    boundary?: string;
+    min_valid_area_fraction?: number;
+    note?: string;
+  } | null;
+  coverage_summary?: {
+    intervals: number;
+    min_valid_area_fraction?: number | null;
+    mean_valid_area_fraction?: number | null;
+    policy?: string;
+    sidecar?: string;
+  } | null;
 }
 export function parseMlDatasets(v: unknown): MlDataset[] {
   const list = (v as { datasets?: unknown })?.datasets;
@@ -720,7 +767,10 @@ export interface MlPrediction {
   location_id?: string;
   spatial?: {
     mode?: string;
-    requested_geometry?: { type: string; coordinates: number[] } | null;
+    support?: string;
+    label?: string;
+    requested_geometry?: { type: string; coordinates?: unknown } | null;
+    bbox?: number[] | null;
     location_name?: string;
     timezone?: string;
   };
@@ -751,4 +801,61 @@ export function parseMlPrediction(v: unknown): MlPrediction {
   )
     throw new Error("Invalid ML prediction: quantiles must be finite, ordered, nonnegative.");
   return p;
+}
+
+/** Typed input-freshness summary — real watermarks, never a reissue clock. */
+export interface MlFreshness {
+  location_id: string;
+  location_name?: string;
+  spatial_mode?: string;
+  source_id: string;
+  target: string;
+  state:
+    | "fresh"
+    | "delayed"
+    | "no_data"
+    | "unsupported"
+    | "credential_failure"
+    | "retrieval_failure"
+    | "rate_limited";
+  latest_observation_end: string | null;
+  input_age_hours: number | null;
+  availability_basis: string;
+  latest_dataset_id?: string | null;
+  last_check?: string | null;
+  last_update?: {
+    status?: string;
+    changed?: boolean;
+    appended?: number;
+    revised?: number;
+    checked_at?: string;
+    dataset_id?: string;
+  } | null;
+  message?: string;
+  checked_at?: string;
+}
+export function parseMlFreshness(v: unknown): MlFreshness {
+  const f = v as MlFreshness;
+  const states = [
+    "fresh",
+    "delayed",
+    "no_data",
+    "unsupported",
+    "credential_failure",
+    "retrieval_failure",
+    "rate_limited",
+  ];
+  if (
+    !f ||
+    !LOCATION_ID.test(f.location_id ?? "") ||
+    typeof f.source_id !== "string" ||
+    typeof f.target !== "string" ||
+    !states.includes(f.state) ||
+    (f.latest_observation_end !== null &&
+      !Number.isFinite(Date.parse(f.latest_observation_end ?? ""))) ||
+    (f.input_age_hours !== null && !finite(f.input_age_hours)) ||
+    typeof f.availability_basis !== "string"
+  )
+    throw new Error("Invalid forecast freshness response.");
+  return f;
 }

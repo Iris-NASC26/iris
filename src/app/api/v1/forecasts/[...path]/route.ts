@@ -9,8 +9,8 @@ const IDENT = /^[a-z0-9][a-z0-9-]{1,38}$/;
 const JOB = /^v2-[a-f0-9]{12}$/;
 const RUN = /^run-[a-f0-9]{16}$/;
 const MODEL = /^m-[a-zA-Z0-9-]{2,40}$/;
-const V2_READS = ["history", "datasets", "models", "trends", "prediction", "published", "jobs"];
-const V2_WRITES = ["ingest", "datasets", "train", "trends", "predict", "refresh", "generate"];
+const V2_READS = ["history", "datasets", "models", "trends", "prediction", "published", "jobs", "freshness"];
+const V2_WRITES = ["ingest", "datasets", "train", "trends", "predict", "refresh", "generate", "update"];
 const V2_STATIC_READS = ["capabilities", "catalogue", "datasets", "compatibility"];
 
 async function proxy(

@@ -92,7 +92,7 @@ test("opening and selecting locations never mutates the forecast backend", async
 test("unknown location ids get an honest notice instead of borrowed data", async ({ page }) => {
   await routeRegistry(page);
   await page.goto("/workspace/forecasts?forecastId=loc-999999999999");
-  await expect(page.locator(".forecast-notice")).toContainText("not a registered forecast point");
+  await expect(page.locator(".forecast-notice")).toContainText("not a registered forecast context");
   await expect(page.locator(".ml-forecast")).toHaveCount(0);
 });
 

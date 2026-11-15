@@ -31,8 +31,14 @@ def _canonical(rec) -> dict:
 
 
 def build(location_id: str, source_id: str, valid_records: list,
-          quarantined: list[dict], *, spec: dict, location: dict | None = None) -> dict:
-    """Persist a new dataset revision (or return the existing identical one)."""
+          quarantined: list[dict], *, spec: dict, location: dict | None = None,
+          coverage: list[dict] | None = None) -> dict:
+    """Persist a new dataset revision (or return the existing identical one).
+
+    `location` supplies the registered spatial contract; `coverage` is the
+    bounded per-interval support accounting for aggregated (area) series —
+    written as a sidecar, never folded into the content hash.
+    """
     canon = [_canonical(r) for r in valid_records]
     canon.sort(key=lambda r: (r["variable"], r["interval_start"]))
     jsonl = b"\n".join(
@@ -58,16 +64,26 @@ def build(location_id: str, source_id: str, valid_records: list,
         "quarantine": {"count": len(quarantined),
                        "reasons": sorted({q["reason"] for q in quarantined})},
         "content_sha256": content_hash,
-        # Phase-1 spatial contract: every dataset is a single point/grid-cell
-        # series. True area aggregation is Phase 2 and must never be implied
-        # by these fields.
-        "spatial_mode": "point",
-        "spatial_support": "point",
+        # Phase-2 spatial contract: a dataset is exactly the support its
+        # manifest declares — a single point/grid-cell series, or an
+        # area-weighted mean over native cells. Neither may be relabelled
+        # as the other.
+        "spatial_mode": (location or {}).get("spatial_mode", "point"),
+        "spatial_support": ("area_mean" if (location or {}).get("spatial_mode") == "area_mean"
+                            else "point"),
         "requested_geometry": (location or {}).get("geometry"),
         "resolved_coordinates": resolved,
-        "spatial_extent": {"known": resolved is not None,
-                           "kind": "point",
-                           "note": "single source grid cell; not an area average"},
+        "spatial_extent": ({"known": True,
+                           "kind": "area_mean",
+                           "bbox": (location or {}).get("bbox"),
+                           "note": "cos(lat)-weighted mean over native cells whose centres fall inside the requested box"}
+                          if (location or {}).get("spatial_mode") == "area_mean"
+                          else {"known": resolved is not None,
+                                "kind": "point",
+                                "note": "single source grid cell; not an area average"}),
+        "aggregation": (spec.get("aggregation") if (location or {}).get("spatial_mode") == "area_mean"
+                        else None),
+        "coverage_summary": _coverage_summary(coverage),
         "spec": spec,
         "immutable": True,
     }
@@ -78,8 +94,23 @@ def build(location_id: str, source_id: str, valid_records: list,
         return json.loads(mpath.read_text())
     (ddir / "records.jsonl").write_bytes(jsonl + (b"\n" if jsonl else b""))
     (ddir / "quarantine.json").write_text(json.dumps(quarantined, indent=1))
+    if coverage:
+        (ddir / "coverage.json").write_text(json.dumps(coverage, indent=1))
     mpath.write_text(json.dumps(manifest, indent=1))
     return manifest
+
+
+def _coverage_summary(coverage: list[dict] | None) -> dict | None:
+    if not coverage:
+        return None
+    fractions = [c["valid_area_fraction"] for c in coverage
+                 if isinstance(c.get("valid_area_fraction"), (int, float))]
+    return {"intervals": len(coverage),
+            "min_valid_area_fraction": min(fractions) if fractions else None,
+            "mean_valid_area_fraction": (round(sum(fractions) / len(fractions), 4)
+                                         if fractions else None),
+            "policy": "valid-area fraction = contributing cos(lat) weight / intended-box weight",
+            "sidecar": "coverage.json"}
 
 
 def _resolved_cell(canon: list[dict]) -> dict | None:

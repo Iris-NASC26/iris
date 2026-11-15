@@ -237,3 +237,71 @@ it("parses compatibility states and rejects unknown ones", async () => {
   assert.throws(() => parseCompatibility({ ...base, state: "area_ready" }));
   assert.throws(() => parseCompatibility({ ...base, location_id: "bad id" }));
 });
+
+const area = {
+  schema_version: "iris.forecast-location.v2",
+  location_id: "area-cf6131c5ffc5",
+  name: "Minneriya test box",
+  latitude: 8.5,
+  longitude: 80.75,
+  timezone: "UTC",
+  geometry: { type: "Polygon", coordinates: [[[80.0, 7.5], [81.5, 7.5], [81.5, 9.5], [80.0, 9.5], [80.0, 7.5]]] },
+  spatial_mode: "area_mean",
+  bbox: [80.0, 7.5, 81.5, 9.5],
+  centroid: { latitude: 8.5, longitude: 80.75 },
+  source: "registered",
+  created_at: "2025-02-01T00:00:00Z",
+};
+
+it("parses area location records with valid bbox", async () => {
+  const { parseLocation, parseLocations } = await import(
+    "../../src/features/forecasts/model"
+  );
+  const parsed = parseLocation({ location: area });
+  assert.equal(parsed.spatial_mode, "area_mean");
+  assert.deepEqual(parsed.bbox, [80.0, 7.5, 81.5, 9.5]);
+  const listed = parseLocations({ locations: [loc, area] });
+  assert.equal(listed.length, 2);
+});
+
+it("rejects area records with malformed or reversed bounds", async () => {
+  const { parseLocations } = await import("../../src/features/forecasts/model");
+  for (const bad of [
+    { ...area, bbox: [81.5, 7.5, 80.0, 9.5] },
+    { ...area, bbox: [80.0, 9.5, 81.5, 7.5] },
+    { ...area, bbox: [80.0, 7.5, 81.5] },
+    { ...area, bbox: null },
+    { ...area, bbox: "not-a-box" },
+    { ...area, bbox: [80.0, 7.5, 81.5, Number.NaN] },
+    { ...area, spatial_mode: "centroid" },
+  ]) {
+    assert.throws(() => parseLocations({ locations: [bad] }), JSON.stringify(bad));
+  }
+});
+
+it("parses freshness states and rejects invalid ones", async () => {
+  const { parseMlFreshness } = await import("../../src/features/forecasts/model");
+  const base = {
+    location_id: "area-cf6131c5ffc5",
+    source_id: "nasa_power",
+    target: "power_t2m",
+    state: "fresh",
+    latest_observation_end: "2025-02-01T00:00:00Z",
+    input_age_hours: 30.5,
+    availability_basis: "estimated ~72h publication delay",
+    latest_dataset_id: "ds-0123456789abcdef",
+    checked_at: "2025-02-02T00:00:00Z",
+  };
+  assert.equal(parseMlFreshness(base).state, "fresh");
+  for (const state of ["delayed", "no_data", "unsupported", "credential_failure", "retrieval_failure", "rate_limited"]) {
+    assert.equal(parseMlFreshness({ ...base, state }).state, state);
+  }
+  assert.equal(
+    parseMlFreshness({ ...base, latest_observation_end: null, input_age_hours: null, state: "no_data" }).state,
+    "no_data",
+  );
+  assert.throws(() => parseMlFreshness({ ...base, state: "reissued" }));
+  assert.throws(() => parseMlFreshness({ ...base, location_id: "bad id" }));
+  assert.throws(() => parseMlFreshness({ ...base, input_age_hours: Number.NaN }));
+  assert.throws(() => parseMlFreshness({ ...base, latest_observation_end: "not a date" }));
+});
