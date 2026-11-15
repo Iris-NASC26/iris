@@ -1,5 +1,7 @@
 # Disaster evidence and point precipitation outlooks
 
+Current navigation update: the subsequent [forecast-first implementation](FORECASTS.md) replaces the landing globe and Living Globe sidebar's historical-case links with future forecast links. Historical investigations remain in Case Studies. The text below records the earlier bounded increment; its event-study navigation is superseded.
+
 First bounded increment, authorized by the team on 15 November 2026. This adds an event-investigation workflow to Iris; it does not replace the approved trend-analysis architecture or connect its existing statistical Outlook to disaster warnings.
 
 ## What is implemented

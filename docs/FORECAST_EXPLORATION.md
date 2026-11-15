@@ -1,5 +1,7 @@
 # Forecast discovery and monthly outlooks — proposal for review
 
+Implementation update: [FORECASTS.md](FORECASTS.md) documents the now-implemented future-weather forecast flow and offline regional ML experiment. Monthly statistical outlooks remain a separate proposal. River-flow access is deferred by the user's explicit EWDS decision.
+
 Status: monthly-outlook proposal retained for later scientific review. The user subsequently authorized a bounded disaster-awareness implementation focused on the Nepal September 2024 floods and Cyclone Ditwah in Sri Lanka. See [DISASTER_EVIDENCE.md](DISASTER_EVIDENCE.md) for that increment's implemented scope, real provider checks and limitations. Monthly statistical forecasting, operational warnings and scheduled analysis are not implemented by that increment. This exploration supplements the existing design; it does not amend approved requirements.
 
 ## Recommendation

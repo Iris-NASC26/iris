@@ -101,15 +101,15 @@ export default function LandingPage() {
           <div className="landing-globe-band">
             <CobeGlobe dark={dark} />
             <div className="landing-globe-copy">
-              <div className="landing-kicker">Start from a place you know</div>
-              <h2>Six study regions. One honest workflow.</h2>
+              <div className="landing-kicker">Explore upcoming conditions</div>
+              <h2>See what the next 72 hours may bring.</h2>
               <p>
-                Each marker is a supported study location — pick one to open the workspace with its
-                coordinates prefilled. Nothing loads until you confirm; the globe itself is
-                illustrative, not a data feed.
+                Open a rainfall forecast to explore 51 model members, expected accumulations and
+                the range of predicted outcomes. These are forecasts at six configured points;
+                the globe is a navigation view, not a global warning map.
               </p>
-              <Link href="/workspace/globe">
-                Open the scientific globe <Icon name="arrow" size={15} />
+              <Link href="/workspace/data-analysis?forecastId=colombo">
+                Explore a forecast <Icon name="arrow" size={15} />
               </Link>
             </div>
           </div>

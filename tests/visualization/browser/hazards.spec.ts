@@ -1,8 +1,10 @@
+import { mockForecasts } from "./forecastMocks";
 import { test, expect } from "@playwright/test";
 import { INVESTIGATIONS } from "../../../src/features/hazards/model";
 import { rainfallFixture, historyFixture } from "../hazardFixtures";
 
 test.beforeEach(async ({ page }) => {
+  await mockForecasts(page);
   await page.addInitScript(() =>
     localStorage.setItem("iris-onboarding-complete", "true"),
   );
@@ -197,12 +199,12 @@ test("case navigation is accessible on mobile and landing markers link directly 
   await page.goto("/");
   await expect(
     page.locator(
-      'a.landing-cobe-marker[href="/workspace/case-studies/nepal-floods-2024"]',
+      'a.landing-cobe-marker[href^="/workspace/data-analysis?forecastId=kathmandu"]',
     ),
   ).toBeAttached();
   await expect(
     page.locator(
-      'a.landing-cobe-marker[href="/workspace/case-studies/ditwah-sri-lanka-2025"]',
+      'a.landing-cobe-marker[href^="/workspace/data-analysis?forecastId=colombo"]',
     ),
   ).toBeAttached();
   expect(requests).toBe(0);

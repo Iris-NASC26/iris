@@ -1,5 +1,6 @@
 -r requirements.txt
 -r hazards/requirements.txt
+-r forecasts/requirements.txt
 numcodecs==0.16.3
 eodag==4.10.4
 pytest==9.2.0

@@ -2,37 +2,21 @@
 /**
  * Illustrative COBE globe for the landing hero.
  *
- * Navigation illustration only — markers link to the workspace with a location
- * prefilled; they carry no measurements, live badges or trend claims. The
+ * Forecast navigation: markers read a cached catalogue and link directly to
+ * future ensemble predictions. No provider queries or scientific engines run here. The
  * scientific globe stays in the workspace; cobe is bundled into this
  * component's dynamic chunk and never reaches the scientific pages.
  */
 import Link from "next/link";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
-import { REGION_PRESETS } from "@/lib/dataRetrievalEngine";
-import { investigationHref } from '@/features/hazards/model';
+import { FORECAST_REGIONS, forecastHref } from "@/features/forecasts/model";
+import { useForecastCatalogue } from "@/features/forecasts/useCatalogue";
 
-interface StudySpot {
-    id: string;
-    name: string;
-    short: string;
-    topic: string;
-    location: [number, number];
-    investigationId?: string;
-}
-/** Supported study locations — labels/topics are descriptive, not measurements. */
-const SPOT_SOURCE: StudySpot[] = [
-    { id: "los-angeles", name: "Los Angeles County, CA", short: "Los Angeles", topic: "Urban heat", location: [34.05, -118.24] },
-    { id: "california", name: "California Central Valley, USA", short: "Central Valley", topic: "Agricultural drought", location: [36.77, -119.41] },
-    { id: "amazon", name: "Central Amazon Basin, Brazil", short: "Amazon Basin", topic: "Forest & hydrology", location: [-3.75, -60.0] },
-    { id: "mediterranean", name: "Mediterranean Europe", short: "Mediterranean", topic: "Heatwaves & aridity", location: [41.25, 9.25] },
-    { id: "sri-lanka", name: "Colombo, Western Province, Sri Lanka", short: "Cyclone Ditwah", topic: "2025 historical investigation", location: [6.9355, 79.8487], investigationId: 'ditwah-sri-lanka-2025' },
-    { id: "himalaya", name: "Kathmandu, Nepal", short: "Nepal floods", topic: "2024 historical investigation", location: [27.7172, 85.324], investigationId: 'nepal-floods-2024' },
-];
-const SPOTS = SPOT_SOURCE.filter(spot => REGION_PRESETS.some(r => r.id === spot.id));
-
-export const spotHref = (spot: Pick<StudySpot, "name" | "location" | "investigationId">) =>
-    spot.investigationId ? investigationHref(spot.investigationId) : `/workspace/globe?place=${encodeURIComponent(spot.name)}&lat=${spot.location[0]}&lon=${spot.location[1]}`;
+const SPOTS = FORECAST_REGIONS.map(region => ({
+    id: region.id, name: region.name, short: 'Rainfall forecast',
+    location: [region.latitude, region.longitude] as [number, number],
+}));
+export const spotHref = (spot: { id: string }) => forecastHref(spot.id);
 
 function webglAvailable(): boolean {
     try {
@@ -44,6 +28,7 @@ function webglAvailable(): boolean {
 }
 
 export function CobeGlobe({ dark }: { dark: boolean }) {
+    const { cards, error: catalogueError } = useForecastCatalogue();
     const stage = useRef<HTMLDivElement>(null);
     const canvas = useRef<HTMLCanvasElement>(null);
     const [failed, setFailed] = useState(false);
@@ -167,7 +152,7 @@ export function CobeGlobe({ dark }: { dark: boolean }) {
         ({ positionAnchor: `--cobe-${id}` }) as CSSProperties;
     return <div className={`landing-cobe${anchors && !failed ? " cobe-anchors" : ""}`} ref={stage}>
         {failed ? (
-            <div className="landing-cobe-fallback" role="img" aria-label="Illustrative world map — choose a study location below">
+            <div className="landing-cobe-fallback" role="img" aria-label="Forecast navigation world map — choose a forecast below">
                 <svg viewBox="0 0 360 180" aria-hidden="true">
                     <circle cx="180" cy="90" r="78" />
                     <path d="M104 90a76 76 0 0 1 152 0M104 90a76 76 0 0 0 152 0M180 12a112 78 0 0 1 0 156M180 12a112 78 0 0 0 0 156" />
@@ -175,15 +160,21 @@ export function CobeGlobe({ dark }: { dark: boolean }) {
                 </svg>
             </div>
         ) : (
-            <canvas ref={canvas} className="landing-cobe-canvas" role="img" aria-label="Illustrative rotating globe marking six supported study locations. Use the location links to open the workspace." />
+            <canvas ref={canvas} className="landing-cobe-canvas" role="img" aria-label="Rotating globe with six precipitation forecast links. Each opens future predictions in the workspace." />
         )}
         {SPOTS.map(spot => (
-            <Link key={spot.id} href={spotHref(spot)} className="landing-cobe-marker" style={anchors && !failed ? { ...anchorStyle(spot.id), opacity: `var(--cobe-visible-${spot.id}, 0)`, pointerEvents: `var(--cobe-visible-${spot.id}, none)` } as unknown as CSSProperties : undefined}>
+            <Link key={spot.id} href={forecastHref(spot.id, cards.find(c => c.id === spot.id)?.artifact_id)} className="landing-cobe-marker" style={anchors && !failed ? { ...anchorStyle(spot.id), opacity: `var(--cobe-visible-${spot.id}, 0)`, pointerEvents: `var(--cobe-visible-${spot.id}, none)` } as unknown as CSSProperties : undefined}>
                 <strong>{spot.short}</strong>
-                <small>{spot.topic}</small>
+                <small>{spot.name} / 72 forecast hours</small>
+                <small>{(() => {
+                    const card = cards.find(c => c.id === spot.id);
+                    if (!card) return catalogueError ? 'Forecast unavailable' : 'Preparing forecast...';
+                    if (card.state !== 'fresh') return card.state === 'stale' ? 'Expired / open to refresh' : 'Forecast unavailable';
+                    return card.peak_24h ? `${card.peak_24h.median?.toFixed(1)} mm / wettest 24 h median` : 'Incomplete ensemble coverage';
+                })()}</small>
             </Link>
         ))}
         {paused && !failed && <span className="landing-cobe-paused">Paused</span>}
-        <p className="landing-cobe-status" role="status">{failed ? "Interactive globe unavailable — the study locations below still open the workspace." : "Illustrative globe. Disaster markers open historical investigations, not active warnings."}</p>
+        <p className="landing-cobe-status" role="status">{failed ? "Interactive globe unavailable — the forecast links still open the workspace." : "Forecast navigation. Markers show point outlooks, not a global hazard scan."}</p>
     </div>;
 }
