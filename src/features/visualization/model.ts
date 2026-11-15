@@ -333,11 +333,11 @@ export function parseOverview(value: unknown): OverviewData {
     validateSpatialBinding(f);
     return f;
 }
-export function isOverview(field: SpatialField): field is OverviewData {
-    return field.schema_version === "visualization.overview.v1";
+export function isOverview(field: SpatialField | null | undefined): field is OverviewData {
+    return field?.schema_version === "visualization.overview.v1";
 }
-export function isAnomaly(field: SpatialField): field is AnomalyData {
-    return field.schema_version === "visualization.anomaly.v1";
+export function isAnomaly(field: SpatialField | null | undefined): field is AnomalyData {
+    return field?.schema_version === "visualization.anomaly.v1";
 }
 export function parseAnomaly(value: unknown): AnomalyData {
     const f = value as AnomalyData;
