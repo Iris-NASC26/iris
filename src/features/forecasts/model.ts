@@ -265,6 +265,92 @@ export function parseCatalogue(value: unknown): ForecastCard[] {
   });
 }
 
+/* ---- Dataset-bound forecast locations (iris.forecast-location.v1) ----
+ * The six seeds live in shared/forecast-regions.json; registered points come
+ * only from the server registry. Ids are opaque — names are never ids.
+ */
+export const LOCATION_ID = /^[a-z0-9][a-z0-9-]{1,38}$/;
+export interface ForecastLocation {
+  schema_version?: string;
+  location_id: string;
+  name: string;
+  latitude: number;
+  longitude: number;
+  timezone: string;
+  geometry?: { type: "Point"; coordinates: [number, number] };
+  spatial_mode: "point";
+  source: "seed" | "registered";
+  created_at: string;
+}
+function parseLocationRecord(v: unknown): ForecastLocation {
+  const l = v as ForecastLocation;
+  if (
+    !l ||
+    !LOCATION_ID.test(l.location_id ?? "") ||
+    typeof l.name !== "string" ||
+    l.name.length < 1 ||
+    l.name.length > 80 ||
+    !finite(l.latitude) ||
+    !finite(l.longitude) ||
+    Math.abs(l.latitude) > 90 ||
+    Math.abs(l.longitude) > 180 ||
+    l.spatial_mode !== "point" ||
+    (l.source !== "seed" && l.source !== "registered")
+  )
+    throw new Error("Invalid forecast location record.");
+  return l;
+}
+export function parseLocation(value: unknown): ForecastLocation {
+  return parseLocationRecord((value as { location?: unknown })?.location);
+}
+export function parseLocations(value: unknown): ForecastLocation[] {
+  const list = (value as { locations?: unknown })?.locations;
+  if (!Array.isArray(list) || list.length > 500)
+    throw new Error("Invalid forecast location list.");
+  const parsed = list.map(parseLocationRecord);
+  if (new Set(parsed.map((l) => l.location_id)).size !== parsed.length)
+    throw new Error("Duplicate forecast location ids.");
+  return parsed;
+}
+export interface MlCompatibility {
+  state:
+    | "ready"
+    | "needs_history"
+    | "insufficient_history"
+    | "outside_spatial_support"
+    | "unsupported_target"
+    | "unsupported_spatial_mode";
+  reasons: string[];
+  message: string;
+  location_id: string;
+  location_name: string;
+  target: string;
+  suggested_dataset_id?: string | null;
+  dataset?: Partial<MlDataset> | null;
+  sufficiency?: { native_periods: number; span_days: number; sufficient: boolean };
+}
+export function parseCompatibility(value: unknown): MlCompatibility {
+  const c = value as MlCompatibility;
+  const states = [
+    "ready",
+    "needs_history",
+    "insufficient_history",
+    "outside_spatial_support",
+    "unsupported_target",
+    "unsupported_spatial_mode",
+  ];
+  if (
+    !c ||
+    !states.includes(c.state) ||
+    !Array.isArray(c.reasons) ||
+    c.reasons.some((r) => typeof r !== "string") ||
+    typeof c.message !== "string" ||
+    !LOCATION_ID.test(c.location_id ?? "") ||
+    typeof c.target !== "string"
+  )
+    throw new Error("Invalid forecast compatibility response.");
+  return c;
+}
 export interface ForecastContext {
   id: string;
   provider: "NASA GPM IMERG Early";
@@ -418,6 +504,7 @@ export function parseMlHistory(v: unknown): MlHistory {
 
 export interface MlDataset {
   dataset_id: string;
+  location_id?: string;
   source_id: string;
   records: number;
   precip_complete_days: number;
@@ -426,6 +513,11 @@ export interface MlDataset {
   content_sha256: string;
   created_at: string;
   variables?: string[];
+  spatial_mode?: string;
+  spatial_support?: string;
+  requested_geometry?: { type: "Point"; coordinates: [number, number] } | null;
+  resolved_coordinates?: { latitude: number; longitude: number } | null;
+  spatial_extent?: { known: boolean; kind: string; note: string };
 }
 export function parseMlDatasets(v: unknown): MlDataset[] {
   const list = (v as { datasets?: unknown })?.datasets;
@@ -441,6 +533,69 @@ export function parseMlDatasets(v: unknown): MlDataset[] {
       throw new Error("Invalid dataset manifest.");
   });
   return list as MlDataset[];
+}
+
+export function parseDatasetInventory(value: unknown): {
+  datasets: MlDataset[];
+  total: number;
+} {
+  const v = value as { datasets?: unknown; total?: unknown };
+  const datasets = parseMlDatasets(v);
+  if (!finite(v.total)) throw new Error("Invalid dataset inventory.");
+  return { datasets, total: v.total as number };
+}
+
+/** v2 catalogue cards validated against the *dynamic* registry — every card
+ * must resolve to a registered location with matching coordinates. The
+ * legacy six-card parser above stays strict for provider archives. */
+export function parseMlCatalogue(
+  value: unknown,
+  locations: ForecastLocation[],
+): ForecastCard[] {
+  const v = value as { schema_version?: string; forecasts?: ForecastCard[] };
+  const byId = new Map(locations.map((l) => [l.location_id, l]));
+  if (
+    !v ||
+    v.schema_version !== "iris.forecast-catalogue.v1" ||
+    !Array.isArray(v.forecasts) ||
+    v.forecasts.length > byId.size
+  )
+    throw new Error("Forecast catalogue unavailable.");
+  if (new Set(v.forecasts.map((c) => c.id)).size !== v.forecasts.length)
+    throw new Error("Duplicate forecast cards.");
+  return v.forecasts.map((card) => {
+    const site = byId.get(card.id);
+    if (
+      !site ||
+      card.location?.latitude !== site.latitude ||
+      card.location?.longitude !== site.longitude ||
+      !["fresh", "stale", "unavailable"].includes(card.state) ||
+      !["precipitation", "local_model"].includes(card.kind)
+    )
+      throw new Error("Invalid forecast card.");
+    if (
+      card.state === "fresh" &&
+      (!card.expires_at ||
+        !card.retrieved_at ||
+        time(card.expires_at) <= time(card.retrieved_at))
+    )
+      throw new Error("Missing forecast freshness.");
+    if (
+      card.peak_24h &&
+      (!finite(card.peak_24h.median) || card.peak_24h.median < 0)
+    )
+      throw new Error("Invalid forecast headline.");
+    return {
+      ...card,
+      location: {
+        id: site.location_id,
+        name: site.name,
+        latitude: site.latitude,
+        longitude: site.longitude,
+        timezone: site.timezone,
+      },
+    };
+  });
 }
 
 export type MlModelState =
@@ -562,6 +717,13 @@ export interface MlPrediction {
   input_age_hours?: number;
   stale?: boolean;
   scope?: string;
+  location_id?: string;
+  spatial?: {
+    mode?: string;
+    requested_geometry?: { type: string; coordinates: number[] } | null;
+    location_name?: string;
+    timezone?: string;
+  };
   quality_status?: "passed_checks" | "experimental_preview";
 }
 export function parseMlPrediction(v: unknown): MlPrediction {

@@ -12,19 +12,19 @@ from datetime import UTC, datetime
 from fastapi import APIRouter, Header, HTTPException
 from hazards import meteomatics
 
-from ..catalog import region
-from . import appeears, datasets, gic, jobs, predict, sources, training, workers
+from . import appeears, datasets, fitting, gic, jobs, locations, predict, sources, training, workers
 from .variables import VARIABLES, PRODUCTS
 
 router = APIRouter(prefix="/api/v1/forecasts/v2", tags=["Iris ML forecasts v2"])
 MAX_SPEC_BYTES = 4096
 
 
-def _region(identifier: str):
+def _location(identifier: str):
+    """Resolve any registered forecast context; unknown ids are real 404s."""
     try:
-        return region(identifier)
-    except ValueError:
-        raise HTTPException(422, "Choose a supported forecast location.") from None
+        return locations.resolve(identifier)
+    except KeyError:
+        raise HTTPException(404, "Unknown forecast location.") from None
 
 
 def _credentials_state() -> dict:
@@ -81,9 +81,9 @@ def capabilities():
 
 @router.get("/catalogue")
 def catalogue():
-    from ..catalog import REGIONS
     entries = []
-    for identifier, location in REGIONS.items():
+    for location in locations.list_locations(locations.MAX_LOCATIONS):
+        identifier = location["location_id"]
         candidates = [predict.current(identifier, target) for target in VARIABLES]
         candidates.sort(key=lambda r: (r.get("quality_status") == "experimental_preview", bool(r.get("stale"))))
         run = next((r for r in candidates if r.get("state") == "available" and not r.get("stale")),
@@ -107,7 +107,150 @@ def catalogue():
                                      "members_available": 0} if peak else None,
                         "message": run.get("reason")})
     return {"schema_version": "iris.forecast-catalogue.v1", "forecasts": entries,
-            "scope": "experimental_local_models_at_configured_points"}
+            "scope": "experimental_local_models_at_registered_points"}
+
+
+@router.get("/locations")
+def location_list(limit: int = 200, offset: int = 0):
+    return {"schema_version": "iris.forecast-location.v1",
+            "locations": locations.list_locations(limit, offset),
+            "total": locations.count()}
+
+
+@router.post("/locations")
+def location_register(payload: dict | None = None,
+                      x_iris_admin: str | None = Header(default=None)):
+    _admin_guard(x_iris_admin)
+    spec = _spec(payload)
+    try:
+        record, created = locations.register(
+            spec.get("name"), spec.get("latitude"), spec.get("longitude"),
+            spec.get("timezone"))
+    except (ValueError, TypeError) as exc:
+        raise HTTPException(422, str(exc)) from None
+    return {"schema_version": "iris.forecast-location.v1",
+            "location": record, "created": created}
+
+
+@router.get("/locations/{location_id}")
+def location_get(location_id: str):
+    if len(location_id) > 40:
+        raise HTTPException(422, "Invalid location identifier.")
+    record = _location(location_id)
+    return {"schema_version": "iris.forecast-location.v1",
+            "location": locations._public(record)}
+
+
+@router.get("/datasets")
+def dataset_inventory(limit: int = 50, offset: int = 0):
+    """Populated immutable revisions across all registered contexts."""
+    try:
+        return {"schema_version": "iris.ml-forecast.v2",
+                **datasets.inventory(limit, offset)}
+    except (TypeError, ValueError):
+        raise HTTPException(422, "Invalid inventory bounds.") from None
+
+
+def _compat(state: str, reasons: list[str], message: str, *, loc: dict,
+            target: str, dataset: dict | None = None,
+            suggested_dataset_id: str | None = None,
+            sufficiency: dict | None = None) -> dict:
+    out = {"schema_version": "iris.ml-forecast.v2", "state": state,
+           "reasons": reasons, "message": message,
+           "location_id": loc["location_id"], "location_name": loc["name"],
+           "target": target, "suggested_dataset_id": suggested_dataset_id}
+    if dataset is not None:
+        out["dataset"] = {k: dataset.get(k) for k in (
+            "dataset_id", "location_id", "source_id", "variables", "records",
+            "spatial_mode", "spatial_support", "requested_geometry",
+            "resolved_coordinates", "spatial_extent", "coverage",
+            "precip_complete_days", "content_sha256", "created_at")}
+    if sufficiency is not None:
+        out["sufficiency"] = sufficiency
+    return out
+
+
+def _lag_hours(source_id: str) -> float:
+    if source_id in sources.SOURCE_OPTIONS:
+        return sources.SOURCE_OPTIONS[source_id][1]
+    return 24 * PRODUCTS.get(source_id, {}).get("delay_days", 30)
+
+
+@router.get("/compatibility")
+def compatibility(location_id: str, target: str = "precip_24h",
+                  dataset_id: str | None = None):
+    """Typed readiness for a location × target × optional dataset selection.
+
+    A dataset is bound to the exact context that produced it; no point's data
+    is ever borrowed for another by changing a label.
+    """
+    loc = _location(location_id)
+    if target not in VARIABLES:
+        raise HTTPException(422, "Unknown target.")
+    eligible_sources = VARIABLES[target]["sources"]
+    if dataset_id:
+        m = datasets.find(dataset_id)
+        if m is None:
+            raise HTTPException(404, "Unknown dataset_id.")
+        if m["location_id"] != loc["location_id"]:
+            try:
+                other = locations.resolve(m["location_id"])["name"]
+            except KeyError:
+                other = m["location_id"]
+            return _compat("outside_spatial_support",
+                           ["dataset_bound_to_other_location"],
+                           f"This dataset was built for {other}; it cannot forecast {loc['name']}.",
+                           loc=loc, target=target, dataset=m)
+        if m.get("spatial_mode", "point") != "point":
+            return _compat("unsupported_spatial_mode",
+                           ["spatial_mode_not_point"],
+                           "This dataset is not a point/grid-cell series; Phase 1 supports point contexts only.",
+                           loc=loc, target=target, dataset=m)
+        if target not in m.get("variables", []):
+            return _compat("unsupported_target",
+                           ["target_absent_from_dataset"],
+                           "This dataset does not contain the selected target variable.",
+                           loc=loc, target=target, dataset=m)
+        if m["source_id"] not in eligible_sources:
+            return _compat("unsupported_target",
+                           ["source_not_eligible_for_target"],
+                           f"Source {m['source_id']} is not an eligible input for this target.",
+                           loc=loc, target=target, dataset=m)
+        records = datasets.load(loc["location_id"], dataset_id) or []
+        suf = fitting.sufficiency(records, target, m["source_id"], _lag_hours(m["source_id"]))
+        if not suf["sufficient"]:
+            return _compat("insufficient_history",
+                           suf["reasons"],
+                           f"The dataset holds {suf['native_periods']} usable native periods over {suf['span_days']} days; training needs at least 60 periods across ~2 years.",
+                           loc=loc, target=target, dataset=m, sufficiency=suf)
+        return _compat("ready", [],
+                       "This point dataset can train and forecast the selected target.",
+                       loc=loc, target=target, dataset=m, sufficiency=suf)
+    candidates = [m for m in datasets.manifests(loc["location_id"])
+                  if m["source_id"] in eligible_sources
+                  and target in m.get("variables", [])]
+    if candidates:
+        latest = candidates[-1]
+        return _compat("ready", [],
+                       "A frozen point dataset for this target already exists.",
+                       loc=loc, target=target, dataset=latest,
+                       suggested_dataset_id=latest["dataset_id"])
+    staged = [r for r in workers.staged_records(loc["location_id"])
+              if r.get("variable") == target
+              and r.get("source_id") in eligible_sources]
+    if not staged:
+        return _compat("needs_history", ["no_staged_history"],
+                       "No quality-controlled historical records exist for this point and target yet — prepare history with the button below.",
+                       loc=loc, target=target)
+    suf = fitting.sufficiency(staged, target, eligible_sources[0],
+                              _lag_hours(eligible_sources[0]))
+    if not suf["sufficient"]:
+        return _compat("insufficient_history", suf["reasons"],
+                       f"{suf['native_periods']} usable native periods over {suf['span_days']} days are staged; at least 60 periods across ~2 years are required.",
+                       loc=loc, target=target, sufficiency=suf)
+    return _compat("needs_history", ["no_frozen_dataset_for_target"],
+                   "Staged history exists; build a dataset revision (Generate does this automatically).",
+                   loc=loc, target=target, sufficiency=suf)
 
 
 @router.get("/jobs/{job_id}")
@@ -143,7 +286,7 @@ def retry(job_id: str, x_iris_admin: str | None = Header(default=None)):
 
 @router.get("/runs/{location_id}/{run_id}")
 def run(location_id: str, run_id: str):
-    _region(location_id)
+    _location(location_id)
     if len(run_id) > 64:
         raise HTTPException(422, "Invalid run id.")
     doc = predict.get_run(location_id, run_id)
@@ -158,12 +301,12 @@ def run(location_id: str, run_id: str):
 @router.get("/{identifier}/history")
 def history(identifier: str, source_id: str = "era5", limit: int = 366,
             variable: str | None = None):
-    r = _region(identifier)
+    r = _location(identifier)
     if source_id not in sources.SOURCE_OPTIONS and source_id not in PRODUCTS:
         raise HTTPException(422, f"Unknown source '{source_id}'.")
     if variable is not None and variable not in VARIABLES:
         raise HTTPException(422, f"Unknown variable '{variable}'.")
-    records = workers.staged_records(r["id"], source_id)
+    records = workers.staged_records(r["location_id"], source_id)
     sel = ([x for x in records if x.get("variable") == variable] if variable
            else [x for x in records if str(x.get("variable", "")).startswith("precip")])
     days = sorted({x["interval_start"][:10] for x in sel})
@@ -183,8 +326,8 @@ def history(identifier: str, source_id: str = "era5", limit: int = 366,
 
 @router.get("/{identifier}/datasets")
 def list_datasets(identifier: str):
-    r = _region(identifier)
-    m = datasets.manifests(r["id"])
+    r = _location(identifier)
+    m = datasets.manifests(r["location_id"])
     return {"state": "available" if m else "unavailable",
             "reason": None if m else "no dataset has been built from staged history",
             "datasets": m}
@@ -194,15 +337,15 @@ def list_datasets(identifier: str):
 def build_dataset(identifier: str, payload: dict | None = None,
                   x_iris_admin: str | None = Header(default=None)):
     _admin_guard(x_iris_admin)
-    r = _region(identifier)
+    r = _location(identifier)
     spec = _spec(payload)
-    return jobs.enqueue("dataset", r["id"], spec.get("idem", ""), spec)
+    return jobs.enqueue("dataset", r["location_id"], spec.get("idem", ""), spec)
 
 
 @router.get("/{identifier}/models")
 def models(identifier: str):
-    r = _region(identifier)
-    cards = training.list_models(r["id"])
+    r = _location(identifier)
+    cards = training.list_models(r["location_id"])
     return {"state": "available" if cards else "unavailable",
             "reason": None if cards else "no model has been trained on a frozen dataset",
             "models": cards}
@@ -210,27 +353,27 @@ def models(identifier: str):
 
 @router.get("/{identifier}/jobs")
 def latest_job(identifier: str, target: str = "precip_24h"):
-    r = _region(identifier)
+    r = _location(identifier)
     if target not in VARIABLES:
         raise HTTPException(422, "Unknown target.")
-    return {"job": jobs.latest(r["id"], target)}
+    return {"job": jobs.latest(r["location_id"], target)}
 
 
 @router.post("/{identifier}/models/{model_id}/activate")
 def activate(identifier: str, model_id: str,
              x_iris_admin: str | None = Header(default=None)):
     _admin_guard(x_iris_admin)
-    r = _region(identifier)
+    r = _location(identifier)
     try:
-        return training.activate(r["id"], model_id)
+        return training.activate(r["location_id"], model_id)
     except ValueError as exc:
         raise HTTPException(409, str(exc)) from None
 
 
 @router.get("/{identifier}/trends")
 def trends_list(identifier: str):
-    r = _region(identifier)
-    reports = workers.trend_reports(r["id"])
+    r = _location(identifier)
+    reports = workers.trend_reports(r["location_id"])
     return {"state": "available" if reports else "unavailable",
             "reason": None if reports else "no trend report exists for an explicit dataset and hypothesis family",
             "reports": reports}
@@ -240,16 +383,16 @@ def trends_list(identifier: str):
 def trends_compute(identifier: str, payload: dict | None = None,
                    x_iris_admin: str | None = Header(default=None)):
     _admin_guard(x_iris_admin)
-    r = _region(identifier)
+    r = _location(identifier)
     spec = _spec(payload)
-    return jobs.enqueue("trend", r["id"], spec.get("idem", ""), spec)
+    return jobs.enqueue("trend", r["location_id"], spec.get("idem", ""), spec)
 
 
 @router.post("/{identifier}/ingest")
 def ingest(identifier: str, payload: dict | None = None,
            x_iris_admin: str | None = Header(default=None)):
     _admin_guard(x_iris_admin)
-    r = _region(identifier)
+    r = _location(identifier)
     spec = _spec(payload)
     source_id = spec.get("source_id", "era5")
     if source_id not in sources.SOURCE_OPTIONS and source_id not in PRODUCTS:
@@ -260,7 +403,7 @@ def ingest(identifier: str, payload: dict | None = None,
             raise HTTPException(422, "variable is required and must map to this product.")
         if not _earthdata_configured(var_name):
             raise HTTPException(503, "Configure EARTHDATA_TOKEN for MERRA-2/GLDAS, or Earthdata login credentials for AppEEARS products.")
-        job = jobs.enqueue("earthdata_ingest", r["id"], spec.get("idem", ""), spec)
+        job = jobs.enqueue("earthdata_ingest", r["location_id"], spec.get("idem", ""), spec)
         return job
     if not _credentials_state()["configured"]:
         raise HTTPException(503, "Meteomatics credentials are not configured; ingestion cannot start.")
@@ -272,47 +415,50 @@ def ingest(identifier: str, payload: dict | None = None,
         sources.assert_historical(start, datetime.now(UTC))  # future bounds rejected
         if start < datetime(1990, 1, 1, tzinfo=UTC):
             raise HTTPException(422, "Start predates the 1991 record floor.")
-    return jobs.enqueue("ingest", r["id"], spec.get("idem", ""), spec)
+    return jobs.enqueue("ingest", r["location_id"], spec.get("idem", ""), spec)
 
 
 @router.post("/{identifier}/train")
 def train(identifier: str, payload: dict | None = None,
           x_iris_admin: str | None = Header(default=None)):
     _admin_guard(x_iris_admin)
-    r = _region(identifier)
+    r = _location(identifier)
     spec = _spec(payload)
     if not spec.get("dataset_id"):
         raise HTTPException(422, "dataset_id is required — training is bound to a frozen dataset.")
-    if not datasets.manifest(r["id"], spec["dataset_id"]):
+    _m = datasets.manifest(r["location_id"], spec["dataset_id"])
+    if not _m:
         raise HTTPException(404, "Unknown dataset_id for this location.")
+    if _m.get("spatial_mode", "point") != "point":
+        raise HTTPException(422, "Phase 1 supports point/grid-cell datasets only.")
     var_name = spec.get("variable", "precip_24h")
     if var_name not in VARIABLES:
         raise HTTPException(422, f"Unknown target variable '{var_name}'.")
-    return jobs.enqueue("train", r["id"], spec.get("idem", ""), spec)
+    return jobs.enqueue("train", r["location_id"], spec.get("idem", ""), spec)
 
 
 @router.post("/{identifier}/predict")
 def predict_now(identifier: str, target: str = "precip_24h"):
-    r = _region(identifier)
+    r = _location(identifier)
     if target not in VARIABLES:
         raise HTTPException(422, f"Unknown target variable '{target}'.")
-    records = workers.staged_records(r["id"])
-    result = predict.predict(r["id"], records, target=target)
+    records = workers.staged_records(r["location_id"])
+    result = predict.predict(r["location_id"], records, target=target, location=r)
     return result
 
 
 @router.get("/{identifier}/prediction")
 def current_prediction(identifier: str, target: str = "precip_24h"):
-    r = _region(identifier)
+    r = _location(identifier)
     if target not in VARIABLES:
         raise HTTPException(422, "Unknown target.")
-    return predict.current(r["id"], target)
+    return predict.current(r["location_id"], target)
 
 
 @router.get("/{identifier}/published")
 def published_predictions(identifier: str):
-    r = _region(identifier)
-    runs = [predict.current(r["id"], target) for target in VARIABLES]
+    r = _location(identifier)
+    runs = [predict.current(r["location_id"], target) for target in VARIABLES]
     return {"forecasts": [run for run in runs if run.get("state") == "available"]}
 
 
@@ -320,22 +466,22 @@ def published_predictions(identifier: str):
 def generate(identifier: str, payload: dict | None = None,
              x_iris_admin: str | None = Header(default=None)):
     _admin_guard(x_iris_admin)
-    r = _region(identifier)
+    r = _location(identifier)
     spec = _spec(payload)
     target = spec.get("variable", "precip_24h")
     if target not in VARIABLES:
         raise HTTPException(422, "Unknown target.")
     source = VARIABLES[target]["sources"][0]
-    pending = jobs.latest(r["id"], target, kind="pipeline")
+    pending = jobs.latest(r["location_id"], target, kind="pipeline")
     if pending and pending["status"] in ("queued", "running"):
         return pending
     if not spec.get("dataset_id"):
-        existing = predict.predict(r["id"], workers.staged_records(r["id"], source), target=target)
+        existing = predict.predict(r["location_id"], workers.staged_records(r["location_id"], source), target=target)
         if existing.get("state") == "available":
             return existing
         # A frozen local dataset is sufficient for training. Do not submit
         # another years-long extraction just to retry an existing dataset.
-        revisions = [d for d in datasets.manifests(r["id"])
+        revisions = [d for d in datasets.manifests(r["location_id"])
                      if d["source_id"] == source and target in d.get("variables", [])]
         if revisions:
             spec["dataset_id"] = revisions[-1]["dataset_id"]
@@ -346,20 +492,22 @@ def generate(identifier: str, payload: dict | None = None,
     spec.setdefault("start", "2015-01-01T00:00:00+00:00")
     spec.update(variable=target, source_id=source)
     if spec.get("dataset_id"):
-        manifest = datasets.manifest(r["id"], spec["dataset_id"])
+        manifest = datasets.manifest(r["location_id"], spec["dataset_id"])
         if not manifest:
             raise HTTPException(404, "Unknown dataset for this location.")
         if manifest["source_id"] != source or target not in manifest.get("variables", []):
             raise HTTPException(422, "Choose a dataset containing this target and source.")
+        if manifest.get("spatial_mode", "point") != "point":
+            raise HTTPException(422, "Phase 1 supports point/grid-cell datasets only.")
         spec["phase"] = "train"
-    return jobs.enqueue("pipeline", r["id"], spec.get("idem", f"generate-{target}-{spec.get('dataset_id', 'history')}-{datetime.now(UTC):%Y%m%d}"), spec)
+    return jobs.enqueue("pipeline", r["location_id"], spec.get("idem", f"generate-{target}-{spec.get('dataset_id', 'history')}-{datetime.now(UTC):%Y%m%d}"), spec)
 
 
 @router.post("/{identifier}/refresh")
 def refresh(identifier: str, payload: dict | None = None,
             x_iris_admin: str | None = Header(default=None)):
     _admin_guard(x_iris_admin)
-    r = _region(identifier)
+    r = _location(identifier)
     spec = _spec(payload)
     spec.setdefault("backfill_days", 14)  # refresh is incremental by default
-    return jobs.enqueue("ingest", r["id"], spec.get("idem", f"refresh-{datetime.now(UTC):%Y%m%d}"), spec)
+    return jobs.enqueue("ingest", r["location_id"], spec.get("idem", f"refresh-{datetime.now(UTC):%Y%m%d}"), spec)

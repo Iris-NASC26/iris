@@ -1,6 +1,10 @@
 "use client";
 import { useEffect, useState } from "react";
-import { parseCatalogue, type ForecastCard } from "./model";
+import {
+  parseLocations,
+  parseMlCatalogue,
+  type ForecastCard,
+} from "./model";
 
 export function useForecastCatalogue() {
   const [cards, setCards] = useState<ForecastCard[]>([]),
@@ -11,12 +15,14 @@ export function useForecastCatalogue() {
     const controller = new AbortController();
     async function load() {
       try {
-        const response = await fetch("/api/v1/forecasts/v2/catalogue", {
-          cache: "no-store",
-          signal: controller.signal,
-        });
-        if (!response.ok) throw new Error("Forecast service unavailable");
-        const data = parseCatalogue(await response.json());
+        const options = { cache: "no-store" as const, signal: controller.signal };
+        const [lr, cr] = await Promise.all([
+          fetch("/api/v1/forecasts/v2/locations?limit=200", options),
+          fetch("/api/v1/forecasts/v2/catalogue", options),
+        ]);
+        if (!lr.ok || !cr.ok) throw new Error("Forecast service unavailable");
+        const locations = parseLocations(await lr.json());
+        const data = parseMlCatalogue(await cr.json(), locations);
         if (!stopped) {
           setCards(data);
           setError("");

@@ -60,7 +60,7 @@ def _preview_model(location_id: str, horizon: int, target: str) -> dict | None:
 
 
 def predict(location_id: str, records: list[dict], issue_ts: str | None = None,
-            target: str = "precip_24h") -> dict:
+            target: str = "precip_24h", *, location: dict | None = None) -> dict:
     """Generate local results, retaining quality failures as visible metadata."""
     import numpy as np
     from threadpoolctl import threadpool_limits
@@ -134,6 +134,13 @@ def predict(location_id: str, records: list[dict], issue_ts: str | None = None,
         evaluation_ref=windows[0].model_id, predictions=windows, target=target,
         horizons_unavailable=unavailable,
         quality_status="experimental_preview" if any(w.quality_status == "experimental_preview" for w in windows) else "passed_checks",
+        location_id=location_id,
+        # Saved runs keep their actual spatial scope — a point estimate never
+        # becomes an area value by moving a label.
+        spatial={"mode": "point",
+                 "requested_geometry": (location or {}).get("geometry"),
+                 "location_name": (location or {}).get("name"),
+                 "timezone": (location or {}).get("timezone", "UTC")},
         scope="experimental_preview" if any(w.quality_status == "experimental_preview" for w in windows) else "experimental_local_model")
     out = {**asdict(run), "state": "available"}
     rdir = RUNS_ROOT / location_id

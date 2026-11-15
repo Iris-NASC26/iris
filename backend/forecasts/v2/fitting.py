@@ -121,6 +121,21 @@ class History:
         return qs, max(available, key=lambda r: r["end"])["value"]
 
 
+def sufficiency(records, target, source, lag_hours):
+    """The same history sufficiency gates fit() applies, without fitting —
+    shared by the compatibility endpoint so the UI never invents thresholds."""
+    history = History(records, target, source, lag_hours)
+    reasons = []
+    if len(history.rows) < 60:
+        reasons.append("insufficient_history")
+    if history.rows and (history.rows[-1]["end"] - history.rows[0]["start"]).days < 730:
+        reasons.append("insufficient_history")
+    return {"sufficient": not reasons, "reasons": sorted(set(reasons)),
+            "native_periods": len(history.rows),
+            "span_days": ((history.rows[-1]["end"] - history.rows[0]["start"]).days
+                          if history.rows else 0)}
+
+
 def fit(location, dataset_id, horizon, lag_hours, target, persist):
     import numpy as np
     from sklearn.ensemble import HistGradientBoostingRegressor

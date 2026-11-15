@@ -172,3 +172,68 @@ it("validates trend reports including BH q-values", () => {
     parseMlTrends({ reports: [{ ...report, state: "proven" }] }),
   );
 });
+
+// ---- Phase 1: dynamic point locations -------------------------------------
+
+const loc = {
+  schema_version: "iris.forecast-location.v1",
+  location_id: "loc-a40fb92b2f5c",
+  name: "Jaffna test point",
+  latitude: 9.6615,
+  longitude: 80.0255,
+  timezone: "UTC",
+  geometry: { type: "Point", coordinates: [80.0255, 9.6615] },
+  spatial_mode: "point",
+  source: "registered",
+  created_at: "2025-01-01T00:00:00Z",
+};
+
+it("parses registered and seeded location records", async () => {
+  const { parseLocation, parseLocations } = await import(
+    "../../src/features/forecasts/model"
+  );
+  assert.equal(parseLocation({ location: loc }).location_id, "loc-a40fb92b2f5c");
+  const listed = parseLocations({ locations: [loc, { ...loc, location_id: "colombo", source: "seed" }] });
+  assert.equal(listed.length, 2);
+});
+
+it("rejects unsafe ids, out-of-range coordinates, and non-point records", async () => {
+  const { parseLocations } = await import("../../src/features/forecasts/model");
+  for (const bad of [
+    { ...loc, location_id: "../escape" },
+    { ...loc, location_id: "UPPERCASE" },
+    { ...loc, latitude: 91 },
+    { ...loc, longitude: -181 },
+    { ...loc, latitude: Number.NaN },
+    { ...loc, spatial_mode: "area" },
+    { ...loc, name: "" },
+    { ...loc, name: "x".repeat(81) },
+    { ...loc, source: "imported" },
+  ]) {
+    assert.throws(() => parseLocations({ locations: [bad] }), JSON.stringify(bad));
+  }
+});
+
+it("rejects duplicate location ids in a list", async () => {
+  const { parseLocations } = await import("../../src/features/forecasts/model");
+  assert.throws(() => parseLocations({ locations: [loc, loc] }));
+});
+
+it("parses compatibility states and rejects unknown ones", async () => {
+  const { parseCompatibility } = await import("../../src/features/forecasts/model");
+  const base = {
+    state: "ready",
+    reasons: [],
+    message: "Dataset is ready.",
+    location_id: "loc-a40fb92b2f5c",
+    location_name: "Jaffna",
+    target: "precip_24h",
+    suggested_dataset_id: "ds-0123456789abcdef",
+  };
+  assert.equal(parseCompatibility(base).state, "ready");
+  for (const state of ["needs_history", "insufficient_history", "outside_spatial_support", "unsupported_target", "unsupported_spatial_mode"]) {
+    assert.equal(parseCompatibility({ ...base, state }).state, state);
+  }
+  assert.throws(() => parseCompatibility({ ...base, state: "area_ready" }));
+  assert.throws(() => parseCompatibility({ ...base, location_id: "bad id" }));
+});

@@ -15,7 +15,7 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 from ..store import PATH as STORE_PATH
-from . import datasets, earthdata, jobs, qa, sources, training, trends
+from . import datasets, earthdata, jobs, locations, qa, sources, training, trends
 from .variables import variable as variable_spec
 
 STAGING = Path(STORE_PATH).parent / "v2" / "history"
@@ -26,6 +26,9 @@ _thread = None
 
 
 def staging_path(location_id: str, source_id: str) -> Path:
+    # Identifiers are opaque registry ids — never a user name or path input.
+    if not locations.ID_PATTERN.match(location_id or ""):
+        raise ValueError("Invalid location identifier.")
     p = STAGING / location_id
     p.mkdir(parents=True, exist_ok=True)
     return p / f"{source_id}.jsonl"
@@ -88,8 +91,7 @@ def execute(job_id: str, *, transport=None, region_lookup=None, parser=None) -> 
 
 
 def _ingest(job_id: str, loc: str, spec: dict, *, transport, region_lookup) -> dict:
-    from ..catalog import region as lookup
-    region = (region_lookup or lookup)(loc)
+    region = (region_lookup or locations.resolve)(loc)
     source_id = spec.get("source_id", "era5")
     lag_hours = sources.SOURCE_OPTIONS.get(source_id, (None, 24 * 6, ""))[1]
     end = (datetime.fromisoformat(spec["end"]) if spec.get("end") else
@@ -133,8 +135,7 @@ def _earthdata_ingest(job_id: str, loc: str, spec: dict, *, transport, parser,
                       region_lookup) -> dict:
     var_name = spec["variable"]
     variable_spec(var_name)  # unknown targets rejected
-    from ..catalog import region as lookup
-    region = (region_lookup or lookup)(loc)
+    region = (region_lookup or locations.resolve)(loc)
     end = (datetime.fromisoformat(spec["end"]) if spec.get("end") else
            datetime.now(UTC).replace(hour=0, minute=0, second=0, microsecond=0))
     start = (datetime.fromisoformat(spec["start"]) if spec.get("start")
@@ -182,7 +183,12 @@ def _dataset(loc: str, spec: dict) -> dict:
     if report.exists():
         quarantined.extend(r for r in json.loads(report.read_text())
                            if not spec.get("variable") or r.get("variable") == spec["variable"])
-    return datasets.build(loc, source_id, valid, quarantined, spec=spec)
+    try:
+        location = locations.resolve(loc)
+    except KeyError:
+        location = None
+    return datasets.build(loc, source_id, valid, quarantined, spec=spec,
+                          location=location)
 
 
 def _train(loc: str, spec: dict) -> dict:
@@ -268,7 +274,12 @@ def _pipeline(job_id: str, loc: str, spec: dict) -> dict:
     for card in result["cards"]:
         if card["state"] == "eligible":
             training.activate(loc, card["model_id"])
-    forecast = predict.predict(loc, staged_records(loc, source), target=target)
+    try:
+        location = locations.resolve(loc)
+    except KeyError:
+        location = None
+    forecast = predict.predict(loc, staged_records(loc, source), target=target,
+                               location=location)
     return {"target": target, "dataset_id": spec["dataset_id"], "models": result["cards"],
             "forecast": forecast, "state": forecast.get("state", "available")}
 
@@ -291,9 +302,9 @@ def _loop():
 
 def refresh_predictions():
     """Renew expired local forecasts only; never download or retrain on a visit."""
-    from ..catalog import REGIONS
     from . import predict
-    for loc in REGIONS:
+    for record in locations.list_locations(locations.MAX_LOCATIONS):
+        loc = record["location_id"]
         targets = {m.get("metrics", {}).get("target", "precip_24h")
                    for m in training.list_models(loc) if m["state"] == "active"}
         from .variables import VARIABLES
@@ -303,7 +314,7 @@ def refresh_predictions():
             current = predict.current(loc, target)
             if current.get("state") == "available" and not current.get("stale"):
                 continue
-            predict.predict(loc, staged_records(loc), target=target)
+            predict.predict(loc, staged_records(loc), target=target, location=record)
 
 
 def start():

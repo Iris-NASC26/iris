@@ -49,9 +49,33 @@ These are **experimental local model forecasts**. Availability delays are estima
 
 The SMAP geolocation-issue period in May–July 2026 is conservatively quarantined until an explicitly verified corrected source policy is adopted. Year-end gap-filled evapotranspiration is not treated as immediately available data.
 
+## Forecast locations (Phase 1)
+
+Forecast contexts are no longer limited to the six original configured points. A durable server-side registry (`v2_locations` in the forecast SQLite store) now owns every context the pipeline may use. The original six identifiers — `colombo`, `kathmandu`, `los-angeles`, and the remaining seeded entries — are inserted once as `seed` records and keep their stable ids and saved links forever.
+
+Every registered point carries a server-generated opaque id (`loc-<12 hex>`), a bounded display name (1–80 characters, no control or path characters — never used as a filesystem path), a schema version, WGS84 GeoJSON `Point` geometry in `[longitude, latitude]` order, finite latitude `[-90, 90]` and longitude `[-180, 180]`, a timezone (`UTC` when none is supplied), its origin (`seed`/`registered`), and creation metadata. Spatial identity is immutable: changing coordinates means registering a new context, never repointing old models. Re-registering the same coordinates resolves to the existing record deterministically; a valid coordinate does not guarantee provider coverage.
+
+Registry and compatibility routes (all proxied under `/api/v1/forecasts/v2`):
+
+- `GET /locations?limit=&offset=` — list registered contexts (seeds first).
+- `POST /locations` — register `{name, latitude, longitude, timezone?}`; `201` on create, `200` with `created: false` on a duplicate point. Validation rejects nonfinite/out-of-range coordinates and unsafe names with `422`.
+- `GET /locations/{id}` — one context, real `404` for unknown or malformed ids.
+- `GET /datasets?location_id=&target=&limit=&offset=` — populated dataset inventory; records carry `spatial_mode`, `spatial_support`, `requested_geometry`, `resolved_coordinates`, and `spatial_extent`.
+- `GET /compatibility?location_id=&target=&dataset_id=` — readiness decision: `ready`, `needs_history`, `insufficient_history`, `outside_spatial_support` (dataset bound to a different point), `unsupported_target`, or `unsupported_spatial_mode`, with a human-readable message and `suggested_dataset_id`.
+
+Location ids resolve **server-side** on every route — catalogue, history, datasets, jobs, generate, train, predict, activation, saved runs, trends, refresh — so display names and client-supplied coordinates are never trusted. Datasets and models stay bound to their registering context: a manifest stored under `datasets/{location_id}/{dataset_id}` can never be loaded as another point's data, and generation/training reject mismatched `dataset_id`s with `404`/`422`. The refresh worker iterates all registered contexts, not a static list.
+
+### Spatial contract
+
+Phase 1 supports **point/grid-cell series only**. New manifests record `spatial_mode: "point"`, `spatial_support: "point"`, the requested GeoJSON point, the actually resolved source-cell coordinates (when known), and `spatial_extent` noting it is *not an area average*. Pre-Phase-1 manifests are adapted on read (`spatial_mode: "point"`, `spatial_support: "unknown"`) and never rewritten — their provenance is honestly marked rather than backfilled. A point forecast is never labeled a district, country, or regional mean. True area extraction — bounding-box and polygon aggregation — is **Phase 2** and must not be approximated by a centroid or the nearest original city.
+
+### Adding a point
+
+Open Explore → Forecasts, choose **+ New point**, then either search a place name (existing geocode route), type coordinates, or click the map. Registration only creates the context — no download or training starts until a dataset/forecast action is chosen. Unregistered or malformed ids produce the page's honest notice, never another location's data. Saved links for the seeded points and any saved runs (`?forecastId=…&target=…&run=…`) keep working unchanged; `&dataset=` can pin an explicit dataset revision.
+
 ## Main API additions
 
-- `GET /api/v1/forecasts/v2/catalogue`: cached local model summaries for landing navigation, including target and units; no training/download side effect.
+- `GET /api/v1/forecasts/v2/catalogue`: cached local model summaries for landing navigation, including target and units; no training/download side effect. Cards resolve against the live registry — a context registered via `POST /locations` appears once a saved run exists.
 - `POST /api/v1/forecasts/v2/{location}/generate`: run the complete pipeline; optionally supply an existing `dataset_id` to train without another backfill.
 - `GET /api/v1/forecasts/v2/{location}/prediction?target=...`: current target-specific immutable run, with freshness.
 - `GET /api/v1/forecasts/v2/{location}/published`: locally saved current runs across targets, including expiry and explicit `quality_status`; includes experimental previews. Read-only, with no extraction, training or inference.

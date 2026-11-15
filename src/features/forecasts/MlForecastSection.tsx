@@ -5,13 +5,16 @@ import { Icon } from "@/components/ui/Icon";
 import { ForecastResult, targetLabel } from "./ForecastResult";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
+  parseCompatibility,
   parseMlCapabilities,
   parseMlDatasets,
   parseMlHistory,
   parseMlModels,
   parseMlPrediction,
   parseMlTrends,
+  type ForecastLocation,
   type MlCapabilities,
+  type MlCompatibility,
   type MlDataset,
   type MlHistory,
   type MlJob,
@@ -27,10 +30,11 @@ const number = (v: number | null | undefined, digits = 2) =>
 
 /** Iris historical-ML pipeline panel. Everything shown comes from v2 routes;
  *  missing pieces are stated, never filled with plausible output. */
-export function MlForecastSection({ id, artifactId }: { id: string; artifactId?: string }) {
+export function MlForecastSection({ id, artifactId, location }: { id: string; artifactId?: string; location?: ForecastLocation }) {
   const search = useSearchParams(), router = useRouter(), pathname = usePathname();
   const [caps, setCaps] = useState<MlCapabilities | null>(null);
   const [target, setTarget] = useState(search.get("target") || "precip_24h");
+  const [compat, setCompat] = useState<MlCompatibility | null>(null);
   const [history, setHistory] = useState<MlHistory | null>(null);
   const [datasets, setDatasets] = useState<MlDataset[]>([]);
   const [models, setModels] = useState<MlModelCard[]>([]);
@@ -42,6 +46,7 @@ export function MlForecastSection({ id, artifactId }: { id: string; artifactId?:
   const [busy, setBusy] = useState("");
   const pendingLoad = useRef<AbortController | null>(null);
   const hasTarget = search.has("target");
+  const datasetParam = search.get("dataset");
 
   const load = useCallback(async () => {
     pendingLoad.current?.abort();
@@ -64,7 +69,8 @@ export function MlForecastSection({ id, artifactId }: { id: string; artifactId?:
         return;
       }
       const source = c?.targets?.[target]?.sources[0] || "era5";
-      const [h, d, m, t, prediction, latestJob] = await Promise.all([
+      const compatUrl = `/api/v1/forecasts/v2/compatibility?location_id=${encodeURIComponent(id)}&target=${encodeURIComponent(target)}${datasetParam ? `&dataset_id=${encodeURIComponent(datasetParam)}` : ""}`;
+      const [h, d, m, t, prediction, latestJob, compatResponse] = await Promise.all([
         fetch(`/api/v1/forecasts/v2/${id}/history?source_id=${encodeURIComponent(source)}&variable=${encodeURIComponent(target)}`, options).then((r) =>
           r.ok ? r.json() : null,
         ),
@@ -79,6 +85,7 @@ export function MlForecastSection({ id, artifactId }: { id: string; artifactId?:
         ),
         fetch(artifactId ? `/api/v1/forecasts/v2/runs/${id}/${encodeURIComponent(artifactId)}` : `/api/v1/forecasts/v2/${id}/prediction?target=${encodeURIComponent(target)}`, options).then(r => r.ok ? r.json() : null),
         fetch(`/api/v1/forecasts/v2/${id}/jobs?target=${encodeURIComponent(target)}`, options).then(r => r.ok ? r.json() : null),
+        fetch(compatUrl, options).then(r => r.ok ? r.json() : null),
       ]);
       if (controller.signal.aborted) return;
       if (c) setCaps(c);
@@ -91,14 +98,15 @@ export function MlForecastSection({ id, artifactId }: { id: string; artifactId?:
         else setPrediction(parseMlPrediction(prediction));
       }
       if (latestJob?.job) setJob(latestJob.job);
+      setCompat(compatResponse ? parseCompatibility(compatResponse) : null);
     } catch {
       if (controller.signal.aborted) return;
       setError("Iris ML status is unavailable; values shown may be incomplete.");
     }
-  }, [id, target, artifactId, hasTarget, router, pathname]);
+  }, [id, target, artifactId, hasTarget, datasetParam, router, pathname]);
 
   useEffect(() => {
-    setHistory(null); setDatasets([]); setModels([]); setReports([]); setPrediction(null); setJob(null);
+    setHistory(null); setDatasets([]); setModels([]); setReports([]); setPrediction(null); setJob(null); setCompat(null);
     void load();
     return () => {
       pendingLoad.current?.abort();
@@ -202,30 +210,63 @@ export function MlForecastSection({ id, artifactId }: { id: string; artifactId?:
   const isEarthdata = target !== "precip_24h";
   const running = job?.status === "queued" || job?.status === "running";
   const readyForecast = prediction?.state !== "unavailable" && !!prediction?.predictions?.length;
-  const savedHref = (run: MlPrediction) => `${pathname}?forecastId=${encodeURIComponent(id)}&target=${encodeURIComponent(run.target || target)}&run=${encodeURIComponent(run.run_id || "")}#forecast-result`;
+  const selectedDataset = (datasetParam && datasets.some(d => d.dataset_id === datasetParam))
+    ? datasetParam
+    : (compat?.suggested_dataset_id && datasets.some(d => d.dataset_id === compat.suggested_dataset_id)
+      ? compat.suggested_dataset_id
+      : datasets[datasets.length - 1]?.dataset_id);
+  const selectDataset = (ds: string) => {
+    const params = new URLSearchParams(search.toString());
+    if (ds) params.set("dataset", ds); else params.delete("dataset");
+    params.delete("run");
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  };
+  const blocked = compat && ["outside_spatial_support", "unsupported_target", "unsupported_spatial_mode"].includes(compat.state);
+  const savedHref = (run: MlPrediction) => `${pathname}?forecastId=${encodeURIComponent(id)}&target=${encodeURIComponent(run.target || target)}&run=${encodeURIComponent(run.run_id || "")}${selectedDataset ? `&dataset=${encodeURIComponent(selectedDataset)}` : ""}#forecast-result`;
   return (
     <section className="forecast-panel ml-forecast" aria-labelledby="ml-heading">
       <h2 id="ml-heading" className="ml-visually-hidden">Local predictions from verified history.</h2>
+      <div className="ml-intro">
+        <p>Choose a place and historical records. Iris learns patterns in those observations to estimate upcoming conditions and a likely range. Check the data age and model error before using a result.</p>
+        <ol className="ml-steps" aria-label="Workflow">
+          <li>Choose data</li><li aria-hidden="true">→</li><li>Generate</li><li aria-hidden="true">→</li><li>View estimate and range</li>
+        </ol>
+      </div>
       <div className="ml-control-bar">
         <label className="ml-target">Forecast target
           <select aria-label="ML forecast target" value={target} onChange={e => {
             setTarget(e.target.value);
             const params = new URLSearchParams(search.toString());
-            params.set("target", e.target.value); params.delete("run");
+            params.set("target", e.target.value); params.delete("run"); params.delete("dataset");
             router.replace(`${pathname}?${params.toString()}`, { scroll: false });
           }}>
             {caps?.targets ? Object.entries(caps.targets).map(([k, t]) =>
               <option value={k} key={k}>{targetLabel(k, t.label)}</option>) : <option value="precip_24h">Rainfall</option>}
           </select>
         </label>
+        {datasets.length > 0 && (
+          <label className="ml-target">Dataset revision
+            <select aria-label="Historical dataset revision" value={selectedDataset || ""} onChange={e => selectDataset(e.target.value)}>
+              {datasets.map(d => (
+                <option key={d.dataset_id} value={d.dataset_id}>
+                  {d.dataset_id} · {number(d.precip_complete_days, 0)} days{d.spatial_support && d.spatial_support !== "unknown" ? ` · ${d.spatial_support}` : ""}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
         <div className="ml-actions">
-          <button className="ml-generate" disabled={!!busy || adminLocked || running || !caps ||
+          <button className="ml-generate" disabled={!!busy || adminLocked || running || !caps || !!blocked ||
             (!datasets.length && !active.length && (isEarthdata ? caps.earthdata_credentials?.configured === false : !caps.credentials.configured))}
-            onClick={() => void act("generate", { variable: target })}>
+            title={blocked ? compat?.message : undefined}
+            onClick={() => void act("generate", datasetParam ? { variable: target, dataset_id: datasetParam } : { variable: target })}>
             <Icon name="sparkles" size={16} /> {running || busy === "generate" ? "Preparing dataset forecast…" : "Generate forecast from datasets"}
           </button>
         </div>
       </div>
+      {compat && compat.state !== "ready" && !running && (
+        <p className={`ml-readiness ${blocked ? "quality-warning" : ""}`} role="status">{compat.message}</p>
+      )}
       {published.length > 0 && <nav className="ml-saved-links" aria-label="Saved forecasts">
         <span>Saved forecasts</span>
         {published.map(run => <Link key={run.run_id} href={savedHref(run)}
@@ -248,7 +289,7 @@ export function MlForecastSection({ id, artifactId }: { id: string; artifactId?:
       </div>}
       {readyForecast && prediction ? <ForecastResult prediction={prediction} label={targetInfo?.label || target} target={target}
         savedHref={savedHref(prediction)} archived={!!artifactId} onExport={() => {
-          const url = URL.createObjectURL(new Blob([JSON.stringify({ location_id: id, target, forecast: prediction, models: targetModels, datasets }, null, 2)], { type: "application/json" }));
+          const url = URL.createObjectURL(new Blob([JSON.stringify({ location_id: id, location: location ? { name: location.name, latitude: location.latitude, longitude: location.longitude, spatial_mode: location.spatial_mode } : undefined, target, dataset_id: selectedDataset, forecast: prediction, models: targetModels, datasets }, null, 2)], { type: "application/json" }));
           const link = document.createElement("a"); link.href = url;
           link.download = `iris-${id}-${target}-${prediction.run_id}.json`; link.click();
           URL.revokeObjectURL(url);
@@ -362,15 +403,15 @@ export function MlForecastSection({ id, artifactId }: { id: string; artifactId?:
           {busy === "datasets" ? "Queueing…" : "Build dataset revision"}
         </button>
         <button
-          disabled={!!busy || adminLocked || !datasets.length}
+          disabled={!!busy || adminLocked || !selectedDataset}
           title={
-            datasets.length
-              ? `Train horizons 0–2 on ${datasets[datasets.length - 1].dataset_id}`
+            selectedDataset
+              ? `Train horizons 0–2 on ${selectedDataset}`
               : "Build a dataset first"
           }
           onClick={() =>
             void act("train", {
-              dataset_id: datasets[datasets.length - 1].dataset_id,
+              dataset_id: selectedDataset,
               variable: target,
             })
           }
