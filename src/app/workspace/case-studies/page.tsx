@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Icon } from "@/components/ui/Icon";
 import { useDashboard } from "@/context/DashboardContext";
 import { caseStudies } from "@/lib/dashboardData";
+import { CaseCards } from '@/features/hazards/CaseCards';
 import {
   GLOSSARY_TERMS,
   GUIDED_INVESTIGATIONS,
@@ -25,6 +26,7 @@ export default function DashboardCasesPage() {
 
   return (
     <div className="dashboard-cases-page dashboard-page-inner">
+      <CaseCards/>
       <section className="case-library-hero">
         <div>
           <div className="dashboard-kicker">

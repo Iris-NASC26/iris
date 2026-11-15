@@ -1,0 +1,47 @@
+{
+  "schema_version": "iris.forecast-regions.v1",
+  "regions": [
+    {
+      "id": "colombo",
+      "name": "Colombo",
+      "latitude": 6.9355,
+      "longitude": 79.8487,
+      "timezone": "Asia/Colombo"
+    },
+    {
+      "id": "kathmandu",
+      "name": "Kathmandu",
+      "latitude": 27.7172,
+      "longitude": 85.324,
+      "timezone": "Asia/Kathmandu"
+    },
+    {
+      "id": "los-angeles",
+      "name": "Los Angeles",
+      "latitude": 34.05,
+      "longitude": -118.24,
+      "timezone": "America/Los_Angeles"
+    },
+    {
+      "id": "central-valley",
+      "name": "Central Valley",
+      "latitude": 36.77,
+      "longitude": -119.41,
+      "timezone": "America/Los_Angeles"
+    },
+    {
+      "id": "amazon",
+      "name": "Central Amazon",
+      "latitude": -3.75,
+      "longitude": -60.0,
+      "timezone": "America/Manaus"
+    },
+    {
+      "id": "mediterranean",
+      "name": "Mediterranean",
+      "latitude": 41.25,
+      "longitude": 9.25,
+      "timezone": "Europe/Rome"
+    }
+  ]
+}

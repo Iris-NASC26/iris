@@ -1,8 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { Suspense, useCallback, useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { Icon, type IconName } from "@/components/ui/Icon";
 import { DashboardProvider, useDashboard } from "@/context/DashboardContext";
 import { useTheme } from "@/context/ThemeContext";
@@ -10,6 +10,7 @@ import { OnboardingTour } from "@/components/dashboard/OnboardingTour";
 import { VisualizationProvider } from "@/features/visualization/store";
 import { IrisAssistant } from "@/components/dashboard/IrisAssistant";
 import { DOCS_URL } from "@/lib/docs";
+import { investigation } from '@/features/hazards/model';
 
 const navigation: Array<{
   label?: string;
@@ -53,6 +54,9 @@ const pageTitles: Record<string, [string, string]> = {
 
 function DashboardFrame({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const forecastPage = pathname === '/workspace/data-analysis' && searchParams.has('forecastId');
+  const activeInvestigation = pathname?.startsWith('/workspace/case-studies/') ? investigation(pathname.split('/').pop() ?? '') : undefined;
   const { dataset, region, extractedPreview, activeProduct, selectedProducts } = useDashboard();
   const { dark, toggleTheme } = useTheme();
   const [collapsed, setCollapsed] = useState(false);
@@ -101,7 +105,7 @@ function DashboardFrame({ children }: { children: ReactNode }) {
     setTourOpen(false);
   }, []);
 
-  const title = (pathname && pageTitles[pathname]) ?? [
+  const title = forecastPage ? ['Upcoming conditions', 'Weather forecast workspace'] : activeInvestigation ? ['Disaster evidence & point outlook', activeInvestigation.title] : (pathname && pageTitles[pathname]) ?? [
     "Iris workspace",
     "Earth system intelligence",
   ];
@@ -230,7 +234,7 @@ function DashboardFrame({ children }: { children: ReactNode }) {
             <h1>{title[0]}</h1>
           </div>
           <div className="dashboard-context-chip">
-            {isEmptyDataPreview ? (
+            {forecastPage ? <><span><i/>ECMWF ensemble</span><strong>Future precipitation</strong></> : activeInvestigation ? <><span><i/>Point precipitation</span><strong>{activeInvestigation.point_name}</strong></> : isEmptyDataPreview ? (
               <>
                 <span>
                   <i />
@@ -247,7 +251,7 @@ function DashboardFrame({ children }: { children: ReactNode }) {
                 <strong>{extractedPreview?.extraction_config.region_name || region}</strong>
               </>
             )}
-            {extractedPreview?.job_id && (
+            {!forecastPage && !activeInvestigation && extractedPreview?.job_id && (
               <code
                 style={{
                   fontSize: "10px",
@@ -275,7 +279,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   return (
     <DashboardProvider>
       <VisualizationProvider>
-        <DashboardFrame>{children}</DashboardFrame>
+        <Suspense fallback={<div className="dashboard-page-inner">Loading workspace...</div>}><DashboardFrame>{children}</DashboardFrame></Suspense>
       </VisualizationProvider>
     </DashboardProvider>
   );

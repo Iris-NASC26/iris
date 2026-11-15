@@ -1,0 +1,101 @@
+{
+  "schema_version": "iris.hazard-investigations.v1",
+  "cases": [
+    {
+      "id": "nepal-floods-2024",
+      "title": "Nepal floods · September 2024",
+      "short_label": "Nepal floods",
+      "event_start": "2024-09-27",
+      "event_end": "2024-09-29",
+      "point_name": "Kathmandu sample point",
+      "latitude": 27.7172,
+      "longitude": 85.324,
+      "history_start": "2024-09-15",
+      "history_end": "2024-10-08",
+      "default_cutoff": "2024-09-26",
+      "summary": "Investigate rainfall context and the documented warning timeline around the September 2024 floods. This point is not a measurement of the whole Bagmati basin.",
+      "question": "What rainfall evidence and official bulletins preceded the September 2024 Nepal floods, and what would a properly validated early-awareness workflow require?",
+      "official_url": "https://www.dhm.gov.np/",
+      "sources": [
+        {
+          "id": "dhm-report-2024",
+          "title": "DHM situational report on the 27–29 September 2024 precipitation and flooding event",
+          "publisher": "Government of Nepal · Department of Hydrology and Meteorology",
+          "published_on": "2024-10-08",
+          "url": "https://dhm.gov.np/uploads/dhm/downloads/Situational_Report_on_Extreme_Precipitation_and_Flooding_Event_of_27-29_September_2024.pdf",
+          "type": "post_event_report",
+          "availability_verified": false,
+          "verified_available_at": null
+        }
+      ],
+      "timeline": [
+        {
+          "date": "2024-09-23",
+          "title": "A monsoon bulletin was issued",
+          "detail": "DHM's later report records a bulletin on 23 September, updated on 25 September. This is retrospective evidence of an existing official forecast, not a warning produced by Iris.",
+          "source_id": "dhm-report-2024"
+        },
+        {
+          "date": "2024-09-26",
+          "title": "Special flood forecasting bulletin",
+          "detail": "The later DHM report describes a special bulletin on 26 September and identifies several basins at elevated flood risk. Independent issue-time archives are still required for a hindsight-free replay.",
+          "source_id": "dhm-report-2024"
+        },
+        {
+          "date": "2024-09-27",
+          "title": "The documented event window begins",
+          "detail": "DHM describes widespread intense precipitation and flooding during 27–29 September. Rainfall, river response and local exposure are distinct parts of the event.",
+          "source_id": "dhm-report-2024"
+        },
+        {
+          "date": "2024-10-08",
+          "title": "Post-event report dated 8 October",
+          "detail": "The report is dated 8 October and supports historical investigation. This document date does not independently verify when it became publicly available.",
+          "source_id": "dhm-report-2024"
+        }
+      ]
+    },
+    {
+      "id": "ditwah-sri-lanka-2025",
+      "title": "Cyclone Ditwah · Sri Lanka 2025",
+      "short_label": "Cyclone Ditwah",
+      "event_start": "2025-11-28",
+      "event_end": "2025-11-30",
+      "point_name": "Colombo sample point",
+      "latitude": 6.9355,
+      "longitude": 79.8487,
+      "history_start": "2025-11-15",
+      "history_end": "2025-12-03",
+      "default_cutoff": "2025-11-27",
+      "summary": "Examine rainfall context around Cyclone Ditwah and separate historical observations, archived reports and today's rainfall forecasts. Colombo is one sample point, not the cyclone's footprint.",
+      "question": "How did rainfall conditions evolve around Cyclone Ditwah, and which verified forecast, river and official-warning information would be needed for earlier awareness?",
+      "official_url": "https://www.dmc.gov.lk/",
+      "sources": [
+        {
+          "id": "un-flash-ditwah-2025",
+          "title": "Sri Lanka: Tropical Cyclone Ditwah · Flash Update 1",
+          "publisher": "United Nations in Sri Lanka",
+          "published_on": "2025-11-29",
+          "url": "https://srilanka.un.org/en/306260-sri-lanka-tropical-cyclone-ditwah-flash-update-1",
+          "type": "post_event_report",
+          "availability_verified": false,
+          "verified_available_at": null
+        }
+      ],
+      "timeline": [
+        {
+          "date": "2025-11-28",
+          "title": "Reported cyclone landfall",
+          "detail": "The UN update reports landfall on 28 November, with rain, flooding and landslides affecting Sri Lanka. This event chronology is documented after the event.",
+          "source_id": "un-flash-ditwah-2025"
+        },
+        {
+          "date": "2025-11-29",
+          "title": "UN situation update published",
+          "detail": "The update describes impacts across Sri Lanka. It is post-event evidence, not an archived pre-event forecast or proof of Iris warning lead time.",
+          "source_id": "un-flash-ditwah-2025"
+        }
+      ]
+    }
+  ]
+}
