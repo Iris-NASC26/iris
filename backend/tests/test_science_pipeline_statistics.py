@@ -66,6 +66,7 @@ class TrendStatisticsTests(unittest.TestCase):
         self.assertIsNotNone(statistic)
         self.assertLess(p_value, 0.05)
         self.assertIn("2001", timestamp)
+        self.assertRegex(timestamp, r"^\d{4}-\d{2}$")
 
     def test_case_file_returns_only_observed_rows_and_preserves_missingness(self):
         dates = pd.date_range("2010-01-01", periods=72, freq="MS")
@@ -97,6 +98,7 @@ class TrendStatisticsTests(unittest.TestCase):
         )
 
         self.assertEqual(len(result.analysis_series), len(dates))
+        self.assertEqual(result.analysis_series[0].timestamp, "2010-01")
         self.assertEqual(result.analysis_series[0].value, values[0])
         self.assertIsNone(result.analysis_series[18].value)
         self.assertEqual(result.analysis_series[18].qa_flag, "Missing")

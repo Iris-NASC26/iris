@@ -198,7 +198,7 @@ def _compute_pettitt(series: pd.Series) -> Tuple[Optional[str], Optional[float],
     split_index = int(np.argmax(np.abs(statistics_by_split)))
     statistic = float(abs(statistics_by_split[split_index]))
     p_value = min(1.0, 2.0 * math.exp((-6.0 * statistic**2) / (n**3 + n**2)))
-    return clean.index[split_index].isoformat(), round(statistic, 3), round(p_value, 8)
+    return clean.index[split_index].strftime("%Y-%m"), round(statistic, 3), round(p_value, 8)
 
 
 def _benjamini_hochberg_q_value(p_values: List[float], target: float) -> float:
@@ -656,7 +656,7 @@ def execute_case_file_analysis(
             qa_flag = "Valid" if raw_number is not None else "Missing"
         analysis_series.append(
             CaseFileObservation(
-                timestamp=timestamp.isoformat(),
+                timestamp=timestamp.strftime("%Y-%m"),
                 value=raw_number,
                 seasonal_component=(
                     float(seasonal_component)

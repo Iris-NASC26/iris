@@ -4591,42 +4591,9 @@
   letter-spacing: -0.025em;
 }
 
-.dashboard-context-chip {
-  min-width: 0;
+.dashboard-topbar .dashboard-theme-toggle {
+  flex: 0 0 auto;
   margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  padding: 7px 10px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--card);
-}
-
-.dashboard-context-chip span {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  color: var(--green);
-  font-size: 8px;
-  font-weight: 700;
-}
-
-.dashboard-context-chip i {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: var(--green-bright);
-}
-
-.dashboard-context-chip strong {
-  max-width: 220px;
-  overflow: hidden;
-  color: var(--text);
-  font-size: 9px;
-  font-weight: 550;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .dashboard-menu-trigger {
@@ -6520,10 +6487,6 @@
 @media (max-width: 680px) {
   .dashboard-topbar {
     padding-inline: 14px;
-  }
-
-  .dashboard-context-chip strong {
-    display: none;
   }
 
   .dashboard-page-inner {
@@ -12705,6 +12668,13 @@
 .iris-map-canvas {
   flex: 1;
   min-height: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.iris-map-root.is-drawing .maplibregl-canvas,
+.iris-map-fullscreen-container.is-drawing .maplibregl-canvas {
+  cursor: crosshair;
 }
 
 .iris-map-toolbar {
@@ -12788,16 +12758,16 @@
 
 .iris-fullscreen-backdrop {
   position: fixed;
-  inset: 0;
-  z-index: 49;
+  inset: 0 0 0 var(--sidebar-width, 0px);
+  z-index: 79;
   background: rgba(0, 0, 0, 0.72);
   backdrop-filter: blur(4px);
 }
 
 .iris-map-fullscreen-container {
   position: fixed;
-  inset: 16px;
-  z-index: 50;
+  inset: 16px 16px 16px calc(var(--sidebar-width, 0px) + 16px);
+  z-index: 81;
   border-radius: 12px;
   border: 1px solid var(--border);
   background: var(--card);
@@ -13227,6 +13197,29 @@
   align-items: flex-start;
 }
 
+.ds-product-header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.ds-demo-notice {
+  padding: 8px 10px;
+  border: 1px solid #d9770640;
+  border-radius: 8px;
+  color: #92400e;
+  background: #f59e0b14;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.app-shell.dark .ds-demo-notice {
+  color: #fcd34d;
+  background: #f59e0b18;
+}
+
 .ds-link-btn {
   flex: 0 0 auto;
   display: inline-flex;
@@ -13240,6 +13233,21 @@
   font-size: 11px;
   font-weight: 600;
   cursor: pointer;
+}
+
+.dp-demo-badge {
+  padding: 4px 8px;
+  border: 1px solid #d9770640;
+  border-radius: 999px;
+  color: #92400e;
+  background: #f59e0b14;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.app-shell.dark .dp-demo-badge {
+  color: #fcd34d;
+  background: #f59e0b18;
 }
 
 .ds-identified-keywords {

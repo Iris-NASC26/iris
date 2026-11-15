@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic';
 import type { IDockviewPanelProps } from 'dockview-react';
 import { ChartCanvas } from '../Charts';
 import { MONTHS } from '../model';
-import { landscape, MAX_SURFACE_PATCHES, type Landscape } from '../landscape/model';
+import { landscape, landscapeTooltipPoint, MAX_SURFACE_PATCHES, type Landscape } from '../landscape/model';
 import { PALETTES, useDisplay } from './display';
 import { useStudio } from './state';
 const LandscapeChart = dynamic(() => import('../landscape/LandscapeChart').then(m => m.LandscapeChart), { ssr: false, loading: () => <p className="viz-muted">Loading the 3D renderer…</p> });
@@ -18,7 +18,11 @@ export function LandscapeHeatmap({ model, onSelect, selectedTime }: { model: Lan
         xAxis: { type: 'category', data: MONTHS, axisLabel: { color: foreground }, splitArea: { show: false } },
         yAxis: { type: 'category', data: model.years.map(String), name: 'Year', axisLabel: { color: foreground }, nameTextStyle: { color: foreground } },
         visualMap: { min: model.range[0], max: model.range[1], dimension: 2, orient: 'horizontal', left: 'center', bottom: 0, itemHeight: 100, itemWidth: 10, text: [model.range[1].toPrecision(3), model.range[0].toPrecision(3)], inRange: { color: PALETTES[display.palette] }, textStyle: { color: foreground }, precision: 2 },
-        tooltip: { confine: true, renderMode: 'richText', formatter: ((p: { data: number[] }) => `${MONTHS[p.data[0]]} ${model.years[p.data[1]]}\n${p.data[2].toPrecision(5)} ${model.unit}\n${model.description}`) as never },
+        tooltip: { confine: true, renderMode: 'richText', formatter: ((p: { data?: unknown }) => {
+            const point = landscapeTooltipPoint(p.data);
+            if (!point || !Number.isInteger(point.x) || !MONTHS[point.x] || !Number.isInteger(point.y) || point.y < 0 || point.y >= model.years.length) return '';
+            return `${MONTHS[point.x]} ${model.years[point.y]}\n${point.value.toPrecision(5)} ${model.unit}\n${model.description}`;
+        }) as never },
         series: [{ type: 'heatmap', data: model.cells.map(c => ({ value: [c.month, model.years.indexOf(c.year), c.value, c.row.time], itemStyle: { borderWidth: selected?.row.time === c.row.time ? 3 : 1, borderColor: selected?.row.time === c.row.time ? '#ffe5a0' : display.dark ? '#111d2c' : '#fff' } })), emphasis: { itemStyle: { borderWidth: 2, borderColor: '#ffe5a0' } } }],
         dataZoom: model.years.length > 25 ? [{ type: 'slider', yAxisIndex: 0, orient: 'vertical', right: 0, width: 12 }] : [],
     }}/>

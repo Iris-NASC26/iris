@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { landscape } from '../../src/features/visualization/landscape/model.ts';
+import { landscape, landscapeTooltipPoint } from '../../src/features/visualization/landscape/model.ts';
 import { timestamp, type Datum } from '../../src/features/visualization/model.ts';
 // Hand-computable synthetic test values. Never imported by the application.
 const row = (date: string, value: number | null): Datum => ({ timestamp: date, time: timestamp(date), value, qa: value === null ? 'Missing' : 'Valid' });
@@ -48,4 +48,10 @@ test('unsupported cadence, duplicate calendar cells, invalid values and excessiv
 test('constant observed values have a finite non-degenerate color domain', () => {
     const m = landscape([row('2020-01', 0)], 'Monthly', 'observed', 'C');
     assert.ok(m.range[0] < 0 && m.range[1] > 0); assert.equal(m.cells[0].value, 0);
+});
+test('landscape tooltips accept ECharts value objects and reject malformed points', () => {
+    assert.deepEqual(landscapeTooltipPoint({ value: [0, 1, -2, 123] }), { x: 0, y: 1, value: -2 });
+    assert.deepEqual(landscapeTooltipPoint([11, 2020, 0, 123]), { x: 11, y: 2020, value: 0 });
+    assert.equal(landscapeTooltipPoint({ value: [0, 1, undefined] }), null);
+    assert.equal(landscapeTooltipPoint(null), null);
 });

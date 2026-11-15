@@ -1,0 +1,2 @@
+export const MIN_SELECTION_SPAN_DEGREES = 0.1;
+export const MAX_SELECTION_SPAN_DEGREES = 20;
