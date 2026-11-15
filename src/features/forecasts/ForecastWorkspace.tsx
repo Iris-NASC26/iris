@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ChartCanvas } from "@/features/visualization/Charts";
+import { MlForecastSection } from "./MlForecastSection";
 import { useTheme } from "@/context/ThemeContext";
 import {
   FORECAST_REGIONS,
@@ -629,6 +630,7 @@ export function ForecastWorkspace({
           </section>
         </>
       )}
+      <MlForecastSection id={id} />
     </div>
   );
 }

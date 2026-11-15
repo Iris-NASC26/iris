@@ -14,7 +14,7 @@ Implemented following the team's explicit authorization on 15 November 2026. Thi
 
 The landing globe contains six **precipitation forecast** links, replacing generic location links and historical disaster labels. Cards read a cached catalogue and show the ensemble median for the wettest complete rolling 24-hour window, the point location and availability. These are six configured points, not a global significance or hazard scan. No provider request runs because a landing-page visitor arrives.
 
-Each link opens `/workspace/data-analysis?forecastId=<id>&run=<artifact-id>`. The future forecast loads automatically. A pinned run resolves the exact retained snapshot; a missing/expired retention record returns 410 instead of silently selecting another forecast. Opening without `run` selects the current forecast. Historical Data Analysis remains available without `forecastId`; historical case studies remain in their library.
+Each link opens `/workspace/forecasts?forecastId=<id>&run=<artifact-id>`, in the dedicated **Explore → Forecasts** section. The future forecast loads automatically. The sidebar opens `/workspace/forecasts` with the first configured location selected. A pinned run resolves the exact retained snapshot; a missing/expired retention record returns 410 instead of silently selecting another forecast. Opening without `run` selects the current forecast. Old `/workspace/data-analysis?forecastId=<id>&run=<artifact-id>` links redirect to the new section, preserving location and snapshot. Historical Data Analysis remains available at its original route; historical case studies remain in their library.
 
 The forecast workspace supports three-hour accumulations, rolling 24-hour totals and three consecutive forecast-day totals. Users can select a median/range ribbon, median bars or all 51 member curves; inspect an interval; change location and detail timezone; inspect values; and export the complete forecast/member evidence. The chart uses UTC explicitly. A separate interactive map marks the exact forecast point; it does not interpolate a regional precipitation or flood surface. Optional NASA observations have their own dates, units and provenance.
 
@@ -49,7 +49,7 @@ flowchart LR
     Q --> S[SQLite current catalogue + retained runs]
     R[Background refresh worker] --> W
     S --> L[Forecast-only landing globe]
-    S --> F[Data Analysis forecast workspace]
+    S --> F[Explore / Forecasts workspace]
     C[NASA CMR / Cloud DAP4] --> N[Validated daily point context]
     N --> F
     A[Reviewed historical forecast/reference archive] --> T[Offline quantile-model experiment]
@@ -135,3 +135,76 @@ npx playwright test -c playwright.visualization.config.ts forecasts.spec.ts land
 Live checks confirmed six current point forecasts, exact retained-snapshot retrieval and seven authentic IMERG days for Colombo. Statistical software tests compare member-first accumulation with independent prefix-sum calculations and test the anti-correlated-member counterexample. These establish arithmetic and transport correctness, not local forecast reliability or flood-warning skill.
 
 Verification: **136 Python tests, 98 frontend tests and 22 browser tests passed**; the four new forecast browser tests were also rerun after final worker-path integration. Production build, separate TypeScript check, Ruff, whitespace and client-asset credential checks passed. Live screenshots show genuine forecast values; all synthetic fixtures remain restricted to tests. Python tests retain the existing Starlette/httpx test-client deprecation notice.
+
+## Iris historical-ML pipeline (`iris.ml-forecast.v2`)
+
+A second, deliberately separate forecast family lives under
+`/api/v1/forecasts/v2/` and in the Forecasts workspace's **Iris historical ML**
+panel. It trains only on Meteomatics **past** records — provider future values
+and archived provider forecasts are prohibited as inputs, enforced in code and
+tested at the request layer (`sources.assert_historical`), the feature schema
+(`training.schema_guard`), and the API proxy allowlist.
+
+| Component | Module | Status |
+| --- | --- | --- |
+| Historical source adapter | `backend/forecasts/v2/sources.py` | Implemented; bounded chunked requests, `Retry-After`, budgets, content hashes, explicit `era5`/`mix` source roles |
+| Record QA | `backend/forecasts/v2/qa.py` | Implemented; sentinels quarantined, valid zeros kept, interval-hour coverage |
+| Availability/leakage guard | `backend/forecasts/v2/qa.py` (`available_by`), `features.py` | Implemented; features trail a declared availability cutoff |
+| Versioned datasets | `backend/forecasts/v2/datasets.py` | Implemented; content-addressed immutable manifests under `artifacts/runtime/forecasts/v2/datasets/` |
+| Feature builder | `backend/forecasts/v2/features.py` | Implemented; rainfall lags/trailing stats, wet frequency, dry spell, cyclic calendar, missingness indicators |
+| Baselines + metrics | `backend/forecasts/v2/features.py` | Implemented; persistence, seasonal climatology, MAE/RMSE/bias, pinball, coverage |
+| Training + eligibility | `backend/forecasts/v2/training.py` | Implemented gates and chronological folds; **sklearn/numpy absent in this environment — a passing card is recorded as `candidate`, no model weights produced** |
+| Trend analysis | `backend/forecasts/v2/trends.py` | Implemented; Theil–Sen, tie-corrected Mann–Kendall, circular-block bootstrap CI, BH q-values, completeness |
+| Durable jobs | `backend/forecasts/v2/jobs.py`, `workers.py` | Implemented; idempotent enqueue, checkpoints, cancel/retry, once-per-process crash recovery |
+| Verified prediction | `backend/forecasts/v2/predict.py` | Implemented; hash-verified model loading, per-horizon honest unavailable states, atomic run pointer |
+
+### Routes
+
+`GET /api/v1/forecasts/v2/capabilities` — credentials presence (never values),
+declared source lags/roles, whether `IRIS_ML_ADMIN_TOKEN` gates mutations.
+`GET|POST /{id}/history|datasets|models|trends|ingest|train|predict|refresh`,
+`POST /{id}/models/{model_id}/activate`,
+`GET|POST /jobs/{job_id}|/jobs/{job_id}/cancel|/jobs/{job_id}/retry`,
+`GET /runs/{location_id}/{run_id}`. Static routes are registered before
+`/{identifier}` routes; the Next.js proxy allowlists each shape and caps
+payloads at 8 KB.
+
+### What is NOT yet established
+
+- **No genuine historical records have been retrieved yet.** The adapter is
+  written and unit-tested with labelled fixtures; a live request requires the
+  deployment environment (httpx + configured Meteomatics credentials) and an
+  explicit entitlement check before bulk ingestion.
+- **No model has trained.** sklearn/numpy are not installed in this
+  environment; the eligibility gates and dev-fold evaluation are implemented
+  and tested, and training runs record an honest `candidate` card when the
+  estimator library is absent.
+- **No prediction has been published.** `predict` returns `unavailable` until
+  an eligible model is activated; nothing falls back to provider forecasts.
+- Quantile coverage is computed in evaluation but real calibration figures
+  await genuine trained models.
+
+### Operations
+
+```bash
+# backend deps for live use (already in backend/forecasts/requirements.txt):
+pip install -r backend/requirements.txt  # provides fastapi httpx sklearn numpy ...
+uvicorn visualization_app:app --app-dir backend
+
+# queue ingestion → build dataset → train → activate → predict
+curl -X POST localhost:8000/api/v1/forecasts/v2/colombo/ingest \
+  -H 'content-type: application/json' -d '{"source_id":"era5","backfill_days":365}'
+curl -X POST localhost:8000/api/v1/forecasts/v2/colombo/datasets \
+  -d '{"source_id":"era5"}'
+curl -X POST localhost:8000/api/v1/forecasts/v2/colombo/train \
+  -d '{"dataset_id":"<from datasets list>"}'
+```
+
+Workers: `workers.execute(job_id)` runs a queued job synchronously (a real
+deployment wraps it in a bounded worker loop). Set `IRIS_ML_ADMIN_TOKEN` to
+require an `x-iris-admin` header on mutations.
+
+Retrospective ERA5 (declared 144 h availability lag) is used for development
+evidence; the `mix` source with a 3 h lag is the operational candidate. The
+same feature pipeline serves both; lag is declared per source so finalized
+reanalysis never masquerades as an instantly-available input.

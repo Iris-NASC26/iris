@@ -7,6 +7,7 @@ The default main:app entry remains available to teammates without this extension
 from contextlib import asynccontextmanager
 
 from forecasts.router import router as forecast_router
+from forecasts.v2.router import router as forecast_v2_router
 from forecasts.service import start as start_forecasts
 from forecasts.service import stop as stop_forecasts
 from hazards.router import router as hazards_router
@@ -16,6 +17,7 @@ from visualization.router import router
 app.include_router(router)
 app.include_router(hazards_router)
 app.include_router(forecast_router)
+app.include_router(forecast_v2_router)
 _original_lifespan = app.router.lifespan_context
 
 
