@@ -54,6 +54,7 @@ export interface ForecastCard {
   target_label?: string;
   unit?: string;
   median?: number | null;
+  quality_status?: "passed_checks" | "experimental_preview";
   state: "fresh" | "stale" | "unavailable";
   peak_24h: ForecastWindow | null;
   retrieved_at: string | null;
@@ -543,6 +544,10 @@ export interface MlPredictionWindow {
   nonnegative?: boolean;
   model_id?: string;
   source_id?: string;
+  quality_status?: "passed_checks" | "experimental_preview";
+  error_vs_baseline_pct?: number | null;
+  evaluation?: { model_mae?: number; baseline_mae?: number; coverage_80?: number; n_eval?: number };
+  quality_reasons?: string[];
 }
 export interface MlPrediction {
   state?: string;
@@ -557,11 +562,14 @@ export interface MlPrediction {
   input_age_hours?: number;
   stale?: boolean;
   scope?: string;
+  quality_status?: "passed_checks" | "experimental_preview";
 }
 export function parseMlPrediction(v: unknown): MlPrediction {
   const p = v as MlPrediction;
   if (!p || typeof p !== "object") throw new Error("Invalid prediction response.");
   if (p.state === "unavailable") return p;
+  if (p.quality_status != null && !["passed_checks", "experimental_preview"].includes(p.quality_status))
+    throw new Error("Invalid forecast quality status.");
   if (
     !Array.isArray(p.predictions) ||
     p.predictions.length < 1 || p.predictions.length > 3 ||
@@ -570,6 +578,8 @@ export function parseMlPrediction(v: unknown): MlPrediction {
         !finite(w?.q10) ||
         !finite(w?.q50) ||
         !finite(w?.q90) ||
+        (w.quality_status != null && !["passed_checks", "experimental_preview"].includes(w.quality_status)) ||
+        (w.error_vs_baseline_pct != null && !finite(w.error_vs_baseline_pct)) ||
         !Number.isFinite(Date.parse(w.window_start)) ||
         !Number.isFinite(Date.parse(w.window_end)) ||
         Date.parse(w.window_end) <= Date.parse(w.window_start) ||

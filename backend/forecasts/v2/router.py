@@ -13,7 +13,7 @@ from fastapi import APIRouter, Header, HTTPException
 from hazards import meteomatics
 
 from ..catalog import region
-from . import appeears, datasets, jobs, predict, sources, training, workers
+from . import appeears, datasets, gic, jobs, predict, sources, training, workers
 from .variables import VARIABLES, PRODUCTS
 
 router = APIRouter(prefix="/api/v1/forecasts/v2", tags=["Iris ML forecasts v2"])
@@ -41,6 +41,10 @@ def _admin_guard(token: str | None) -> None:
         raise HTTPException(403, "An administrator token is required for ML pipeline mutations.")
 
 
+def _earthdata_configured(target: str) -> bool:
+    return gic.configured() if target in gic.FIELDS else appeears.configured()
+
+
 def _spec(payload: dict | None) -> dict:
     if payload is None:
         return {}
@@ -61,7 +65,7 @@ def capabilities():
     return {
         "schema_version": "iris.ml-forecast.v2",
         "credentials": _credentials_state(),
-        "earthdata_credentials": {"configured": appeears.configured()},
+        "earthdata_credentials": {"configured": gic.configured()},
         "policy": "history-only: Meteomatics/Earthdata past records only; provider future values prohibited",
         "sources": {sid: {"param": p, "declared_availability_lag_hours": lag, "role": role}
                     for sid, (p, lag, role) in sources.SOURCE_OPTIONS.items()},
@@ -81,6 +85,7 @@ def catalogue():
     entries = []
     for identifier, location in REGIONS.items():
         candidates = [predict.current(identifier, target) for target in VARIABLES]
+        candidates.sort(key=lambda r: (r.get("quality_status") == "experimental_preview", bool(r.get("stale"))))
         run = next((r for r in candidates if r.get("state") == "available" and not r.get("stale")),
                    next((r for r in candidates if r.get("state") == "available"), candidates[0]))
         target = run.get("target", "precip_24h")
@@ -88,6 +93,7 @@ def catalogue():
         windows = run.get("predictions", [])
         peak = max(windows, key=lambda w: w["q50"]) if windows and not run.get("stale") and target == "precip_24h" else None
         entries.append({"id": identifier, "location": location, "kind": "local_model",
+                        "quality_status": run.get("quality_status", "passed_checks"),
                         "target": target, "target_label": VARIABLES[target]["label"], "unit": VARIABLES[target]["unit"],
                         "median": windows[0]["q50"] if windows and not run.get("stale") else None,
                         "state": ("stale" if run.get("stale") else "fresh") if available else "unavailable",
@@ -249,11 +255,11 @@ def ingest(identifier: str, payload: dict | None = None,
     if source_id not in sources.SOURCE_OPTIONS and source_id not in PRODUCTS:
         raise HTTPException(422, f"Unknown source '{source_id}'.")
     if source_id in PRODUCTS:
-        if not appeears.configured():
-            raise HTTPException(503, "Earthdata credentials are not configured.")
         var_name = spec.get("variable")
         if var_name not in VARIABLES or source_id not in VARIABLES[var_name]["sources"]:
             raise HTTPException(422, "variable is required and must map to this product.")
+        if not _earthdata_configured(var_name):
+            raise HTTPException(503, "Configure EARTHDATA_TOKEN for MERRA-2/GLDAS, or Earthdata login credentials for AppEEARS products.")
         job = jobs.enqueue("earthdata_ingest", r["id"], spec.get("idem", ""), spec)
         return job
     if not _credentials_state()["configured"]:
@@ -303,6 +309,13 @@ def current_prediction(identifier: str, target: str = "precip_24h"):
     return predict.current(r["id"], target)
 
 
+@router.get("/{identifier}/published")
+def published_predictions(identifier: str):
+    r = _region(identifier)
+    runs = [predict.current(r["id"], target) for target in VARIABLES]
+    return {"forecasts": [run for run in runs if run.get("state") == "available"]}
+
+
 @router.post("/{identifier}/generate")
 def generate(identifier: str, payload: dict | None = None,
              x_iris_admin: str | None = Header(default=None)):
@@ -313,21 +326,33 @@ def generate(identifier: str, payload: dict | None = None,
     if target not in VARIABLES:
         raise HTTPException(422, "Unknown target.")
     source = VARIABLES[target]["sources"][0]
+    pending = jobs.latest(r["id"], target, kind="pipeline")
+    if pending and pending["status"] in ("queued", "running"):
+        return pending
     if not spec.get("dataset_id"):
         existing = predict.predict(r["id"], workers.staged_records(r["id"], source), target=target)
         if existing.get("state") == "available":
             return existing
-    if source in PRODUCTS and not appeears.configured():
-        raise HTTPException(503, "Earthdata credentials are missing.")
-    if source in sources.SOURCE_OPTIONS and not _credentials_state()["configured"]:
+        # A frozen local dataset is sufficient for training. Do not submit
+        # another years-long extraction just to retry an existing dataset.
+        revisions = [d for d in datasets.manifests(r["id"])
+                     if d["source_id"] == source and target in d.get("variables", [])]
+        if revisions:
+            spec["dataset_id"] = revisions[-1]["dataset_id"]
+    if not spec.get("dataset_id") and source in PRODUCTS and not _earthdata_configured(target):
+        raise HTTPException(503, "Configure EARTHDATA_TOKEN for MERRA-2/GLDAS, or Earthdata login credentials for AppEEARS products.")
+    if not spec.get("dataset_id") and source in sources.SOURCE_OPTIONS and not _credentials_state()["configured"]:
         raise HTTPException(503, "Meteomatics credentials are missing.")
     spec.setdefault("start", "2015-01-01T00:00:00+00:00")
     spec.update(variable=target, source_id=source)
     if spec.get("dataset_id"):
-        if not datasets.manifest(r["id"], spec["dataset_id"]):
+        manifest = datasets.manifest(r["id"], spec["dataset_id"])
+        if not manifest:
             raise HTTPException(404, "Unknown dataset for this location.")
+        if manifest["source_id"] != source or target not in manifest.get("variables", []):
+            raise HTTPException(422, "Choose a dataset containing this target and source.")
         spec["phase"] = "train"
-    return jobs.enqueue("pipeline", r["id"], spec.get("idem", f"generate-{target}-{datetime.now(UTC):%Y%m%d}"), spec)
+    return jobs.enqueue("pipeline", r["id"], spec.get("idem", f"generate-{target}-{spec.get('dataset_id', 'history')}-{datetime.now(UTC):%Y%m%d}"), spec)
 
 
 @router.post("/{identifier}/refresh")

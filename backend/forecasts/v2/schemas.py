@@ -52,8 +52,18 @@ class QuantilePrediction:
     dataset_id: str = ""
     source_id: str = ""
     evaluation_ref: str = ""
+    quality_status: str = "passed_checks"
+    error_vs_baseline_pct: float | None = None
+    evaluation: dict = field(default_factory=dict)
+    quality_reasons: list[str] = field(default_factory=list)
 
     def __post_init__(self):
+        if self.quality_status not in ("passed_checks", "experimental_preview"):
+            raise ValueError("unknown forecast quality status")
+        if self.error_vs_baseline_pct is not None:
+            import math
+            if not math.isfinite(self.error_vs_baseline_pct):
+                raise ValueError("error comparison must be finite")
         for name, v in (("q10", self.q10), ("q50", self.q50), ("q90", self.q90)):
             if v != v or v in (float("inf"), float("-inf")):
                 raise ValueError(f"{name} must be finite")
@@ -81,6 +91,7 @@ class ForecastRun:
     target: str = "precip_24h"
     scope: str = "experimental_local_model"
     horizons_unavailable: list[dict] = field(default_factory=list)
+    quality_status: str = "passed_checks"
 
     def __post_init__(self):
         if not 1 <= len(self.predictions) <= 3:

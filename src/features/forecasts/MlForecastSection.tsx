@@ -1,6 +1,8 @@
 "use client";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ChartCanvas } from "@/features/visualization/Charts";
+import Link from "next/link";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Icon } from "@/components/ui/Icon";
+import { ForecastResult, targetLabel } from "./ForecastResult";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   parseMlCapabilities,
@@ -34,10 +36,12 @@ export function MlForecastSection({ id, artifactId }: { id: string; artifactId?:
   const [models, setModels] = useState<MlModelCard[]>([]);
   const [reports, setReports] = useState<MlTrendReport[]>([]);
   const [prediction, setPrediction] = useState<MlPrediction | null>(null);
+  const [published, setPublished] = useState<MlPrediction[]>([]);
   const [job, setJob] = useState<MlJob | null>(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState("");
   const pendingLoad = useRef<AbortController | null>(null);
+  const hasTarget = search.has("target");
 
   const load = useCallback(async () => {
     pendingLoad.current?.abort();
@@ -45,8 +49,20 @@ export function MlForecastSection({ id, artifactId }: { id: string; artifactId?:
     pendingLoad.current = controller;
     const options = { cache: "no-store" as const, signal: controller.signal };
     try {
-      const cr = await fetch("/api/v1/forecasts/v2/capabilities", options);
+      const [cr, pr] = await Promise.all([
+        fetch("/api/v1/forecasts/v2/capabilities", options),
+        fetch(`/api/v1/forecasts/v2/${id}/published`, options),
+      ]);
       const c = cr.ok ? parseMlCapabilities(await cr.json()) : null;
+      const publishedDoc = pr.ok ? await pr.json() : {};
+      const ready: MlPrediction[] = Array.isArray(publishedDoc.forecasts) ? publishedDoc.forecasts.map(parseMlPrediction) : [];
+      if (controller.signal.aborted) return;
+      setPublished(ready);
+      const recommended = ready.find(run => !run.stale && run.quality_status !== "experimental_preview") || ready.find(run => !run.stale) || ready[0];
+      if (!hasTarget && !artifactId && recommended?.target) {
+        router.replace(`${pathname}?forecastId=${encodeURIComponent(id)}&target=${encodeURIComponent(recommended.target)}`, { scroll: false });
+        return;
+      }
       const source = c?.targets?.[target]?.sources[0] || "era5";
       const [h, d, m, t, prediction, latestJob] = await Promise.all([
         fetch(`/api/v1/forecasts/v2/${id}/history?source_id=${encodeURIComponent(source)}&variable=${encodeURIComponent(target)}`, options).then((r) =>
@@ -79,7 +95,7 @@ export function MlForecastSection({ id, artifactId }: { id: string; artifactId?:
       if (controller.signal.aborted) return;
       setError("Iris ML status is unavailable; values shown may be incomplete.");
     }
-  }, [id, target, artifactId]);
+  }, [id, target, artifactId, hasTarget, router, pathname]);
 
   useEffect(() => {
     setHistory(null); setDatasets([]); setModels([]); setReports([]); setPrediction(null); setJob(null);
@@ -128,11 +144,20 @@ export function MlForecastSection({ id, artifactId }: { id: string; artifactId?:
         body: JSON.stringify(body),
       });
       const v = await r.json();
-      if (!r.ok) throw new Error(v.detail || "Request refused.");
+      if (!r.ok) throw new Error(v.detail || v.error || "Request refused.");
       if (kind === "predict" || Array.isArray(v.predictions)) {
         setPrediction(parseMlPrediction(v));
       } else {
         setJob(v as MlJob);
+      }
+      if (kind === "generate" || kind === "predict") {
+        if (artifactId) {
+          const params = new URLSearchParams(search.toString());
+          params.set("target", target); params.delete("run");
+          router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+        } else if (Array.isArray(v.predictions)) {
+          await load();
+        }
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Request failed.");
@@ -176,71 +201,79 @@ export function MlForecastSection({ id, artifactId }: { id: string; artifactId?:
     target === "precip_24h" ? "era5" : (targetInfo?.sources?.[0] ?? "era5");
   const isEarthdata = target !== "precip_24h";
   const running = job?.status === "queued" || job?.status === "running";
-  const forecastChart = useMemo(() => {
-    const windows = prediction?.predictions || [];
-    return {
-      animation: false,
-      tooltip: { trigger: "axis" as const },
-      legend: { data: ["10th percentile", "Median", "90th percentile"], textStyle: { color: "#809b93" } },
-      grid: { left: 65, right: 20, top: 45, bottom: 45 },
-      xAxis: { type: "category" as const, data: windows.map(w => w.window_start.slice(0, 10)), name: "UTC" },
-      yAxis: { type: "value" as const, name: windows[0]?.unit || "", scale: true },
-      series: (["q10", "q50", "q90"] as const).map((key, i) => ({
-        name: ["10th percentile", "Median", "90th percentile"][i], type: "line" as const,
-        data: windows.map(w => w[key]), symbolSize: 8,
-        lineStyle: { width: i === 1 ? 3 : 1, type: (i === 1 ? "solid" : "dashed") as "solid" | "dashed" },
-        itemStyle: { color: i === 1 ? "#10947c" : "#8db8aa" },
-      })),
-    };
-  }, [prediction]);
+  const readyForecast = prediction?.state !== "unavailable" && !!prediction?.predictions?.length;
+  const savedHref = (run: MlPrediction) => `${pathname}?forecastId=${encodeURIComponent(id)}&target=${encodeURIComponent(run.target || target)}&run=${encodeURIComponent(run.run_id || "")}#forecast-result`;
   return (
     <section className="forecast-panel ml-forecast" aria-labelledby="ml-heading">
-      <span className="forecast-kicker">IRIS HISTORICAL ML · iris.ml-forecast.v2</span>
-      <h2 id="ml-heading">Local predictions from verified history.</h2>
-      <p className="forecast-small">
-        Generate local forecasts from historical Meteomatics and NASA Earthdata records.
-        Each model is evaluated against persistence and seasonal climatology before publication.
-      </p>
-      <label className="ml-target">
-        Forecast target
-        <select
-          aria-label="ML forecast target"
-          value={target}
-          onChange={(e) => {
+      <h2 id="ml-heading" className="ml-visually-hidden">Local predictions from verified history.</h2>
+      <div className="ml-control-bar">
+        <label className="ml-target">Forecast target
+          <select aria-label="ML forecast target" value={target} onChange={e => {
             setTarget(e.target.value);
             const params = new URLSearchParams(search.toString());
             params.set("target", e.target.value); params.delete("run");
-            router.replace(`${pathname}?${params.toString()}`);
-          }}
-        >
-          {caps?.targets ? (
-            Object.entries(caps.targets).map(([k, t]) => (
-              <option value={k} key={k}>
-                {t.label} ({t.unit})
-              </option>
-            ))
-          ) : (
-            <option value="precip_24h">Precipitation (24h) (mm)</option>
-          )}
-        </select>
-      </label>
-      {targetInfo && (
-        <p className="forecast-small">
-          {targetInfo.label} · native step {targetInfo.composite_days} day
-          {targetInfo.composite_days > 1
-            ? "s (composite — value is valid only after the full window and publication delay)"
-            : ""}
-          {" · "}source {targetSource}
-          {caps?.earthdata_products?.[targetSource]
-            ? ` · ${caps.earthdata_products[targetSource].note}`
-            : ""}
-        </p>
-      )}
-      {error && (
-        <div role="alert" className="forecast-notice">
-          {error}
+            router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+          }}>
+            {caps?.targets ? Object.entries(caps.targets).map(([k, t]) =>
+              <option value={k} key={k}>{targetLabel(k, t.label)}</option>) : <option value="precip_24h">Rainfall</option>}
+          </select>
+        </label>
+        <div className="ml-actions">
+          <button className="ml-generate" disabled={!!busy || adminLocked || running || !caps ||
+            (!datasets.length && !active.length && (isEarthdata ? caps.earthdata_credentials?.configured === false : !caps.credentials.configured))}
+            onClick={() => void act("generate", { variable: target })}>
+            <Icon name="sparkles" size={16} /> {running || busy === "generate" ? "Preparing dataset forecast…" : "Generate forecast from datasets"}
+          </button>
         </div>
-      )}
+      </div>
+      {published.length > 0 && <nav className="ml-saved-links" aria-label="Saved forecasts">
+        <span>Saved forecasts</span>
+        {published.map(run => <Link key={run.run_id} href={savedHref(run)}
+          className={run.quality_status === "experimental_preview" ? "is-preview" : ""}
+          aria-label={`${caps?.targets?.[run.target || ""]?.label || run.target} — View saved forecast`}>
+          {targetLabel(run.target || "", caps?.targets?.[run.target || ""]?.label)}
+          {run.quality_status === "experimental_preview" && <small>Preview</small>}<Icon name="arrow" size={13} />
+        </Link>)}
+      </nav>}
+      {error && <div role="alert" className="forecast-notice">{error}</div>}
+      {adminLocked && <p className="forecast-small">Generation requires administrator access.</p>}
+      {running && <div className="ml-job-progress" role="status">
+        <div><strong>{job?.checkpoint.phase === "ingest" ? "Getting historical records" : "Preparing your forecast"}</strong>
+          <button disabled={!!busy || adminLocked} onClick={() => void jobAction("cancel")}>Cancel</button></div>
+        <progress value={job?.progress || .05} max={1} />
+        <p>{typeof job?.checkpoint.message === "string" ? job.checkpoint.message : "Your job continues if you leave this page."}</p>
+      </div>}
+      {job && ["failed", "cancelled"].includes(job.status) && <div className="forecast-notice" role="status">
+        <span>{job.error || "Generation cancelled."}</span> <button disabled={!!busy || adminLocked} onClick={() => void jobAction("retry")}>Retry job</button>
+      </div>}
+      {readyForecast && prediction ? <ForecastResult prediction={prediction} label={targetInfo?.label || target} target={target}
+        savedHref={savedHref(prediction)} archived={!!artifactId} onExport={() => {
+          const url = URL.createObjectURL(new Blob([JSON.stringify({ location_id: id, target, forecast: prediction, models: targetModels, datasets }, null, 2)], { type: "application/json" }));
+          const link = document.createElement("a"); link.href = url;
+          link.download = `iris-${id}-${target}-${prediction.run_id}.json`; link.click();
+          URL.revokeObjectURL(url);
+        }} /> : !running && <div className="ml-empty-state" role="status">
+          <Icon name="activity" size={34} />
+          <h3>{targetModels.some(m => m.state === "rejected") ? "Explore an experimental preview" : "Your next forecast starts here"}</h3>
+          <p>{targetModels.some(m => m.state === "rejected") ? "Generate to view this model with its measured error." : "Choose a target and generate from historical data."}</p>
+          {prediction?.state === "unavailable" && <details><summary>Why is there no forecast?</summary><p>Prediction unavailable: {prediction.reason}</p>
+            <ul>{prediction.horizons?.map(h => <li key={h.horizon}>Window {h.horizon + 1}: {h.reason}</li>)}</ul></details>}
+        </div>}
+      <div className="ml-technical-details">
+      {targetModels.length > 0 && <details className="ml-datasets">
+        <summary>Model evaluation ({targetModels.length})</summary>
+        <div className="forecast-table"><table>
+          <thead><tr><th>Model / horizon</th><th>State</th><th>Model MAE</th><th>Best baseline MAE</th><th>Interval coverage</th><th>Evidence</th></tr></thead>
+          <tbody>{targetModels.map(model => <tr key={model.model_id}>
+            <td>{model.model_id} / {model.horizon_index + 1}</td><td>{model.state}
+              {model.state === "eligible" && <button disabled={!!busy || adminLocked} onClick={() => void activateModel(model.model_id)}>Activate model</button>}
+            </td><td>{number(model.metrics.model_mae)}</td><td>{number(model.metrics.baseline_mae)}</td>
+            <td>{model.metrics.coverage_80 == null ? "—" : `${number(model.metrics.coverage_80 * 100, 0)}%`}</td>
+            <td>{model.eligibility_reasons.join(" ") || `${model.metrics.n_eval || 0} held-out cases`}</td>
+          </tr>)}</tbody>
+        </table></div>
+      </details>}
+      <details className="ml-datasets"><summary>Source data &amp; pipeline status</summary>
       <div className="ml-grid">
         <article>
           <span>Credentials</span>
@@ -295,22 +328,14 @@ export function MlForecastSection({ id, artifactId }: { id: string; artifactId?:
           </p>
         </article>
       </div>
-      {job && (
-        <p className="forecast-small" aria-live="polite">
-          Job {job.job_id} ({job.kind}): {job.status}
-          {job.status === "running" && ` · ${(100 * job.progress).toFixed(0)}%`}
-          {typeof job.checkpoint.message === "string" && ` · ${job.checkpoint.message}`}
-          {job.error && ` · ${job.error}`}
-          {running && <button disabled={!!busy || adminLocked} onClick={() => void jobAction("cancel")}>Cancel local job</button>}
-          {["failed", "cancelled"].includes(job.status) && <button disabled={!!busy || adminLocked} onClick={() => void jobAction("retry")}>Retry job</button>}
-        </p>
-      )}
-      <div className="ml-actions">
-        <button className="ml-generate" disabled={!!busy || adminLocked || running || !caps ||
-          (isEarthdata ? caps.earthdata_credentials?.configured === false : !caps.credentials.configured)}
-          onClick={() => void act("generate", { variable: target })}>
-          {running ? "Preparing dataset forecast…" : "Generate forecast from datasets"}
-        </button>
+        <p className="forecast-small">{targetInfo?.label} ? source {targetSource} ? native step {targetInfo?.composite_days || 1} day(s){(targetInfo?.composite_days || 1) > 1 ? " composite" : ""}.</p>
+        <p className="forecast-small">{caps?.earthdata_products?.[targetSource]?.note}</p>
+        {job && <p className="forecast-small">Job {job.job_id}: {job.status}</p>}
+      </details>
+      <details className="ml-datasets">
+        <summary>Advanced pipeline controls</summary>
+        <p className="forecast-small">Generate runs the complete workflow. These controls run individual steps for inspecting datasets and models.</p>
+        <div className="ml-actions">
         <button
           disabled={
             !!busy ||
@@ -365,79 +390,10 @@ export function MlForecastSection({ id, artifactId }: { id: string; artifactId?:
           {busy === "predict" ? "Predicting…" : "Predict from active models"}
         </button>
       </div>
-      {adminLocked && (
-        <p className="forecast-small">
-          Pipeline mutations require an administrator token in this deployment.
-        </p>
-      )}
-      {targetModels.length > 0 && <details className="ml-datasets">
-        <summary>Model evaluation ({targetModels.length})</summary>
-        <div className="forecast-table"><table>
-          <thead><tr><th>Model / horizon</th><th>State</th><th>Model MAE</th><th>Best baseline MAE</th><th>Interval coverage</th><th>Evidence</th></tr></thead>
-          <tbody>{targetModels.map(model => <tr key={model.model_id}>
-            <td>{model.model_id} / {model.horizon_index + 1}</td><td>{model.state}
-              {model.state === "eligible" && <button disabled={!!busy || adminLocked} onClick={() => void activateModel(model.model_id)}>Activate model</button>}
-            </td><td>{number(model.metrics.model_mae)}</td><td>{number(model.metrics.baseline_mae)}</td>
-            <td>{model.metrics.coverage_80 == null ? "—" : `${number(model.metrics.coverage_80 * 100, 0)}%`}</td>
-            <td>{model.eligibility_reasons.join(" ") || `${model.metrics.n_eval || 0} held-out cases`}</td>
-          </tr>)}</tbody>
-        </table></div>
-      </details>}
-      {prediction &&
-        (prediction.state === "unavailable" ? (
-          <p className="forecast-small" role="status">
-            Prediction unavailable: {prediction.reason}
-            {prediction.horizons?.length
-              ? ` (${prediction.horizons.map((h) => `h${h.horizon}: ${h.reason}`).join("; ")})`
-              : ""}
-          </p>
-        ) : (
-          <>
-          <p className="forecast-small">
-            Experimental local ML forecast{prediction.stale ? " · snapshot expired; generate a fresh forecast" : ""}.
-            {prediction.latest_input_at && ` Latest input: ${prediction.latest_input_at.slice(0, 10)}`}
-            {prediction.input_age_hours != null && ` · ${number(prediction.input_age_hours / 24, 1)} days old`}
-            {" "}Intervals show measured model uncertainty; source publication times are estimated.
-          </p>
-          <div className="ml-forecast-chart"><ChartCanvas option={forecastChart} label={`${targetInfo?.label || target} local forecast with median and 10th–90th percentile limits`} /></div>
-          <div className="forecast-table">
-            <table>
-              <caption>
-                Iris ML run {prediction.run_id} · issued {prediction.issued_at} ·{" "}
-                {prediction.uncertainty_method}
-              </caption>
-              <thead>
-                <tr>
-                  <th>Window</th>
-                  <th>q10</th>
-                  <th>Median</th>
-                  <th>q90</th>
-                  <th>Unit</th>
-                </tr>
-              </thead>
-              <tbody>
-                {prediction.predictions?.map((w) => (
-                  <tr key={w.window_start}>
-                    <td>
-                      {w.window_start.slice(0, 10)} → {w.window_end.slice(0, 10)}
-                    </td>
-                    <td>{number(w.q10)}</td>
-                    <td>{number(w.q50)}</td>
-                    <td>{number(w.q90)}</td>
-                    <td>{w.unit}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <button onClick={() => {
-            const url = URL.createObjectURL(new Blob([JSON.stringify({ location_id: id, target, forecast: prediction, models: targetModels, datasets }, null, 2)], { type: "application/json" }));
-            const link = document.createElement("a"); link.href = url;
-            link.download = `iris-${id}-${target}-${prediction.run_id}.json`; link.click();
-            URL.revokeObjectURL(url);
-          }}>Export forecast and evidence</button>
-          </>
-        ))}
+      </details>
+      <details className="ml-datasets"><summary>How it works</summary>
+        <p className="forecast-small">Historical records → local model → measured evaluation → forecast. Models that miss quality checks remain visible as experimental previews with their error comparison. New NASA extractions can take hours or longer.</p>
+      </details>
       {reports.length > 0 && (
         <details className="ml-trends">
           <summary>Historical trend reports (retrospective — not forecast features)</summary>
@@ -500,6 +456,7 @@ export function MlForecastSection({ id, artifactId }: { id: string; artifactId?:
           </ul>
         </details>
       )}
+      </div>
     </section>
   );
 }

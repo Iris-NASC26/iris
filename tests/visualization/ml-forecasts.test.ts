@@ -141,6 +141,16 @@ it("accepts signed target values without allowing negative rainfall", () => {
   assert.equal(parseMlPrediction(signed).predictions![0].q50, -.1);
 });
 
+it("preserves explicit preview quality and rejects nonfinite error percentages", () => {
+  const run = { quality_status: "experimental_preview", predictions: [{
+    window_start: "2026-11-16T00:00:00Z", window_end: "2026-11-17T00:00:00Z",
+    q10: .2, q50: .3, q90: .4, unit: "m3/m3", quality_status: "experimental_preview", error_vs_baseline_pct: 8.2,
+  }] };
+  assert.equal(parseMlPrediction(run).predictions![0].error_vs_baseline_pct, 8.2);
+  assert.throws(() => parseMlPrediction({ ...run, predictions: [{ ...run.predictions[0], error_vs_baseline_pct: Infinity }] }));
+  assert.throws(() => parseMlPrediction({ ...run, quality_status: "guaranteed" }));
+});
+
 it("validates trend reports including BH q-values", () => {
   const report = {
     family_id: "annual_total",

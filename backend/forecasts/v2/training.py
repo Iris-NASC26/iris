@@ -1,8 +1,9 @@
 """Chronological training + eligibility gates + model registry.
 
 HistGradientBoostingRegressor (median + q10/q90 quantile losses), one direct
-model per 24h window. Baselines are always evaluated on the same folds — a
-model is only publishable when it beats the strongest applicable baseline.
+model per native window. Baselines are evaluated on the same folds. Only
+eligible models activate; evaluated rejected models can be loaded explicitly
+for labeled experimental previews without changing their registry state.
 
 sklearn/numpy are imported lazily inside train() so the module — and every
 gate — remains importable and testable in minimal environments.
@@ -129,7 +130,7 @@ def list_models(location_id: str) -> list[dict]:
     return out
 
 
-def load_verified(location_id: str, model_id: str) -> dict | None:
+def load_verified(location_id: str, model_id: str, *, allow_rejected: bool = False) -> dict | None:
     """Load a model only when its stored bytes match the registry hash."""
     registry_p = MODELS_ROOT / location_id / "registry.json"
     mdir = MODELS_ROOT / location_id / model_id
@@ -137,7 +138,8 @@ def load_verified(location_id: str, model_id: str) -> dict | None:
         return None
     registry = json.loads(registry_p.read_text())
     entry = registry["models"].get(model_id)
-    if not entry or entry["state"] not in ("eligible", "active"):
+    states = ("eligible", "active", "rejected") if allow_rejected else ("eligible", "active")
+    if not entry or entry["state"] not in states:
         return None
     if not (mdir / "model.pkl").exists():
         return None

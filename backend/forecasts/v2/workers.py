@@ -296,6 +296,9 @@ def refresh_predictions():
     for loc in REGIONS:
         targets = {m.get("metrics", {}).get("target", "precip_24h")
                    for m in training.list_models(loc) if m["state"] == "active"}
+        from .variables import VARIABLES
+        targets.update(target for target in VARIABLES
+                       if predict.current(loc, target).get("quality_status") == "experimental_preview")
         for target in targets:
             current = predict.current(loc, target)
             if current.get("state") == "available" and not current.get("stale"):

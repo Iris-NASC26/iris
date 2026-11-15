@@ -78,9 +78,9 @@ def next_queued() -> str | None:
     return None
 
 
-def latest(location_id: str, target: str) -> dict | None:
+def latest(location_id: str, target: str, kind: str | None = None) -> dict | None:
     with _db() as con:
-        rows = con.execute("SELECT job_id,checkpoint FROM v2_jobs WHERE location_id=? ORDER BY created_at DESC LIMIT 100", (location_id,)).fetchall()
+        rows = con.execute("SELECT job_id,checkpoint FROM v2_jobs WHERE location_id=? AND (? IS NULL OR kind=?) ORDER BY created_at DESC LIMIT 100", (location_id, kind, kind)).fetchall()
     for job_id, checkpoint in rows:
         if json.loads(checkpoint).get("variable", "precip_24h") == target:
             return get(job_id)

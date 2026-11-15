@@ -22,7 +22,7 @@ async function proxy(
       (path.length === 4 && path[1] === "runs" && isGet) ||
       (forecastRegion(path[1]) &&
         ((path.length === 3 &&
-          ["history", "datasets", "models", "trends", "prediction", "jobs"].includes(path[2]) &&
+          ["history", "datasets", "models", "trends", "prediction", "published", "jobs"].includes(path[2]) &&
           isGet) ||
           (path.length === 3 &&
             ["ingest", "datasets", "train", "trends", "predict", "refresh", "generate"].includes(
