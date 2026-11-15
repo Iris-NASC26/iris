@@ -33,11 +33,15 @@ def test_composed_lifespan_preserves_state_and_stops_worker(monkeypatch):
     monkeypatch.setattr(
         module, "stop_forecasts", lambda: events.append("forecast-stop")
     )
+    monkeypatch.setattr(module.forecast_workers, "start", lambda: events.append("dataset-start"))
+    monkeypatch.setattr(module.forecast_workers, "stop", lambda: events.append("dataset-stop"))
     with TestClient(module.app):
-        assert events == ["original-start", "forecast-start"]
+        assert events == ["original-start", "forecast-start", "dataset-start"]
     assert events == [
         "original-start",
         "forecast-start",
+        "dataset-start",
         "forecast-stop",
+        "dataset-stop",
         "original-stop",
     ]

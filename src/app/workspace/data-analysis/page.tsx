@@ -1,8 +1,8 @@
 "use client";
 
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState, type RefObject } from "react";
-import { useSearchParams } from "next/navigation";
-import { ForecastWorkspace } from "@/features/forecasts/ForecastWorkspace";
+import { redirect, useSearchParams } from "next/navigation";
+import { forecastHref } from "@/features/forecasts/model";
 import Link from "next/link";
 import { Icon } from "@/components/ui/Icon";
 import { useDashboard } from "@/context/DashboardContext";
@@ -3869,7 +3869,8 @@ function CaseFileDiagnosticsSection({
 function AnalysisRoute() {
   const params = useSearchParams();
   const id = params.get('forecastId');
-  return id ? <ForecastWorkspace key={id} id={id} artifactId={params.get("run") || undefined}/> : <HistoricalAnalysis/>;
+  if (id) redirect(forecastHref(id, params.get("run")));
+  return <HistoricalAnalysis/>;
 }
 export default function DashboardAnalysis() {
   return <Suspense fallback={<div className="dashboard-page-inner">Loading workspace...</div>}><AnalysisRoute/></Suspense>;
