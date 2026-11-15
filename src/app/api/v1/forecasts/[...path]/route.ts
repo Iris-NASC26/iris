@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { forecastRegion } from "@/features/forecasts/model";
+import { FASTAPI_BASE as BASE } from "@/lib/backendConfig";
 
 export const dynamic = "force-dynamic";
-const BASE = process.env.FASTAPI_URL || "http://127.0.0.1:8000";
 async function proxy(
   request: Request,
   context: { params: Promise<{ path: string[] }> },

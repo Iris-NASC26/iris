@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { CUBE_LAYERS, CUBE_VERSION, SNAPSHOT_TIMESTAMP_UTC } from "@/lib/srsCubeAndScienceEngine";
-
-const FASTAPI_BASE = process.env.FASTAPI_URL || "http://127.0.0.1:8000";
+import { FASTAPI_BASE } from "@/lib/backendConfig";
 
 export async function GET() {
   try {

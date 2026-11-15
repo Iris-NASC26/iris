@@ -6,7 +6,7 @@ import type {
   ResearchWorkItem,
 } from "@/lib/dataRetrievalEngine";
 
-const FASTAPI_BASE = process.env.FASTAPI_URL || "http://127.0.0.1:8000";
+import { FASTAPI_BASE } from "@/lib/backendConfig";
 const OPENALEX_WORKS_URL = "https://api.openalex.org/works";
 const DATACITE_DOIS_URL = "https://api.datacite.org/dois";
 const DOI_REGEX = /(10\.\d{4,9}\/[-._;()/:A-Za-z0-9]+)/i;

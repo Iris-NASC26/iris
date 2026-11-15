@@ -95,8 +95,8 @@ The documentation site is a static folder with no build step. To deploy:
 
 The main app reads the docs URL from the environment variable `NEXT_PUBLIC_DOCS_URL`.
 
-- **Development default:** `http://localhost:3001` (defined in `src/lib/docs.ts`)
-- **Production:** Set `NEXT_PUBLIC_DOCS_URL=https://docs.iris.earth` in deployment environment variables
+- **Default:** `https://docs.projectiris.earth/` (defined in `src/lib/docs.ts`)
+- **Override:** Set `NEXT_PUBLIC_DOCS_URL` in environment variables (e.g., `http://localhost:3001` for local development)
 
 ## Contributing
 

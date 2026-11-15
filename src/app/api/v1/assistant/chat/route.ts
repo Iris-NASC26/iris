@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-
-const FASTAPI_BASE = process.env.FASTAPI_URL || "http://127.0.0.1:8000";
+import { FASTAPI_BASE } from "@/lib/backendConfig";
 
 export async function POST(request: Request) {
   try {
@@ -24,7 +23,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         error:
-          "Could not reach the Python FastAPI backend at http://127.0.0.1:8000. Ensure `uvicorn main:app --port 8000` is running in `backend/`.",
+          `Could not reach the Python FastAPI backend at ${FASTAPI_BASE}.`,
         detail: String(error),
       },
       { status: 502 },
