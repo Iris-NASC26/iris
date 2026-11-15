@@ -1,4 +1,10 @@
 .forecast-workspace {
+  /* Theme aliases — these panels previously fell back to a hardcoded dark
+     palette in light mode because the vars were never defined. */
+  --line: var(--border);
+  --surface: var(--card);
+  --surface-2: var(--card-soft);
+  --text-dim: var(--muted);
   color: var(--text);
   max-width: 1500px;
   margin: 0 auto;
