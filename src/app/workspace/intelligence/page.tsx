@@ -59,7 +59,7 @@ function KeywordSourceReview({
     <section className="si-review-card" aria-label="Review keywords and data sources">
       <div className="si-review-heading">
         <div>
-          <span className="si-review-eyebrow">Review before searching</span>
+          <span className="si-review-eyebrow">Proposed search scope</span>
           <h3>{intent.subject_domain}</h3>
         </div>
         <span className="si-review-category">{intent.scientific_category}</span>
@@ -73,8 +73,7 @@ function KeywordSourceReview({
 
       <div className="si-review-field">
         <div className="si-review-field-title">
-          <strong>Search keywords</strong>
-          <span>Add or remove terms</span>
+          <strong>Keywords</strong>
         </div>
         <div className="si-keyword-list">
           {keywords.map((keyword) => (
@@ -101,7 +100,7 @@ function KeywordSourceReview({
               aria-label="Add a search keyword"
               disabled={loading}
               onChange={(event) => setNewKeyword(event.target.value)}
-              placeholder="Add keyword"
+              placeholder="+ Add keyword"
               value={newKeyword}
             />
             <button disabled={loading || !newKeyword.trim()} type="submit">
@@ -139,7 +138,6 @@ function KeywordSourceReview({
       </div>
 
       <div className="si-review-footer">
-        <span>Catalogs are queried only after you confirm.</span>
         <button
           className="si-submit-btn"
           disabled={loading || keywords.length === 0 || providers.length === 0}
@@ -311,21 +309,14 @@ export default function SystemIntelligencePage() {
 
   return (
     <div className="si-chat-workspace">
-      <section className="si-chat-shell" aria-label="System Intelligence chat">
-        <header className="si-chat-header">
-          <div>
-            <span className="dashboard-kicker">
-              <Icon name="sparkles" size={14} /> System Intelligence
-            </span>
-            <h1>Explore a research topic</h1>
-            <p>Describe what you want to study. Review keywords and sources before searching.</p>
-          </div>
-          {(siConversationStage !== "topic_discovery" || discoveryResult.products.length > 0) && (
+      <section className="si-chat-shell" aria-label="Iris Intelligence chat">
+        {(siConversationStage !== "topic_discovery" || discoveryResult.products.length > 0) && (
+          <div className="si-chat-toolbar">
             <button className="si-new-topic-btn" disabled={loading} onClick={startNewTopic} type="button">
               <Icon name="sparkles" size={14} /> New topic
             </button>
-          )}
-        </header>
+          </div>
+        )}
 
         <div className="si-chat-thread" ref={threadRef} role="log" aria-live="polite">
           {siTurns.map((turn) => (
@@ -458,11 +449,6 @@ export default function SystemIntelligencePage() {
               <Icon name="arrow" size={15} />
             </button>
           </form>
-          <div className="si-composer-note">
-            {siConversationStage === "keyword_confirmation"
-              ? "Choose keywords and sources in the review card above."
-              : "No data catalogs are queried until you confirm the proposed search."}
-          </div>
         </footer>
       </section>
     </div>

@@ -19,7 +19,7 @@ const navigation: Array<{
   {
     label: "Investigate",
     items: [
-      { to: "/workspace/intelligence", text: "System Intelligence", icon: "sparkles" },
+      { to: "/workspace/intelligence", text: "Iris Intelligence", icon: "sparkles" },
       { to: "/workspace/data-selection", text: "Data Selection", icon: "box" },
       { to: "/workspace/data-preview", text: "Data Preview", icon: "layers" },
       { to: "/workspace/data-analysis", text: "Data Analysis", icon: "activity" },
@@ -43,15 +43,15 @@ const navigation: Array<{
 ];
 
 const pageTitles: Record<string, [string, string]> = {
-  "/workspace/intelligence": ["System Intelligence", "Identify domain keywords & discover live time-series datasets"],
-  "/workspace/data-selection": ["Data Selection", "Select time-series products & configure date range, region, and frequency"],
-  "/workspace/data-preview": ["Data Preview", "Inspect retrieved time-series observations & quality metrics before analysis"],
+  "/workspace/intelligence": ["Iris Intelligence", "Identify domain keywords and discover live Earth observation time-series datasets"],
+  "/workspace/data-selection": ["Data Selection", "Select time-series products and configure date range, region, and frequency"],
+  "/workspace/data-preview": ["Data Preview", "Inspect retrieved time-series observations and quality metrics before analysis"],
   "/workspace/data-analysis": ["Data Analysis · Case File", "Analyze extracted series using scientific Case File methods"],
-  "/workspace/visualize": ["Plot & Visualize · Case File", "Explore retrieved data, compare locations and inspect temporal patterns"],
-  "/workspace/globe": ["Living Globe", "Inspect real NASA spatial fields and linked observations"],
-  "/workspace/forecasts": ["Forecasts", "Explore historical data, local predictions and forecast evidence"],
+  "/workspace/visualize": ["Plot & Visualize · Case File", "Explore retrieved data, compare locations, and inspect temporal patterns"],
+  "/workspace/globe": ["Living Globe", "Inspect real NASA spatial fields and linked global observations"],
+  "/workspace/forecasts": ["Forecasts", "Explore historical data, local predictions, and forecast evidence"],
   "/workspace/case-studies": ["Case Studies & Guided Investigations", "Load a solved investigation or step through checkpointed NASA case files"],
-  "/workspace/research": ["Existing Research", "Connect the active dataset to published work"],
+  "/workspace/research": ["Existing Research", "Connect the active dataset to published literature and citations"],
 };
 
 function DashboardFrame({ children }: { children: ReactNode }) {
@@ -227,8 +227,7 @@ function DashboardFrame({ children }: { children: ReactNode }) {
             <span />
           </button>
           <div>
-            <span>{title[1]}</span>
-            <h1>{title[0]}</h1>
+            <h1>{title[1]}</h1>
           </div>
           <div className="dashboard-context-chip">
             {forecastPage ? <><span><i/>Iris local models</span><strong>Dataset forecasts</strong></> : activeInvestigation ? <><span><i/>Point precipitation</span><strong>{activeInvestigation.point_name}</strong></> : isEmptyDataPreview ? (

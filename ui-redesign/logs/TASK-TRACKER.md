@@ -21,12 +21,12 @@
 - [x] **T1.7** Verify zero edits to `src/app/workspace/layout.tsx` (all states, `useEffect`s, handlers, and JSX identical) and run unit tests + production build
 
 ## Phase 2 — Core Workspace Pages
-- [x] **T2.1** System Intelligence (`.si-*`, `.si-chat-*`, `.si-review-*`) — HeroUI v3 Card, SearchField, Chip, and Composer styling
-- [x] **T2.2** Data Selection (`.ds-*`) — HeroUI v3 Product Cards, Filter Controls, Source Checkboxes, and Retrieval Queue styling
-- [x] **T2.3** Data Preview (`.dp-*`, `.preview-*`, `.data-table-*`) — HeroUI v3 Table, Quality Metric Chips, and Control Cards
+- [x] **T2.1** Iris Intelligence (`.si-*`, `.si-chat-*`, `.si-review-*`) — Full right pane AI chat workspace, removed bounding box, top action toolbar, HeroUI v3 Card, SearchField, Chip, and Composer styling
+- [x] **T2.2** Data Selection (`.ds-*`) — Multi-dataset parameter switcher tabs, (i) tooltips for Variable/Frequency/Aggregation, Global Average planetary extraction backend, catalog official website deep links, sorting/filtering by match % and data source, primary/queued dataset badges, and structured parameter chips
+- [x] **T2.3** Data Preview (`.dp-*`, `.preview-*`, `.data-table-*`) — Modern HeroUI empty state card, removed top pipeline banner, parameter chips (frequency, window, region, aggregation), interactive (i) tooltips on all 5 KPI cards, larger regional map (340px), and compact 10-row CSV formatted data table
 
 ## Phase 3 — Data Analysis Workbench & Case Studies / Research
-- [x] **T3.1** Data Analysis Workbench (`.da-*`) — Method cards, compatibility badges, info popovers, step sections, and primary/clear buttons
+- [x] **T3.1** Data Analysis Workbench (`.da-*`) — Locked window scroll past left menu, replaced "Step" with "Analysis 1/2/...", moved "Explore in Visualization Studio" to prominent top-right primary CTA button, added multi-analysis view filter toggle, fixed dual observation period slider, and added interactive (i) parameter tooltips across statistical methods
 - [x] **T3.2** Existing Research & Case Studies (`.research-*`, `.case-*`, `src/features/hazards/hazards.css`)
 
 ## Phase 4 — Forecasts & ML Forecast Workbench

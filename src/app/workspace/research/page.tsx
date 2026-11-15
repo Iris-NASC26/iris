@@ -496,7 +496,7 @@ function ResearchOnboardingGuide({
           </div>
           <h3>Find research for a particular dataset</h3>
           <p>
-            Select a dataset in <strong>System Intelligence</strong> or{" "}
+            Select a dataset in <strong>Iris Intelligence</strong> or{" "}
             <strong>Data Selection</strong> and complete its retrieval. Once the dataset is
             retrieved, its metadata (variable name, parameter code, satellite mission, provider
             agency, and citation DOI) is automatically linked here and unlocks the{" "}

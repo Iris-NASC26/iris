@@ -820,13 +820,6 @@ function HistoricalAnalysis() {
         <aside className="control-panel">
           <div className="panel-scroll">
             <section className="wizard-section">
-              <div className="section-kicker">Data Analysis Workbench</div>
-              <h1>Scientific Case File</h1>
-              <p className="section-copy">
-                Configure dataset treatment, inspect method compatibility, adjust statistical
-                parameters, and execute analyses step-by-step or in batch.
-              </p>
-
               {/* DATASET PROFILE & COMPATIBILITY SUMMARY */}
               <div className="da-dataset-profile" aria-label="Dataset compatibility profile">
                 <div className="da-profile-top">
@@ -897,57 +890,70 @@ function HistoricalAnalysis() {
               </div>
 
               {!extractedPreview && (
-                <>
+                <div className="da-period-control">
                   <div className="range-heading">
                     <div className="field-label">Observation period</div>
                     <span className="year-readout">
-                      {startYear} — {endYear}
+                      {startYear} — {endYear} ({endYear - startYear + 1} yrs)
                     </span>
                   </div>
-                  <div className="range-track" aria-hidden="true">
-                    <span
-                      style={{
-                        left: `${Math.max(0, ((startYear - 2000) / 25) * 100)}%`,
-                        right: `${Math.max(0, 100 - ((endYear - 2000) / 25) * 100)}%`,
-                      }}
-                    />
-                  </div>
-                  <div className="range-inputs">
-                    <input
-                      aria-label="Start year"
-                      min="2000"
-                      max={endYear - 1}
-                      type="range"
-                      value={startYear}
-                      onChange={(event) => {
-                        setStartYear(Number(event.target.value));
-                      }}
-                    />
-                    <input
-                      aria-label="End year"
-                      min={startYear + 1}
-                      max="2025"
-                      type="range"
-                      value={endYear}
-                      onChange={(event) => {
-                        setEndYear(Number(event.target.value));
-                      }}
-                    />
+                  <div className="da-dual-slider-wrap">
+                    <div className="da-dual-slider-track" aria-hidden="true">
+                      <span
+                        className="da-dual-slider-fill"
+                        style={{
+                          left: `${Math.max(0, ((startYear - 2000) / 25) * 100)}%`,
+                          right: `${Math.max(0, 100 - ((endYear - 2000) / 25) * 100)}%`,
+                        }}
+                      />
+                    </div>
+                    <div className="da-dual-slider-inputs">
+                      <input
+                        aria-label="Start year"
+                        min="2000"
+                        max={endYear - 1}
+                        type="range"
+                        value={startYear}
+                        style={{ zIndex: startYear > 2012 ? 4 : 3 }}
+                        onChange={(event) => {
+                          setStartYear(Number(event.target.value));
+                        }}
+                      />
+                      <input
+                        aria-label="End year"
+                        min={startYear + 1}
+                        max="2025"
+                        type="range"
+                        value={endYear}
+                        style={{ zIndex: startYear > 2012 ? 3 : 4 }}
+                        onChange={(event) => {
+                          setEndYear(Number(event.target.value));
+                        }}
+                      />
+                    </div>
                   </div>
                   <div className="range-labels">
                     <span>2000</span>
                     <span>2025</span>
                   </div>
-                </>
+                </div>
               )}
 
               <section className="analysis-options" aria-labelledby="analysis-options-title">
                 <div className="field-label" id="analysis-options-title">
                   Data manipulation &amp; preprocessing
                 </div>
-                <label className="analysis-select-label" htmlFor="seasonal-adjustment">
-                  Seasonal treatment
-                </label>
+                <div className="da-param-label-row">
+                  <label className="analysis-select-label" htmlFor="seasonal-adjustment">
+                    Seasonal treatment
+                  </label>
+                  <span className="da-info-trigger" tabIndex={0} aria-label="Seasonal treatment info">
+                    i
+                    <span className="da-info-tooltip" role="tooltip">
+                      Decomposes intra-annual cycles. STL uses LOESS smoothing to extract seasonal, trend, and residual components. Climatology subtracts multi-year monthly averages.
+                    </span>
+                  </span>
+                </div>
                 <select
                   id="seasonal-adjustment"
                   value={seasonalAdjustment}
@@ -1055,8 +1061,8 @@ function HistoricalAnalysis() {
                                     }`}
                                   >
                                     {isParamsModified
-                                      ? `Step ${completedStep.stepNumber} · Params changed`
-                                      : `Step ${completedStep.stepNumber} · Done`}
+                                      ? `Analysis ${completedStep.stepNumber} · Params changed`
+                                      : `Analysis ${completedStep.stepNumber} · Done`}
                                   </span>
                                 )}
                               </div>
@@ -1150,8 +1156,8 @@ function HistoricalAnalysis() {
                                   : completedStep
                                     ? isParamsModified
                                       ? "Re-run with new params"
-                                      : "Re-run step"
-                                    : "Run step"}
+                                      : "Re-run analysis"
+                                    : "Run analysis"}
                               </span>
                             </button>
                           </div>
@@ -1251,19 +1257,6 @@ function HistoricalAnalysis() {
         </aside>
 
         <section className="analysis-panel" aria-live="polite">
-          {completedSteps.length > 0 && extractedPreview && (
-            <div style={{ padding: "16px 32px 0" }}>
-              <Link
-                className="btn btn-primary"
-                href={`/workspace/visualize?jobId=${encodeURIComponent(
-                  extractedPreview.job_id,
-                )}`}
-              >
-                Explore in Visualization Studio →
-              </Link>
-            </div>
-          )}
-
           {analysis === "loading" && completedSteps.length === 0 && <LoadingState />}
 
           {analysis === "error" && completedSteps.length === 0 && (
@@ -1294,6 +1287,7 @@ function HistoricalAnalysis() {
             <CumulativeResultsPane
               latestCaseFile={latestCaseFile}
               completedSteps={completedSteps}
+              extractedPreviewJobId={extractedPreview?.job_id}
               isRunningMore={analysis === "loading"}
               runningMethods={RunningMethods}
               analysisError={analysisError}
@@ -1339,7 +1333,15 @@ function MethodParameterControls({
         method === "pettitt" ||
         method === "case_file_diagnostics") && (
         <div className="da-param-row">
-          <label htmlFor={`param-alpha-${method}`}>Significance threshold (α)</label>
+          <div className="da-param-label-row">
+            <label htmlFor={`param-alpha-${method}`}>Significance threshold (α)</label>
+            <span className="da-info-trigger" tabIndex={0} aria-label="Significance threshold info">
+              i
+              <span className="da-info-tooltip" role="tooltip">
+                Probability threshold for rejecting the null hypothesis. α = 0.05 corresponds to standard 95% confidence; α = 0.01 provides stringent 99% confidence.
+              </span>
+            </span>
+          </div>
           <select
             id={`param-alpha-${method}`}
             value={String(parameters.alpha)}
@@ -1354,7 +1356,15 @@ function MethodParameterControls({
 
       {method === "ols" && (
         <div className="da-param-row">
-          <label htmlFor="param-ols-ac">Serial correlation adjustment</label>
+          <div className="da-param-label-row">
+            <label htmlFor="param-ols-ac">Serial correlation adjustment</label>
+            <span className="da-info-trigger" tabIndex={0} aria-label="Serial correlation adjustment info">
+              i
+              <span className="da-info-tooltip" role="tooltip">
+                Adjusts standard errors for temporal persistence using the Quenouille–Santer effective sample size (n_eff), avoiding false trend significance from autocorrelated red noise.
+              </span>
+            </span>
+          </div>
           <select
             id="param-ols-ac"
             value={parameters.ols_autocorrelation_adjustment ? "adjusted" : "unadjusted"}
@@ -1374,7 +1384,15 @@ function MethodParameterControls({
       {method === "hamed_rao_mk" && (
         <>
           <div className="da-param-row">
-            <label htmlFor="param-mk-corr">Variance formulation</label>
+            <div className="da-param-label-row">
+              <label htmlFor="param-mk-corr">Variance formulation</label>
+              <span className="da-info-trigger" tabIndex={0} aria-label="Variance formulation info">
+                i
+                <span className="da-info-tooltip" role="tooltip">
+                  Corrects the Mann–Kendall variance for auto-covariance among ranks up to lag k (Hamed & Rao 1998), preventing positive autocorrelation from exaggerating trend significance.
+                </span>
+              </span>
+            </div>
             <select
               id="param-mk-corr"
               value={parameters.mk_autocorrelation_correction}
@@ -1390,7 +1408,15 @@ function MethodParameterControls({
             </select>
           </div>
           <div className="da-param-row">
-            <label htmlFor="param-mk-lag">Max autocorrelation lag (k)</label>
+            <div className="da-param-label-row">
+              <label htmlFor="param-mk-lag">Max autocorrelation lag (k)</label>
+              <span className="da-info-trigger" tabIndex={0} aria-label="Max lag info">
+                i
+                <span className="da-info-tooltip" role="tooltip">
+                  Maximum number of monthly time lags checked for significant serial correlation in the rank series.
+                </span>
+              </span>
+            </div>
             <select
               id="param-mk-lag"
               value={String(parameters.mk_max_lag)}
@@ -1407,7 +1433,15 @@ function MethodParameterControls({
 
       {method === "seasonal_kendall" && (
         <div className="da-param-row">
-          <label htmlFor="param-sk-years">Min years per calendar month</label>
+          <div className="da-param-label-row">
+            <label htmlFor="param-sk-years">Min years per calendar month</label>
+            <span className="da-info-trigger" tabIndex={0} aria-label="Seasonal Kendall min years info">
+              i
+              <span className="da-info-tooltip" role="tooltip">
+                Minimum number of valid observed years required for a specific calendar month before including that month in the Mann–Kendall cross-season sum.
+              </span>
+            </span>
+          </div>
           <select
             id="param-sk-years"
             value={String(parameters.seasonal_kendall_min_years)}
@@ -1425,7 +1459,15 @@ function MethodParameterControls({
       {method === "sen_slope" && (
         <>
           <div className="da-param-row">
-            <label htmlFor="param-sen-ci">Rank confidence interval</label>
+            <div className="da-param-label-row">
+              <label htmlFor="param-sen-ci">Rank confidence interval</label>
+              <span className="da-info-trigger" tabIndex={0} aria-label="Sen slope confidence corridor info">
+                i
+                <span className="da-info-tooltip" role="tooltip">
+                  Two-sided non-parametric rank corridor for Sen's median slope estimator. Standard is 95% corridor.
+                </span>
+              </span>
+            </div>
             <select
               id="param-sen-ci"
               value={String(parameters.sens_confidence_level)}
@@ -1439,7 +1481,15 @@ function MethodParameterControls({
             </select>
           </div>
           <div className="da-param-row">
-            <label htmlFor="param-sen-scale">Display rate unit</label>
+            <div className="da-param-label-row">
+              <label htmlFor="param-sen-scale">Display rate unit</label>
+              <span className="da-info-trigger" tabIndex={0} aria-label="Display rate unit info">
+                i
+                <span className="da-info-tooltip" role="tooltip">
+                  Temporal rate normalization for reporting change: per decade or per year.
+                </span>
+              </span>
+            </div>
             <select
               id="param-sen-scale"
               value={parameters.sens_rate_scale}
@@ -1456,7 +1506,15 @@ function MethodParameterControls({
 
       {method === "pettitt" && (
         <div className="da-param-row">
-          <label htmlFor="param-pettitt-seg">Min observations per regime segment</label>
+          <div className="da-param-label-row">
+            <label htmlFor="param-pettitt-seg">Min observations per regime segment</label>
+            <span className="da-info-trigger" tabIndex={0} aria-label="Pettitt min segment info">
+              i
+              <span className="da-info-tooltip" role="tooltip">
+                Minimum consecutive observation steps required on either side of the candidate change point to declare a valid regime shift.
+              </span>
+            </span>
+          </div>
           <select
             id="param-pettitt-seg"
             value={String(parameters.pettitt_min_segment)}
@@ -1474,7 +1532,15 @@ function MethodParameterControls({
       {method === "anomalies" && (
         <>
           <div className="da-param-row">
-            <label htmlFor="param-anom-z">Extreme flagging threshold (|z| ≥ τ)</label>
+            <div className="da-param-label-row">
+              <label htmlFor="param-anom-z">Extreme flagging threshold (|z| ≥ τ)</label>
+              <span className="da-info-trigger" tabIndex={0} aria-label="Anomaly threshold info">
+                i
+                <span className="da-info-tooltip" role="tooltip">
+                  Standardized residual score departure threshold for highlighting extreme outliers and tail departures.
+                </span>
+              </span>
+            </div>
             <select
               id="param-anom-z"
               value={String(parameters.anomaly_z_threshold)}
@@ -1489,7 +1555,15 @@ function MethodParameterControls({
             </select>
           </div>
           <div className="da-param-row">
-            <label htmlFor="param-anom-disp">Scale dispersion estimator</label>
+            <div className="da-param-label-row">
+              <label htmlFor="param-anom-disp">Scale dispersion estimator</label>
+              <span className="da-info-trigger" tabIndex={0} aria-label="Dispersion estimator info">
+                i
+                <span className="da-info-tooltip" role="tooltip">
+                  Method for calculating anomaly spread: Median Absolute Deviation (MAD, outlier-robust) vs classical standard deviation (SD).
+                </span>
+              </span>
+            </div>
             <select
               id="param-anom-disp"
               value={parameters.anomaly_dispersion_method}
@@ -1509,7 +1583,15 @@ function MethodParameterControls({
 
       {method === "seasonal_fingerprint" && (
         <div className="da-param-row">
-          <label htmlFor="param-fp-cap">Heatmap color saturation cap (|z|)</label>
+          <div className="da-param-label-row">
+            <label htmlFor="param-fp-cap">Heatmap color saturation cap (|z|)</label>
+            <span className="da-info-trigger" tabIndex={0} aria-label="Heatmap color saturation info">
+              i
+              <span className="da-info-tooltip" role="tooltip">
+                Maximum absolute Z-score clamped at full saturation on the multi-year seasonal divergence heatmap.
+              </span>
+            </span>
+          </div>
           <select
             id="param-fp-cap"
             value={String(parameters.fingerprint_color_cap)}
@@ -1528,7 +1610,15 @@ function MethodParameterControls({
       {method === "case_file_diagnostics" && (
         <>
           <div className="da-param-row">
-            <label htmlFor="param-cf-horizon">Outlook continuation horizon</label>
+            <div className="da-param-label-row">
+              <label htmlFor="param-cf-horizon">Outlook continuation horizon</label>
+              <span className="da-info-trigger" tabIndex={0} aria-label="Outlook continuation horizon info">
+                i
+                <span className="da-info-tooltip" role="tooltip">
+                  Future projection period in years combining estimated trend and seasonal cycles for baseline outlook modeling.
+                </span>
+              </span>
+            </div>
             <select
               id="param-cf-horizon"
               value={String(parameters.outlook_horizon_years)}
@@ -1543,7 +1633,15 @@ function MethodParameterControls({
             </select>
           </div>
           <div className="da-param-row">
-            <label htmlFor="param-cf-stripes">Stripes min valid months/year</label>
+            <div className="da-param-label-row">
+              <label htmlFor="param-cf-stripes">Stripes min valid months/year</label>
+              <span className="da-info-trigger" tabIndex={0} aria-label="Stripes minimum valid months info">
+                i
+                <span className="da-info-tooltip" role="tooltip">
+                  Minimum number of valid observed months required in a calendar year to render that year in the warming stripes graphic.
+                </span>
+              </span>
+            </div>
             <select
               id="param-cf-stripes"
               value={String(parameters.stripes_min_months)}
@@ -1590,11 +1688,11 @@ function SelectionPrompt({
   return (
     <div className="empty-state">
       <div className="empty-kicker">
-        <span /> Ready for your step-by-step analysis
+        <span /> Ready for your analysis
       </div>
       <h2>Select methods to explore this {cadence.toLowerCase()} series</h2>
       <p>
-        Choose a seasonal treatment, adjust method parameters, and run analyses one step at a time
+        Choose a seasonal treatment, adjust method parameters, and run analyses individually
         or together. Each completed analysis method renders in its own dedicated section on this
         pane and is preserved while you add subsequent tests.
       </p>
@@ -1640,7 +1738,7 @@ function EmptyState() {
       </a>
       <div className="empty-features">
         <span>
-          <Icon name="activity" size={15} /> Step-by-step trend tests
+          <Icon name="activity" size={15} /> Statistical trend tests
         </span>
         <span>
           <Icon name="layers" size={15} /> Seasonal fingerprint
@@ -1713,6 +1811,7 @@ function LoadingState() {
 function CumulativeResultsPane({
   latestCaseFile,
   completedSteps,
+  extractedPreviewJobId,
   isRunningMore,
   runningMethods,
   analysisError,
@@ -1727,6 +1826,7 @@ function CumulativeResultsPane({
 }: {
   latestCaseFile: CaseFileAnalysisResponse;
   completedSteps: CompletedMethodStep[];
+  extractedPreviewJobId?: string;
   isRunningMore: boolean;
   runningMethods: AnalysisMethod[];
   analysisError: string;
@@ -1740,6 +1840,7 @@ function CumulativeResultsPane({
   onNotify: (message: string) => void;
 }) {
   const overviewChartSvgRef = useRef<SVGSVGElement | null>(null);
+  const [activeViewSection, setActiveViewSection] = useState<string>("all");
 
   const exportCsv = () => {
     const header =
@@ -1791,10 +1892,10 @@ function CumulativeResultsPane({
   return (
     <div className="results">
       {/* HEADER & CUMULATIVE STEP LOG BAR */}
-      <div className="result-header">
+      <div className="result-header da-result-header-flex">
         <div>
           <div className="section-kicker">
-            <span>{latestCaseFile.result_id}</span> Cumulative Analysis Workbench ·{" "}
+            Cumulative Analysis Workbench ·{" "}
             {completedSteps.length}{" "}
             {completedSteps.length === 1 ? "method section" : "method sections"} active
           </div>
@@ -1806,35 +1907,76 @@ function CumulativeResultsPane({
             {latestCaseFile.completeness_pct}% coverage)
           </p>
         </div>
+
+        {/* TOP RIGHT VIEW TOGGLE & EXPLORE PRIMARY BUTTON */}
+        <div className="da-view-toggle-wrap">
+          {extractedPreviewJobId && (
+            <Link
+              href={`/workspace/visualize?job=${encodeURIComponent(extractedPreviewJobId)}`}
+              className="da-primary-explore-btn"
+            >
+              <Icon name="activity" size={15} />
+              <span>Explore in Visualization Studio</span>
+            </Link>
+          )}
+          <div className="da-filter-select-group">
+            <label className="da-view-toggle-label" htmlFor="da-method-view-select">
+              Filter View:
+            </label>
+            <select
+              id="da-method-view-select"
+              className="da-view-toggle-select"
+              value={activeViewSection}
+              onChange={(e) => setActiveViewSection(e.target.value)}
+            >
+              <option value="all">Show All Analyses ({completedSteps.length + 1})</option>
+              <option value="overview">Base Observed Signal</option>
+              {completedSteps.map((step) => {
+                const meta = ANALYSIS_METHODS.find((m) => m.id === step.method);
+                return (
+                  <option key={step.method} value={step.method}>
+                    Analysis {step.stepNumber}: {meta?.shortLabel || step.method}
+                  </option>
+                );
+              })}
+            </select>
+          </div>
+        </div>
       </div>
 
       {/* STEP-BY-STEP SECTION JUMP BAR */}
       <nav className="da-step-nav-bar" aria-label="Completed analysis sections">
         <div className="da-step-nav-head">
           <span>
-            <Icon name="layers" size={14} /> Step-by-Step Analysis Sections (
+            <Icon name="layers" size={14} /> Completed Analysis Sections (
             {completedSteps.length})
           </span>
           <small>
-            Run additional methods from the left pane at any time—previous sections stay intact.
+            Select any section to filter view, or run additional methods from the sidebar.
           </small>
         </div>
         <div className="da-step-pills">
-          <a href="#section-overview" className="da-step-pill overview">
+          <button
+            type="button"
+            className={`da-step-pill overview ${activeViewSection === "overview" ? "active" : ""}`}
+            onClick={() => setActiveViewSection(activeViewSection === "overview" ? "all" : "overview")}
+          >
             <span>Base</span> Observed Series
-          </a>
+          </button>
           {completedSteps.map((step) => {
             const meta = ANALYSIS_METHODS.find((m) => m.id === step.method);
+            const isCurrent = activeViewSection === step.method;
             return (
-              <a
+              <button
                 key={step.method}
-                href={`#section-${step.method}`}
-                className="da-step-pill"
+                type="button"
+                className={`da-step-pill ${isCurrent ? "active" : ""}`}
+                onClick={() => setActiveViewSection(isCurrent ? "all" : step.method)}
               >
-                <span>Step {step.stepNumber}</span>
+                <span>Analysis {step.stepNumber}</span>
                 <strong>{meta?.shortLabel || step.method}</strong>
                 <small>{step.ranAt}</small>
-              </a>
+              </button>
             );
           })}
           {completedSteps.length > 1 && (
@@ -1875,108 +2017,113 @@ function CumulativeResultsPane({
       )}
 
       {/* BASE SECTION: OBSERVED TIME SERIES & SIGNAL DECOMPOSITION */}
-      <section className="chart-card da-method-section" id="section-overview">
-        <div className="chart-header">
-          <div>
-            <div className="chart-title-row">
-              <span className="da-section-step-tag">Base Signal</span>
-              <h2>{latestCaseFile.dataset_name} over time</h2>
-              <span className="data-chip">
-                {latestCaseFile.analysis_series.length} timestamps
-              </span>
+      {(activeViewSection === "all" || activeViewSection === "overview") && (
+        <section className="chart-card da-method-section" id="section-overview">
+          <div className="chart-header">
+            <div>
+              <div className="chart-title-row">
+                <span className="da-section-step-tag">Base Signal</span>
+                <h2>{latestCaseFile.dataset_name} over time</h2>
+                <span className="data-chip">
+                  {latestCaseFile.analysis_series.length} timestamps
+                </span>
+              </div>
+              <p>
+                {latestCaseFile.source_agency} · {latestCaseFile.unit} · Min{" "}
+                <strong>{seriesStats.min.toFixed(2)}</strong> · Mean{" "}
+                <strong>{seriesStats.mean.toFixed(2)}</strong> · Max{" "}
+                <strong>{seriesStats.max.toFixed(2)}</strong> {latestCaseFile.unit}
+              </p>
             </div>
-            <p>
-              {latestCaseFile.source_agency} · {latestCaseFile.unit} · Min{" "}
-              <strong>{seriesStats.min.toFixed(2)}</strong> · Mean{" "}
-              <strong>{seriesStats.mean.toFixed(2)}</strong> · Max{" "}
-              <strong>{seriesStats.max.toFixed(2)}</strong> {latestCaseFile.unit}
-            </p>
+            <div className="exports">
+              <button
+                onClick={() =>
+                  void downloadSvgElementAsPng(
+                    overviewChartSvgRef.current,
+                    `iris-${latestCaseFile.result_id}-${signalMode}-series.png`,
+                    `${latestCaseFile.dataset_name} (${signalMode.toUpperCase()} SIGNAL)`,
+                    `${latestCaseFile.location} · ${latestCaseFile.start_year}–${latestCaseFile.end_year} · ${latestCaseFile.unit}`,
+                    onNotify,
+                  )
+                }
+                title="Download chart as PNG image"
+                type="button"
+              >
+                <Icon name="download" size={15} />
+                <span>Download PNG</span>
+              </button>
+              <button onClick={exportCsv} title="Download CSV" type="button">
+                <Icon name="download" size={15} />
+                <span>CSV</span>
+              </button>
+            </div>
           </div>
-          <div className="exports">
-            <button
-              onClick={() =>
-                void downloadSvgElementAsPng(
-                  overviewChartSvgRef.current,
-                  `iris-${latestCaseFile.result_id}-${signalMode}-series.png`,
-                  `${latestCaseFile.dataset_name} (${signalMode.toUpperCase()} SIGNAL)`,
-                  `${latestCaseFile.location} · ${latestCaseFile.start_year}–${latestCaseFile.end_year} · ${latestCaseFile.unit}`,
-                  onNotify,
-                )
-              }
-              title="Download chart as PNG image"
-              type="button"
-            >
-              <Icon name="download" size={15} />
-              <span>Download PNG</span>
-            </button>
-            <button onClick={exportCsv} title="Download CSV" type="button">
-              <Icon name="download" size={15} />
-              <span>CSV</span>
-            </button>
-          </div>
-        </div>
 
-        <div className="chart-controls">
-          <div className="segmented" role="group" aria-label="Chart signal type">
-            <button
-              className={signalMode === "raw" ? "active" : ""}
-              onClick={() => setSignalMode("raw")}
-              type="button"
-            >
-              Raw signal
-            </button>
-            <button
-              hidden={latestCaseFile.requested_seasonal_adjustment === "none"}
-              className={signalMode === "seasonal" ? "active" : ""}
-              onClick={() => setSignalMode("seasonal")}
-              type="button"
-            >
-              Seasonal cycle
-            </button>
-            <button
-              className={signalMode === "anomaly" ? "active" : ""}
-              onClick={() => setSignalMode("anomaly")}
-              type="button"
-            >
-              Deseasonalized anomaly
-            </button>
-          </div>
-          <div className="legend">
-            <span>
-              <i className="series-dot" />{" "}
-              {signalMode === "raw"
-                ? "Observed values"
-                : signalMode === "seasonal"
-                  ? "Extracted seasonal cycle"
-                  : "Deseasonalized anomaly"}
-            </span>
-            {signalMode === "anomaly" && completedMethodIds.includes("sen_slope") && (
+          <div className="chart-controls">
+            <div className="segmented" role="group" aria-label="Chart signal type">
+              <button
+                className={signalMode === "raw" ? "active" : ""}
+                onClick={() => setSignalMode("raw")}
+                type="button"
+              >
+                Raw signal
+              </button>
+              <button
+                hidden={latestCaseFile.requested_seasonal_adjustment === "none"}
+                className={signalMode === "seasonal" ? "active" : ""}
+                onClick={() => setSignalMode("seasonal")}
+                type="button"
+              >
+                Seasonal cycle
+              </button>
+              <button
+                className={signalMode === "anomaly" ? "active" : ""}
+                onClick={() => setSignalMode("anomaly")}
+                type="button"
+              >
+                Deseasonalized anomaly
+              </button>
+            </div>
+            <div className="legend">
               <span>
-                <i className="trend-line" /> Sen’s slope
+                <i className="series-dot" />{" "}
+                {signalMode === "raw"
+                  ? "Observed values"
+                  : signalMode === "seasonal"
+                    ? "Extracted seasonal cycle"
+                    : "Deseasonalized anomaly"}
               </span>
-            )}
-            {signalMode === "anomaly" && completedMethodIds.includes("anomalies") && (
-              <span>
-                <i className="anomaly-dot" /> Flagged anomalies
-              </span>
-            )}
+              {signalMode === "anomaly" && completedMethodIds.includes("sen_slope") && (
+                <span>
+                  <i className="trend-line" /> Sen’s slope
+                </span>
+              )}
+              {signalMode === "anomaly" && completedMethodIds.includes("anomalies") && (
+                <span>
+                  <i className="anomaly-dot" /> Flagged anomalies
+                </span>
+              )}
+            </div>
           </div>
-        </div>
 
-        <TimeSeriesChart
-          svgRef={overviewChartSvgRef}
-          mode={signalMode}
-          series={latestCaseFile.analysis_series}
-          unit={latestCaseFile.unit}
-          showSenTrend={completedMethodIds.includes("sen_slope")}
-          anomalyThreshold={
-            latestCaseFile.anomaly_threshold_used ?? currentParameters.anomaly_z_threshold
-          }
-        />
-      </section>
+          <TimeSeriesChart
+            svgRef={overviewChartSvgRef}
+            mode={signalMode}
+            series={latestCaseFile.analysis_series}
+            unit={latestCaseFile.unit}
+            showSenTrend={completedMethodIds.includes("sen_slope")}
+            anomalyThreshold={
+              latestCaseFile.anomaly_threshold_used ?? currentParameters.anomaly_z_threshold
+            }
+          />
+        </section>
+      )}
 
       {/* RENDER EACH COMPLETED ANALYSIS IN ITS OWN DEDICATED SECTION ON THE RIGHT PANE */}
       {completedSteps.map((step) => {
+        if (activeViewSection !== "all" && activeViewSection !== step.method) {
+          return null;
+        }
         const meta = ANALYSIS_METHODS.find((m) => m.id === step.method)!;
         const isStale =
           getMethodParameterSignature(
@@ -2033,7 +2180,7 @@ function MethodResultSectionWrapper({
       <div className="da-section-header">
         <div>
           <div className="da-section-badges">
-            <span className="da-section-step-tag">Step {step.stepNumber}</span>
+            <span className="da-section-step-tag">Analysis {step.stepNumber}</span>
             <span className="da-method-cat">{meta.category}</span>
             <span className="da-section-time">Executed at {step.ranAt}</span>
             {isStale && (

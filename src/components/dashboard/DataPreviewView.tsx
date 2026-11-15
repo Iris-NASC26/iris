@@ -45,7 +45,7 @@ export function DataPreviewView({ routeJobId }: { routeJobId?: string }) {
   const [sortField, setSortField] = useState<"timestamp" | "value">("timestamp");
   const [sortAsc, setSortAsc] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 24;
+  const pageSize = 10;
 
   // Only load an existing job when the URL identifies one; extraction is user-initiated
   // from Data Selection, never triggered by visiting this page.
@@ -96,7 +96,10 @@ export function DataPreviewView({ routeJobId }: { routeJobId?: string }) {
 
     return (
       <div className="data-preview-page dashboard-page-inner">
-        <section className="dashboard-card ds-empty-state" style={{ padding: "2rem" }}>
+        <section className="dashboard-card dp-empty-state">
+          <div className="dp-empty-badge">
+            <Icon name="layers" size={20} />
+          </div>
           <span className="section-kicker">
             <span>01</span> Data Preview
           </span>
@@ -108,27 +111,41 @@ export function DataPreviewView({ routeJobId }: { routeJobId?: string }) {
                 : "No dataset has been selected, and no data has been retrieved yet."}
           </h2>
           {!loadingPreview && (
-            <>
-              <p>To create a data preview:</p>
-              <ol style={{ margin: 0, paddingLeft: "1.25rem", lineHeight: 1.7 }}>
-                <li>Go to System Intelligence and describe the research topic or dataset you need.</li>
-                <li>Continue to Data Selection, choose a dataset, and retrieve its data.</li>
-                <li>After retrieval, you will return here to inspect the preview.</li>
-              </ol>
-            </>
+            <div className="dp-empty-guidance">
+              <p className="dp-empty-lead">
+                Follow the workflow to discover, retrieve, and inspect observational time-series data:
+              </p>
+              <div className="dp-empty-steps-grid">
+                <div className="dp-empty-step-card">
+                  <span className="dp-empty-step-num">Step 1</span>
+                  <strong>Iris Intelligence</strong>
+                  <p>Describe your environmental research scope to formulate keywords and target catalogs.</p>
+                </div>
+                <div className="dp-empty-step-card">
+                  <span className="dp-empty-step-num">Step 2</span>
+                  <strong>Data Selection</strong>
+                  <p>Select variables, configure temporal frequency, date range, and target region.</p>
+                </div>
+                <div className="dp-empty-step-card">
+                  <span className="dp-empty-step-num">Step 3</span>
+                  <strong>Data Preview</strong>
+                  <p>Inspect extracted observations, quality control flags, and initial decadal trends.</p>
+                </div>
+              </div>
+            </div>
           )}
           {previewError && (
-            <p className="si-error-msg" role="alert" style={{ marginTop: "0.75rem" }}>
+            <p className="si-error-msg" role="alert">
               <Icon name="alert" size={15} /> {previewError}
             </p>
           )}
-          <div style={{ display: "flex", gap: "0.75rem", marginTop: "1.25rem" }}>
+          <div className="dp-empty-actions">
             <button
               className="dp-secondary-btn"
               onClick={() => router.push("/workspace/intelligence")}
               type="button"
             >
-              Go to System Intelligence
+              Go to Iris Intelligence
             </button>
             <button
               className="dp-proceed-btn"
@@ -237,62 +254,37 @@ export function DataPreviewView({ routeJobId }: { routeJobId?: string }) {
 
   return (
     <div className="data-preview-page dashboard-page-inner">
-      {/* 1. STEPPED EXTRACTION PIPELINE STATUS TRACKER */}
-      <section className="dp-pipeline-banner dashboard-card">
-        <div className="dp-pipeline-steps">
-          {(
-            jobStatus?.steps ?? [
-                {
-                  step: 1,
-                  label: isDemoProduct ? "Local development fixture loaded" : `Request Routed to ${product.source_api}`,
-                  status: "completed",
-                },
-                {
-                  step: 2,
-                  label: isDemoProduct ? "Demo region applied locally" : "Spatial Subsetting & QA Masking",
-                  status: "completed",
-                },
-              {
-                step: 3,
-                label: `Temporal Resampling (${cfg.target_frequency} · ${cfg.temporal_aggregation})`,
-                status: "completed",
-              },
-              { step: 4, label: "Validated & Ready for Preview", status: "completed" },
-            ]
-          ).map((s) => (
-            <div className={`dp-step-pill ${s.status}`} key={s.step}>
-              <span>
-                <Icon name="check" size={12} />
-              </span>
-              <strong>
-                {s.step}. {s.label}
-              </strong>
-            </div>
-          ))}
-        </div>
-        {loadingPreview && <span className="dp-syncing-tag">Syncing upstream observations…</span>}
-      </section>
-
-      {/* 2. TOP HEADER, PROVENANCE ("WHERE IT IS FROM" & "WHAT IT IS") & ACTION BAR */}
+      {/* 1. TOP HEADER, PROVENANCE ("WHERE IT IS FROM" & "WHAT IT IS") & ACTION BAR */}
       <section className="dp-header-card dashboard-card">
         <div className="dp-header-top">
           <div>
             <div className="dp-badges-row">
-              <span className="dp-api-badge">
+              <span className="dp-param-badge dp-source-badge">
                 <Icon name="globe" size={12} /> {product.source_api}
+              </span>
+              <span className="dp-param-badge">
+                <b>Frequency:</b> {cfg.target_frequency}
+              </span>
+              <span className="dp-param-badge">
+                <b>Window:</b> {cfg.start_date} → {cfg.end_date}
+              </span>
+              <span className="dp-param-badge">
+                <b>Region:</b> {cfg.spatial_level === "global" ? "Global Average" : cfg.region_name || "Regional"}
+              </span>
+              <span className="dp-param-badge">
+                <b>Aggregation:</b> {cfg.temporal_aggregation.toUpperCase()}
+              </span>
+              <span className="dp-param-badge">
+                <b>Spatial:</b> {cfg.spatial_reduction.toUpperCase()}
+              </span>
+              <span className="dp-param-badge">
+                <b>Unit:</b> {stats.unit}
               </span>
               {isDemoProduct && (
                 <span className="dp-demo-badge">
-                  Demo data — no provider API call
+                  Demo Fixture
                 </span>
               )}
-              <span className="dp-freq-badge">{cfg.target_frequency} Series</span>
-              <span className="dp-scope-badge">
-                {cfg.spatial_level === "global" ? "Global Grid" : `Regional · ${cfg.region_name}`}
-              </span>
-              <code>Job ID: {preview.job_id}</code>
-              {preview.result_id && <code>Result ID: {preview.result_id}</code>}
-              {preview.sha256_hash && <code>SHA-256: {preview.sha256_hash.slice(0, 12)}…</code>}
             </div>
             <h2>
               {product.variable_name} <code>({product.variable_id})</code>
@@ -358,7 +350,15 @@ export function DataPreviewView({ routeJobId }: { routeJobId?: string }) {
       {/* 3. SUMMARY STATISTICS & DATA QUALITY STRIP (KPI CARDS) */}
       <section className="dp-kpi-grid" aria-label="Summary statistics and data quality">
         <article className="dp-kpi-card dashboard-card">
-          <small>Total Observations</small>
+          <div className="dp-kpi-header">
+            <small>Total Observations</small>
+            <span className="dp-info-trigger" tabIndex={0} aria-label="Total Observations info">
+              i
+              <span className="dp-info-tooltip" role="tooltip">
+                Total discrete temporal observation intervals retrieved from the provider across the specified date window.
+              </span>
+            </span>
+          </div>
           <strong>
             {stats.count} <span>{cfg.target_frequency.toLowerCase()} steps</span>
           </strong>
@@ -368,7 +368,15 @@ export function DataPreviewView({ routeJobId }: { routeJobId?: string }) {
         </article>
 
         <article className="dp-kpi-card dashboard-card">
-          <small>Data Completeness & QA</small>
+          <div className="dp-kpi-header">
+            <small>Data Completeness & QA</small>
+            <span className="dp-info-trigger" tabIndex={0} aria-label="Data Completeness & QA info">
+              i
+              <span className="dp-info-tooltip" role="tooltip">
+                Quality assurance score indicating the percentage of observations passing physical bounds, valid range filters, and missing data detection.
+              </span>
+            </span>
+          </div>
           <strong>
             {stats.completeness_pct}% <span>valid</span>
           </strong>
@@ -379,7 +387,15 @@ export function DataPreviewView({ routeJobId }: { routeJobId?: string }) {
         </article>
 
         <article className="dp-kpi-card dashboard-card">
-          <small>Mean ± Std Deviation</small>
+          <div className="dp-kpi-header">
+            <small>Mean ± Std Deviation</small>
+            <span className="dp-info-trigger" tabIndex={0} aria-label="Mean & Std Deviation info">
+              i
+              <span className="dp-info-tooltip" role="tooltip">
+                Central tendency (arithmetic mean) and spread (standard deviation) across observations, accompanied by the median and spatial reduction method.
+              </span>
+            </span>
+          </div>
           <strong>
             {stats.mean} ± {stats.std_dev} <span>{stats.unit}</span>
           </strong>
@@ -389,7 +405,15 @@ export function DataPreviewView({ routeJobId }: { routeJobId?: string }) {
         </article>
 
         <article className="dp-kpi-card dashboard-card">
-          <small>Observed Min / Max Range</small>
+          <div className="dp-kpi-header">
+            <small>Observed Min / Max Range</small>
+            <span className="dp-info-trigger" tabIndex={0} aria-label="Observed Min / Max Range info">
+              i
+              <span className="dp-info-tooltip" role="tooltip">
+                The minimum and maximum physical values observed in the dataset, along with their respective dates of occurrence.
+              </span>
+            </span>
+          </div>
           <strong>
             {stats.min_val} to {stats.max_val} <span>{stats.unit}</span>
           </strong>
@@ -399,7 +423,15 @@ export function DataPreviewView({ routeJobId }: { routeJobId?: string }) {
         </article>
 
         <article className="dp-kpi-card dashboard-card">
-          <small>Preliminary Decadal Trend</small>
+          <div className="dp-kpi-header">
+            <small>Preliminary Decadal Trend</small>
+            <span className="dp-info-trigger" tabIndex={0} aria-label="Preliminary Decadal Trend info">
+              i
+              <span className="dp-info-tooltip" role="tooltip">
+                Linear rate of change estimated over a 10-year span (ordinary least squares), serving as a baseline before formal STL decomposition and Mann–Kendall testing.
+              </span>
+            </span>
+          </div>
           <strong className={stats.decadal_slope >= 0 ? "pos" : "neg"}>
             {stats.decadal_slope >= 0 ? `+${stats.decadal_slope}` : stats.decadal_slope}{" "}
             <span>{stats.unit}/dec</span>
@@ -493,7 +525,7 @@ export function DataPreviewView({ routeJobId }: { routeJobId?: string }) {
             <IrisMap
               bbox={cfg.spatial_level === "global" ? [-170, -75, 170, 75] : cfg.bbox}
               coverageGeoJSON={coverageGeoJSON}
-              height="220px"
+              height="340px"
               mode="preview"
             />
           </div>

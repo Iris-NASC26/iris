@@ -207,7 +207,7 @@ function VisualizationWorkspaceContent({ initialView }: { initialView: 'charts' 
             return;
         }
         if (!chosen.length) {
-            setError('Select a dataset from discovery or System Intelligence first.');
+            setError('Select a dataset from discovery or Iris Intelligence first.');
             return;
         }
         if (store.series.length + chosen.length > MAX_SERIES) {

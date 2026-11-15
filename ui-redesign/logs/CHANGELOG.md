@@ -5,6 +5,37 @@
 
 ---
 
+## [2026-11-15 19:50] Data Analysis & Data Preview — View Filtering, Analysis Terminology, and Layout Lock
+
+### 1. Summary
+- Resolved viewport scrolling past the left sidebar menu by locking the root HTML/body and `.dashboard-shell` strictly to the viewport (`position: fixed; inset: 0; width: 100vw; height: 100vh; overflow: hidden;`), ensuring all internal scrolling is isolated within designated child panes (`.da-config-pane`, `.analysis-panel`, `.data-preview-page`).
+- Replaced all method "Step" terminology with "Analysis 1", "Analysis 2", etc., across section badges, view filter dropdowns, pills, navigation headers, and execution buttons in `src/app/workspace/data-analysis/page.tsx`.
+- Moved the "Explore in Visualization Studio" link to the top-right header of the Cumulative Analysis Workbench beside the view filter toggle, styling it as a prominent HeroUI primary emerald CTA button (`.da-primary-explore-btn`).
+- Rebuilt the Observation Period range slider with aligned thumb coordinates, clean track fill, and active z-index stacking to prevent thumb overlapping glitches.
+- Added interactive `(i)` hover tooltips explaining statistical parameters (significance threshold α, Quenouille–Santer autocorrelation adjustment, Hamed–Rao rank variance, seasonal Kendall thresholds, outlier Z-cutoff, and horizon outlook).
+- Removed the top pipeline status tracker banner (`1. Request Routed... 2. Spatial Subsetting... 3. Temporal Resampling... 4. Validated...`) from `src/components/dashboard/DataPreviewView.tsx`.
+- Removed redundant AI header titles and simplified summary cards to clean data parameter presentation.
+
+### 2. Files Modified
+- `src/app/globals.css`:
+  - Added root scroll lock: `html:has(.dashboard-shell), body:has(.dashboard-shell) { height: 100vh; max-height: 100vh; overflow: hidden; }`.
+  - Added viewport confinement: `.dashboard-shell { position: fixed; inset: 0; width: 100vw; height: 100vh; overflow: hidden; }`.
+  - Added `.da-primary-explore-btn`, `.da-view-toggle-wrap`, and `.da-filter-select-group` styles.
+- `src/app/workspace/data-analysis/page.tsx`:
+  - Updated `CumulativeResultsPane` with `extractedPreviewJobId` prop and prominent exploration CTA.
+  - Replaced "Step" label strings with "Analysis" (`Analysis {step.stepNumber}`).
+  - Fixed observation period slider dual-thumb stacking and interactive tooltips.
+- `src/components/dashboard/DataPreviewView.tsx`:
+  - Removed top pipeline progress banner `<section className="dp-pipeline-banner dashboard-card">`.
+
+### 3. Verification & Guardrails
+- [x] TypeScript check: `pnpm tsc --noEmit` passed with 0 errors.
+- [x] Test suite: `pnpm test:visualization` passed 115/115 tests across 10 test suites.
+- [x] CSS brace matching: 2565 opens, 2565 closes.
+- [x] All backend APIs, event handlers, and data contracts preserved without change.
+
+---
+
 ## [2026-11-15 14:48] Phase 0 & Phase 1 — HeroUI v3 Token Foundation & Workspace Dashboard Layout Redesign
 
 ### 1. Summary
@@ -168,3 +199,154 @@
 - **React / TypeScript Integrity Check (`git diff 9a935d8 -- "src/**/*.tsx" "src/**/*.ts"`):** PASS (`0` files modified)
 - **Unit & Scientific Contract Tests (`pnpm test:visualization`):** PASS (`115/115` tests passing across `10` suites)
 - **Production Next.js Build (`pnpm build`):** PASS (`34/34` routes compiled and type-checked with `0` errors)
+
+---
+
+## [2026-11-15 17:07] Workspace Compact HeroUI Pass — Left Menu, Left Windows, Floating Windows & "Iris Intelligence" Rename
+
+### 1. Summary
+- **Workspace Left Menu & Topbar Compact HeroUI Pass (`src/app/globals.css`, `src/app/workspace/layout.tsx`):**
+  - Compacted `.dashboard-shell` (`--sidebar-width: 224px`, collapsed `64px`), `.dashboard-brand-row` (`height: 54px`), `.dashboard-topbar` (`height: 54px`), and `.dashboard-nav` into a dense, crisp HeroUI v3 navigation rail.
+  - Styled `.dashboard-nav a`, `.dashboard-sidebar-footer a`, and `.dashboard-sidebar-footer button` as compact `32px` HeroUI v3 ListBox/Button items (`border-radius: 7px`, `font-size: 10.5px`, `gap: 9px`, `15px` icons) with subtle bordered hover states (`background: var(--surface-secondary)`, `border-color: color-mix(in srgb, var(--border) 65%, transparent)`) and active emerald pill styling (`background: var(--accent-soft)`, `inset 2.5px 0 0 var(--iris-accent-bright)`).
+  - Separated `.dashboard-nav-group + .dashboard-nav-group` with a clean `1px solid var(--separator)` divider.
+- **Left Windows & Floating Windows (`src/app/globals.css`):**
+  - Compacted the workspace left control/setup windows (`.control-panel` / `.panel-scroll` at `minmax(340px, 32%)` and `.data-selection-workspace` / `.ds-setup-column` at `minmax(340px, 40%)` with `32px` HeroUI field controls).
+  - Redesigned the floating **Iris Assistant** (`.iris-assistant-launcher` `48x48px` rounded-square `13px` badge, `.iris-assistant-panel` `352px` wide × `500px` max-height, `48px` header, `26x26px` icon actions, `32px` send button, and HeroUI v3 elevated message bubbles).
+  - Compacted the floating **Onboarding Tour** modal (`.tour-dialog` `440px` wide, `145px` visual banner, `32px` HeroUI action buttons).
+- **Renamed "System Intelligence" → "Iris Intelligence" & Compacted Full-Page AI Chat Window:**
+  - Updated the workspace navigation label, topbar title, chat header kicker, aria-label, onboarding tour step title, and workspace cross-links from **System Intelligence** to **Iris Intelligence** in:
+    - `src/app/workspace/layout.tsx`
+    - `src/app/workspace/intelligence/page.tsx`
+    - `src/components/dashboard/OnboardingTour.tsx`
+    - `src/app/workspace/data-selection/page.tsx`
+    - `src/components/dashboard/DataPreviewView.tsx`
+    - `src/app/workspace/research/page.tsx`
+    - `src/features/visualization/Workspace.tsx`
+  - Refined `.si-chat-workspace`, `.si-chat-shell`, `.si-chat-header`, `.si-chat-thread`, `.si-chat-avatar` (`28x28px` rounded-square `8px` emerald badge), `.si-chat-message`, and `.si-new-topic-btn` (`30px` HeroUI button) for a tighter, cohesive AI chat window experience.
+  - Preserved 100% of React hooks (`useState`, `useEffect`, `useCallback`, `useMemo`, `useRef`), state management, API routes (`/api/v1/si/chat`), and event handlers.
+
+### 2. Verification Results
+- **CSS Brace Balance Check:** PASS (`2337/2337` balanced braces in `src/app/globals.css`)
+- **Unit & Scientific Contract Tests (`pnpm test:visualization`):** PASS (`115/115` tests passing across `10` suites)
+
+---
+
+## [2026-11-15 17:45] Data Selection & Iris Intelligence Redesign Pass — Catalog Deep Links, Multi-Dataset Parameter Switching, Global Average Backend, and Sorting/Filtering
+
+### 1. Summary
+- **Workspace Topbar Refinement (`src/app/workspace/layout.tsx`):**
+  - Updated the topbar to cleanly display what each page does (description only) instead of redundantly repeating the page title above the description.
+- **Iris Intelligence AI Chat Window (`src/app/workspace/intelligence/page.tsx`, `src/app/globals.css`):**
+  - Removed the outer bounding box and padding constraints to allow the AI chat workspace and thread to occupy the full right pane.
+  - Removed redundant titles, kicker headers, and footer notes.
+  - Implemented a clean, compact HeroUI top action toolbar for the "New topic" button (`.si-chat-toolbar`).
+  - Preserved 100% of chat state, streaming hooks, keyword reviews, and source options.
+- **Data Selection Page (`src/app/workspace/data-selection/page.tsx`, `src/app/globals.css`, `backend/adapters/extraction_adapters.py`):**
+  - **Catalog External Links:** Connected catalog cards in the empty state directly to their respective official portal websites (`NASA POWER`, `NASA CMR`, `NASA AppEEARS`, `NASA GES DISC`, `NASA Harmony`, `NOAA CDO`, `NOAA OneStop`, `OPeNDAP`, `EODAG`, `Copernicus CDS`) with clear external link indicators.
+  - **Multi-Dataset Parameter Switcher:** Added interactive tab switching (`.ds-dataset-switcher`) on the top-left configuration panel, enabling seamless parameter selection across multiple selected datasets.
+  - **Interactive (i) Tooltips:** Added hover triggers with explanations for **Variable**, **Frequency**, and **Aggregation** methods (`.ds-info-trigger`, `.ds-info-tooltip`).
+  - **Spatial Mode & Global Average:** Added a spatial mode toggle (`Regional / Bounding box` vs `Global average`). Implemented backend support in `backend/adapters/extraction_adapters.py` (`_fetch_live_series_from_provider`) querying 5 representative global latitudinal zones concurrently and computing the cosine-latitude weighted planetary mean series from live NASA data.
+  - **Right-side Catalog Header & Filtering:**
+    - Removed the redundant "Load demo data" button.
+    - Added sorting controls (by Match %, Source API, or Dataset Name) and source filtering dropdown.
+    - Ordered retrievable datasets first and placed unavailable datasets at the bottom with direct external portal access links.
+    - Highlighted Primary Dataset (`.ds-primary-badge`, `.is-primary`) and queued datasets (`.ds-queued-badge`, `.is-queued`).
+    - Rendered structured parameter chips (`.ds-product-parameters`, `.ds-param-chip`) for Frequency, Temporal Coverage, Resolution, Unit, and Agency.
+    - Added clear Citation / DOI access links for each catalog entry.
+  - **Standardized Button Sizing:** Compact button heights across all controls (`26px–32px` for secondary/action buttons, `36px` for primary proceed buttons).
+
+### 2. Files Modified
+- `src/app/workspace/layout.tsx`
+- `src/app/workspace/intelligence/page.tsx`
+- `src/app/workspace/data-selection/page.tsx`
+- `backend/adapters/extraction_adapters.py`
+- `src/app/globals.css`
+- `ui-redesign/logs/CHANGELOG.md`
+- `ui-redesign/logs/TASK-TRACKER.md`
+
+### 3. Verification Results
+- **CSS Brace Balance Check:** PASS (`2341/2341` balanced braces in `src/app/globals.css`)
+- **Unit & Scientific Contract Tests (`pnpm test:visualization`):** PASS (`115/115` tests passing across `10` suites)
+
+---
+
+## [2026-11-15 19:15] Data Preview Redesign Pass — Empty State, Sleek Pipeline Stepper, Parameter Badges, (i) KPI Tooltips, Larger Regional Map & Compact 10-Row CSV Formatted Table
+
+### 1. Summary
+- **Initial Load / Empty State (`src/components/dashboard/DataPreviewView.tsx`, `src/app/globals.css`):**
+  - Redesigned the empty state into a modern, compact HeroUI v3 card (`.dp-empty-state`) featuring an emerald icon badge, clear heading, an informative 3-step retrieval roadmap grid (`.dp-empty-step-card`), and standardized HeroUI action buttons (`Go to Iris Intelligence` & `Go to Data Selection`).
+- **Thinner, Minimized Inline Pipeline Status Stepper (`.dp-pipeline-banner`, `.dp-pipeline-steps`, `.dp-step-pill`):**
+  - Converted the bulky stacked pipeline banner into a slim, inline HeroUI status bar (`height: 25px` pills, soft emerald background, compact round checkmark icons, and subtle border).
+- **Header Metadata & Parameter Badges Row (`.dp-badges-row`, `.dp-param-badge`):**
+  - Removed internal technical identifiers (`Job ID`, `Result ID`, `SHA-256` hashes) from user view.
+  - Rendered clean, structured data parameter chips for:
+    - **Source API** (`.dp-source-badge` with globe icon)
+    - **Frequency** (e.g. `Monthly`)
+    - **Window** (e.g. `2020-01-01 → 2025-12-31`)
+    - **Region** (e.g. `Global Average` or `Regional Bounding Box`)
+    - **Aggregation** (e.g. `MEAN` or `SUM`)
+    - **Spatial Reduction** (e.g. `MEAN`)
+    - **Unit** (e.g. `°C`, `mm/day`)
+- **Summary Statistics & Data Quality Cards (KPIs) with `(i)` Hover Tooltips (`.dp-kpi-header`, `.dp-info-trigger`, `.dp-info-tooltip`):**
+  - Added interactive `(i)` info triggers with floating HeroUI tooltips on all 5 key metrics:
+    1. **Total Observations:** Explains discrete temporal observation intervals.
+    2. **Data Completeness & QA:** Explains physical range validation and fill-value detection.
+    3. **Mean ± Std Deviation:** Explains central tendency, spread, and spatial reduction.
+    4. **Observed Min / Max Range:** Explains absolute physical extremes and occurrence dates.
+    5. **Preliminary Decadal Trend:** Explains ordinary least squares slope baseline before formal STL/Mann-Kendall decomposition.
+- **Larger Regional Map & Compact 10-Row CSV Formatted Table (`.dp-bottom-split`, `.dp-mini-map-wrap`, `.dashboard-table-wrap`):**
+  - Increased `IrisMap` height from `220px` to `340px` with a refined HeroUI card frame for enhanced regional visibility.
+  - Set table pagination `pageSize` to `10` compact records to drastically reduce vertical space.
+  - Styled compact table rows (`padding: 5.5px 10px`, `10.5px` typography), compact QA filter pills (`26px` height), search field (`28px`), and compact pagination buttons.
+
+### 2. Files Modified
+- `src/components/dashboard/DataPreviewView.tsx`
+- `src/app/globals.css`
+- `ui-redesign/logs/CHANGELOG.md`
+- `ui-redesign/logs/TASK-TRACKER.md`
+
+### 3. Verification Results
+- **CSS Brace Balance Check:** PASS (`2429/2429` balanced braces in `src/app/globals.css`)
+- **Unit & Scientific Contract Tests (`pnpm test:visualization`):** PASS (`115/115` tests passing across `10` suites)
+
+---
+
+## [2026-11-15 19:35] Data Analysis Workbench Redesign Pass — Header Text Removal, Panel Scroll Boundary Fix, Dual Observation Period Slider, Multi-Analysis View Filter Toggle & Parameter (i) Tooltips
+
+### 1. Summary
+- **Removed Redundant Header Text (`src/app/workspace/data-analysis/page.tsx`):**
+  - Removed the repeating text `"Data Analysis Workbench \n Scientific Case File \n Configure dataset treatment, inspect method compatibility, adjust statistical parameters..."` from the top of the left sidebar, freeing vertical space and letting the active dataset profile and controls take top priority.
+- **Contained Left Panel Scroll & Fixed Viewport Overflow (`src/app/globals.css`):**
+  - Constrained `.visualize-page`, `.workspace`, `.control-panel`, and `.analysis-panel` with `min-height: 0`, `height: 100%`, and `overflow: hidden`, ensuring the `.panel-scroll` vertical scrollbar is strictly contained within the left pane and never leaks past the sidebar boundary or pushes the page layout.
+- **Fixed Observation Period Dual Slider (`src/app/workspace/data-analysis/page.tsx`, `src/app/globals.css`):**
+  - Rebuilt the observation period dual slider (`.da-period-control`, `.da-dual-slider-wrap`, `.da-dual-slider-track`, `.da-dual-slider-fill`, `.da-dual-slider-inputs`) with precise alignment between the track and input thumbs, dynamic thumb z-index layering to prevent drag collision, and tactile grab cursors.
+- **Added Top-Right Multi-Analysis View Filter Toggle (`src/app/workspace/data-analysis/page.tsx`, `src/app/globals.css`):**
+  - Added a dedicated view filter dropdown (`.da-view-toggle-wrap`, `.da-view-toggle-select`) on the top-right of the results pane, allowing users to toggle between *"Show All Methods"*, *"Base Observed Signal"*, or any individual step (e.g. *Step 1: OLS*, *Step 2: Mann–Kendall*, etc.).
+  - Updated `.da-step-pills` to interactive buttons that instantly filter the view to the clicked method without requiring users to scroll through thousands of pixels.
+  - Removed internal hash strings (`<span>{latestCaseFile.result_id}</span>`) from the results title.
+- **Added Interactive (i) Tooltips for Complex Parameters (`src/app/workspace/data-analysis/page.tsx`, `src/app/globals.css`):**
+  - Added `(i)` hover tooltip triggers on:
+    - **Seasonal treatment** (STL vs Climatology)
+    - **Significance threshold ($\alpha$)** (0.01, 0.05, 0.10)
+    - **Serial correlation adjustment** (Quenouille–Santer $n_{\text{eff}}$)
+    - **Variance formulation** (Hamed–Rao 1998)
+    - **Max autocorrelation lag ($k$)**
+    - **Seasonal Kendall minimum years**
+    - **Sen's slope confidence corridor & rate normalization**
+    - **Pettitt minimum regime segment length**
+    - **Extreme anomaly Z-score threshold & dispersion estimator**
+    - **Seasonal fingerprint heatmap color cap**
+    - **Outlook horizon & warming stripes minimum months**
+- **HeroUI v3 Design System Alignment:**
+  - Compact button sizes, consistent borders, rounded pill tabs, and emerald hover/focus rings across all analysis controls.
+
+### 2. Files Modified
+- `src/app/workspace/data-analysis/page.tsx`
+- `src/app/globals.css`
+- `ui-redesign/logs/CHANGELOG.md`
+- `ui-redesign/logs/TASK-TRACKER.md`
+
+### 3. Verification Results
+- **CSS Brace Balance Check:** PASS (`2556/2556` balanced braces in `src/app/globals.css`)
+- **TypeScript Typecheck:** PASS (`pnpm tsc --noEmit` exited with 0 errors)
+- **Unit & Scientific Contract Tests (`pnpm test:visualization`):** PASS (`115/115` tests passing across `10` suites)

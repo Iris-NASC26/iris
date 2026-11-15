@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useCallback, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Icon } from "@/components/ui/Icon";
@@ -47,6 +47,19 @@ const SOURCE_ORIGINS: Record<string, string> = {
   OPeNDAP: "Earthdata Cloud data services",
   EODAG: "Federated Earth observation data access",
   "Copernicus CDS": "Copernicus Climate Change Service",
+};
+
+const CATALOG_WEBSITES: Record<string, string> = {
+  "NASA POWER": "https://power.larc.nasa.gov",
+  "NASA CMR": "https://cmr.earthdata.nasa.gov/search",
+  "NASA AppEEARS": "https://appeears.earthdatacloud.nasa.gov",
+  "NASA GES DISC": "https://disc.gsfc.nasa.gov",
+  "NASA Harmony": "https://harmony.earthdata.nasa.gov",
+  "NOAA CDO": "https://www.ncdc.noaa.gov/cdo-web",
+  "NOAA OneStop": "https://data.noaa.gov/onestop",
+  "OPeNDAP": "https://opendap.earthdata.nasa.gov",
+  "EODAG": "https://eodag.readthedocs.io",
+  "Copernicus CDS": "https://cds.climate.copernicus.eu",
 };
 
 function canRetrieve(product: DataProduct) {
@@ -128,9 +141,38 @@ function DataSelectionWorkspaceInner() {
   const [extracting, setExtracting] = useState(false);
   const [error, setError] = useState("");
   const [selectionNotice, setSelectionNotice] = useState("");
+  const [sourceFilter, setSourceFilter] = useState<string>("all");
+  const [sortBy, setSortBy] = useState<"match" | "source" | "name">("match");
 
   const products = discoveryResult.products;
   const retrievableProducts = products.filter(canRetrieve);
+
+  const availableSources = useMemo(() => {
+    return Array.from(new Set(products.map((p) => p.source_api)));
+  }, [products]);
+
+  const filteredProducts = useMemo(() => {
+    const list = products.filter((p) => {
+      if (sourceFilter !== "all" && p.source_api !== sourceFilter) return false;
+      return true;
+    });
+
+    return [...list].sort((a, b) => {
+      const aAvailable = canRetrieve(a);
+      const bAvailable = canRetrieve(b);
+      // Retrievable/available datasets always on top, unavailable at the bottom
+      if (aAvailable !== bAvailable) {
+        return aAvailable ? -1 : 1;
+      }
+      if (sortBy === "source") {
+        return a.source_api.localeCompare(b.source_api);
+      }
+      if (sortBy === "name") {
+        return a.variable_name.localeCompare(b.variable_name);
+      }
+      return (b.relevance_score || 0) - (a.relevance_score || 0);
+    });
+  }, [products, sourceFilter, sortBy]);
 
   const loadDevelopmentDemoData = () => {
     const [primaryProduct] = DEVELOPMENT_DEMO_PRODUCTS;
@@ -317,22 +359,27 @@ function DataSelectionWorkspaceInner() {
       return;
     }
 
+    const isGlobal = extractionConfig.spatial_level === "global";
     const [minLon, minLat, maxLon, maxLat] = extractionConfig.bbox;
     if (
-      !extractionConfig.bbox.every(Number.isFinite) ||
-      minLon < -180 ||
-      maxLon > 180 ||
-      minLat < -90 ||
-      maxLat > 90 ||
-      minLon >= maxLon ||
-      minLat >= maxLat
+      !isGlobal && (
+        !extractionConfig.bbox.every(Number.isFinite) ||
+        minLon < -180 ||
+        maxLon > 180 ||
+        minLat < -90 ||
+        maxLat > 90 ||
+        minLon >= maxLon ||
+        minLat >= maxLat
+      )
     ) {
       setError("The map area is invalid. Check that the west/south coordinates are below the east/north coordinates.");
       return;
     }
     if (
-      maxLon - minLon > MAX_SELECTION_SPAN_DEGREES ||
-      maxLat - minLat > MAX_SELECTION_SPAN_DEGREES
+      !isGlobal && (
+        maxLon - minLon > MAX_SELECTION_SPAN_DEGREES ||
+        maxLat - minLat > MAX_SELECTION_SPAN_DEGREES
+      )
     ) {
       setError(`The selected area cannot exceed ${MAX_SELECTION_SPAN_DEGREES}° in either dimension.`);
       return;
@@ -347,11 +394,12 @@ function DataSelectionWorkspaceInner() {
         source_api: product.source_api,
         variable_id: extractionConfig.variable_id || product.variable_id,
         unit: product.unit,
-        spatial_level: "regional",
-        spatial_Submode: "bbox",
-        bbox: extractionConfig.bbox,
-        point_lat: Number(((minLat + maxLat) / 2).toFixed(2)),
-        point_lon: Number(((minLon + maxLon) / 2).toFixed(2)),
+        spatial_level: isGlobal ? "global" : "regional",
+        spatial_Submode: isGlobal ? "preset" : "bbox",
+        region_name: isGlobal ? "Global Average" : extractionConfig.region_name,
+        bbox: isGlobal ? [-180, -90, 180, 90] : extractionConfig.bbox,
+        point_lat: isGlobal ? 0 : Number(((minLat + maxLat) / 2).toFixed(2)),
+        point_lon: isGlobal ? 0 : Number(((minLon + maxLon) / 2).toFixed(2)),
         spatial_reduction: "mean",
         additional_products: selectedProducts
           .filter((item) => item.product_id !== product.product_id)
@@ -365,7 +413,9 @@ function DataSelectionWorkspaceInner() {
         setLocation(payload.region_name);
         setRegion(payload.region_name);
         setBbox(
-          `${minLat.toFixed(2)}, ${minLon.toFixed(2)}, ${maxLat.toFixed(2)}, ${maxLon.toFixed(2)}`,
+          isGlobal
+            ? "-90.00, -180.00, 90.00, 180.00"
+            : `${minLat.toFixed(2)}, ${minLon.toFixed(2)}, ${maxLat.toFixed(2)}, ${maxLon.toFixed(2)}`,
         );
         setStartYear(Number(payload.start_date.slice(0, 4)) || 2015);
         setEndYear(Number(payload.end_date.slice(0, 4)) || 2024);
@@ -392,7 +442,9 @@ function DataSelectionWorkspaceInner() {
       setLocation(payload.region_name);
       setRegion(payload.region_name);
       setBbox(
-        `${minLat.toFixed(2)}, ${minLon.toFixed(2)}, ${maxLat.toFixed(2)}, ${maxLon.toFixed(2)}`,
+        isGlobal
+          ? "-90.00, -180.00, 90.00, 180.00"
+          : `${minLat.toFixed(2)}, ${minLon.toFixed(2)}, ${maxLat.toFixed(2)}, ${maxLon.toFixed(2)}`,
       );
       setStartYear(Number(payload.start_date.slice(0, 4)) || 2015);
       setEndYear(Number(payload.end_date.slice(0, 4)) || 2024);
@@ -411,47 +463,53 @@ function DataSelectionWorkspaceInner() {
       <div className="data-selection-workspace ds-empty-workspace">
         <section className="ds-setup-column">
           <div className="dashboard-card ds-empty-state">
-            <span className="dashboard-kicker">
-              <Icon name="layers" size={13} /> Data selection
-            </span>
             <h2>No datasets selected yet</h2>
             <p>
-              To select a dataset and retrieve data, go to System Intelligence and specify a scope.
+              Start in Iris Intelligence to specify your research scope and discover candidate datasets.
             </p>
-            <button
-              className="dp-proceed-btn"
-              onClick={() => router.push("/workspace/intelligence")}
-              type="button"
-            >
-              Open System Intelligence <Icon name="arrow" size={14} />
-            </button>
-            {process.env.NODE_ENV === "development" && (
+            <div className="ds-empty-actions">
               <button
-                className="ds-link-btn"
-                onClick={loadDevelopmentDemoData}
+                className="dp-proceed-btn"
+                onClick={() => router.push("/workspace/intelligence")}
                 type="button"
               >
-                Load local demo data
+                Open Iris Intelligence <Icon name="arrow" size={14} />
               </button>
-            )}
+              {process.env.NODE_ENV === "development" && (
+                <button
+                  className="ds-link-btn"
+                  onClick={loadDevelopmentDemoData}
+                  type="button"
+                >
+                  Load local demo data
+                </button>
+              )}
+            </div>
           </div>
         </section>
         <section className="dashboard-card ds-products-column">
           <div className="ds-column-header">
-            <span className="dashboard-kicker">
-              <Icon name="globe" size={13} /> Data sources
-            </span>
             <h2>Connected catalogs</h2>
+            <p>Click any catalog to visit its official portal and explore raw archive collections.</p>
           </div>
           <div className="ds-source-tile-grid">
             {UPSTREAM_PROVIDER_LIST.map((source) => (
-              <article className="ds-source-tile" key={source}>
+              <a
+                className="ds-source-tile"
+                href={CATALOG_WEBSITES[source] || "https://earthdata.nasa.gov"}
+                key={source}
+                rel="noreferrer"
+                target="_blank"
+                title={`Visit ${source} catalog website`}
+              >
                 <Icon name="globe" size={15} />
                 <div>
-                  <strong>{source}</strong>
+                  <strong>
+                    {source} <Icon name="external" size={11} />
+                  </strong>
                   <span>{SOURCE_ORIGINS[source] ?? "Earth observation data provider"}</span>
                 </div>
-              </article>
+              </a>
             ))}
           </div>
         </section>
@@ -471,15 +529,38 @@ function DataSelectionWorkspaceInner() {
       ? 1
       : 0;
   const bboxValues = extractionConfig.bbox;
+  const isGlobalActive = extractionConfig.spatial_level === "global";
 
   return (
     <div className="data-selection-workspace">
       <section className="ds-setup-column">
         <div className="dashboard-card ds-config-card">
+          {selectedProducts.length > 1 && (
+            <div className="ds-dataset-switcher">
+              <span className="ds-dataset-switcher-label">Configuring dataset:</span>
+              <div className="ds-dataset-switcher-tabs" role="tablist">
+                {selectedProducts.map((p) => {
+                  const isCurrent = p.product_id === product.product_id;
+                  const isPrimary = p.product_id === (activeProduct?.product_id ?? products[0]?.product_id);
+                  return (
+                    <button
+                      aria-selected={isCurrent}
+                      className={`ds-dataset-tab${isCurrent ? " is-active" : ""}${isPrimary ? " is-primary" : ""}`}
+                      key={p.product_id}
+                      onClick={() => selectProductForConfiguration(p)}
+                      role="tab"
+                      type="button"
+                    >
+                      {isPrimary && <span className="ds-tab-star">★</span>}
+                      <span className="ds-tab-title">{p.variable_name}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           <header className="ds-column-header">
-            <span className="dashboard-kicker">
-              <Icon name="activity" size={13} /> Configure retrieval
-            </span>
             <h2>{product.variable_name}</h2>
             <p>
               {product.source_api} · {product.provider_agency}
@@ -500,9 +581,19 @@ function DataSelectionWorkspaceInner() {
           )}
 
           <div className="ds-control-group">
-            <label className="ds-control-label" htmlFor="ds-layer">
-              Variable
-            </label>
+            <div className="ds-control-heading">
+              <div className="ds-info-wrap">
+                <label className="ds-control-label" htmlFor="ds-layer">
+                  Variable
+                </label>
+                <span className="ds-info-trigger" tabIndex={0} aria-label="Variable information">
+                  <Icon name="info" size={11} />
+                  <span className="ds-info-tooltip" role="tooltip">
+                    The physical measurement parameter, sensor layer, and scientific units to extract from the catalog archive.
+                  </span>
+                </span>
+              </div>
+            </div>
             <select
               id="ds-layer"
               onChange={(event) => {
@@ -532,7 +623,7 @@ function DataSelectionWorkspaceInner() {
             <div className="ds-control-heading">
               <span className="ds-control-label">Date range</span>
               <span className="ds-control-hint">
-                Available: {product.temporal_start} – {product.temporal_end}
+                {product.temporal_start} – {product.temporal_end}
               </span>
             </div>
             <div className="ds-date-presets">
@@ -575,8 +666,18 @@ function DataSelectionWorkspaceInner() {
           </div>
 
           <div className="ds-control-row">
-            <label className="ds-control-group">
-              <span className="ds-control-label">Frequency</span>
+            <div className="ds-control-group">
+              <div className="ds-control-heading">
+                <div className="ds-info-wrap">
+                  <span className="ds-control-label">Frequency</span>
+                  <span className="ds-info-trigger" tabIndex={0} aria-label="Frequency information">
+                    <Icon name="info" size={11} />
+                    <span className="ds-info-tooltip" role="tooltip">
+                      The temporal cadence of observation points. Series are aligned to Daily, 8-Day, 16-Day, Monthly, Seasonal, or Yearly intervals.
+                    </span>
+                  </span>
+                </div>
+              </div>
               <select
                 onChange={(event) =>
                   setExtractionConfig((previous) => ({
@@ -592,9 +693,19 @@ function DataSelectionWorkspaceInner() {
                   </option>
                 ))}
               </select>
-            </label>
-            <label className="ds-control-group">
-              <span className="ds-control-label">Aggregation</span>
+            </div>
+            <div className="ds-control-group">
+              <div className="ds-control-heading">
+                <div className="ds-info-wrap">
+                  <span className="ds-control-label">Aggregation</span>
+                  <span className="ds-info-trigger" tabIndex={0} aria-label="Aggregation information">
+                    <Icon name="info" size={11} />
+                    <span className="ds-info-tooltip" role="tooltip">
+                      Reduction method applied across observations within each time interval: Mean (average value), Sum (accumulation e.g. precipitation), Min (lowest value), or Max (peak extreme).
+                    </span>
+                  </span>
+                </div>
+              </div>
               <select
                 onChange={(event) =>
                   setExtractionConfig((previous) => ({
@@ -609,12 +720,12 @@ function DataSelectionWorkspaceInner() {
                 <option value="min">Minimum</option>
                 <option value="max">Maximum</option>
               </select>
-            </label>
+            </div>
           </div>
 
           <div className="ds-control-group">
             <div className="ds-control-heading">
-              <span className="ds-control-label">Datasets to retrieve</span>
+              <span className="ds-control-label">Retrieval queue</span>
               <span className="ds-control-hint">{selectedProductCount} of 5 selected</span>
             </div>
             {selectionNotice && <p className="ds-selection-notice" role="status">{selectionNotice}</p>}
@@ -643,7 +754,7 @@ function DataSelectionWorkspaceInner() {
               </>
             ) : (
               <>
-                Retrieve selected datasets <Icon name="arrow" size={16} />
+                Retrieve selected datasets <Icon name="arrow" size={15} />
               </>
             )}
           </button>
@@ -651,69 +762,114 @@ function DataSelectionWorkspaceInner() {
 
         <section className="dashboard-card ds-map-card">
           <header className="ds-column-header ds-map-title">
-            <span className="dashboard-kicker">
-              <Icon name="globe" size={13} /> Area of interest
-            </span>
-            <h2>{extractionConfig.region_name}</h2>
-            <p>Draw a rectangle on the map or adjust its coordinates below.</p>
+            <div className="ds-map-title-row">
+              <div>
+                <h2>{isGlobalActive ? "Global Average (Planetary Mean)" : extractionConfig.region_name}</h2>
+                <p>
+                  {isGlobalActive
+                    ? "Multi-zone planetary extraction (cosine-latitude weighted)"
+                    : "Draw a rectangle or adjust spatial bounding box"}
+                </p>
+              </div>
+              <div className="ds-spatial-mode-pills">
+                <button
+                  className={`ds-mode-pill${!isGlobalActive ? " active" : ""}`}
+                  onClick={() => {
+                    setExtractionConfig((previous) => ({
+                      ...previous,
+                      spatial_level: "regional",
+                      spatial_Submode: "bbox",
+                      bbox:
+                        previous.bbox[0] === -180 && previous.bbox[2] === 180
+                          ? [-122.6, 35.0, -118.5, 40.8]
+                          : previous.bbox,
+                      region_name:
+                        previous.region_name === "Global Average"
+                          ? "Regional selection"
+                          : previous.region_name,
+                    }));
+                  }}
+                  type="button"
+                >
+                  <Icon name="box" size={12} /> Regional
+                </button>
+                <button
+                  className={`ds-mode-pill${isGlobalActive ? " active" : ""}`}
+                  onClick={() => {
+                    setExtractionConfig((previous) => ({
+                      ...previous,
+                      spatial_level: "global",
+                      spatial_Submode: "preset",
+                      bbox: [-180, -90, 180, 90],
+                      region_name: "Global Average",
+                      point_lat: 0,
+                      point_lon: 0,
+                    }));
+                  }}
+                  type="button"
+                >
+                  <Icon name="globe" size={12} /> Global avg
+                </button>
+              </div>
+            </div>
           </header>
-          <IrisMap
-            bbox={extractionConfig.bbox}
-            height="min(42vh, 380px)"
-            mode="selection"
-            onRegionSelect={handleRegionSelect}
-            regionName={extractionConfig.region_name}
-          />
-          <div className="ds-bbox-fields">
-            {[
-              { index: 0, label: "West longitude", min: -180, max: 180 },
-              { index: 1, label: "South latitude", min: -90, max: 90 },
-              { index: 2, label: "East longitude", min: -180, max: 180 },
-              { index: 3, label: "North latitude", min: -90, max: 90 },
-            ].map((coordinate) => (
-              <label key={coordinate.label}>
-                {coordinate.label}
-                <input
-                  max={coordinate.max}
-                  min={coordinate.min}
-                  onChange={(event) =>
-                    updateBboxCoordinate(coordinate.index, Number(event.target.value))
-                  }
-                  step="0.01"
-                  type="number"
-                  value={bboxValues[coordinate.index]}
-                />
-              </label>
-            ))}
-          </div>
-          <p className="ds-spatial-note">
-            NASA POWER can average its regional grid cells for areas at least 2° tall; smaller areas
-            use a center-point sample. Large daily requests may hit response-size limits. Other
-            point-based sources also sample the center. Selections may be up to{" "}
-            {MAX_SELECTION_SPAN_DEGREES}° per side.
-          </p>
+
+          {isGlobalActive ? (
+            <div className="ds-global-notice" role="status">
+              <Icon name="globe" size={14} />
+              <div>
+                <strong>Global Planetary Average Active</strong>
+                <span>
+                  Iris will extract observations across 5 representative global latitudinal zones (-60°, -30°, 0°, 30°, 60°) and compute the true cosine-weighted planetary average time series.
+                </span>
+              </div>
+            </div>
+          ) : (
+            <>
+              <IrisMap
+                bbox={extractionConfig.bbox}
+                height="min(38vh, 330px)"
+                mode="selection"
+                onRegionSelect={handleRegionSelect}
+                regionName={extractionConfig.region_name}
+              />
+              <div className="ds-bbox-fields">
+                {[
+                  { index: 0, label: "West lon", min: -180, max: 180 },
+                  { index: 1, label: "South lat", min: -90, max: 90 },
+                  { index: 2, label: "East lon", min: -180, max: 180 },
+                  { index: 3, label: "North lat", min: -90, max: 90 },
+                ].map((coordinate) => (
+                  <label key={coordinate.label}>
+                    {coordinate.label}
+                    <input
+                      max={coordinate.max}
+                      min={coordinate.min}
+                      onChange={(event) =>
+                        updateBboxCoordinate(coordinate.index, Number(event.target.value))
+                      }
+                      step="0.01"
+                      type="number"
+                      value={bboxValues[coordinate.index]}
+                    />
+                  </label>
+                ))}
+              </div>
+              <p className="ds-spatial-note">
+                Max span {MAX_SELECTION_SPAN_DEGREES}° per side · Areas ≥ 2° average grid cells; smaller areas sample the center point.
+              </p>
+            </>
+          )}
         </section>
       </section>
 
       <section className="dashboard-card ds-products-column">
         <div className="ds-column-header ds-products-header">
           <div>
-            <span className="dashboard-kicker">
-              <Icon name="layers" size={13} /> Retrieved products
-            </span>
             <h2>{discoveryResult.intent.subject_domain}</h2>
             <p>{products.length} matching datasets · select up to 5</p>
           </div>
           <div className="ds-product-header-actions">
-            {process.env.NODE_ENV === "development" && (
-              <button
-                className="ds-link-btn"
-                onClick={loadDevelopmentDemoData}
-                type="button"
-              >
-                Load demo data
-              </button>
-            )}
             <button
               className="ds-link-btn"
               onClick={() => router.push("/workspace/intelligence")}
@@ -723,6 +879,39 @@ function DataSelectionWorkspaceInner() {
             </button>
           </div>
         </div>
+
+        <div className="ds-filter-bar">
+          <div className="ds-filter-group">
+            <label htmlFor="ds-source-filter">Data source:</label>
+            <select
+              className="ds-filter-select"
+              id="ds-source-filter"
+              onChange={(e) => setSourceFilter(e.target.value)}
+              value={sourceFilter}
+            >
+              <option value="all">All sources ({products.length})</option>
+              {availableSources.map((source) => (
+                <option key={source} value={source}>
+                  {source} ({products.filter((p) => p.source_api === source).length})
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="ds-filter-group">
+            <label htmlFor="ds-sort-filter">Sort by:</label>
+            <select
+              className="ds-filter-select"
+              id="ds-sort-filter"
+              onChange={(e) => setSortBy(e.target.value as "match" | "source" | "name")}
+              value={sortBy}
+            >
+              <option value="match">Match percentage (highest)</option>
+              <option value="source">Data source (A–Z)</option>
+              <option value="name">Dataset name (A–Z)</option>
+            </select>
+          </div>
+        </div>
+
         <div className="ds-identified-keywords">
           {discoveryResult.intent.keywords.map((keyword) => (
             <code key={keyword}>{keyword}</code>
@@ -730,19 +919,30 @@ function DataSelectionWorkspaceInner() {
         </div>
 
         <div className="ds-product-list">
-          {products.map((item) => {
-            const primary = item.product_id === product.product_id;
-            const queued = selectedProducts.some((selected) => selected.product_id === item.product_id);
+          {filteredProducts.map((item) => {
+            const isPrimary = item.product_id === product.product_id;
+            const isQueued = selectedProducts.some((selected) => selected.product_id === item.product_id);
             const available = canRetrieve(item);
             return (
               <article
-                className={`ds-product-tile${primary ? " is-primary" : ""}${!available ? " is-unavailable" : ""}`}
+                className={`ds-product-tile${isPrimary ? " is-primary" : isQueued ? " is-queued" : ""}${!available ? " is-unavailable" : ""}`}
                 key={item.product_id}
               >
                 <div className="ds-product-tile-top">
-                  <span className="ds-api-pill">
-                    <Icon name="globe" size={12} /> {item.source_api}
-                  </span>
+                  <div className="ds-tile-badges">
+                    <span className="ds-api-pill">
+                      <Icon name="globe" size={12} /> {item.source_api}
+                    </span>
+                    {isPrimary ? (
+                      <span className="ds-primary-badge">
+                        <Icon name="sparkles" size={11} /> Primary dataset
+                      </span>
+                    ) : isQueued ? (
+                      <span className="ds-queued-badge">
+                        <Icon name="check" size={11} /> Queued for retrieval
+                      </span>
+                    ) : null}
+                  </div>
                   <span className="ds-match-pill">{item.relevance_score}% match</span>
                 </div>
                 <h3>{item.variable_name}</h3>
@@ -750,55 +950,83 @@ function DataSelectionWorkspaceInner() {
                 <p className="ds-product-description">
                   {item.what_it_measures || item.description}
                 </p>
-                <div className="ds-product-provenance">
-                  <span>
-                    <Icon name="info" size={12} />
-                    {item.provider_agency} · {item.mission_or_instrument}
-                  </span>
-                  <span>
-                    <Icon name="activity" size={12} />
-                    {item.native_frequency} · {item.temporal_start.slice(0, 4)}–{item.temporal_end.slice(0, 4)}
-                  </span>
+
+                <div className="ds-product-parameters">
+                  <div className="ds-param-chip">
+                    <small>Frequency</small>
+                    <strong>{item.native_frequency}</strong>
+                  </div>
+                  <div className="ds-param-chip">
+                    <small>Time coverage</small>
+                    <strong>
+                      {item.temporal_start.slice(0, 10)} – {item.temporal_end.slice(0, 10)}
+                    </strong>
+                  </div>
+                  <div className="ds-param-chip">
+                    <small>Resolution</small>
+                    <strong>{item.spatial_resolution}</strong>
+                  </div>
+                  <div className="ds-param-chip">
+                    <small>Unit</small>
+                    <strong>{item.unit}</strong>
+                  </div>
+                  <div className="ds-param-chip">
+                    <small>Agency</small>
+                    <strong>{item.provider_agency}</strong>
+                  </div>
                 </div>
-                <div className="ds-product-meta">
-                  <span>{item.spatial_resolution}</span>
-                  <span>{item.unit}</span>
-                  <span>{item.category}</span>
-                </div>
+
                 <div className={`ds-product-capability${available ? " is-ready" : ""}`}>
                   <Icon name={available ? "check" : "alert"} size={12} />
                   {available ? "Retrieval available" : unavailableReason(item)}
                 </div>
+
                 <div className="ds-product-tile-actions">
                   <a
+                    className="ds-doi-link"
                     href={citationHref(item)}
                     onClick={(event) => event.stopPropagation()}
                     rel="noreferrer"
                     target="_blank"
+                    title="Open dataset documentation, DOI, or provider portal"
                   >
-                    Citation / DOI <Icon name="external" size={11} />
+                    Citation / DOI / Portal <Icon name="external" size={11} />
                   </a>
-                  <button
-                    className={`ds-use-btn${primary ? " active" : ""}`}
-                    disabled={!available || (!queued && selectedProducts.length >= 5)}
-                    onClick={() => handleSelectPrimary(item)}
-                    type="button"
-                  >
-                    {primary ? "Primary dataset" : "Use as primary"}
-                  </button>
-                  <label className="ds-queue-toggle">
-                    <input
-                      checked={queued}
-                      disabled={
-                        !available ||
-                        (primary && queued) ||
-                        (!queued && selectedProducts.length >= 5)
-                      }
-                      onChange={() => toggleQueuedProduct(item)}
-                      type="checkbox"
-                    />
-                    <span>{primary ? "Included" : "Add to retrieval"}</span>
-                  </label>
+
+                  {available ? (
+                    <>
+                      <button
+                        className={`ds-use-btn${isPrimary ? " active" : ""}`}
+                        disabled={!available || (!isQueued && selectedProducts.length >= 5)}
+                        onClick={() => handleSelectPrimary(item)}
+                        type="button"
+                      >
+                        {isPrimary ? "Primary dataset" : "Use as primary"}
+                      </button>
+                      <label className="ds-queue-toggle">
+                        <input
+                          checked={isQueued}
+                          disabled={
+                            !available ||
+                            (isPrimary && isQueued) ||
+                            (!isQueued && selectedProducts.length >= 5)
+                          }
+                          onChange={() => toggleQueuedProduct(item)}
+                          type="checkbox"
+                        />
+                        <span>{isPrimary ? "Included" : "Add to retrieval"}</span>
+                      </label>
+                    </>
+                  ) : (
+                    <a
+                      className="ds-external-access-btn"
+                      href={citationHref(item)}
+                      rel="noreferrer"
+                      target="_blank"
+                    >
+                      Access on {item.source_api} portal <Icon name="external" size={11} />
+                    </a>
+                  )}
                 </div>
               </article>
             );

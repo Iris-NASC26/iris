@@ -12,7 +12,7 @@ const steps = [
   },
   {
     eyebrow: "Ask in plain language",
-    title: "Begin with System Intelligence",
+    title: "Begin with Iris Intelligence",
     text: "Describe a place, environmental signal, or headline. Iris turns it into a structured data request you can inspect.",
     icon: "sparkles" as const,
   },
