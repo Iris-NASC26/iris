@@ -2,7 +2,7 @@
 
 import { Suspense, useCallback, useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { Icon, type IconName } from "@/components/ui/Icon";
 import { DashboardProvider, useDashboard } from "@/context/DashboardContext";
 import { useTheme } from "@/context/ThemeContext";
@@ -35,6 +35,7 @@ const navigation: Array<{
   {
     label: "Explore",
     items: [
+      { to: "/workspace/forecasts", text: "Forecasts", icon: "activity" },
       { to: "/workspace/case-studies", text: "Case Studies", icon: "book" },
       { to: "/workspace/research", text: "Existing Research", icon: "file" },
     ],
@@ -48,14 +49,14 @@ const pageTitles: Record<string, [string, string]> = {
   "/workspace/data-analysis": ["Data Analysis · Case File", "Analyze extracted series using scientific Case File methods"],
   "/workspace/visualize": ["Plot & Visualize · Case File", "Explore retrieved data, compare locations and inspect temporal patterns"],
   "/workspace/globe": ["Living Globe", "Inspect real NASA spatial fields and linked observations"],
+  "/workspace/forecasts": ["Forecasts", "Explore historical data, local predictions and forecast evidence"],
   "/workspace/case-studies": ["Case Studies & Guided Investigations", "Load a solved investigation or step through checkpointed NASA case files"],
   "/workspace/research": ["Existing Research", "Connect the active dataset to published work"],
 };
 
 function DashboardFrame({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const forecastPage = pathname === '/workspace/data-analysis' && searchParams.has('forecastId');
+  const forecastPage = pathname === '/workspace/forecasts';
   const activeInvestigation = pathname?.startsWith('/workspace/case-studies/') ? investigation(pathname.split('/').pop() ?? '') : undefined;
   const { dataset, region, extractedPreview, activeProduct, selectedProducts } = useDashboard();
   const { dark, toggleTheme } = useTheme();
@@ -105,7 +106,7 @@ function DashboardFrame({ children }: { children: ReactNode }) {
     setTourOpen(false);
   }, []);
 
-  const title = forecastPage ? ['Upcoming conditions', 'Weather forecast workspace'] : activeInvestigation ? ['Disaster evidence & point outlook', activeInvestigation.title] : (pathname && pageTitles[pathname]) ?? [
+  const title = activeInvestigation ? ['Disaster evidence & point outlook', activeInvestigation.title] : (pathname && pageTitles[pathname]) ?? [
     "Iris workspace",
     "Earth system intelligence",
   ];
@@ -173,6 +174,7 @@ function DashboardFrame({ children }: { children: ReactNode }) {
                 return (
                   <Link
                     className={isActive ? "active" : ""}
+                    aria-current={isActive ? "page" : undefined}
                     key={item.to}
                     title={collapsed ? item.text : undefined}
                     href={item.to}
@@ -234,7 +236,7 @@ function DashboardFrame({ children }: { children: ReactNode }) {
             <h1>{title[0]}</h1>
           </div>
           <div className="dashboard-context-chip">
-            {forecastPage ? <><span><i/>ECMWF ensemble</span><strong>Future precipitation</strong></> : activeInvestigation ? <><span><i/>Point precipitation</span><strong>{activeInvestigation.point_name}</strong></> : isEmptyDataPreview ? (
+            {forecastPage ? <><span><i/>Iris local models</span><strong>Dataset forecasts</strong></> : activeInvestigation ? <><span><i/>Point precipitation</span><strong>{activeInvestigation.point_name}</strong></> : isEmptyDataPreview ? (
               <>
                 <span>
                   <i />

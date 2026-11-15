@@ -132,6 +132,15 @@ it("rejects unordered or negative ML quantiles", () => {
   assert.equal(unavailable.state, "unavailable");
 });
 
+it("accepts signed target values without allowing negative rainfall", () => {
+  const history = { state: "available", source_id: "MOD13Q1.061", coverage: { complete_days: 1 }, records: [
+    { interval_start: "2020-01-01T00:00:00Z", interval_end: "2020-01-17T00:00:00Z", value: -.1, unit: "1" },
+  ] };
+  assert.equal(parseMlHistory(history).records[0].value, -.1);
+  const signed = { predictions: [{ window_start: "2026-11-16T00:00:00Z", window_end: "2026-11-17T00:00:00Z", q10: -.2, q50: -.1, q90: .1, unit: "1", nonnegative: false }] };
+  assert.equal(parseMlPrediction(signed).predictions![0].q50, -.1);
+});
+
 it("validates trend reports including BH q-values", () => {
   const report = {
     family_id: "annual_total",

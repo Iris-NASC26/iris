@@ -49,7 +49,11 @@ export interface ForecastCard {
   artifact_id: string | null;
   id: string;
   location: ForecastRegion;
-  kind: "precipitation";
+  kind: "precipitation" | "local_model";
+  target?: string;
+  target_label?: string;
+  unit?: string;
+  median?: number | null;
   state: "fresh" | "stale" | "unavailable";
   peak_24h: ForecastWindow | null;
   retrieved_at: string | null;
@@ -241,7 +245,7 @@ export function parseCatalogue(value: unknown): ForecastCard[] {
       card.location?.latitude !== site.latitude ||
       card.location?.longitude !== site.longitude ||
       !["fresh", "stale", "unavailable"].includes(card.state) ||
-      card.kind !== "precipitation"
+      !["precipitation", "local_model"].includes(card.kind)
     )
       throw new Error("Invalid forecast card.");
     if (
@@ -346,6 +350,7 @@ export interface MlTarget {
 export interface MlCapabilities {
   schema_version: string;
   credentials: { configured: boolean; reason?: string };
+  earthdata_credentials?: { configured: boolean };
   policy: string;
   admin_token_required: boolean;
   sources: Record<
@@ -402,7 +407,7 @@ export function parseMlHistory(v: unknown): MlHistory {
         typeof r?.interval_start !== "string" ||
         typeof r?.interval_end !== "string" ||
         !finite(r?.value) ||
-        r.value < 0 ||
+        (r.unit === "mm" && r.value < 0) ||
         Date.parse(r.interval_end) <= Date.parse(r.interval_start),
     )
   )
@@ -419,6 +424,7 @@ export interface MlDataset {
   quarantine: { count: number; reasons: string[] };
   content_sha256: string;
   created_at: string;
+  variables?: string[];
 }
 export function parseMlDatasets(v: unknown): MlDataset[] {
   const list = (v as { datasets?: unknown })?.datasets;
@@ -458,6 +464,10 @@ export interface MlModelCard {
     n_eval?: number;
     model_sha256?: string | null;
     target?: string;
+    coverage_80?: number;
+    test_start?: string;
+    test_end?: string;
+    evaluation_scope?: string;
   };
   eligibility_reasons: string[];
 }
@@ -530,6 +540,9 @@ export interface MlPredictionWindow {
   q50: number;
   q90: number;
   unit: string;
+  nonnegative?: boolean;
+  model_id?: string;
+  source_id?: string;
 }
 export interface MlPrediction {
   state?: string;
@@ -539,6 +552,11 @@ export interface MlPrediction {
   issued_at?: string;
   uncertainty_method?: string;
   predictions?: MlPredictionWindow[];
+  target?: string;
+  latest_input_at?: string;
+  input_age_hours?: number;
+  stale?: boolean;
+  scope?: string;
 }
 export function parseMlPrediction(v: unknown): MlPrediction {
   const p = v as MlPrediction;
@@ -546,14 +564,16 @@ export function parseMlPrediction(v: unknown): MlPrediction {
   if (p.state === "unavailable") return p;
   if (
     !Array.isArray(p.predictions) ||
+    p.predictions.length < 1 || p.predictions.length > 3 ||
     p.predictions.some(
       (w) =>
         !finite(w?.q10) ||
         !finite(w?.q50) ||
         !finite(w?.q90) ||
-        w.q10 < 0 ||
-        w.q50 < 0 ||
-        w.q90 < 0 ||
+        !Number.isFinite(Date.parse(w.window_start)) ||
+        !Number.isFinite(Date.parse(w.window_end)) ||
+        Date.parse(w.window_end) <= Date.parse(w.window_start) ||
+        (w.nonnegative !== false && (w.q10 < 0 || w.q50 < 0 || w.q90 < 0)) ||
         !(w.q10 <= w.q50 && w.q50 <= w.q90),
     )
   )

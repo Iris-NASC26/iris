@@ -8,6 +8,7 @@ from contextlib import asynccontextmanager
 
 from forecasts.router import router as forecast_router
 from forecasts.v2.router import router as forecast_v2_router
+from forecasts.v2 import workers as forecast_workers
 from forecasts.service import start as start_forecasts
 from forecasts.service import stop as stop_forecasts
 from hazards.router import router as hazards_router
@@ -25,10 +26,12 @@ _original_lifespan = app.router.lifespan_context
 async def forecast_lifespan(application):
     async with _original_lifespan(application) as state:
         start_forecasts()
+        forecast_workers.start()
         try:
             yield state
         finally:
             stop_forecasts()
+            forecast_workers.stop()
 
 
 app.router.lifespan_context = forecast_lifespan

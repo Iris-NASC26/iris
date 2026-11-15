@@ -5,9 +5,9 @@ per-product availability (interval_end + publication delay — composite
 products finish at composite end, never earlier), content hashes, and no
 auth material in persisted records.
 
-Implemented access: CMR granule search + per-granule authenticated byte
-download (OPeNDAP point subsets). AppEEARS/Harmony are the documented
-alternatives for area statistics; this module emits point records only.
+Production access uses AppEEARS point extractions for land products and the
+authenticated Giovanni time-series service for GES DISC. The injectable CMR
+path remains available for transport-level tests. No global raster download.
 """
 from __future__ import annotations
 
@@ -174,6 +174,12 @@ def fetch_series(var_name: str, lat: float, lon: float,
     if end > now:
         raise EarthdataError(
             "History requests must end before now; future granules are prohibited.", 422)
+    if transport is None and parser is None:
+        from . import appeears
+        if var_name in appeears.LAYERS:
+            return appeears.extract(var_name, lat, lon, start, end, checkpoint=checkpoint)
+        from .gic import extract
+        return extract(var_name, lat, lon, start, end, checkpoint=checkpoint, budget=budget)
     shortname = spec["sources"][0]
     p = product(shortname)
     version = shortname.split(".")[-1]

@@ -13,7 +13,7 @@ async function proxy(
   // iris.ml-forecast.v2 routes — explicit shapes only, never arbitrary paths.
   const v2 =
     path[0] === "v2" &&
-    ((path.length === 2 && path[1] === "capabilities" && isGet) ||
+    ((path.length === 2 && ["capabilities", "catalogue"].includes(path[1]) && isGet) ||
       (path.length === 3 && path[1] === "jobs" && isGet) ||
       (path.length === 4 &&
         path[1] === "jobs" &&
@@ -22,10 +22,10 @@ async function proxy(
       (path.length === 4 && path[1] === "runs" && isGet) ||
       (forecastRegion(path[1]) &&
         ((path.length === 3 &&
-          ["history", "datasets", "models", "trends"].includes(path[2]) &&
+          ["history", "datasets", "models", "trends", "prediction", "jobs"].includes(path[2]) &&
           isGet) ||
           (path.length === 3 &&
-            ["ingest", "datasets", "train", "trends", "predict", "refresh"].includes(
+            ["ingest", "datasets", "train", "trends", "predict", "refresh", "generate"].includes(
               path[2],
             ) &&
             isPost) ||
@@ -58,9 +58,10 @@ async function proxy(
         cache: "no-store",
         redirect: "error",
         signal: AbortSignal.timeout(45000),
-        headers: body
-          ? { "Content-Type": "application/json" }
-          : undefined,
+        headers: {
+          ...(body ? { "Content-Type": "application/json" } : {}),
+          ...(request.headers.get("x-iris-admin") ? { "x-iris-admin": request.headers.get("x-iris-admin")! } : {}),
+        },
         body: body || undefined,
       },
     );

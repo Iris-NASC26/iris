@@ -47,6 +47,11 @@ class QuantilePrediction:
     q90: float
     unit: str = "mm"
     nonnegative: bool = True
+    model_id: str = ""
+    model_hash: str = ""
+    dataset_id: str = ""
+    source_id: str = ""
+    evaluation_ref: str = ""
 
     def __post_init__(self):
         for name, v in (("q10", self.q10), ("q50", self.q50), ("q90", self.q90)):
@@ -73,6 +78,9 @@ class ForecastRun:
     input_age_hours: float | None = None
     evaluation_ref: str | None = None
     schema_version: str = SCHEMA_VERSION
+    target: str = "precip_24h"
+    scope: str = "experimental_local_model"
+    horizons_unavailable: list[dict] = field(default_factory=list)
 
     def __post_init__(self):
         if not 1 <= len(self.predictions) <= 3:

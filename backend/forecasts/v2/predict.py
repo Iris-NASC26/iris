@@ -8,6 +8,7 @@ violation marks the window unavailable instead of hiding model defects.
 from __future__ import annotations
 
 import json
+import re
 import uuid
 from dataclasses import asdict
 from datetime import UTC, datetime, timedelta
@@ -39,71 +40,89 @@ def _active_model(location_id: str, horizon: int, target: str = "precip_24h") ->
 
 def predict(location_id: str, records: list[dict], issue_ts: str | None = None,
             target: str = "precip_24h") -> dict:
-    """One run across all horizons with active models. Honest per-window state."""
+    """Run eligible local models using the same native features as evaluation."""
+    import numpy as np
+    from threadpoolctl import threadpool_limits
+    from .fitting import History, VERSION, stamp, window
     spec = variable_spec(target)
-    issue = issue_ts or datetime.now(UTC).isoformat()
-    windows, unavailable = [], []
-    model_id = ""
-    step = spec["composite_days"]
+    issue = stamp(issue_ts) if issue_ts else datetime.now(UTC)
+    windows, unavailable, latest_inputs = [], [], []
+    dataset_hashes = []
     for h in HORIZONS:
         active = _active_model(location_id, h, target)
         if not active:
             unavailable.append({"horizon": h, "reason": "no active model for this horizon"})
             continue
         bundle = active["bundle"]
-        model_id = active["model_id"]
-        hist = [features.qa.HistoricalRecord(
-            **{k: v for k, v in r.items()
-               if k in features.qa.HistoricalRecord.__dataclass_fields__})
-            for r in records]
-        feat = features.build_features(hist, issue, h, bundle["lag_hours"], target)
+        if bundle.get("engine_version") != VERSION:
+            unavailable.append({"horizon": h, "reason": "retrain this older model using the availability-correct native-period engine"})
+            continue
+        history = History(records, target, bundle["source_id"], bundle["lag_hours"])
+        feat = history.feature(issue, h)
         if feat is None:
-            unavailable.append({"horizon": h, "reason": "insufficient recent history at the availability cutoff"})
+            unavailable.append({"horizon": h, "reason": "insufficient quality-controlled records at the information cutoff"})
             continue
-        row = [[feat.get(c) for c in bundle["feature_columns"]]]
-        import numpy as np
-        q10 = float(bundle["models"]["q10"].predict(np.array(row, dtype=float))[0])
-        q50 = float(bundle["models"]["median"].predict(np.array(row, dtype=float))[0])
-        q90 = float(bundle["models"]["q90"].predict(np.array(row, dtype=float))[0])
-        clip = (lambda v: max(0.0, v)) if spec["nonnegative"] else (lambda v: v)
+        if feat["input_age_days"] > bundle["max_input_age_days"]:
+            unavailable.append({"horizon": h, "reason": "latest input is older than the range evaluated for this model; refresh the historical records"})
+            continue
+        row = np.array([[feat[c] for c in bundle["feature_columns"]]], dtype=float)
+        with threadpool_limits(limits=1):
+            q = sorted(float(bundle["models"][name].predict(row)[0]) for name in ("q10", "median", "q90"))
+        correction = bundle.get("interval_correction", 0.0)
+        q = [max(spec["min"], q[0] - correction),
+             min(spec["max"], max(spec["min"], q[1])), min(spec["max"], q[2] + correction)]
+        start, end = window(issue, h, target)
         try:
-            qp = QuantilePrediction(
-                window_start=(datetime.fromisoformat(issue.replace("Z", "+00:00")) + timedelta(days=step * h)).isoformat(),
-                window_end=(datetime.fromisoformat(issue.replace("Z", "+00:00")) + timedelta(days=step * (h + 1))).isoformat(),
-                lead_hours=24.0 * step * (h + 1),
-                q10=clip(q10), q50=clip(q50), q90=clip(q90),
-                unit=spec["unit"], nonnegative=spec["nonnegative"])
+            result = QuantilePrediction(
+                window_start=start.isoformat(), window_end=end.isoformat(),
+                lead_hours=(end - issue).total_seconds() / 3600,
+                q10=q[0], q50=q[1], q90=q[2], unit=spec["unit"], nonnegative=spec["nonnegative"],
+                model_id=active["model_id"], model_hash=active["entry"]["sha256"],
+                dataset_id=bundle["dataset_id"], source_id=bundle["source_id"],
+                evaluation_ref=active["model_id"])
         except ValueError:
-            unavailable.append({"horizon": h, "reason": "model quantiles violated ordering/nonnegativity; window suppressed"})
+            unavailable.append({"horizon": h, "reason": "model produced invalid prediction quantiles"})
             continue
-        windows.append(qp)
+        windows.append(result)
+        latest_inputs.append(max(r["end"] for r in history.inputs(issue)))
+        dataset_hashes.append(bundle["dataset_hash"])
     if not windows:
-        return {"state": "unavailable",
+        return {"state": "unavailable", "target": target,
                 "reason": "no horizon produced a verified local prediction",
                 "horizons": unavailable, "schema_version": "iris.ml-forecast.v2"}
+    latest = min(latest_inputs)
     run = ForecastRun(
-        run_id=f"run-{uuid.uuid4().hex[:16]}",
-        model_id=model_id,
-        model_hash="",
-        dataset_revision="",
-        issued_at=issue,
-        input_cutoff=issue,
-        valid_until=(datetime.fromisoformat(issue.replace("Z", "+00:00")) + timedelta(hours=6)).isoformat(),
-        uncertainty_method="quantile gradient boosting (q10/q90) — coverage measured on held-out calibration",
-        predictions=windows,
-    )
+        run_id="run-" + uuid.uuid4().hex[:16], model_id=windows[0].model_id,
+        model_hash=windows[0].model_hash, dataset_revision=dataset_hashes[0],
+        issued_at=issue.isoformat(), input_cutoff=latest.isoformat(),
+        latest_input_at=latest.isoformat(), input_age_hours=(issue - latest).total_seconds() / 3600,
+        valid_until=min(issue + timedelta(hours=6), datetime.fromisoformat(windows[0].window_start)).isoformat(),
+        uncertainty_method="quantile gradient boosting with calibration-only interval adjustment; empirical holdout coverage, no universal coverage guarantee",
+        evaluation_ref=windows[0].model_id, predictions=windows, target=target,
+        horizons_unavailable=unavailable)
+    out = {**asdict(run), "state": "available"}
     rdir = RUNS_ROOT / location_id
     rdir.mkdir(parents=True, exist_ok=True)
-    (rdir / f"{run.run_id}.json").write_text(json.dumps(asdict(run), indent=1))
-    import os
-    tmp = rdir / "current.json.tmp"
-    tmp.write_text(json.dumps({"run_id": run.run_id, "issued_at": run.issued_at}))
-    os.replace(tmp, rdir / "current.json")  # atomic pointer publish
-    out = asdict(run)
-    out["horizons_unavailable"] = unavailable
+    (rdir / f"{run.run_id}.json").write_text(json.dumps(out, indent=1))
+    pointer = rdir / f"current-{target}.json"
+    tmp = pointer.with_suffix(".tmp")
+    tmp.write_text(json.dumps({"run_id": run.run_id}))
+    tmp.replace(pointer)
     return out
 
 
+def current(location_id: str, target: str = "precip_24h") -> dict:
+    pointer = RUNS_ROOT / location_id / f"current-{target}.json"
+    if pointer.exists():
+        run = get_run(location_id, json.loads(pointer.read_text())["run_id"])
+        if run:
+            run["stale"] = datetime.fromisoformat(run["valid_until"]) <= datetime.now(UTC)
+            return run
+    return {"state": "unavailable", "target": target, "reason": "No dataset forecast has been published for this target yet."}
+
+
 def get_run(location_id: str, run_id: str) -> dict | None:
+    if not re.fullmatch(r"run-[a-f0-9]{16}", run_id):
+        return None
     p = RUNS_ROOT / location_id / f"{run_id}.json"
     return json.loads(p.read_text()) if p.exists() else None

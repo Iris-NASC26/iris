@@ -57,6 +57,7 @@ def normalize(records: list[dict], location_id: str, source_id: str) -> tuple[li
             interval_start=str(raw["interval_start"]), interval_end=str(raw["interval_end"]),
             value=float(value), retrieved_at=str(raw.get("retrieved_at", "")),
             available_at=raw.get("available_at"),
+            source_artifact_hash=raw.get("source_artifact_hash", ""),
         ))
     valid.sort(key=lambda r: r.interval_start)
     return valid, quarantined

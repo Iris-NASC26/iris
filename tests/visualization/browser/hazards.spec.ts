@@ -199,12 +199,12 @@ test("case navigation is accessible on mobile and landing markers link directly 
   await page.goto("/");
   await expect(
     page.locator(
-      'a.landing-cobe-marker[href^="/workspace/data-analysis?forecastId=kathmandu"]',
+      'a.landing-cobe-marker[href^="/workspace/forecasts?forecastId=kathmandu"]',
     ),
   ).toBeAttached();
   await expect(
     page.locator(
-      'a.landing-cobe-marker[href^="/workspace/data-analysis?forecastId=colombo"]',
+      'a.landing-cobe-marker[href^="/workspace/forecasts?forecastId=colombo"]',
     ),
   ).toBeAttached();
   expect(requests).toBe(0);

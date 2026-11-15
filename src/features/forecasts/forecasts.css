@@ -409,6 +409,9 @@
   opacity: 0.45;
   cursor: not-allowed;
 }
+.ml-actions .ml-generate { background: #10947c; color: #fff; font-weight: 600; }
+.ml-forecast-chart { height: 280px; width: 100%; min-width: 0; }
+.ml-forecast-chart .viz-chart-frame, .ml-forecast-chart .viz-chart-canvas { height: 100%; width: 100%; }
 .ml-dataset-list {
   list-style: none;
   padding: 0;

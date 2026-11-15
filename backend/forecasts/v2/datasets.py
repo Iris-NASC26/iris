@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from dataclasses import asdict
 from datetime import UTC, datetime
 from pathlib import Path
@@ -40,8 +41,7 @@ def build(location_id: str, source_id: str, valid_records: list,
     payload = json.dumps(canon, sort_keys=True, separators=(",", ":")).encode()
     content_hash = hashlib.sha256(payload).hexdigest()
     dataset_id = f"ds-{content_hash[:16]}"
-    days = sorted({r["interval_start"][:10] for r in canon
-                   if r["variable"].startswith("precip")})
+    days = sorted({r["interval_start"][:10] for r in canon})
     manifest = {
         "schema_version": "iris.ml-forecast.v2",
         "dataset_id": dataset_id,
@@ -49,6 +49,8 @@ def build(location_id: str, source_id: str, valid_records: list,
         "source_id": source_id,
         "created_at": datetime.now(UTC).isoformat(),
         "records": len(canon),
+        "variables": sorted({r["variable"] for r in canon}),
+        "availability_basis": "Source publication delays are estimated; not a verified issue-time archive.",
         "precip_complete_days": len(days),
         "coverage": {"first_day": days[0] if days else None,
                      "last_day": days[-1] if days else None},
@@ -70,6 +72,8 @@ def build(location_id: str, source_id: str, valid_records: list,
 
 
 def load(location_id: str, dataset_id: str) -> list[dict] | None:
+    if not re.fullmatch(r"ds-[a-f0-9]{16}", dataset_id):
+        return None
     p = ROOT / "datasets" / location_id / dataset_id / "records.jsonl"
     if not p.exists():
         return None
@@ -86,9 +90,11 @@ def manifests(location_id: str) -> list[dict]:
             out.append(json.loads(m.read_text()))
         except json.JSONDecodeError:
             continue
-    return out
+    return sorted(out, key=lambda item: item.get("created_at", ""))
 
 
 def manifest(location_id: str, dataset_id: str) -> dict | None:
+    if not re.fullmatch(r"ds-[a-f0-9]{16}", dataset_id):
+        return None
     p = ROOT / "datasets" / location_id / dataset_id / "manifest.json"
     return json.loads(p.read_text()) if p.exists() else None

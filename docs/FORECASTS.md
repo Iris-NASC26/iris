@@ -1,5 +1,7 @@
 # Forecast-first discovery and workspace
 
+Current implementation: [Dataset forecasts](DATASET_FORECASTS.md) documents the default historical-data → local ML forecast workflow, source-specific ingestion, durable jobs, evaluation, and live pilot limitations. The provider-ensemble implementation described below remains an explicit legacy archive path; it is not the default forecasting interface, and its automatic refresh is disabled by default.
+
 Implemented following the team's explicit authorization on 15 November 2026. This extends the trend application with future weather predictions. It does not amend historical trend-significance methodology. The team subsequently elected to proceed **without EWDS access**, so river-flow forecasts remain disabled.
 
 | Capability | Current status |

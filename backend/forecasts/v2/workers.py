@@ -8,6 +8,9 @@ eligibility gates; trends persist declared hypothesis reports.
 from __future__ import annotations
 
 import json
+import logging
+import threading
+import time
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
@@ -18,6 +21,8 @@ from .variables import variable as variable_spec
 STAGING = Path(STORE_PATH).parent / "v2" / "history"
 REPORTS = Path(STORE_PATH).parent / "v2" / "trend_reports"
 DEFAULT_BUDGET = {"remaining": 60}
+_stop = threading.Event()
+_thread = None
 
 
 def staging_path(location_id: str, source_id: str) -> Path:
@@ -36,10 +41,20 @@ def staged_records(location_id: str, source_id: str | None = None) -> list[dict]
     return out
 
 
+def _save_quarantine(path: Path, records: list[dict]):
+    report = path.with_suffix(".qa.json")
+    previous = json.loads(report.read_text()) if report.exists() else []
+    merged = {(r.get("variable"), r.get("interval_start")): r for r in previous + records}
+    tmp = report.with_suffix(".tmp")
+    tmp.write_text(json.dumps(list(merged.values())))
+    tmp.replace(report)
+
+
 def execute(job_id: str, *, transport=None, region_lookup=None, parser=None) -> dict:
     """Run one queued/resumed job to completion or a checkpoint pause."""
     job = jobs.get(job_id)
-    jobs.begin(job_id)
+    if not jobs.begin(job_id):
+        return jobs.get(job_id)
     kind, loc = job["kind"], job["location_id"]
     spec = job.get("checkpoint") or {}
     try:
@@ -54,8 +69,16 @@ def execute(job_id: str, *, transport=None, region_lookup=None, parser=None) -> 
             result = _train(loc, spec)
         elif kind == "trend":
             result = _trend(loc, spec)
+        elif kind == "pipeline":
+            result = _pipeline(job_id, loc, spec)
         else:
             raise ValueError(f"unknown job kind {kind}")
+        if result.get("pending"):
+            jobs.defer(job_id, {**result.get("checkpoint", {}),
+                               "message": result.get("message", "Waiting for historical records"),
+                               "next_poll_at": (datetime.now(UTC) + timedelta(seconds=20)).isoformat()},
+                       result.get("progress", .15))
+            return jobs.get(job_id)
         jobs.advance(job_id, 1.0, {"result": result})
         jobs.finish(job_id, True)
         return jobs.get(job_id)
@@ -65,10 +88,12 @@ def execute(job_id: str, *, transport=None, region_lookup=None, parser=None) -> 
 
 
 def _ingest(job_id: str, loc: str, spec: dict, *, transport, region_lookup) -> dict:
-    region = (region_lookup or (lambda i: {"id": i, "latitude": 0.0, "longitude": 0.0}))(loc)
+    from ..catalog import region as lookup
+    region = (region_lookup or lookup)(loc)
     source_id = spec.get("source_id", "era5")
     lag_hours = sources.SOURCE_OPTIONS.get(source_id, (None, 24 * 6, ""))[1]
-    end = datetime.now(UTC).replace(minute=0, second=0, microsecond=0)
+    end = (datetime.fromisoformat(spec["end"]) if spec.get("end") else
+           datetime.now(UTC).replace(hour=0, minute=0, second=0, microsecond=0))
     start = (datetime.fromisoformat(spec["start"]) if spec.get("start")
              else end - timedelta(days=int(spec.get("backfill_days", 365))))
     ckpt = spec.get("ingest_checkpoint", {})
@@ -76,7 +101,7 @@ def _ingest(job_id: str, loc: str, spec: dict, *, transport, region_lookup) -> d
         loc, float(region["latitude"]), float(region["longitude"]), source_id,
         start, end, transport=transport,
         budget={**DEFAULT_BUDGET, **(spec.get("budget") or {})},
-        checkpoint=ckpt, sleep=lambda s: None)
+        checkpoint=ckpt)
     valid, quarantined = qa.normalize(out["records_raw"], loc, source_id)
     # Availability metadata is declared per source, not implied by retrieval.
     staged = []
@@ -95,6 +120,10 @@ def _ingest(job_id: str, loc: str, spec: dict, *, transport, region_lookup) -> d
     tmp = path.with_suffix(".tmp")
     tmp.write_text("\n".join(lines) + ("\n" if lines else ""))
     tmp.replace(path)
+    _save_quarantine(path, quarantined)
+    if out.get("exhausted"):
+        return {"pending": True, "checkpoint": {"ingest_checkpoint": out["next_checkpoint"]},
+                "message": f"Historical backfill continues; {len(merged)} records retained so far."}
     return {"new_records": len(valid), "quarantined": len(quarantined),
             "checkpoint": out["next_checkpoint"], "exhausted": out["exhausted"],
             "source": out["source"]}
@@ -104,15 +133,20 @@ def _earthdata_ingest(job_id: str, loc: str, spec: dict, *, transport, parser,
                       region_lookup) -> dict:
     var_name = spec["variable"]
     variable_spec(var_name)  # unknown targets rejected
-    region = (region_lookup or (lambda i: {"id": i, "latitude": 0.0, "longitude": 0.0}))(loc)
-    end = datetime.now(UTC).replace(minute=0, second=0, microsecond=0)
+    from ..catalog import region as lookup
+    region = (region_lookup or lookup)(loc)
+    end = (datetime.fromisoformat(spec["end"]) if spec.get("end") else
+           datetime.now(UTC).replace(hour=0, minute=0, second=0, microsecond=0))
     start = (datetime.fromisoformat(spec["start"]) if spec.get("start")
              else end - timedelta(days=int(spec.get("backfill_days", 366))))
     out = earthdata.fetch_series(
         var_name, float(region["latitude"]), float(region["longitude"]),
         start, end, transport=transport, parser=parser,
         budget={**DEFAULT_BUDGET, **(spec.get("budget") or {})},
-        checkpoint=spec.get("ingest_checkpoint", {}), sleep=lambda s: None)
+        checkpoint=spec.get("ingest_checkpoint", {}))
+    if out.get("pending"):
+        return {"pending": True, "checkpoint": {"ingest_checkpoint": out["next_checkpoint"]},
+                "message": out.get("message", "Earthdata extraction is pending")}
     for r in out["records_raw"]:
         r["location_id"] = loc
     source_id = out["source"]["id"]
@@ -127,6 +161,10 @@ def _earthdata_ingest(job_id: str, loc: str, spec: dict, *, transport, parser,
     tmp = path.with_suffix(".tmp")
     tmp.write_text("\n".join(lines) + ("\n" if lines else ""))
     tmp.replace(path)
+    _save_quarantine(path, quarantined)
+    if out.get("exhausted"):
+        return {"pending": True, "checkpoint": {"ingest_checkpoint": out["next_checkpoint"]},
+                "message": f"Historical backfill continues; {len(merged)} records retained so far."}
     return {"new_records": len(valid), "quarantined": len(quarantined),
             "checkpoint": out["next_checkpoint"], "exhausted": out["exhausted"],
             "source": out["source"], "granules": out["granules_discovered"]}
@@ -135,9 +173,15 @@ def _earthdata_ingest(job_id: str, loc: str, spec: dict, *, transport, parser,
 def _dataset(loc: str, spec: dict) -> dict:
     source_id = spec.get("source_id", "era5")
     staged = staged_records(loc, source_id)
+    if spec.get("variable"):
+        staged = [r for r in staged if r["variable"] == spec["variable"]]
     if not staged:
         raise ValueError("no staged history for this source — run ingest first")
     valid, quarantined = qa.normalize(staged, loc, source_id)
+    report = staging_path(loc, source_id).with_suffix(".qa.json")
+    if report.exists():
+        quarantined.extend(r for r in json.loads(report.read_text())
+                           if not spec.get("variable") or r.get("variable") == spec["variable"])
     return datasets.build(loc, source_id, valid, quarantined, spec=spec)
 
 
@@ -190,3 +234,86 @@ def trend_reports(loc: str) -> list[dict]:
     for r, q in zip(reports, qs):
         r["q_bh"] = q
     return reports
+
+
+def _pipeline(job_id: str, loc: str, spec: dict) -> dict:
+    from . import predict
+    from .variables import PRODUCTS
+    target = spec.get("variable", "precip_24h")
+    source = variable_spec(target)["sources"][0]
+    spec = {**spec, "source_id": source, "variable": target}
+    if not spec.get("end"):
+        spec["end"] = datetime.now(UTC).replace(hour=0, minute=0, second=0, microsecond=0).isoformat()
+        jobs.advance(job_id, jobs.get(job_id)["progress"], {"end": spec["end"]})
+    phase = spec.get("phase", "ingest")
+    if phase == "ingest":
+        result = (_earthdata_ingest(job_id, loc, spec, transport=None, parser=None, region_lookup=None)
+                  if source in PRODUCTS else
+                  _ingest(job_id, loc, spec, transport=None, region_lookup=None))
+        if result.get("pending"):
+            return result
+        spec.update(phase="dataset")
+        jobs.advance(job_id, .35, {"phase": "dataset", "message": "Building a frozen historical dataset"})
+    if spec["phase"] == "dataset":
+        ds = _dataset(loc, spec)
+        spec.update(phase="train", dataset_id=ds["dataset_id"])
+        jobs.advance(job_id, .45, {"phase": "train", "dataset_id": ds["dataset_id"],
+                                "message": "Training and evaluating local models against baselines"})
+    if jobs.get(job_id)["status"] == "cancelled":
+        return {"state": "cancelled"}
+    result = _train(loc, spec)
+    if jobs.get(job_id)["status"] == "cancelled":
+        return {"state": "cancelled"}
+    jobs.advance(job_id, .9, {"message": "Checking model eligibility and producing forecasts"})
+    for card in result["cards"]:
+        if card["state"] == "eligible":
+            training.activate(loc, card["model_id"])
+    forecast = predict.predict(loc, staged_records(loc, source), target=target)
+    return {"target": target, "dataset_id": spec["dataset_id"], "models": result["cards"],
+            "forecast": forecast, "state": forecast.get("state", "available")}
+
+
+def _loop():
+    refreshed_at = 0.0
+    while not _stop.is_set():
+        try:
+            job_id = jobs.next_queued()
+            if job_id:
+                execute(job_id)
+                continue
+            if time.monotonic() - refreshed_at >= 300:
+                refresh_predictions()
+                refreshed_at = time.monotonic()
+        except Exception:
+            logging.getLogger(__name__).exception("Historical forecast worker failed")
+        _stop.wait(2)
+
+
+def refresh_predictions():
+    """Renew expired local forecasts only; never download or retrain on a visit."""
+    from ..catalog import REGIONS
+    from . import predict
+    for loc in REGIONS:
+        targets = {m.get("metrics", {}).get("target", "precip_24h")
+                   for m in training.list_models(loc) if m["state"] == "active"}
+        for target in targets:
+            current = predict.current(loc, target)
+            if current.get("state") == "available" and not current.get("stale"):
+                continue
+            predict.predict(loc, staged_records(loc), target=target)
+
+
+def start():
+    global _thread
+    if _thread and _thread.is_alive():
+        return
+    jobs.recover()
+    _stop.clear()
+    _thread = threading.Thread(target=_loop, name="iris-dataset-forecasts", daemon=True)
+    _thread.start()
+
+
+def stop():
+    _stop.set()
+    if _thread:
+        _thread.join(timeout=2)

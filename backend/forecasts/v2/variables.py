@@ -103,8 +103,8 @@ VARIABLES: dict[str, dict] = {
         "sources": ["GLDAS_NOAH025_3H.2.1"],
     },
     "modis_snow": {
-        "label": "Snow cover (MODIS NDSI)",
-        "unit": "%",
+        "label": "Snow index (MODIS NDSI)",
+        "unit": "NDSI score",
         "aggregation": "mean",
         "min": 0.0, "max": 100.0,
         "composite_days": 1,
@@ -156,7 +156,7 @@ PRODUCTS: dict[str, dict] = {
     },
     "GLDAS_NOAH025_3H.2.1": {
         "daac": "GES DISC", "variable": "SoilMoist_inst,Tair_f_inst",
-        "native_cadence": "3h->daily", "delay_days": 45, "access": "opendap",
+        "native_cadence": "3h->daily", "delay_days": 120, "access": "opendap",
         "note": "GLDAS-2.1 monthly files; delayed publication",
     },
     "MOD10A1.061": {

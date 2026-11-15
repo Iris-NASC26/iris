@@ -1,5 +1,7 @@
 "use client";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ChartCanvas } from "@/features/visualization/Charts";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   parseMlCapabilities,
   parseMlDatasets,
@@ -23,9 +25,10 @@ const number = (v: number | null | undefined, digits = 2) =>
 
 /** Iris historical-ML pipeline panel. Everything shown comes from v2 routes;
  *  missing pieces are stated, never filled with plausible output. */
-export function MlForecastSection({ id }: { id: string }) {
+export function MlForecastSection({ id, artifactId }: { id: string; artifactId?: string }) {
+  const search = useSearchParams(), router = useRouter(), pathname = usePathname();
   const [caps, setCaps] = useState<MlCapabilities | null>(null);
-  const [target, setTarget] = useState("precip_24h");
+  const [target, setTarget] = useState(search.get("target") || "precip_24h");
   const [history, setHistory] = useState<MlHistory | null>(null);
   const [datasets, setDatasets] = useState<MlDataset[]>([]);
   const [models, setModels] = useState<MlModelCard[]>([]);
@@ -34,46 +37,83 @@ export function MlForecastSection({ id }: { id: string }) {
   const [job, setJob] = useState<MlJob | null>(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState("");
-  const poll = useRef<ReturnType<typeof setInterval> | null>(null);
+  const pendingLoad = useRef<AbortController | null>(null);
 
   const load = useCallback(async () => {
+    pendingLoad.current?.abort();
+    const controller = new AbortController();
+    pendingLoad.current = controller;
+    const options = { cache: "no-store" as const, signal: controller.signal };
     try {
-      const [c, h, d, m, t] = await Promise.all([
-        fetch("/api/v1/forecasts/v2/capabilities", { cache: "no-store" }).then((r) =>
+      const cr = await fetch("/api/v1/forecasts/v2/capabilities", options);
+      const c = cr.ok ? parseMlCapabilities(await cr.json()) : null;
+      const source = c?.targets?.[target]?.sources[0] || "era5";
+      const [h, d, m, t, prediction, latestJob] = await Promise.all([
+        fetch(`/api/v1/forecasts/v2/${id}/history?source_id=${encodeURIComponent(source)}&variable=${encodeURIComponent(target)}`, options).then((r) =>
           r.ok ? r.json() : null,
         ),
-        fetch(`/api/v1/forecasts/v2/${id}/history`, { cache: "no-store" }).then((r) =>
+        fetch(`/api/v1/forecasts/v2/${id}/datasets`, options).then((r) =>
           r.ok ? r.json() : null,
         ),
-        fetch(`/api/v1/forecasts/v2/${id}/datasets`, { cache: "no-store" }).then((r) =>
+        fetch(`/api/v1/forecasts/v2/${id}/models`, options).then((r) =>
           r.ok ? r.json() : null,
         ),
-        fetch(`/api/v1/forecasts/v2/${id}/models`, { cache: "no-store" }).then((r) =>
+        fetch(`/api/v1/forecasts/v2/${id}/trends`, options).then((r) =>
           r.ok ? r.json() : null,
         ),
-        fetch(`/api/v1/forecasts/v2/${id}/trends`, { cache: "no-store" }).then((r) =>
-          r.ok ? r.json() : null,
-        ),
+        fetch(artifactId ? `/api/v1/forecasts/v2/runs/${id}/${encodeURIComponent(artifactId)}` : `/api/v1/forecasts/v2/${id}/prediction?target=${encodeURIComponent(target)}`, options).then(r => r.ok ? r.json() : null),
+        fetch(`/api/v1/forecasts/v2/${id}/jobs?target=${encodeURIComponent(target)}`, options).then(r => r.ok ? r.json() : null),
       ]);
-      if (c) setCaps(parseMlCapabilities(c));
+      if (controller.signal.aborted) return;
+      if (c) setCaps(c);
       if (h) setHistory(parseMlHistory(h));
-      if (d) setDatasets(parseMlDatasets(d));
+      if (d) setDatasets(parseMlDatasets(d).filter(d => d.source_id === source && (!d.variables || d.variables.includes(target))));
       if (m) setModels(parseMlModels(m));
       if (t) setReports(parseMlTrends(t));
+      if (prediction && (prediction.state === "unavailable" || Array.isArray(prediction.predictions))) {
+        if (artifactId && prediction.target && prediction.target !== target) setTarget(prediction.target);
+        else setPrediction(parseMlPrediction(prediction));
+      }
+      if (latestJob?.job) setJob(latestJob.job);
     } catch {
+      if (controller.signal.aborted) return;
       setError("Iris ML status is unavailable; values shown may be incomplete.");
     }
-  }, [id]);
+  }, [id, target, artifactId]);
 
   useEffect(() => {
+    setHistory(null); setDatasets([]); setModels([]); setReports([]); setPrediction(null); setJob(null);
     void load();
     return () => {
-      if (poll.current) clearInterval(poll.current);
+      pendingLoad.current?.abort();
     };
   }, [load]);
 
+  const queryTarget = search.get("target");
+  useEffect(() => { if (!artifactId) setTarget(queryTarget || "precip_24h"); }, [queryTarget, artifactId]);
+
+  useEffect(() => {
+    if (!job || !["queued", "running"].includes(job.status)) return;
+    const jobId = job.job_id;
+    let stopped = false;
+    const timer = setInterval(async () => {
+      try {
+        const response = await fetch(`/api/v1/forecasts/v2/jobs/${jobId}`, { cache: "no-store" });
+        if (!response.ok || stopped) return;
+        const value = await response.json() as MlJob;
+        if (stopped) return;
+        setJob(value);
+        if (!["queued", "running"].includes(value.status)) {
+          clearInterval(timer);
+          await load();
+        }
+      } catch { /* The durable server job survives a temporary browser disconnect. */ }
+    }, 3000);
+    return () => { stopped = true; clearInterval(timer); };
+  }, [job?.job_id, job?.status, load]);
+
   async function act(
-    kind: "ingest" | "trends" | "predict" | "train" | "datasets",
+    kind: "ingest" | "trends" | "predict" | "train" | "datasets" | "generate",
     body: object,
   ) {
     setBusy(kind);
@@ -89,29 +129,39 @@ export function MlForecastSection({ id }: { id: string }) {
       });
       const v = await r.json();
       if (!r.ok) throw new Error(v.detail || "Request refused.");
-      if (kind === "predict") {
+      if (kind === "predict" || Array.isArray(v.predictions)) {
         setPrediction(parseMlPrediction(v));
       } else {
         setJob(v as MlJob);
-        if (poll.current) clearInterval(poll.current);
-        poll.current = setInterval(async () => {
-          const jr = await fetch(`/api/v1/forecasts/v2/jobs/${v.job_id}`, {
-            cache: "no-store",
-          });
-          if (!jr.ok) return;
-          const j = (await jr.json()) as MlJob;
-          setJob(j);
-          if (j.status !== "queued" && j.status !== "running") {
-            if (poll.current) clearInterval(poll.current);
-            void load();
-          }
-        }, 3000);
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Request failed.");
     } finally {
       setBusy("");
     }
+  }
+
+  async function activateModel(modelId: string) {
+    setBusy("activate"); setError("");
+    try {
+      const response = await fetch(`/api/v1/forecasts/v2/${id}/models/${modelId}/activate`, { method: "POST" });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.detail || "Model activation failed.");
+      await load();
+    } catch (e) { setError(e instanceof Error ? e.message : "Model activation failed."); }
+    finally { setBusy(""); }
+  }
+
+  async function jobAction(action: "cancel" | "retry") {
+    if (!job) return;
+    setBusy(action); setError("");
+    try {
+      const response = await fetch(`/api/v1/forecasts/v2/jobs/${job.job_id}/${action}`, { method: "POST" });
+      const value = await response.json();
+      if (!response.ok) throw new Error(value.detail || "Job action failed.");
+      setJob(value);
+    } catch (e) { setError(e instanceof Error ? e.message : "Job action failed."); }
+    finally { setBusy(""); }
   }
 
   const adminLocked = !!caps?.admin_token_required;
@@ -125,21 +175,43 @@ export function MlForecastSection({ id }: { id: string }) {
   const targetSource =
     target === "precip_24h" ? "era5" : (targetInfo?.sources?.[0] ?? "era5");
   const isEarthdata = target !== "precip_24h";
+  const running = job?.status === "queued" || job?.status === "running";
+  const forecastChart = useMemo(() => {
+    const windows = prediction?.predictions || [];
+    return {
+      animation: false,
+      tooltip: { trigger: "axis" as const },
+      legend: { data: ["10th percentile", "Median", "90th percentile"], textStyle: { color: "#809b93" } },
+      grid: { left: 65, right: 20, top: 45, bottom: 45 },
+      xAxis: { type: "category" as const, data: windows.map(w => w.window_start.slice(0, 10)), name: "UTC" },
+      yAxis: { type: "value" as const, name: windows[0]?.unit || "", scale: true },
+      series: (["q10", "q50", "q90"] as const).map((key, i) => ({
+        name: ["10th percentile", "Median", "90th percentile"][i], type: "line" as const,
+        data: windows.map(w => w[key]), symbolSize: 8,
+        lineStyle: { width: i === 1 ? 3 : 1, type: (i === 1 ? "solid" : "dashed") as "solid" | "dashed" },
+        itemStyle: { color: i === 1 ? "#10947c" : "#8db8aa" },
+      })),
+    };
+  }, [prediction]);
   return (
     <section className="forecast-panel ml-forecast" aria-labelledby="ml-heading">
       <span className="forecast-kicker">IRIS HISTORICAL ML · iris.ml-forecast.v2</span>
       <h2 id="ml-heading">Local predictions from verified history.</h2>
       <p className="forecast-small">
-        Separate from the provider ensemble above: this pipeline trains only on
-        Meteomatics <em>past</em> records. Nothing here is a provider forecast,
-        and missing stages are reported rather than simulated.
+        Generate local forecasts from historical Meteomatics and NASA Earthdata records.
+        Each model is evaluated against persistence and seasonal climatology before publication.
       </p>
       <label className="ml-target">
         Forecast target
         <select
           aria-label="ML forecast target"
           value={target}
-          onChange={(e) => setTarget(e.target.value)}
+          onChange={(e) => {
+            setTarget(e.target.value);
+            const params = new URLSearchParams(search.toString());
+            params.set("target", e.target.value); params.delete("run");
+            router.replace(`${pathname}?${params.toString()}`);
+          }}
         >
           {caps?.targets ? (
             Object.entries(caps.targets).map(([k, t]) => (
@@ -172,9 +244,9 @@ export function MlForecastSection({ id }: { id: string }) {
       <div className="ml-grid">
         <article>
           <span>Credentials</span>
-          <strong>{caps ? (caps.credentials.configured ? "Configured" : "Missing") : "…"}</strong>
+          <strong>{caps ? ((isEarthdata ? caps.earthdata_credentials?.configured : caps.credentials.configured) ? "Configured" : "Missing") : "…"}</strong>
           <p className="forecast-small">
-            {caps?.credentials.configured
+            {(isEarthdata ? caps?.earthdata_credentials?.configured : caps?.credentials.configured)
               ? "Server-side only; never sent to this browser."
               : caps?.credentials.reason || "Historical ingestion cannot start."}
           </p>
@@ -207,13 +279,13 @@ export function MlForecastSection({ id }: { id: string }) {
         <article>
           <span>Models</span>
           <strong>
-            {models.length
-              ? `${active.length} active / ${models.length} trained`
+            {targetModels.length
+              ? `${active.length} active / ${targetModels.length} trained`
               : "None"}
           </strong>
           <p className="forecast-small">
-            {models.length
-              ? models
+            {targetModels.length
+              ? targetModels
                   .map(
                     (m) =>
                       `h${m.horizon_index}:${m.state}${m.metrics?.skill_vs_best_baseline != null ? ` (${(100 * m.metrics.skill_vs_best_baseline).toFixed(0)}% vs baseline)` : ""}`,
@@ -227,10 +299,18 @@ export function MlForecastSection({ id }: { id: string }) {
         <p className="forecast-small" aria-live="polite">
           Job {job.job_id} ({job.kind}): {job.status}
           {job.status === "running" && ` · ${(100 * job.progress).toFixed(0)}%`}
+          {typeof job.checkpoint.message === "string" && ` · ${job.checkpoint.message}`}
           {job.error && ` · ${job.error}`}
+          {running && <button disabled={!!busy || adminLocked} onClick={() => void jobAction("cancel")}>Cancel local job</button>}
+          {["failed", "cancelled"].includes(job.status) && <button disabled={!!busy || adminLocked} onClick={() => void jobAction("retry")}>Retry job</button>}
         </p>
       )}
       <div className="ml-actions">
+        <button className="ml-generate" disabled={!!busy || adminLocked || running || !caps ||
+          (isEarthdata ? caps.earthdata_credentials?.configured === false : !caps.credentials.configured)}
+          onClick={() => void act("generate", { variable: target })}>
+          {running ? "Preparing dataset forecast…" : "Generate forecast from datasets"}
+        </button>
         <button
           disabled={
             !!busy ||
@@ -252,7 +332,7 @@ export function MlForecastSection({ id }: { id: string }) {
         </button>
         <button
           disabled={!!busy || adminLocked || !history?.coverage.complete_days}
-          onClick={() => void act("datasets", { source_id: targetSource })}
+          onClick={() => void act("datasets", { source_id: targetSource, variable: target })}
         >
           {busy === "datasets" ? "Queueing…" : "Build dataset revision"}
         </button>
@@ -274,7 +354,7 @@ export function MlForecastSection({ id }: { id: string }) {
         </button>
         <button
           disabled={!!busy || adminLocked || !history?.coverage.complete_days}
-          onClick={() => void act("trends", { family_id: "annual_total", variable: target })}
+          onClick={() => void act("trends", { family_id: target === "precip_24h" ? "annual_total" : "annual_mean", variable: target, source_id: targetSource })}
         >
           {busy === "trends" ? "Queueing…" : "Queue trend analysis"}
         </button>
@@ -290,6 +370,19 @@ export function MlForecastSection({ id }: { id: string }) {
           Pipeline mutations require an administrator token in this deployment.
         </p>
       )}
+      {targetModels.length > 0 && <details className="ml-datasets">
+        <summary>Model evaluation ({targetModels.length})</summary>
+        <div className="forecast-table"><table>
+          <thead><tr><th>Model / horizon</th><th>State</th><th>Model MAE</th><th>Best baseline MAE</th><th>Interval coverage</th><th>Evidence</th></tr></thead>
+          <tbody>{targetModels.map(model => <tr key={model.model_id}>
+            <td>{model.model_id} / {model.horizon_index + 1}</td><td>{model.state}
+              {model.state === "eligible" && <button disabled={!!busy || adminLocked} onClick={() => void activateModel(model.model_id)}>Activate model</button>}
+            </td><td>{number(model.metrics.model_mae)}</td><td>{number(model.metrics.baseline_mae)}</td>
+            <td>{model.metrics.coverage_80 == null ? "—" : `${number(model.metrics.coverage_80 * 100, 0)}%`}</td>
+            <td>{model.eligibility_reasons.join(" ") || `${model.metrics.n_eval || 0} held-out cases`}</td>
+          </tr>)}</tbody>
+        </table></div>
+      </details>}
       {prediction &&
         (prediction.state === "unavailable" ? (
           <p className="forecast-small" role="status">
@@ -299,6 +392,14 @@ export function MlForecastSection({ id }: { id: string }) {
               : ""}
           </p>
         ) : (
+          <>
+          <p className="forecast-small">
+            Experimental local ML forecast{prediction.stale ? " · snapshot expired; generate a fresh forecast" : ""}.
+            {prediction.latest_input_at && ` Latest input: ${prediction.latest_input_at.slice(0, 10)}`}
+            {prediction.input_age_hours != null && ` · ${number(prediction.input_age_hours / 24, 1)} days old`}
+            {" "}Intervals show measured model uncertainty; source publication times are estimated.
+          </p>
+          <div className="ml-forecast-chart"><ChartCanvas option={forecastChart} label={`${targetInfo?.label || target} local forecast with median and 10th–90th percentile limits`} /></div>
           <div className="forecast-table">
             <table>
               <caption>
@@ -311,6 +412,7 @@ export function MlForecastSection({ id }: { id: string }) {
                   <th>q10</th>
                   <th>Median</th>
                   <th>q90</th>
+                  <th>Unit</th>
                 </tr>
               </thead>
               <tbody>
@@ -322,11 +424,19 @@ export function MlForecastSection({ id }: { id: string }) {
                     <td>{number(w.q10)}</td>
                     <td>{number(w.q50)}</td>
                     <td>{number(w.q90)}</td>
+                    <td>{w.unit}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
+          <button onClick={() => {
+            const url = URL.createObjectURL(new Blob([JSON.stringify({ location_id: id, target, forecast: prediction, models: targetModels, datasets }, null, 2)], { type: "application/json" }));
+            const link = document.createElement("a"); link.href = url;
+            link.download = `iris-${id}-${target}-${prediction.run_id}.json`; link.click();
+            URL.revokeObjectURL(url);
+          }}>Export forecast and evidence</button>
+          </>
         ))}
       {reports.length > 0 && (
         <details className="ml-trends">

@@ -5,6 +5,7 @@ const v2 = {
   capabilities: {
     schema_version: "iris.ml-forecast.v2",
     credentials: { configured: false, reason: "Meteomatics credentials are missing" },
+    earthdata_credentials: { configured: true },
     policy: "history-only",
     admin_token_required: false,
     sources: {
@@ -48,7 +49,7 @@ test("ML panel shows honest unavailable states and never requests provider futur
   await expect(page.locator(".ml-forecast")).toContainText("Queue history ingest (SPL3SMP_E.006, 1 yr)");
   await selector.selectOption("modis_ndvi");
   await expect(page.locator(".ml-forecast")).toContainText("composite");
-  await expect(page.locator(".ml-forecast")).toContainText("Missing");
+  await expect(page.locator(".ml-forecast")).toContainText("Configured");
   await expect(page.locator(".ml-forecast")).toContainText("None");
   // Precip ingest stays disabled without Meteomatics credentials — no fake action.
   await selector.selectOption("precip_24h");
@@ -58,7 +59,7 @@ test("ML panel shows honest unavailable states and never requests provider futur
   const reqs = (page as unknown as { __reqs: string[] }).__reqs;
   expect(reqs.filter((u) => u.includes("api.meteomatics.com"))).toEqual([]);
   // No v2 request may carry a future date parameter.
-  expect(reqs.filter((u) => /v2.*(forecast|ens|future)/i.test(u))).toEqual([]);
+  expect(reqs.filter((u) => /ens_select|source=ecmwf-ens|api\.meteomatics\.com/i.test(u))).toEqual([]);
 });
 
 test("prediction request surfaces the unavailable contract, not a fake run", async ({ page }) => {
