@@ -6,8 +6,8 @@ import { useDashboard } from "@/context/DashboardContext";
 import { Icon } from "@/components/ui/Icon";
 import { REGION_PRESETS, type DataProduct, type DiscoveryResponse, type ExtractionRequest, type PreviewResponse } from "@/lib/dataRetrievalEngine";
 import { useVisualizations } from "./store";
-import { coordinates, csvCell, format, MAX_SERIES, numeric, parseField, parseOverview, parsePreview, rows, summary, type SpatialField } from "./model";
-import { EXTENT_PRESETS, fieldRoute, parseBox, type ExtentBox } from "./extents";
+import { coordinates, csvCell, format, MAX_SERIES, numeric, parseAnomaly, parseField, parseOverview, parsePreview, rows, summary, type SpatialField } from "./model";
+import { estimateNativeCells, EXTENT_PRESETS, fieldRoute, parseBox, type ExtentBox } from "./extents";
 import { DEFAULT_ORDER, type LayerId } from "./layers";
 import { DEFAULT_STYLE, type FieldStyle } from "./styles";
 import dynamic from "next/dynamic";
@@ -34,6 +34,7 @@ function VisualizationWorkspaceContent({ initialView }: { initialView: 'charts' 
     const [primaryId, setPrimaryId] = useState(''), [hidden, setHidden] = useState<string[]>([]), [filterStart, setFilterStart] = useState(''), [filterEnd, setFilterEnd] = useState('');
     const [includeFlagged, setIncludeFlagged] = useState(false), [normalized, setNormalized] = useState(false), [timeIndex, setTimeIndex] = useState(0), [playing, setPlaying] = useState(false);
     const [selection, setSelection] = useState<StudioSelection | null>(null);
+    const [layerType, setLayerType] = useState<'raw' | 'anomaly'>('raw');
     const [fieldVariable, setFieldVariable] = useState<SpatialVariableId>('V01'), [fieldMonth, setFieldMonth] = useState('2024-01'), [fieldBox, setFieldBox] = useState(['4', '16', '76', '86']);
     const [field, setField] = useState<SpatialField | null>(null), [fieldBusy, setFieldBusy] = useState(false), [fieldError, setFieldError] = useState('');
     const [extentId, setExtentId] = useState('custom'), [basemapAlpha, setBasemapAlpha] = useState(1), [fieldAlpha, setFieldAlpha] = useState(0.93), [frameSignal, setFrameSignal] = useState(0);
@@ -41,7 +42,7 @@ function VisualizationWorkspaceContent({ initialView }: { initialView: 'charts' 
     const [fieldStyle, setFieldStyle] = useState<FieldStyle>(DEFAULT_STYLE), [customRange, setCustomRange] = useState<[string, string]>(['', '']);
     const [layerVisible, setLayerVisible] = useState<Record<LayerId, boolean>>({ field: true, points: true, extent: true, basemap: true }), [layerOrder, setLayerOrder] = useState<LayerId[]>(DEFAULT_ORDER);
     const [inspection, setInspection] = useState<CellInspection | null>(null);
-    const [drawMode, setDrawMode] = useState(false), [cellClearSignal, setCellClearSignal] = useState(0), [applied, setApplied] = useState<{ variable: string; month: string; box: ExtentBox } | null>(null);
+    const [drawMode, setDrawMode] = useState(false), [cellClearSignal, setCellClearSignal] = useState(0), [applied, setApplied] = useState<{ variable: string; month: string; box: ExtentBox; type?: 'raw' | 'anomaly' } | null>(null);
     const [drawerOpen, setDrawerOpen] = useState(false);
     // Whether this session has a loaded field — survives the transient null
     // while a reload is in flight, so playback/steppers keep driving requests.
@@ -116,7 +117,7 @@ function VisualizationWorkspaceContent({ initialView }: { initialView: 'charts' 
         }
     }, [playing, primary?.id, selectedTime, selectedTimestamp]);
     useEffect(() => () => { request.current?.abort(); fieldRequest.current?.abort(); searchRequest.current?.abort(); geoRequest.current?.abort(); }, []);
-    const fieldKey = `${fieldVariable}|${fieldMonth}|${fieldBox.join(',')}`;
+    const fieldKey = `${layerType}|${fieldVariable}|${fieldMonth}|${fieldBox.join(',')}`;
     useEffect(() => {
         // A request issued for this exact selection (e.g. the month steppers'
         // immediate reload) supersedes the clear; older requests are stale.
@@ -276,20 +277,29 @@ function VisualizationWorkspaceContent({ initialView }: { initialView: 'charts' 
             setFieldError('Choose a valid month.');
             return;
         }
-        const route = fieldRoute(box, fieldVariable);
-        (controller as AbortController & { requestKey?: string }).requestKey = `${fieldVariable}|${month}|${fieldBox.join(',')}`;
+        (controller as AbortController & { requestKey?: string }).requestKey = `${layerType}|${fieldVariable}|${month}|${fieldBox.join(',')}`;
         setFieldBusy(true);
         try {
             const query = new URLSearchParams({ variable: fieldVariable, month, lat_min: fieldBox[0], lat_max: fieldBox[1], lon_min: fieldBox[2], lon_max: fieldBox[3] });
-            const result = route === 'overview'
-                ? parseOverview(await json(`/api/v1/visualization/overview?${query}`, { signal: controller.signal }))
-                : parseField(await json(`/api/v1/visualization/field?${query}`, { signal: controller.signal }));
+            let result: SpatialField;
+            if (layerType === 'anomaly') {
+                const nativeCells = estimateNativeCells(box, fieldVariable);
+                if (nativeCells > 4000) {
+                    throw new Error(`The requested box contains ≈${Math.round(nativeCells).toLocaleString()} cells. Historical anomaly heatmaps currently require a regional extent of ≤ 4,000 native cells (e.g., South Asia, Europe, or custom box).`);
+                }
+                result = parseAnomaly(await json(`/api/v1/visualization/anomaly?${query}`, { signal: controller.signal }));
+            } else {
+                const route = fieldRoute(box, fieldVariable);
+                result = route === 'overview'
+                    ? parseOverview(await json(`/api/v1/visualization/overview?${query}`, { signal: controller.signal }))
+                    : parseField(await json(`/api/v1/visualization/field?${query}`, { signal: controller.signal }));
+            }
             if (result.variable_id !== fieldVariable || result.month !== month)
                 throw new Error("The spatial response does not match the requested variable and month.");
             if (!controller.signal.aborted) {
                 spatialSession.current = true;
                 setField(result);
-                setApplied({ variable: fieldVariable, month, box });
+                setApplied({ variable: fieldVariable, month, box, type: layerType });
                 setFrameSignal(s => s + 1);
             }
         }
@@ -342,9 +352,21 @@ function VisualizationWorkspaceContent({ initialView }: { initialView: 'charts' 
     const pick = (latitude: number, longitude: number) => { setLat(latitude.toFixed(4)); setLon(longitude.toFixed(4)); setPlace(`Picked location ${latitude.toFixed(2)}, ${longitude.toFixed(2)}`); };
     const map: MapState = {
         field, applied, busy: fieldBusy, error: fieldError,
+        layerType, setLayerType: (type: 'raw' | 'anomaly') => {
+            setLayerType(type);
+            if (type === 'anomaly') {
+                setFieldVariable('V01');
+                setFieldStyle({ ...DEFAULT_STYLE, rampId: 'coolwarm' });
+            } else {
+                setFieldStyle({ ...DEFAULT_STYLE, rampId: spatialVariable(fieldVariable).ramp });
+            }
+            setCustomRange(['', '']);
+            setSpatialPlaying(false);
+            spatialSession.current = false;
+        },
         variable: fieldVariable, setVariable: variable => {
             setFieldVariable(variable);
-            setFieldStyle({ ...DEFAULT_STYLE, rampId: spatialVariable(variable).ramp });
+            setFieldStyle({ ...DEFAULT_STYLE, rampId: layerType === 'anomaly' ? 'coolwarm' : spatialVariable(variable).ramp });
             setCustomRange(['', '']);
             setSpatialPlaying(false);
             setSyncLinked(false);

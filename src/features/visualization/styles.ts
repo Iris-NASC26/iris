@@ -58,6 +58,8 @@ export interface FieldStyle {
     custom?: [number, number] | null;
 }
 export const DEFAULT_STYLE: FieldStyle = { rampId: DEFAULT_RAMP, rangeMode: "fixed", custom: null };
+export const ANOMALY_RAMP = "coolwarm";
+export const ANOMALY_SCALE: [number, number] = [-6, 6];
 
 export function ramp(id: string): ColourRamp {
     return RAMPS.find(r => r.id === id) ?? RAMPS[0];
@@ -70,14 +72,19 @@ export function ramp(id: string): ColourRamp {
  * - custom: the user's explicit domain, falling back to fixed
  * Diverging ramps centre the domain on zero when the data supports it.
  */
-export function styleRange(field: Pick<SpatialField, "variable_id" | "values">, style: FieldStyle): [number, number] {
+export function styleRange(field: Pick<SpatialField, "variable_id" | "values"> & { schema_version?: string }, style: FieldStyle): [number, number] {
+    const isAnom = field.schema_version === "visualization.anomaly.v1";
     let domain: [number, number];
     if (style.rangeMode === "auto")
-        domain = scale(field.values);
+        domain = isAnom ? scale(field.values, true) : scale(field.values);
     else if (style.rangeMode === "custom" && style.custom && style.custom.every(numeric) && style.custom[0] < style.custom[1])
         domain = style.custom;
     else
-        domain = FIELD_SCALE[field.variable_id] ?? scale(field.values);
+        domain = isAnom ? ANOMALY_SCALE : (FIELD_SCALE[field.variable_id] ?? scale(field.values));
+    if (isAnom) {
+        const bound = Math.max(Math.abs(domain[0]), Math.abs(domain[1]));
+        return [-bound, bound];
+    }
     if (ramp(style.rampId).diverging && domain[0] < 0 && domain[1] > 0) {
         const bound = Math.max(Math.abs(domain[0]), Math.abs(domain[1]));
         return [-bound, bound];
@@ -86,7 +93,14 @@ export function styleRange(field: Pick<SpatialField, "variable_id" | "values">, 
 }
 
 /** Human description of what an automatic range represents — never ambiguous. */
-export function rangeLabel(style: FieldStyle, variableId: string): string {
+export function rangeLabel(style: FieldStyle, variableId: string, isAnomaly = false): string {
+    if (isAnomaly) {
+        if (style.rangeMode === "auto")
+            return "Automatic symmetric anomaly range: centered on 0 °C, scaled to the loaded field values.";
+        if (style.rangeMode === "custom")
+            return "Custom anomaly range: custom bounds around 0 °C.";
+        return `Fixed climatological anomaly scale (${ANOMALY_SCALE[0]} to +${ANOMALY_SCALE[1]} °C relative to 1991–2020 baseline) — zero-centered.`;
+    }
     if (style.rangeMode === "auto")
         return "Automatic range: fitted to the currently loaded field only — it can differ between months and extents.";
     if (style.rangeMode === "custom")

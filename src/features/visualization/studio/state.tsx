@@ -22,9 +22,11 @@ export interface StudioSelection {
 // Spatial field state belongs to the dedicated Living Globe workspace.
 export interface MapState {
     field: SpatialField | null;
-    applied: { variable: string; month: string; box: ExtentBox } | null;
+    applied: { variable: string; month: string; box: ExtentBox; type?: 'raw' | 'anomaly' } | null;
     busy: boolean;
     error: string;
+    layerType: 'raw' | 'anomaly';
+    setLayerType: (t: 'raw' | 'anomaly') => void;
     variable: SpatialVariableId;
     setVariable: (v: SpatialVariableId) => void;
     month: string;
