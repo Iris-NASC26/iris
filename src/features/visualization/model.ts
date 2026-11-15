@@ -57,7 +57,32 @@ export interface OverviewData extends Omit<FieldData, "schema_version"> {
     };
     coverage?: (number | null)[];
 }
-export type SpatialField = FieldData | OverviewData;
+export interface AnomalyData extends Omit<FieldData, "schema_version"> {
+    schema_version: "visualization.anomaly.v1";
+    target_month: string;
+    baseline_period: {
+        start_year: number;
+        end_year: number;
+        calendar_month: number;
+        calendar_month_name: string;
+        min_valid_years: number;
+    };
+    target_values: (number | null)[];
+    baseline_means: (number | null)[];
+    baseline_counts: number[];
+    valid_cells: number;
+    missing_cells: number;
+    anomaly_min: number | null;
+    anomaly_max: number | null;
+    scientific_processing?: {
+        method: string;
+        formula: string;
+        baseline_years: string;
+        calendar_month: number;
+        min_valid_years: number;
+    };
+}
+export type SpatialField = FieldData | OverviewData | AnomalyData;
 export const MAX_OVERVIEW_CELLS = 25000;
 /**
  * Fixed labelled physical domains so temporal and regional comparisons keep one
@@ -258,10 +283,13 @@ export function color(value: number, range: [
     const a = t <= 0.5 ? stops[0] : stops[1], b = t <= 0.5 ? stops[1] : stops[2], u = t <= 0.5 ? t * 2 : (t - 0.5) * 2;
     return '#' + a.map((v, i) => Math.round(v + (b[i] - v) * u).toString(16).padStart(2, '0')).join('');
 }
-function validateSpatialBinding(field: FieldData | OverviewData): void {
+function validateSpatialBinding(field: SpatialField): void {
     const expected = spatialVariable(field.variable_id);
+    const validUnits = isAnomaly(field)
+        ? [expected.units, expected.source_units, "°C relative to 1991–2020 baseline", "°C relative to baseline", "°C", "C"]
+        : [expected.units, expected.source_units];
     if (field.field !== expected.field || field.source_units !== expected.source_units
-        || ![expected.units, expected.source_units].includes(field.units)
+        || !validUnits.includes(field.units)
         || field.time_standard !== (expected.family === 'syn1deg' ? 'LST' : 'UTC'))
         throw new Error("Spatial variable, units or time standard do not match the NASA source binding.");
 }
@@ -307,6 +335,31 @@ export function parseOverview(value: unknown): OverviewData {
 }
 export function isOverview(field: SpatialField): field is OverviewData {
     return field.schema_version === "visualization.overview.v1";
+}
+export function isAnomaly(field: SpatialField): field is AnomalyData {
+    return field.schema_version === "visualization.anomaly.v1";
+}
+export function parseAnomaly(value: unknown): AnomalyData {
+    const f = value as AnomalyData;
+    if (f?.schema_version !== "visualization.anomaly.v1" || !isSpatialVariableId(f.variable_id) || !/^\d{4}-(0[1-9]|1[0-2])$/.test(f.month) ||
+        !Array.isArray(f.cell_lats) || !Array.isArray(f.cell_lons) || !Array.isArray(f.values) || !f.cell_lats.length || !f.cell_lons.length ||
+        f.values.length !== f.cell_lats.length * f.cell_lons.length || f.values.length > 4000 || !numeric(f.lat_step) || !numeric(f.lon_step) || f.lat_step <= 0 || f.lon_step <= 0 ||
+        !f.cell_lats.every(v => numeric(v) && Math.abs(v) <= 90) || !f.cell_lons.every(v => numeric(v) && Math.abs(v) <= 180) ||
+        !f.values.every(v => v === null || numeric(v)) || f.source?.scientifically_validated !== false || !f.units || !f.source.artifact_sha256 ||
+        Object.values(f.source.artifact_sha256).some(v => !/^[a-f0-9]{64}$/.test(v)))
+        throw new Error("The spatial service returned an incompatible anomaly grid.");
+    if (f.cell_lats.some((v, i) => i > 0 && v <= f.cell_lats[i - 1]) || f.cell_lons.some((v, i) => i > 0 && v <= f.cell_lons[i - 1]))
+        throw new Error("Spatial axes must be strictly increasing.");
+    const bp = f.baseline_period;
+    if (!bp || !Number.isInteger(bp.start_year) || !Number.isInteger(bp.end_year) || bp.start_year >= bp.end_year ||
+        !Number.isInteger(bp.calendar_month) || bp.calendar_month < 1 || bp.calendar_month > 12 || !Number.isInteger(bp.min_valid_years))
+        throw new Error("Anomaly baseline period manifest is invalid.");
+    if (!Array.isArray(f.target_values) || f.target_values.length !== f.values.length ||
+        !Array.isArray(f.baseline_means) || f.baseline_means.length !== f.values.length ||
+        !Array.isArray(f.baseline_counts) || f.baseline_counts.length !== f.values.length)
+        throw new Error("Anomaly arrays do not match the grid cell length.");
+    validateSpatialBinding(f);
+    return f;
 }
 export const format = (value: number | null, digits = 2) => value === null ? "Unavailable" : new Intl.NumberFormat('en', { maximumFractionDigits: digits }).format(value);
 export const csvCell = (value: unknown) => '"' + String(value ?? '').replaceAll('"', '""') + '"';

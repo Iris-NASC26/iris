@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { color, fieldScale, format, isOverview, type SpatialField } from "./model";
+import { color, fieldScale, format, isAnomaly, isOverview, type SpatialField } from "./model";
 import { cellAt, fieldRectangle } from "./fieldRaster";
 import { ramp, rampColor, rampGradient, styleRange, type FieldStyle } from "./styles";
 import type { ExtentBox } from "./extents";
@@ -19,6 +19,16 @@ export interface CellInspection {
     lat: number;
     lon: number;
     value: number | null;
+    targetValue?: number | null;
+    baselineMean?: number | null;
+    baselineCount?: number;
+    baselinePeriod?: {
+        start_year: number;
+        end_year: number;
+        calendar_month: number;
+        calendar_month_name: string;
+        min_valid_years: number;
+    };
     /** Actual cell footprint when the pick lands on the loaded grid. */
     cell?: { lat: number; lon: number; south: number; north: number; west: number; east: number };
 }
@@ -81,7 +91,21 @@ export function Globe({ field, points, onPick, extentBox = null, frameSignal = 0
         if (f && cell) {
             const footprint = { west: cell.lon - f.lon_step / 2, east: cell.lon + f.lon_step / 2, south: cell.lat - f.lat_step / 2, north: cell.lat + f.lat_step / 2 };
             engine.current?.selectCell(footprint);
-            onCellInspectRef.current?.({ lat, lon, value, cell: { lat: cell.lat, lon: cell.lon, ...footprint } });
+            let targetValue: number | null | undefined = undefined;
+            let baselineMean: number | null | undefined = undefined;
+            let baselineCount: number | undefined = undefined;
+            let baselinePeriod: CellInspection["baselinePeriod"] = undefined;
+            if (isAnomaly(f)) {
+                const r = f.cell_lats.indexOf(cell.lat), c = f.cell_lons.indexOf(cell.lon);
+                const idx = r >= 0 && c >= 0 ? r * f.cell_lons.length + c : -1;
+                if (idx >= 0) {
+                    targetValue = f.target_values?.[idx] ?? null;
+                    baselineMean = f.baseline_means?.[idx] ?? null;
+                    baselineCount = f.baseline_counts?.[idx] ?? 0;
+                    baselinePeriod = f.baseline_period;
+                }
+            }
+            onCellInspectRef.current?.({ lat, lon, value, targetValue, baselineMean, baselineCount, baselinePeriod, cell: { lat: cell.lat, lon: cell.lon, ...footprint } });
         }
         else {
             engine.current?.selectCell(null);
@@ -172,7 +196,7 @@ export function Globe({ field, points, onPick, extentBox = null, frameSignal = 0
      {draft && <rect className="viz-draft-box" x={(draft[2] + 180) / 360 * 1000} y={(90 - draft[1]) / 180 * 500} width={(draft[3] - draft[2]) / 360 * 1000} height={(draft[1] - draft[0]) / 180 * 500}/>}
      {pointsVisible && points.map(point => <circle key={point.id} cx={(point.lon + 180) / 360 * 1000} cy={(90 - point.lat) / 180 * 500} r="4" fill={point.color}><title>{point.label}</title></circle>)}
     </svg>}
-   <div className="viz-earth-overlay"><span>EARTH OBSERVATION</span><strong>{field ? `${field.field} / ${field.month}` : 'Your data, in place.'}</strong><p>{field ? (resolution && resolution.aggregation !== 'none' ? `Overview cells: ${resolution.factor_lat}×${resolution.factor_lon} native cells aggregated (area-weighted mean).` : 'Native grid cells. No spatial smoothing.') : 'Select a dataset and location, or load a real spatial field.'}</p></div>
+   <div className="viz-earth-overlay"><span>{field && isAnomaly(field) ? 'CLIMATOLOGICAL ANOMALY' : 'EARTH OBSERVATION'}</span><strong>{field ? (isAnomaly(field) ? `${field.field} Anomaly / ${field.month}` : `${field.field} / ${field.month}`) : 'Your data, in place.'}</strong><p>{field ? (isAnomaly(field) ? `1991–2020 climatology difference for ${field.baseline_period.calendar_month_name}. Blue = cooler, Red = warmer. 0 °C centered.` : (resolution && resolution.aggregation !== 'none' ? `Overview cells: ${resolution.factor_lat}×${resolution.factor_lon} native cells aggregated (area-weighted mean).` : 'Native grid cells. No spatial smoothing.')) : 'Select a dataset and location, or load a real spatial field.'}</p></div>
    <p className="viz-basemap-credit">{basemapLabel}</p>
   </div>
   {mode === '3d' && <div className="viz-camera-controls" role="group" aria-label="Keyboard camera controls">
@@ -181,8 +205,8 @@ export function Globe({ field, points, onPick, extentBox = null, frameSignal = 0
    {points[0] && <button onClick={() => engine.current?.focus(points[0].lat, points[0].lon)}>Focus on selected data</button>}
    {field && <button onClick={() => engine.current?.frame([fieldRectangle(field).south, fieldRectangle(field).north, fieldRectangle(field).west, fieldRectangle(field).east])}>Focus on spatial field</button>}
   </div>}
-  {field && <div className="viz-field-legend"><span>{format(range[0])}</span><i style={{ background: fieldStyle ? rampGradient(ramp(fieldStyle.rampId)) : 'linear-gradient(90deg,#26407f,#1b978b,#f6df76)' }}/><span>{format(range[1])} {field.units}</span><small>Raw value / {field.time_standard}. Missing cells are transparent.{resolution && resolution.aggregation !== 'none' ? ` Displayed at ${format(field.lat_step)}° × ${format(field.lon_step)}° — coarser than the ${format(resolution.source_lat_step)}° × ${format(resolution.source_lon_step)}° source.` : ` Native ${format(field.lat_step)}° × ${format(field.lon_step)}° cells.`}</small></div>}
-  {readout && <p className="viz-readout" role="status">Picked {readout.lat.toFixed(3)}, {readout.lon.toFixed(3)}{field ? ` / ${readout.value === null ? 'No value in the loaded field' : `${format(readout.value)} ${field.units}`} / ${field.month}` : ''}. Coordinates copied to selection; load data explicitly.</p>}
+  {field && <div className="viz-field-legend"><span>{format(range[0])}</span><i style={{ background: fieldStyle ? rampGradient(ramp(fieldStyle.rampId)) : (isAnomaly(field) ? rampGradient(ramp('coolwarm')) : 'linear-gradient(90deg,#26407f,#1b978b,#f6df76)') }}/><span>{format(range[1])} {field.units}</span><small>{isAnomaly(field) ? `°C anomaly relative to 1991–2020 baseline (${field.baseline_period.calendar_month_name}). 0 °C centered. Missing cells are transparent. Native ${format(field.lat_step)}° × ${format(field.lon_step)}° cells.` : `Raw value / ${field.time_standard}. Missing cells are transparent.${resolution && resolution.aggregation !== 'none' ? ` Displayed at ${format(field.lat_step)}° × ${format(field.lon_step)}° — coarser than the ${format(resolution.source_lat_step)}° × ${format(resolution.source_lon_step)}° source.` : ` Native ${format(field.lat_step)}° × ${format(field.lon_step)}° cells.`}`}</small></div>}
+  {readout && <p className="viz-readout" role="status">Picked {readout.lat.toFixed(3)}, {readout.lon.toFixed(3)}{field ? ` / ${readout.value === null ? 'No value in the loaded field' : (isAnomaly(field) ? `Anomaly: ${(readout.value ?? 0) > 0 ? '+' : ''}${format(readout.value)} ${field.units}` : `${format(readout.value)} ${field.units}`)} / ${field.month}` : ''}. Coordinates copied to selection; load data explicitly.</p>}
   {points.length > 0 && <ul className="viz-map-values" aria-label="Mapped observations">{points.map(point => <li key={point.id}><i style={{ background: point.color }}/><span>{point.label}</span><strong>{typeof point.value === 'number' ? `${format(point.value)} ${point.units}` : 'No observation at this time'}</strong></li>)}</ul>}
  </div>;
 }
