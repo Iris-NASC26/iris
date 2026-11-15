@@ -47,3 +47,7 @@ playwright-report/
 
 # Existing backend durable runtime results are local data, not source fixtures.
 /backend/data/
+
+# deployment secrets
+deployment/backend.env
+deployment/.env

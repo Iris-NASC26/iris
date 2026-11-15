@@ -1,0 +1,64 @@
+# Run from the deployment/ directory:  docker compose up -d --build
+name: iris
+
+services:
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp" # HTTP/3
+    environment:
+      APP_DOMAIN: ${APP_DOMAIN}
+      DOCS_DOMAIN: ${DOCS_DOMAIN}
+      ACME_EMAIL: ${ACME_EMAIL}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ../documentation:/srv/docs:ro # static docs site, no build step
+      - caddy_data:/data # certificates - keep this volume!
+      - caddy_config:/config
+    depends_on:
+      - frontend
+    networks: [web]
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile.frontend
+      args:
+        NEXT_PUBLIC_DOCS_URL: https://${DOCS_DOMAIN}
+    restart: unless-stopped
+    environment:
+      FASTAPI_URL: http://backend:8000
+      FASTAPI_BACKEND_URL: http://backend:8000 # used by one route (analyze/timeseries)
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks: [web, internal]
+    # no published ports: only reachable through Caddy
+
+  backend:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile.backend
+    restart: unless-stopped
+    env_file:
+      - ./backend.env
+    environment:
+      FORECAST_REFRESH_ENABLED: ${FORECAST_REFRESH_ENABLED:-false}
+    volumes:
+      - iris_artifacts:/app/artifacts # forecasts sqlite, NASA caches, ML models, zarr
+      - iris_data:/app/backend/data # durable job store (iris_durable_store.json)
+    networks: [internal]
+    # no published ports: only the Next.js proxy talks to it
+
+volumes:
+  caddy_data:
+  caddy_config:
+  iris_artifacts:
+  iris_data:
+
+networks:
+  web:
+  internal:

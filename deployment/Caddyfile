@@ -1,0 +1,39 @@
+{
+	email {$ACME_EMAIL}
+}
+
+# ---------- Dashboard (Next.js) ----------
+{$APP_DOMAIN} {
+	encode zstd gzip
+	reverse_proxy frontend:3000 {
+		# long NASA extractions / forecast calls can be slow
+		transport http {
+			response_header_timeout 300s
+		}
+	}
+
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+		-Server
+	}
+}
+
+# ---------- Documentation (static site) ----------
+{$DOCS_DOMAIN} {
+	encode zstd gzip
+	root * /srv/docs
+	file_server
+
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options nosniff
+		-Server
+	}
+}
+
+# www -> apex
+www.{$APP_DOMAIN} {
+	redir https://{$APP_DOMAIN}{uri} permanent
+}

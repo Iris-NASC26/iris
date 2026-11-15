@@ -1,0 +1,26 @@
+.git
+.gitignore
+**/node_modules
+.next
+.next-dev
+.venv
+**/.venv
+**/__pycache__
+**/*.pyc
+.pytest_cache
+artifacts
+test-results
+playwright-report
+tsconfig.tsbuildinfo
+public/cesium
+public/maplibre-gl-worker*.mjs
+backend/data
+backend/.env
+.env
+.env.*
+**/.env
+ui-redesign
+"model context"
+tests
+deployment
+docs
