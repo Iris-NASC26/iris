@@ -208,3 +208,58 @@ Retrospective ERA5 (declared 144 h availability lag) is used for development
 evidence; the `mix` source with a 3 h lag is the operational candidate. The
 same feature pipeline serves both; lag is declared per source so finalized
 reanalysis never masquerades as an instantly-available input.
+
+## Multi-variable targets (Earthdata)
+
+`backend/forecasts/v2/variables.py` registers forecast targets beyond
+precipitation; each declares its unit, native temporal step
+(`composite_days`), availability delay, valid range, and candidate source
+products:
+
+| target | unit | source product | cadence / delay |
+|---|---|---|---|
+| precip_24h | mm | Meteomatics era5 / mix | daily · 144 h / 3 h |
+| smap_surface_sm | m³/m³ | SMAP SPL3SMP_E.006 | daily · ~3 d |
+| smap_l4_surface_sm / smap_l4_rootzone_sm | m³/m³ | SMAP SPL4SMGP.008 | 3-hourly · ~2.5 d |
+| merra2_t2m / merra2_ps / merra2_qv2m / merra2_u10m / merra2_v10m | K / Pa / kg·kg⁻¹ / m·s⁻¹ | MERRA-2 M2T1NXSLV | hourly · ~1 month |
+| modis_lst_day / modis_lst_night | K | MODIS MOD11A1.061 | daily · ~2 wk |
+| modis_ndvi / modis_evi | 1 | MODIS MOD13Q1.061 | 16-day composite · ~10 d |
+| viirs_ndvi | 1 | VIIRS VNP13A1.002 | 16-day composite · ~10 d |
+| modis_et | kg·m⁻²·8d⁻¹ | MODIS MOD16A2GF.061 | 8-day composite · year-end gap fill |
+| gldas_soilm / gldas_evap / gldas_tws | kg·m⁻² / W·m⁻² | GLDAS GLDAS_NOAH025_3H v2.1 | 3-hourly · ~1–2 mo |
+| modis_snow_cover | % | MODIS MOD10A1.061 | daily · ~2 wk |
+| nasadem_elevation | m | NASADEM (static) | one-off |
+
+`backend/forecasts/v2/earthdata.py` performs CMR granule discovery and
+bounded authenticated downloads with the same `.netrc` + allowlisted-host +
+size-cap pattern as the IMERG adapter (`backend/forecasts/nasa.py`).
+Transport and file parsers are injectable so xarray/netCDF remain lazy,
+optional dependencies.
+
+Multi-variable behaviour:
+
+- **Availability**: `features.availability_cutoff` uses per-source delays
+  (Earthdata `delay_days × 24 h`); composite targets only expose a value
+  once the *full* window has elapsed plus the publication delay — a lag-1
+  composite whose window is still open is excluded, not approximated.
+- **Constraints**: targets carry `min`/`max` bounds and signed variables
+  (NDVI, wind components) keep their sign; only precipitation clips at 0.
+  Temperature stays in Kelvin and permits any physically valid value.
+- **Model identity**: `m-<sha14>-<target_key>-h<0-2>`; activation compares
+  the candidate against the strongest baseline on the same chronological
+  folds per target/location/horizon.
+- **Trends**: `trends.py` aggregates per target semantics (sum for precip,
+  mean otherwise) before Theil–Sen/Mann–Kendall/bootstrap — composites
+  keep their native cadence.
+- **UI**: the ML panel in `/workspace/forecasts` gains a target selector
+  fed by `GET …/v2/capabilities` (`targets` + `earthdata_products` maps);
+  ingest/train/trend/predict calls carry the selected target and all
+  displays remain Forecasts-scoped.
+
+Earthdata products are *discovery + bounded-fetch* ready. Operational
+publication additionally requires: Earthdata `.netrc` credentials on the
+server, `xarray`/`netCDF4` for NetCDF/HDF extraction (or an AppEEARS /
+Harmony route returning GeoTIFF/CSV), product-specific quality-flag
+extraction, and a genuine baseline-beating model per
+target/location/horizon. Until those hold, targets report
+`unavailable`/`candidate` rather than simulated values.

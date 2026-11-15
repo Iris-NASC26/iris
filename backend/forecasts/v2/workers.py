@@ -12,7 +12,8 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 from ..store import PATH as STORE_PATH
-from . import datasets, jobs, qa, sources, training, trends
+from . import datasets, earthdata, jobs, qa, sources, training, trends
+from .variables import variable as variable_spec
 
 STAGING = Path(STORE_PATH).parent / "v2" / "history"
 REPORTS = Path(STORE_PATH).parent / "v2" / "trend_reports"
@@ -35,7 +36,7 @@ def staged_records(location_id: str, source_id: str | None = None) -> list[dict]
     return out
 
 
-def execute(job_id: str, *, transport=None, region_lookup=None) -> dict:
+def execute(job_id: str, *, transport=None, region_lookup=None, parser=None) -> dict:
     """Run one queued/resumed job to completion or a checkpoint pause."""
     job = jobs.get(job_id)
     jobs.begin(job_id)
@@ -44,6 +45,9 @@ def execute(job_id: str, *, transport=None, region_lookup=None) -> dict:
     try:
         if kind == "ingest":
             result = _ingest(job_id, loc, spec, transport=transport, region_lookup=region_lookup)
+        elif kind == "earthdata_ingest":
+            result = _earthdata_ingest(job_id, loc, spec, transport=transport,
+                                       parser=parser, region_lookup=region_lookup)
         elif kind == "dataset":
             result = _dataset(loc, spec)
         elif kind == "train":
@@ -96,6 +100,38 @@ def _ingest(job_id: str, loc: str, spec: dict, *, transport, region_lookup) -> d
             "source": out["source"]}
 
 
+def _earthdata_ingest(job_id: str, loc: str, spec: dict, *, transport, parser,
+                      region_lookup) -> dict:
+    var_name = spec["variable"]
+    variable_spec(var_name)  # unknown targets rejected
+    region = (region_lookup or (lambda i: {"id": i, "latitude": 0.0, "longitude": 0.0}))(loc)
+    end = datetime.now(UTC).replace(minute=0, second=0, microsecond=0)
+    start = (datetime.fromisoformat(spec["start"]) if spec.get("start")
+             else end - timedelta(days=int(spec.get("backfill_days", 366))))
+    out = earthdata.fetch_series(
+        var_name, float(region["latitude"]), float(region["longitude"]),
+        start, end, transport=transport, parser=parser,
+        budget={**DEFAULT_BUDGET, **(spec.get("budget") or {})},
+        checkpoint=spec.get("ingest_checkpoint", {}), sleep=lambda s: None)
+    for r in out["records_raw"]:
+        r["location_id"] = loc
+    source_id = out["source"]["id"]
+    valid, quarantined = qa.normalize(out["records_raw"], loc, source_id)
+    staged = [{k: getattr(r, k) for k in r.__dataclass_fields__} for r in valid]
+    path = staging_path(loc, source_id)
+    existing = staged_records(loc, source_id)
+    merged = {(x["variable"], x["interval_start"]): x for x in existing}
+    for d in staged:
+        merged[(d["variable"], d["interval_start"])] = d
+    lines = [json.dumps(v, sort_keys=True) for _, v in sorted(merged.items(), key=lambda kv: kv[0][1])]
+    tmp = path.with_suffix(".tmp")
+    tmp.write_text("\n".join(lines) + ("\n" if lines else ""))
+    tmp.replace(path)
+    return {"new_records": len(valid), "quarantined": len(quarantined),
+            "checkpoint": out["next_checkpoint"], "exhausted": out["exhausted"],
+            "source": out["source"], "granules": out["granules_discovered"]}
+
+
 def _dataset(loc: str, spec: dict) -> dict:
     source_id = spec.get("source_id", "era5")
     staged = staged_records(loc, source_id)
@@ -107,20 +143,28 @@ def _dataset(loc: str, spec: dict) -> dict:
 
 def _train(loc: str, spec: dict) -> dict:
     dataset_id = spec["dataset_id"]
+    var_name = spec.get("variable", "precip_24h")
     source_id = (datasets.manifest(loc, dataset_id) or {}).get("source_id", "era5")
     lag = sources.SOURCE_OPTIONS.get(source_id, (None, 24 * 6, ""))[1]
-    cards = [training.train(loc, dataset_id, h, lag_hours=lag) for h in (0, 1, 2)]
-    return {"cards": cards, "states": [c["state"] for c in cards]}
+    # Earthdata products carry availability delay in days, not the
+    # Meteomatics hourly lag convention.
+    if source_id not in sources.SOURCE_OPTIONS:
+        from .variables import PRODUCTS
+        lag = 24 * PRODUCTS.get(source_id, {}).get("delay_days", 30)
+    cards = [training.train(loc, dataset_id, h, lag_hours=lag, variable=var_name)
+             for h in (0, 1, 2)]
+    return {"cards": cards, "states": [c["state"] for c in cards], "variable": var_name}
 
 
 def _trend(loc: str, spec: dict) -> dict:
     dataset_id = spec.get("dataset_id")
+    var_name = spec.get("variable", "precip_24h")
     records = (datasets.load(loc, dataset_id) if dataset_id
                else staged_records(loc, spec.get("source_id", "era5")))
     if not records:
         raise ValueError("no records available for trend analysis")
     family = spec.get("family_id", "annual_total")
-    report = trends.analyze(records, family_id=family)
+    report = trends.analyze(records, family_id=family, variable=var_name)
     report["q_values"] = None
     rdir = REPORTS / loc
     rdir.mkdir(parents=True, exist_ok=True)

@@ -12,28 +12,44 @@ import random
 from datetime import UTC, datetime
 
 from .qa import _ts
+from .variables import VARIABLES
 
 
-def monthly_series(records: list[dict], variable_prefix: str = "precip") -> dict[str, float]:
-    """Complete-calendar-month sums from daily accumulation records.
+def monthly_series(records: list[dict], variable: str = "precip_24h") -> dict[str, float]:
+    """Complete-calendar-month aggregates from records of ONE variable.
 
-    A month is complete only when every day has a record — incomplete months
-    are dropped, never scaled.
+    Accumulations (precip, ET) sum over complete days; intensive variables
+    (soil moisture, temperature, NDVI, snow %) average over observed days with
+    a >=80% completeness requirement. Composite records (16d NDVI, 8d ET)
+    count as covering their own window. Incomplete months drop out — never
+    scaled.
     """
-    days: dict[str, float] = {}
+    spec = VARIABLES.get(variable, {"aggregation": "sum" if variable.startswith("precip") else "mean",
+                                    "composite_days": 1})
+    per_day: dict[str, list[float]] = {}
+    covered: dict[str, float] = {}
     for r in records:
-        if not str(r.get("variable", "")).startswith(variable_prefix):
+        if str(r.get("variable")) != variable and not (
+            variable.startswith("precip") and str(r.get("variable", "")).startswith("precip")
+        ):
             continue
-        days[r["interval_start"][:10]] = days.get(r["interval_start"][:10], 0.0) + float(r["value"])
-    months: dict[str, list[str]] = {}
-    for d in days:
-        months.setdefault(d[:7], []).append(d)
+        day = r["interval_start"][:10]
+        per_day.setdefault(day, []).append(float(r["value"]))
+        covered[day] = covered.get(day, 0.0) + (_ts(r["interval_end"]) - _ts(r["interval_start"])) / 3600
+    months: dict[str, list[tuple[str, float, float]]] = {}
+    for d, vals in per_day.items():
+        months.setdefault(d[:7], []).append((d, sum(vals) / len(vals), covered[d]))
     out: dict[str, float] = {}
-    for m, ds in sorted(months.items()):
+    for m, entries in sorted(months.items()):
         y, mo = int(m[:4]), int(m[5:7])
         ndays = _days_in_month(y, mo)
-        if len(ds) == ndays:
-            out[m] = sum(days[d] for d in ds)
+        if spec["aggregation"] == "sum":
+            if sum(1 for _, _, c in entries if c >= 24 - 1e-6) == ndays:
+                out[m] = sum(v for _, v, c in entries if c >= 24 - 1e-6)
+        else:
+            cov = sum(min(c, spec["composite_days"] * 24) for _, _, c in entries) / (ndays * 24)
+            if cov >= 0.8:
+                out[m] = sum(v for _, v, _ in entries) / len(entries)
     return out
 
 
@@ -136,15 +152,15 @@ def benjamini_hochberg(p_values: list[float | None]) -> list[float | None]:
     return out
 
 
-def analyze(records: list[dict], *, family_id: str, variable_prefix: str = "precip",
+def analyze(records: list[dict], *, family_id: str, variable: str = "precip_24h",
             deseasonalize: bool = True, resamples: int = 500,
             seed: int = 20240501) -> dict:
-    """One trend hypothesis over a monthly total series.
+    """One trend hypothesis over a monthly aggregate series.
 
-    Returns effect size (mm/decade), bootstrap CI, raw p, completeness,
+    Returns effect size (units/decade), bootstrap CI, raw p, completeness,
     autocorrelation diagnostic — retrospective, clearly labelled.
     """
-    months = monthly_series(records, variable_prefix)
+    months = monthly_series(records, variable)
     keys = sorted(months)
     n_months = len(keys)
     ys = [months[k] for k in keys]
@@ -155,9 +171,9 @@ def analyze(records: list[dict], *, family_id: str, variable_prefix: str = "prec
     result: dict = {
         "schema_version": "iris.ml-forecast.v2",
         "family_id": family_id,
-        "variable": variable_prefix,
-        "unit": "mm/month",
-        "effect_unit": "mm/month per decade",
+        "variable": variable,
+        "unit": VARIABLES.get(variable, {}).get("unit", "?") + "/month",
+        "effect_unit": VARIABLES.get(variable, {}).get("unit", "?") + "/month per decade",
         "n_complete_months": n_months,
         "expected_months_in_span": expected,
         "completeness": completeness,

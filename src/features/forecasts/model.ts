@@ -337,6 +337,12 @@ export function parseContext(value: unknown, id: string): ForecastContext {
  * a v2 run is never a provider forecast and vice versa.
  */
 
+export interface MlTarget {
+  label: string;
+  unit: string;
+  composite_days: number;
+  sources: string[];
+}
 export interface MlCapabilities {
   schema_version: string;
   credentials: { configured: boolean; reason?: string };
@@ -345,6 +351,11 @@ export interface MlCapabilities {
   sources: Record<
     string,
     { param: string; declared_availability_lag_hours: number; role: string }
+  >;
+  targets?: Record<string, MlTarget>;
+  earthdata_products?: Record<
+    string,
+    { delay_days: number; daac: string; cadence: string; note: string }
   >;
 }
 export function parseMlCapabilities(v: unknown): MlCapabilities {
@@ -446,6 +457,7 @@ export interface MlModelCard {
     folds?: number;
     n_eval?: number;
     model_sha256?: string | null;
+    target?: string;
   };
   eligibility_reasons: string[];
 }
@@ -463,7 +475,7 @@ export function parseMlModels(v: unknown): MlModelCard[] {
   list.forEach((m) => {
     const c = m as MlModelCard;
     if (
-      !/^m-[a-f0-9]{14}-h[0-2]$/.test(c?.model_id ?? "") ||
+      !/^m-[a-f0-9]{14}(-[a-z0-9]{1,8})?-h[0-2]$/.test(c?.model_id ?? "") ||
       !states.includes(c?.state) ||
       !Array.isArray(c?.eligibility_reasons)
     )

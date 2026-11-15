@@ -427,3 +427,24 @@
   font-size: 13px;
   margin: 12px 0 8px;
 }
+
+.ml-target {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim, #7a8a99);
+}
+.ml-target select {
+  font: inherit;
+  text-transform: none;
+  letter-spacing: normal;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--line, #2a3540);
+  border-radius: 6px;
+  background: var(--surface, #10161d);
+  color: var(--text, #e8edf2);
+}

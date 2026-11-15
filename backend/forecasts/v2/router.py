@@ -14,6 +14,7 @@ from hazards import meteomatics
 
 from ..catalog import region
 from . import datasets, jobs, predict, sources, training, workers
+from .variables import VARIABLES, PRODUCTS
 
 router = APIRouter(prefix="/api/v1/forecasts/v2", tags=["Iris ML forecasts v2"])
 MAX_SPEC_BYTES = 4096
@@ -60,9 +61,15 @@ def capabilities():
     return {
         "schema_version": "iris.ml-forecast.v2",
         "credentials": _credentials_state(),
-        "policy": "history-only: Meteomatics past records only; provider future values prohibited",
+        "policy": "history-only: Meteomatics/Earthdata past records only; provider future values prohibited",
         "sources": {sid: {"param": p, "declared_availability_lag_hours": lag, "role": role}
                     for sid, (p, lag, role) in sources.SOURCE_OPTIONS.items()},
+        "earthdata_products": {k: {"delay_days": v["delay_days"], "daac": v["daac"],
+                                   "cadence": v["native_cadence"], "note": v["note"]}
+                               for k, v in PRODUCTS.items()},
+        "targets": {k: {"label": v["label"], "unit": v["unit"],
+                        "composite_days": v["composite_days"], "sources": v["sources"]}
+                    for k, v in VARIABLES.items()},
         "admin_token_required": bool(os.environ.get("IRIS_ML_ADMIN_TOKEN")),
     }
 
@@ -110,19 +117,24 @@ def run(location_id: str, run_id: str):
 
 
 @router.get("/{identifier}/history")
-def history(identifier: str, source_id: str = "era5", limit: int = 366):
+def history(identifier: str, source_id: str = "era5", limit: int = 366,
+            variable: str | None = None):
     r = _region(identifier)
-    if source_id not in sources.SOURCE_OPTIONS:
+    if source_id not in sources.SOURCE_OPTIONS and source_id not in PRODUCTS:
         raise HTTPException(422, f"Unknown source '{source_id}'.")
+    if variable is not None and variable not in VARIABLES:
+        raise HTTPException(422, f"Unknown variable '{variable}'.")
     records = workers.staged_records(r["id"], source_id)
-    precip = [x for x in records if str(x.get("variable", "")).startswith("precip")]
-    days = sorted({x["interval_start"][:10] for x in precip})
+    sel = ([x for x in records if x.get("variable") == variable] if variable
+           else [x for x in records if str(x.get("variable", "")).startswith("precip")])
+    days = sorted({x["interval_start"][:10] for x in sel})
     limit = max(1, min(limit, 366 * 40))
     return {
         "schema_version": "iris.ml-forecast.v2",
         "state": "available" if records else "unavailable",
         "source_id": source_id,
-        "records": precip[-limit:],
+        "variable": variable or "precip",
+        "records": sel[-limit:],
         "coverage": {"complete_days": len(days),
                      "first_day": days[0] if days else None,
                      "last_day": days[-1] if days else None},
@@ -207,8 +219,14 @@ def ingest(identifier: str, payload: dict | None = None,
         raise HTTPException(503, "Meteomatics credentials are not configured; ingestion cannot start.")
     spec = _spec(payload)
     source_id = spec.get("source_id", "era5")
-    if source_id not in sources.SOURCE_OPTIONS:
+    if source_id not in sources.SOURCE_OPTIONS and source_id not in PRODUCTS:
         raise HTTPException(422, f"Unknown source '{source_id}'.")
+    if source_id in PRODUCTS:
+        var_name = spec.get("variable")
+        if var_name not in VARIABLES or source_id not in VARIABLES[var_name]["sources"]:
+            raise HTTPException(422, "variable is required and must map to this product.")
+        job = jobs.enqueue("earthdata_ingest", r["id"], spec.get("idem", ""), spec)
+        return job
     if spec.get("start"):
         try:
             start = datetime.fromisoformat(str(spec["start"]).replace("Z", "+00:00"))
@@ -230,14 +248,19 @@ def train(identifier: str, payload: dict | None = None,
         raise HTTPException(422, "dataset_id is required — training is bound to a frozen dataset.")
     if not datasets.manifest(r["id"], spec["dataset_id"]):
         raise HTTPException(404, "Unknown dataset_id for this location.")
+    var_name = spec.get("variable", "precip_24h")
+    if var_name not in VARIABLES:
+        raise HTTPException(422, f"Unknown target variable '{var_name}'.")
     return jobs.enqueue("train", r["id"], spec.get("idem", ""), spec)
 
 
 @router.post("/{identifier}/predict")
-def predict_now(identifier: str):
+def predict_now(identifier: str, target: str = "precip_24h"):
     r = _region(identifier)
+    if target not in VARIABLES:
+        raise HTTPException(422, f"Unknown target variable '{target}'.")
     records = workers.staged_records(r["id"])
-    result = predict.predict(r["id"], records)
+    result = predict.predict(r["id"], records, target=target)
     return result
 
 

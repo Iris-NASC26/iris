@@ -16,18 +16,20 @@ from pathlib import Path
 from ..store import PATH as STORE_PATH
 from . import features, training
 from .schemas import ForecastRun, QuantilePrediction
+from .variables import variable as variable_spec
 
 RUNS_ROOT = Path(STORE_PATH).parent / "v2" / "runs"
 HORIZONS = (0, 1, 2)
 
 
-def _active_model(location_id: str, horizon: int) -> dict | None:
+def _active_model(location_id: str, horizon: int, target: str = "precip_24h") -> dict | None:
     registry_p = training.MODELS_ROOT / location_id / "registry.json"
     if not registry_p.exists():
         return None
     registry = json.loads(registry_p.read_text())
     for mid, e in registry["models"].items():
-        if e["state"] == "active" and e["horizon_index"] == horizon:
+        if (e["state"] == "active" and e["horizon_index"] == horizon
+                and e.get("target", "precip_24h") == target):
             loaded = training.load_verified(location_id, mid)
             if loaded:
                 loaded["model_id"] = mid
@@ -35,13 +37,16 @@ def _active_model(location_id: str, horizon: int) -> dict | None:
     return None
 
 
-def predict(location_id: str, records: list[dict], issue_ts: str | None = None) -> dict:
+def predict(location_id: str, records: list[dict], issue_ts: str | None = None,
+            target: str = "precip_24h") -> dict:
     """One run across all horizons with active models. Honest per-window state."""
+    spec = variable_spec(target)
     issue = issue_ts or datetime.now(UTC).isoformat()
     windows, unavailable = [], []
     model_id = ""
+    step = spec["composite_days"]
     for h in HORIZONS:
-        active = _active_model(location_id, h)
+        active = _active_model(location_id, h, target)
         if not active:
             unavailable.append({"horizon": h, "reason": "no active model for this horizon"})
             continue
@@ -51,7 +56,7 @@ def predict(location_id: str, records: list[dict], issue_ts: str | None = None) 
             **{k: v for k, v in r.items()
                if k in features.qa.HistoricalRecord.__dataclass_fields__})
             for r in records]
-        feat = features.build_features(hist, issue, h, bundle["lag_hours"])
+        feat = features.build_features(hist, issue, h, bundle["lag_hours"], target)
         if feat is None:
             unavailable.append({"horizon": h, "reason": "insufficient recent history at the availability cutoff"})
             continue
@@ -60,12 +65,14 @@ def predict(location_id: str, records: list[dict], issue_ts: str | None = None) 
         q10 = float(bundle["models"]["q10"].predict(np.array(row, dtype=float))[0])
         q50 = float(bundle["models"]["median"].predict(np.array(row, dtype=float))[0])
         q90 = float(bundle["models"]["q90"].predict(np.array(row, dtype=float))[0])
+        clip = (lambda v: max(0.0, v)) if spec["nonnegative"] else (lambda v: v)
         try:
             qp = QuantilePrediction(
-                window_start=(datetime.fromisoformat(issue.replace("Z", "+00:00")) + timedelta(hours=24 * h)).isoformat(),
-                window_end=(datetime.fromisoformat(issue.replace("Z", "+00:00")) + timedelta(hours=24 * (h + 1))).isoformat(),
-                lead_hours=24.0 * (h + 1),
-                q10=max(0.0, q10), q50=max(0.0, q50), q90=max(0.0, q90))
+                window_start=(datetime.fromisoformat(issue.replace("Z", "+00:00")) + timedelta(days=step * h)).isoformat(),
+                window_end=(datetime.fromisoformat(issue.replace("Z", "+00:00")) + timedelta(days=step * (h + 1))).isoformat(),
+                lead_hours=24.0 * step * (h + 1),
+                q10=clip(q10), q50=clip(q50), q90=clip(q90),
+                unit=spec["unit"], nonnegative=spec["nonnegative"])
         except ValueError:
             unavailable.append({"horizon": h, "reason": "model quantiles violated ordering/nonnegativity; window suppressed"})
             continue

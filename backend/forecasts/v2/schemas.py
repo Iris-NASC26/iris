@@ -46,10 +46,13 @@ class QuantilePrediction:
     q50: float
     q90: float
     unit: str = "mm"
+    nonnegative: bool = True
 
     def __post_init__(self):
         for name, v in (("q10", self.q10), ("q50", self.q50), ("q90", self.q90)):
-            if v < 0:
+            if v != v or v in (float("inf"), float("-inf")):
+                raise ValueError(f"{name} must be finite")
+            if self.nonnegative and v < 0:
                 raise ValueError(f"{name} must be nonnegative")
         if not self.q10 <= self.q50 <= self.q90:
             raise ValueError("quantiles must be ordered q10<=q50<=q90")

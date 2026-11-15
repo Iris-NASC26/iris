@@ -156,7 +156,8 @@ class TestTrainingGates:
     def test_provider_columns_rejected(self):
         with pytest.raises(ValueError, match="provider"):
             training.schema_guard(["provider_ensemble_q50", "precip_lag_1d"])
-        training.schema_guard(list(training.FEATURE_COLUMNS))
+        training.schema_guard(training.feature_columns("precip_24h"))
+        training.schema_guard(training.feature_columns("smap_surface_sm"))
 
     def test_eligibility_gates(self):
         g = training.eligibility(100, 100, 5)

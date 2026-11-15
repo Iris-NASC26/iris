@@ -7,6 +7,7 @@ from __future__ import annotations
 from datetime import datetime
 
 from .schemas import SENTINELS, HistoricalRecord
+from .variables import VARIABLES, check_value
 
 
 def _ts(v: str) -> float:
@@ -33,8 +34,12 @@ def normalize(records: list[dict], location_id: str, source_id: str) -> tuple[li
             else:
                 if fv != fv or fv in (float("inf"), float("-inf")):
                     reason = "nonfinite"
-                elif raw.get("variable", "").startswith("precip") and fv < 0:
-                    reason = "impossible_negative_precip"
+                else:
+                    vname = str(raw.get("variable", ""))
+                    if vname in VARIABLES:
+                        reason = check_value(vname, fv)
+                    elif vname.startswith("precip") and fv < 0:
+                        reason = "impossible_negative_precip"
         key = (str(raw.get("variable")), str(raw.get("interval_start")), str(raw.get("interval_end")))
         if reason is None and key in seen:
             reason = "duplicate_interval"

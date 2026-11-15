@@ -10,6 +10,15 @@ const v2 = {
     sources: {
       era5: { param: "ecmwf-era5", declared_availability_lag_hours: 144, role: "retrospective" },
     },
+    targets: {
+      precip_24h: { label: "Precipitation (24h)", unit: "mm", composite_days: 1, sources: ["era5"] },
+      smap_surface_sm: { label: "Surface soil moisture (SMAP L3)", unit: "m3/m3", composite_days: 1, sources: ["SPL3SMP_E.006"] },
+      modis_ndvi: { label: "NDVI (MODIS 16-day composite)", unit: "1", composite_days: 16, sources: ["MOD13Q1.061"] },
+    },
+    earthdata_products: {
+      "SPL3SMP_E.006": { delay_days: 3, daac: "NSIDC", cadence: "daily", note: "SMAP L3 daily" },
+      "MOD13Q1.061": { delay_days: 10, daac: "LP DAAC", cadence: "16-day composite", note: "scale 1e-4" },
+    },
   },
   empty: { state: "unavailable", records: [], coverage: { complete_days: 0, first_day: null, last_day: null }, datasets: [], models: [], reports: [] },
 };
@@ -32,11 +41,19 @@ test.beforeEach(async ({ page }) => {
 test("ML panel shows honest unavailable states and never requests provider futures", async ({ page }) => {
   await page.goto("/workspace/forecasts?forecastId=colombo");
   await expect(page.getByRole("heading", { name: "Local predictions from verified history." })).toBeVisible();
+  const selector = page.getByLabel("ML forecast target");
+  await expect(selector).toBeVisible();
+  await selector.selectOption("smap_surface_sm");
+  await expect(page.locator(".ml-forecast")).toContainText("SPL3SMP_E.006");
+  await expect(page.locator(".ml-forecast")).toContainText("Queue history ingest (SPL3SMP_E.006, 1 yr)");
+  await selector.selectOption("modis_ndvi");
+  await expect(page.locator(".ml-forecast")).toContainText("composite");
   await expect(page.locator(".ml-forecast")).toContainText("Missing");
   await expect(page.locator(".ml-forecast")).toContainText("None");
-  // Ingest is disabled without configured credentials — no fake action.
+  // Precip ingest stays disabled without Meteomatics credentials — no fake action.
+  await selector.selectOption("precip_24h");
   await expect(
-    page.getByRole("button", { name: /Queue history ingest/ }),
+    page.getByRole("button", { name: /Queue history ingest \(era5/ }),
   ).toBeDisabled();
   const reqs = (page as unknown as { __reqs: string[] }).__reqs;
   expect(reqs.filter((u) => u.includes("api.meteomatics.com"))).toEqual([]);
@@ -45,7 +62,7 @@ test("ML panel shows honest unavailable states and never requests provider futur
 });
 
 test("prediction request surfaces the unavailable contract, not a fake run", async ({ page }) => {
-  await page.route("**/api/v1/forecasts/v2/colombo/predict", (route) =>
+  await page.route("**/api/v1/forecasts/v2/colombo/predict**", (route) =>
     route.fulfill({
       json: {
         state: "unavailable",

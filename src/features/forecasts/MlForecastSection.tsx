@@ -25,6 +25,7 @@ const number = (v: number | null | undefined, digits = 2) =>
  *  missing pieces are stated, never filled with plausible output. */
 export function MlForecastSection({ id }: { id: string }) {
   const [caps, setCaps] = useState<MlCapabilities | null>(null);
+  const [target, setTarget] = useState("precip_24h");
   const [history, setHistory] = useState<MlHistory | null>(null);
   const [datasets, setDatasets] = useState<MlDataset[]>([]);
   const [models, setModels] = useState<MlModelCard[]>([]);
@@ -78,7 +79,10 @@ export function MlForecastSection({ id }: { id: string }) {
     setBusy(kind);
     setError("");
     try {
-      const r = await fetch(`/api/v1/forecasts/v2/${id}/${kind}`, {
+      const url = kind === "predict" && (body as { target?: string }).target
+        ? `/api/v1/forecasts/v2/${id}/predict?target=${encodeURIComponent((body as { target?: string }).target!)}`
+        : `/api/v1/forecasts/v2/${id}/${kind}`;
+      const r = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
@@ -111,7 +115,16 @@ export function MlForecastSection({ id }: { id: string }) {
   }
 
   const adminLocked = !!caps?.admin_token_required;
-  const active = models.filter((m) => m.state === "active");
+  const active = models.filter(
+    (m) => m.state === "active" && (m.metrics?.target ?? "precip_24h") === target,
+  );
+  const targetModels = models.filter(
+    (m) => (m.metrics?.target ?? "precip_24h") === target,
+  );
+  const targetInfo = caps?.targets?.[target];
+  const targetSource =
+    target === "precip_24h" ? "era5" : (targetInfo?.sources?.[0] ?? "era5");
+  const isEarthdata = target !== "precip_24h";
   return (
     <section className="forecast-panel ml-forecast" aria-labelledby="ml-heading">
       <span className="forecast-kicker">IRIS HISTORICAL ML · iris.ml-forecast.v2</span>
@@ -121,6 +134,36 @@ export function MlForecastSection({ id }: { id: string }) {
         Meteomatics <em>past</em> records. Nothing here is a provider forecast,
         and missing stages are reported rather than simulated.
       </p>
+      <label className="ml-target">
+        Forecast target
+        <select
+          aria-label="ML forecast target"
+          value={target}
+          onChange={(e) => setTarget(e.target.value)}
+        >
+          {caps?.targets ? (
+            Object.entries(caps.targets).map(([k, t]) => (
+              <option value={k} key={k}>
+                {t.label} ({t.unit})
+              </option>
+            ))
+          ) : (
+            <option value="precip_24h">Precipitation (24h) (mm)</option>
+          )}
+        </select>
+      </label>
+      {targetInfo && (
+        <p className="forecast-small">
+          {targetInfo.label} · native step {targetInfo.composite_days} day
+          {targetInfo.composite_days > 1
+            ? "s (composite — value is valid only after the full window and publication delay)"
+            : ""}
+          {" · "}source {targetSource}
+          {caps?.earthdata_products?.[targetSource]
+            ? ` · ${caps.earthdata_products[targetSource].note}`
+            : ""}
+        </p>
+      )}
       {error && (
         <div role="alert" className="forecast-notice">
           {error}
@@ -189,14 +232,27 @@ export function MlForecastSection({ id }: { id: string }) {
       )}
       <div className="ml-actions">
         <button
-          disabled={!!busy || adminLocked || caps?.credentials.configured === false}
-          onClick={() => void act("ingest", { source_id: "era5", backfill_days: 365 })}
+          disabled={
+            !!busy ||
+            adminLocked ||
+            (target === "precip_24h" && caps?.credentials.configured === false)
+          }
+          onClick={() =>
+            void act(
+              "ingest",
+              isEarthdata
+                ? { source_id: targetSource, variable: target, backfill_days: 365 }
+                : { source_id: "era5", backfill_days: 365 },
+            )
+          }
         >
-          {busy === "ingest" ? "Queueing…" : "Queue history ingest (ERA5, 1 yr)"}
+          {busy === "ingest"
+            ? "Queueing…"
+            : `Queue history ingest (${targetSource}, 1 yr)`}
         </button>
         <button
           disabled={!!busy || adminLocked || !history?.coverage.complete_days}
-          onClick={() => void act("datasets", { source_id: "era5" })}
+          onClick={() => void act("datasets", { source_id: targetSource })}
         >
           {busy === "datasets" ? "Queueing…" : "Build dataset revision"}
         </button>
@@ -210,6 +266,7 @@ export function MlForecastSection({ id }: { id: string }) {
           onClick={() =>
             void act("train", {
               dataset_id: datasets[datasets.length - 1].dataset_id,
+              variable: target,
             })
           }
         >
@@ -217,13 +274,13 @@ export function MlForecastSection({ id }: { id: string }) {
         </button>
         <button
           disabled={!!busy || adminLocked || !history?.coverage.complete_days}
-          onClick={() => void act("trends", { family_id: "annual_total" })}
+          onClick={() => void act("trends", { family_id: "annual_total", variable: target })}
         >
           {busy === "trends" ? "Queueing…" : "Queue trend analysis"}
         </button>
         <button
           disabled={!!busy || adminLocked}
-          onClick={() => void act("predict", {})}
+          onClick={() => void act("predict", { target })}
         >
           {busy === "predict" ? "Predicting…" : "Predict from active models"}
         </button>
