@@ -14,44 +14,56 @@ import { investigation } from '@/features/hazards/model';
 
 const navigation: Array<{
   label?: string;
+  tag?: string;
   items: Array<{ to: string; text: string; icon: IconName }>;
 }> = [
-  {
-    label: "Investigate",
-    items: [
-      { to: "/workspace/intelligence", text: "System Intelligence", icon: "sparkles" },
-      { to: "/workspace/data-selection", text: "Data Selection", icon: "box" },
-      { to: "/workspace/data-preview", text: "Data Preview", icon: "layers" },
-      { to: "/workspace/data-analysis", text: "Data Analysis", icon: "activity" },
-      { to: "/workspace/visualize", text: "Plot & Visualize", icon: "activity" },
-    ],
-  },
-  {
-    label: "Global Evidence Cube",
-    items: [
-      { to: "/workspace/globe", text: "Living Globe", icon: "globe" },
-    ],
-  },
-  {
-    label: "Explore",
-    items: [
-      { to: "/workspace/forecasts", text: "Forecasts", icon: "activity" },
-      { to: "/workspace/case-studies", text: "Case Studies", icon: "book" },
-      { to: "/workspace/research", text: "Existing Research", icon: "file" },
-    ],
-  },
-];
+    {
+      label: "Investigate",
+      items: [
+        { to: "/workspace/intelligence", text: "Iris Intelligence", icon: "sparkles" },
+        { to: "/workspace/data-selection", text: "Data Selection", icon: "box" },
+        { to: "/workspace/data-preview", text: "Data Preview", icon: "layers" },
+        { to: "/workspace/data-analysis", text: "Data Analysis", icon: "activity" },
+        { to: "/workspace/visualize", text: "Data Visualization", icon: "chart" },
+      ],
+    },
+    {
+      label: "Global Data",
+      tag: "In Development",
+      items: [
+        {
+          to: "/workspace/globe",
+          text: "Geometric Visualization",
+          icon: "globe",
+        },
+      ],
+    },
+    {
+      label: "Predictions",
+      tag: "In Development",
+      items: [
+        { to: "/workspace/forecasts", text: "Forecasts", icon: "activity" },
+      ],
+    },
+    {
+      label: "Explore",
+      items: [
+        { to: "/workspace/case-studies", text: "Case Studies", icon: "book" },
+        { to: "/workspace/research", text: "Existing Research", icon: "file" },
+      ],
+    },
+  ];
 
 const pageTitles: Record<string, [string, string]> = {
-  "/workspace/intelligence": ["System Intelligence", "Identify domain keywords & discover live time-series datasets"],
-  "/workspace/data-selection": ["Data Selection", "Select time-series products & configure date range, region, and frequency"],
-  "/workspace/data-preview": ["Data Preview", "Inspect retrieved time-series observations & quality metrics before analysis"],
+  "/workspace/intelligence": ["Iris Intelligence", "Identify domain keywords and discover live Earth observation time-series datasets"],
+  "/workspace/data-selection": ["Data Selection", "Select time-series products and configure date range, region, and frequency"],
+  "/workspace/data-preview": ["Data Preview", "Inspect retrieved time-series observations and quality metrics before analysis"],
   "/workspace/data-analysis": ["Data Analysis · Case File", "Analyze extracted series using scientific Case File methods"],
-  "/workspace/visualize": ["Plot & Visualize · Case File", "Explore retrieved data, compare locations and inspect temporal patterns"],
-  "/workspace/globe": ["Living Globe", "Inspect real NASA spatial fields and linked observations"],
-  "/workspace/forecasts": ["Forecasts", "Explore historical data, local predictions and forecast evidence"],
+  "/workspace/visualize": ["Data Visualization · Case File", "Explore retrieved data, compare locations, and inspect temporal patterns"],
+  "/workspace/globe": ["Geometric Visualization", "Inspect multi-dimensional Earth observation grids and coordinate bounds across the 3D globe"],
+  "/workspace/forecasts": ["Forecasts", "Explore historical data, local predictions, and forecast evidence"],
   "/workspace/case-studies": ["Case Studies & Guided Investigations", "Load a solved investigation or step through checkpointed NASA case files"],
-  "/workspace/research": ["Existing Research", "Connect the active dataset to published work"],
+  "/workspace/research": ["Existing Research", "Connect the active dataset to published literature and citations"],
 };
 
 function DashboardFrame({ children }: { children: ReactNode }) {
@@ -64,6 +76,7 @@ function DashboardFrame({ children }: { children: ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [tourOpen, setTourOpen] = useState(false);
+  const [highlightedTourRoute, setHighlightedTourRoute] = useState<string | null>(null);
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
@@ -89,6 +102,15 @@ function DashboardFrame({ children }: { children: ReactNode }) {
     setDrawerOpen(false);
   }, [pathname]);
 
+  // Scroll the highlighted tour link into view inside the sidebar
+  useEffect(() => {
+    if (!tourOpen || !highlightedTourRoute) return;
+    const targetEl = document.querySelector(`[data-tour-target="${highlightedTourRoute}"]`);
+    if (targetEl) {
+      targetEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }, [tourOpen, highlightedTourRoute]);
+
   useEffect(() => {
     if (!drawerOpen) return;
     const onKeyDown = (event: KeyboardEvent) => {
@@ -111,11 +133,13 @@ function DashboardFrame({ children }: { children: ReactNode }) {
     "Iris workspace",
     "Earth system intelligence",
   ];
+  const isSidebarEffectiveCollapsed = collapsed && !tourOpen;
+
   return (
     <div
       className={`${dark ? "dark " : ""}app-shell dashboard-shell${
-        collapsed ? " sidebar-collapsed" : ""
-      }`}
+        isSidebarEffectiveCollapsed ? " sidebar-collapsed" : ""
+      }${tourOpen ? " tour-mode" : ""}`}
     >
       {drawerOpen && (
         <button
@@ -125,12 +149,22 @@ function DashboardFrame({ children }: { children: ReactNode }) {
           type="button"
         />
       )}
-      <aside className={`dashboard-sidebar${drawerOpen ? " drawer-open" : ""}`}>
+      <aside className={`dashboard-sidebar${drawerOpen ? " drawer-open" : ""}${tourOpen ? " tour-sidebar-active" : ""}`}>
         <div className="dashboard-brand-row">
           <Link className="dashboard-brand" href="/">
             <span className="brand-mark">
-              <Icon name="globe" size={21} />
-              <i className="orbit-dot" />
+              <img
+                src="/favicon.svg"
+                alt="Iris logo"
+                width={22}
+                height={22}
+                style={{
+                  width: 22,
+                  height: 22,
+                  objectFit: "contain",
+                  filter: "brightness(0) invert(1)",
+                }}
+              />
             </span>
             <span className="dashboard-brand-copy">
               <strong>Iris</strong>
@@ -163,19 +197,37 @@ function DashboardFrame({ children }: { children: ReactNode }) {
         <nav className="dashboard-nav" aria-label="Dashboard navigation">
           {navigation.map((group) => (
             <div className="dashboard-nav-group" key={group.label}>
-              <span className="dashboard-nav-label">{group.label}</span>
+              <div className="dashboard-nav-label-row">
+                <span className="dashboard-nav-label">{group.label}</span>
+                {group.tag && !isSidebarEffectiveCollapsed ? (
+                  <span className="dashboard-nav-dev-tag">{group.tag}</span>
+                ) : null}
+              </div>
               {group.items.map((item) => {
                 const isActive = pathname === item.to || pathname?.startsWith(`${item.to}/`);
+                const isTourFocus = tourOpen && highlightedTourRoute === item.to;
                 return (
                   <Link
-                    className={isActive ? "active" : ""}
+                    className={`${isActive ? "active" : ""}${isTourFocus ? " tour-nav-highlighted" : ""}`}
                     aria-current={isActive ? "page" : undefined}
                     key={item.to}
-                    title={collapsed ? item.text : undefined}
+                    title={isSidebarEffectiveCollapsed ? item.text : undefined}
                     href={item.to}
+                    data-tour-target={item.to}
+                    onClick={() => {
+                      if (tourOpen) {
+                        setHighlightedTourRoute(item.to);
+                      }
+                    }}
                   >
                     <Icon name={item.icon} size={18} />
                     <span>{item.text}</span>
+                    {isTourFocus && (
+                      <span className="tour-highlight-beacon" title="Current Tour Focus">
+                        <span className="tour-beacon-ping" />
+                        <span className="tour-beacon-dot" />
+                      </span>
+                    )}
                   </Link>
                 );
               })}
@@ -185,8 +237,11 @@ function DashboardFrame({ children }: { children: ReactNode }) {
 
         <div className="dashboard-sidebar-footer">
           <button
-            onClick={() => setTourOpen(true)}
-            title={collapsed ? "Replay tour" : undefined}
+            onClick={() => {
+              setTourOpen(true);
+              setHighlightedTourRoute("/workspace/intelligence");
+            }}
+            title={isSidebarEffectiveCollapsed ? "Replay tour" : undefined}
             type="button"
           >
             <Icon name="info" size={17} />
@@ -196,7 +251,7 @@ function DashboardFrame({ children }: { children: ReactNode }) {
             href={DOCS_URL}
             target="_blank"
             rel="noreferrer"
-            title={collapsed ? "Documentation" : undefined}
+            title={isSidebarEffectiveCollapsed ? "Documentation" : undefined}
           >
             <Icon name="book" size={17} />
             <span>Documentation</span>
@@ -205,7 +260,7 @@ function DashboardFrame({ children }: { children: ReactNode }) {
             href="https://github.com/Iris-NASC26/iris"
             target="_blank"
             rel="noreferrer"
-            title={collapsed ? "GitHub repository" : undefined}
+            title={isSidebarEffectiveCollapsed ? "GitHub repository" : undefined}
           >
             <Icon name="github" size={17} />
             <span>GitHub repository</span>
@@ -227,11 +282,10 @@ function DashboardFrame({ children }: { children: ReactNode }) {
             <span />
           </button>
           <div>
-            <span>{title[1]}</span>
-            <h1>{title[0]}</h1>
+            <h1>{title[1]}</h1>
           </div>
           <div className="dashboard-context-chip">
-            {forecastPage ? <><span><i/>Iris local models</span><strong>Dataset forecasts</strong></> : activeInvestigation ? <><span><i/>Point precipitation</span><strong>{activeInvestigation.point_name}</strong></> : isEmptyDataPreview ? (
+            {forecastPage ? <><span><i />Iris local models</span><strong>Dataset forecasts</strong></> : activeInvestigation ? <><span><i />Point precipitation</span><strong>{activeInvestigation.point_name}</strong></> : isEmptyDataPreview ? (
               <>
                 <span>
                   <i />
@@ -248,7 +302,7 @@ function DashboardFrame({ children }: { children: ReactNode }) {
                 <strong>{extractedPreview?.extraction_config.region_name || region}</strong>
               </>
             )}
-            {!forecastPage && !activeInvestigation && extractedPreview?.job_id && (
+            {!forecastPage && !activeInvestigation && pathname !== "/workspace/visualize" && extractedPreview?.job_id && (
               <code
                 style={{
                   fontSize: "10px",
@@ -274,7 +328,12 @@ function DashboardFrame({ children }: { children: ReactNode }) {
         </header>
         <main className="dashboard-page">{children}</main>
       </div>
-      <OnboardingTour onClose={closeTour} open={tourOpen} />
+      <OnboardingTour
+        activeRoute={highlightedTourRoute}
+        onClose={closeTour}
+        onHighlightRoute={setHighlightedTourRoute}
+        open={tourOpen}
+      />
       <IrisAssistant pageTitle={title[0]} tourOpen={tourOpen} />
     </div>
   );

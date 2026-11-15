@@ -441,14 +441,15 @@ export function IrisAssistant({
         </section>
       ) : (
         <button
-          aria-label="Open Iris Assistant"
+          aria-label="Talk to AI"
           className="iris-assistant-launcher"
           onClick={() => setAssistantOpen(true)}
           ref={launcherRef}
-          title="Open Iris Assistant"
+          title="Talk to AI — Iris Intelligent Assistant"
           type="button"
         >
-          <Icon name="sparkles" size={22} />
+          <Icon name="sparkles" size={18} />
+          <span className="iris-assistant-launcher-text">Talk to AI</span>
         </button>
       )}
     </div>

@@ -18,13 +18,13 @@ No account or login is required during the current development phase.
 
 From the Iris home page, click **"Open workspace"** in the top-right corner of the navigation bar.
 
-You will land in **Data Analysis** by default. The workspace has a sidebar on the left with all available tools. For a fresh investigation, start at the top: **System Intelligence**.
+You will land in **Data Analysis** by default. The workspace has a sidebar on the left with all available tools. For a fresh investigation, start at the top: **Super Intelligence**.
 
 ---
 
 ## Step 2 — Describe what you want to investigate
 
-Click **System Intelligence** in the left sidebar.
+Click **Super Intelligence** in the left sidebar.
 
 You will see a natural language input field. Type a plain-English description of your investigation question. Some examples:
 
@@ -44,7 +44,7 @@ Click **Search** or press `Enter`. Iris will:
 
 ## Step 3 — Select a dataset
 
-Review the dataset cards returned by System Intelligence. Each card shows:
+Review the dataset cards returned by Super Intelligence. Each card shows:
 
 - **Variable name** and physical units
 - **Data provider** (e.g., NASA POWER, MODIS, MERRA-2)

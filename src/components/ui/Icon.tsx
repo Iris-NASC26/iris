@@ -6,6 +6,7 @@ export type IconName =
   | "arrow"
   | "book"
   | "box"
+  | "chart"
   | "check"
   | "chevron"
   | "download"
@@ -50,6 +51,12 @@ const iconPaths: Record<IconName, ReactNode> = {
     <>
       <rect x="3" y="3" width="18" height="18" rx="2" />
       <path d="M8 3v18M3 8h5" />
+    </>
+  ),
+  chart: (
+    <>
+      <path d="M3 3v18h18" />
+      <path d="m19 9-5 5-4-4-3 3" />
     </>
   ),
   check: (

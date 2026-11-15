@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   description:
     "Interactive AI-guided geospatial investigation platform turning decades of NASA and satellite Earth observations into statistically defensible evidence.",
   icons: {
-    icon: "/favicon.png",
+    icon: "/favicon.svg",
   },
 };
 
@@ -18,6 +18,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="stylesheet" href="/cesium/Widgets/widgets.css" />
+      </head>
       <body>
         <ThemeProvider>{children}</ThemeProvider>
       </body>

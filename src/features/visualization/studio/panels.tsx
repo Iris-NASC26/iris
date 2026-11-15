@@ -15,7 +15,7 @@ import '../presentation/presentation.css';
 type P = IDockviewPanelProps;
 const Empty = ({ text }: { text: string }) => <div className="viz-empty"><p>{text}</p></div>;
 
-function EmptyData() { return <div className="viz-empty viz-empty-hero"><h3>A clearer picture starts with real data.</h3><p>Search for a dataset, confirm a location and period, then load observations in the controls drawer. Nothing was fetched automatically.</p><span>No demonstration values are loaded.</span></div>; }
+function EmptyData() { return <div className="viz-empty viz-empty-hero"><h3>A clearer picture starts with real data.</h3><p>Search for a dataset, confirm a location and period, then load observations in the controls drawer.</p></div>; }
 
 function publish(studio: StudioState, e: SelectEvent) {
     if (e.kind === 'time') { const i = studio.times.indexOf(e.time); if (i >= 0) commitIndex(studio, i); }
@@ -121,7 +121,7 @@ export function SourceInspectorPanel(_p: P) {
             <dl className="viz-kv"><dt>Usable</dt><dd>{stats.count} ({stats.missing} missing/excluded)</dd><dt>Mean</dt><dd>{format(stats.mean)} {p.summary_stats.unit}</dd><dt>First→last</dt><dd>{format(stats.change)} {p.summary_stats.unit} — endpoint difference, not an estimated trend</dd></dl>
         </section>
         <section className="viz-control-section"><span className="viz-step">SOURCE</span>
-            <dl className="viz-kv"><dt>Product</dt><dd>{p.product.product_id} / {p.product.variable_id}</dd><dt>Provider</dt><dd>{p.product.source_api} / {p.product.provider_agency}</dd><dt>Support</dt><dd>{p.extraction_config.target_frequency} / {p.extraction_config.temporal_aggregation} · {p.spatial_semantics_applied || 'point sampling'}</dd><dt>Result / job</dt><dd>{p.result_id || '—'} / {p.job_id}</dd><dt>Retrieved</dt><dd>{p.retrieved_at}</dd><dt>SHA-256</dt><dd className="viz-hash">{p.sha256_hash || 'Not supplied'}</dd></dl>
+            <dl className="viz-kv"><dt>Product</dt><dd>{p.product.product_id} / {p.product.variable_id}</dd><dt>Provider</dt><dd>{p.product.source_api} / {p.product.provider_agency}</dd><dt>Support</dt><dd>{p.extraction_config.target_frequency} / {p.extraction_config.temporal_aggregation} · {p.spatial_semantics_applied || 'point sampling'}</dd><dt>Retrieved</dt><dd>{p.retrieved_at}</dd></dl>
             {p.product.source_url && <a href={p.product.source_url} rel="noreferrer" target="_blank">Source documentation</a>}
         </section>
         <section className="viz-control-section"><span className="viz-step">SERIES</span>{s.series.map(v => <article key={v.id} className="viz-series-row"><label><input type="checkbox" checked={!s.hidden.includes(v.id)} onChange={e => s.toggleHidden(v.id, e.target.checked)}/><i style={{ background: v.color }}/>{v.label}</label><button onClick={() => s.removeSeries(v.id)}>Remove</button></article>)}</section>

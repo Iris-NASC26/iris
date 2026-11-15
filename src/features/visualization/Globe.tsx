@@ -96,6 +96,22 @@ export function Globe({ field, points, onPick, extentBox = null, frameSignal = 0
     const reducedMotion = useRef(false);
     useEffect(() => { reducedMotion.current = window.matchMedia('(prefers-reduced-motion: reduce)').matches; }, []);
     useEffect(() => {
+        if (typeof document !== 'undefined' && !document.querySelector('link[href*="widgets.css"]')) {
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = '/cesium/Widgets/widgets.css';
+            document.head.appendChild(link);
+        }
+    }, []);
+    useEffect(() => {
+        if (!mount.current) return;
+        const ro = new ResizeObserver(() => {
+            engine.current?.resize();
+        });
+        ro.observe(mount.current);
+        return () => ro.disconnect();
+    }, [mode]);
+    useEffect(() => {
         if (mode !== '3d')
             return;
         let cancelled = false;
@@ -117,6 +133,7 @@ export function Globe({ field, points, onPick, extentBox = null, frameSignal = 0
                 });
                 if (cancelled) { created.dispose(); return; }
                 engine.current = created;
+                created.resize();
                 const current = latest.current;
                 created.setField(current.field, { alpha: current.fieldAlpha, visible: current.fieldVisible, style: current.fieldStyle });
                 created.setPoints(current.points);
@@ -172,7 +189,7 @@ export function Globe({ field, points, onPick, extentBox = null, frameSignal = 0
      {draft && <rect className="viz-draft-box" x={(draft[2] + 180) / 360 * 1000} y={(90 - draft[1]) / 180 * 500} width={(draft[3] - draft[2]) / 360 * 1000} height={(draft[1] - draft[0]) / 180 * 500}/>}
      {pointsVisible && points.map(point => <circle key={point.id} cx={(point.lon + 180) / 360 * 1000} cy={(90 - point.lat) / 180 * 500} r="4" fill={point.color}><title>{point.label}</title></circle>)}
     </svg>}
-   <div className="viz-earth-overlay"><span>EARTH OBSERVATION</span><strong>{field ? `${field.field} / ${field.month}` : 'Your data, in place.'}</strong><p>{field ? (resolution && resolution.aggregation !== 'none' ? `Overview cells: ${resolution.factor_lat}×${resolution.factor_lon} native cells aggregated (area-weighted mean).` : 'Native grid cells. No spatial smoothing.') : 'Select a dataset and location, or load a real spatial field.'}</p></div>
+   <div className="viz-earth-overlay"><span>SPATIAL OBSERVATION</span><strong>{field ? `${field.field} · ${field.month}` : 'Spatial Coordinate Grid'}</strong><p>{field ? (resolution && resolution.aggregation !== 'none' ? `Overview cells: ${resolution.factor_lat}×${resolution.factor_lon} native cells aggregated (area-weighted mean).` : 'Native grid cells. No spatial smoothing.') : 'Select a variable and coordinate bounds to load and inspect spatial grid cells.'}</p></div>
    <p className="viz-basemap-credit">{basemapLabel}</p>
   </div>
   {mode === '3d' && <div className="viz-camera-controls" role="group" aria-label="Keyboard camera controls">

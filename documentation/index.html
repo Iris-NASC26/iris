@@ -5,6 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Iris Documentation</title>
   <meta name="description" content="Official documentation for Iris — the Earth system trend detective platform. Learn how to investigate environmental change with satellite and climate data." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='14' fill='%2310b981'/><text y='21' x='8' font-size='16' fill='white'>I</text></svg>" />
   <link rel="stylesheet" href="assets/docs.css" />
 </head>
@@ -12,27 +17,19 @@
 
   <!-- ─── Top bar ───────────────────────────────────────────────── -->
   <header class="docs-topbar">
-    <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Open navigation">☰</button>
+    <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Open navigation">Menu</button>
 
-    <a class="docs-topbar-brand" href="#getting-started">
-      <div class="brand-orb">I</div>
-      Iris
-    </a>
-
-    <div class="docs-topbar-divider"></div>
-    <span class="docs-topbar-label">Documentation</span>
+    <div class="docs-topbar-brand-group">
+      <a class="docs-topbar-brand" href="#getting-started">Iris</a>
+      <span class="docs-topbar-divider"></span>
+      <span class="docs-topbar-label">Documentation</span>
+    </div>
 
     <div class="docs-topbar-spacer"></div>
 
-    <div class="docs-topbar-actions">
-      <a href="https://github.com/search?q=Iris&type=repositories" target="_blank" rel="noreferrer">
-        GitHub ↗
-      </a>
-      <a href="http://localhost:3000" target="_blank" rel="noreferrer">
-        Open App ↗
-      </a>
-      <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
-    </div>
+    <button id="theme-toggle" class="docs-theme-toggle" aria-label="Toggle theme">
+      <span class="material-symbols-outlined material-icons" aria-hidden="true">dark_mode</span>
+    </button>
   </header>
 
   <!-- ─── Layout wrapper ────────────────────────────────────────── -->
@@ -45,7 +42,7 @@
 
     <!-- ─── Main content ──────────────────────────────────────── -->
     <div class="docs-main">
-      <div id="content-area" class="docs-content"></div>
+      <div id="content-area" class="docs-content-area"></div>
 
       <!-- In-page TOC (shown at ≥1200px) -->
       <aside class="docs-toc" aria-label="On this page">

@@ -2,7 +2,7 @@
 
 The **Data Selection** page is where you configure the exact parameters for your data extraction — the time window, spatial extent, cadence, and aggregation method. It is Step 2 in the Track A workflow.
 
-> Navigate to it via: **Workspace → Data Selection**, or automatically from System Intelligence after selecting a dataset.
+> Navigate to it via: **Workspace → Data Selection**, or automatically from Super Intelligence after selecting a dataset.
 
 ---
 
@@ -115,7 +115,7 @@ Extraction time ranges from a few seconds to about a minute depending on the pro
 
 ## Understanding extraction vs. catalog state
 
-A dataset appearing in System Intelligence search results does **not** guarantee that live data retrieval is available. Each dataset has two independent states:
+A dataset appearing in Super Intelligence search results does **not** guarantee that live data retrieval is available. Each dataset has two independent states:
 
 - **Catalog state** — the dataset is discoverable and its metadata is available
 - **Extraction state** — live data retrieval via the API adapter is verified and working

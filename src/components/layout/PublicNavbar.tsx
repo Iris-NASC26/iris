@@ -29,8 +29,18 @@ export function PublicNavbar({
     <header className="landing-nav public-navbar">
       <Link aria-label="Iris home" className="brand brand-link" onClick={closeMenu} href="/">
         <span className="brand-mark">
-          <Icon name="globe" size={23} />
-          <i className="orbit-dot" />
+          <img
+            src="/favicon.svg"
+            alt="Iris logo"
+            width={22}
+            height={22}
+            style={{
+              width: 22,
+              height: 22,
+              objectFit: "contain",
+              filter: "brightness(0) invert(1)",
+            }}
+          />
         </span>
         <span className="brand-name">Iris</span>
       </Link>

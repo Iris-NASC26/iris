@@ -24,7 +24,7 @@ Each case study is a fully loaded investigation that includes:
 ### Two decades of urban warming — Los Angeles, USA
 **Variable:** Near-surface air temperature | **Period:** 2000–2024 | **Provider:** NASA POWER / MERRA-2
 
-Los Angeles has experienced consistent surface warming over the past two decades, amplified by the urban heat island effect. This case study detects a statistically significant warming trend of **+0.42°C per decade** with 99.86% confidence, isolates the urban warming signal from regional climate variability, and identifies anomalously hot summers in 2020 and 2023.
+Los Angeles has experienced consistent surface warming over the past two decades, amplified by the urban heat island effect. This case study detects a statistically significant warming trend of **+0.42°C per decade** (\(p = 0.0014\), Hamed–Rao Modified Mann–Kendall; 95% slope CI: [+0.22, +0.63] °C/decade), isolates the urban warming signal from regional climate variability, and identifies anomalously hot summers in 2020 and 2023.
 
 ---
 
@@ -53,9 +53,9 @@ From the Case Studies page:
 
 ---
 
-## Checkpoint-based case studies (NASA Space Apps format)
+## Checkpoint-based case studies (Guided Investigation Format)
 
-Some case studies are structured as **checkpointed walkthroughs** — step-by-step guided investigations where you answer questions and make choices at each stage. These are designed for educational use and NASA Space Apps Challenge demonstrations.
+Some case studies are structured as **checkpointed walkthroughs** — step-by-step guided investigations where you answer questions and make choices at each stage. These are designed for educational use and rigorous scientific demonstrations.
 
 Checkpoint studies guide you through:
 1. Forming the investigation question

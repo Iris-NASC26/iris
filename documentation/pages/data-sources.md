@@ -10,7 +10,7 @@ Iris has a strict policy: **no synthetic or fabricated data appears in any user-
 
 All numbers come from one of two sources:
 1. **Live upstream APIs** — real-time retrieval from NASA, NOAA, and other provider endpoints
-2. **Verified real snapshots** — pinned, SHA-256-hashed copies of real observations, used to ensure the platform works offline (e.g., for the NASA Space Apps Competition)
+2. **Verified real snapshots** — pinned, SHA-256-hashed copies of real observations, used to ensure the platform works offline (e.g., in air-gapped environments or low-connectivity workshops)
 
 Synthetic data fixtures exist only in internal test harnesses and are blocked from all production endpoints.
 
@@ -33,7 +33,7 @@ These six variables are pre-computed in the Global Trend Cube, available on the 
 
 ## Extended variables (Live discovery)
 
-Additional variables are available through live provider searches in System Intelligence. These include but are not limited to:
+Additional variables are available through live provider searches in Super Intelligence. These include but are not limited to:
 
 | Category | Examples |
 |---|---|
@@ -145,3 +145,53 @@ As Iris development progresses, additional upstream providers will be integrated
 - **ESA CCI** — Climate Change Initiative long-term satellite records
 - **OpenDAP / THREDDS** — Direct access to NetCDF time series
 - **NOAA NCEI** — Extended paleoclimate and instrumental records
+
+---
+
+## Authentic Spatial Variables Catalogue (Living Globe Grids)
+
+The Living Globe renders genuine monthly gridded fields directly from NASA POWER AWS S3 Zarr stores (`https://nasa-power.s3.us-west-2.amazonaws.com/`). The 11 active spatial layers include:
+
+| Code | Field Parameter | Physical Description | Group | Units | Display Range | Color Ramp | Caveats & Scientific Notes |
+|---|---|---|---|---|---|---|---|
+| `V01` | `T2M` | Air Temperature at 2 m | Temperature | °C | −55 to +45 | `thermal` | Monthly mean air temperature from MERRA-2; not an instantaneous satellite measurement. |
+| `TS` | `TS` | Earth Skin Temperature | Temperature | °C | −60 to +60 | `thermal` | Radiative skin surface temperature; distinct from 2 m air temperature. |
+| `T2MDEW` | `T2MDEW` | Dew / Frost Point at 2 m | Temperature | °C | −60 to +30 | `thermal` | Atmospheric moisture saturation threshold; not precipitation. |
+| `PRECTOTCORR` | `PRECTOTCORR` | Corrected Precipitation Rate | Water & Snow | mm/day | 0 to 15 | `viridis` | Monthly mean daily precipitation rate; not monthly accumulation or snow-only depth. |
+| `SNODP` | `SNODP` | Snow Depth | Water & Snow | cm | 0 to 100 | `snow` | Modeled snowpack depth; not snowfall rate or snow water equivalent (SWE). |
+| `GWETTOP` | `GWETTOP` | Surface Soil Wetness | Land | Dimensionless (0–1) | 0 to 1 | `viridis` | Relative wetness index (0–1) of top 5 cm; not volumetric soil moisture (\(m^3/m^3\)). |
+| `GWETROOT` | `GWETROOT` | Root-Zone Soil Wetness | Land | Dimensionless (0–1) | 0 to 1 | `viridis` | Relative moisture index across plant root zone; ocean cells remain transparent. |
+| `RH2M` | `RH2M` | Relative Humidity at 2 m | Atmosphere | % | 0 to 100 | `viridis` | Ratio of actual vapor pressure to saturation vapor pressure; not specific humidity. |
+| `WS10M` | `WS10M` | Wind Speed at 10 m | Atmosphere | m/s | 0 to 15 | `magma` | Scalar horizontal wind speed; contains no directional velocity vectors. |
+| `PS` | `PS` | Surface Atmospheric Pressure | Atmosphere | hPa | 600 to 1050 | `thermal` | Local terrain surface barometric pressure; strongly influenced by surface elevation. |
+| `V12` | `ALLSKY_SFC_SW_DWN` | Downward Solar Irradiance | Radiation | W/m² | 0 to 450 | `magma` | CERES SYN1deg monthly mean shortwave flux in Local Solar Time (LST); not daily kWh. |
+
+---
+
+## Provider Capability Matrix (SRS v1.0)
+
+Every provider connected to Iris is categorized by its verification status, authentication model, and extraction capabilities:
+
+| Provider | Agency | Catalog State | Extraction State | Geometry | Cadence | Auth Mechanism | Quota / Guardrail |
+|---|---|---|---|---|---|---|---|
+| **NASA POWER** | NASA Langley | `extract_verified` | `extract_verified` | Point, BBox | Daily, Monthly | Open Access (No Token) | Bounded concurrency (2 threads) |
+| **NASA AppEEARS** | USGS / NASA | `catalog_verified` | `extract_verified` | Point, Polygon | 8-day, 16-day | Earthdata Bearer Token | Async polling job queue |
+| **NASA CMR / Harmony** | NASA EOSDIS | `catalog_verified` | `extract_verified` | BBox, Granule | Native orbit | Earthdata Cloud Token | Max 20 concurrent granules |
+| **NASA GES DISC (GiC)** | NASA Goddard | `catalog_verified` | `extract_verified` | Point, BBox | Hourly, Daily | Earthdata Login | GiC REST (legacy Data Rods retired) |
+| **NOAA CDO** | NOAA NCEI | `catalog_verified` | `extract_verified` | Point (Station) | Daily, Monthly | User API Token (`cdo_token`) | 5 requests/sec, 10,000/day |
+| **Copernicus / EODAG** | ESA / EU | `catalog_verified` | `credential_required` | BBox, Orbit | Daily, Monthly | Copernicus Data Space OAuth2 | User credentials required |
+| **CSA / Geo.ca** | Canadian Space Agency | `catalog_verified` | `catalog_only` | National Extent | Daily | Open Metadata | Discovery verified; extraction pending |
+| **OPeNDAP** | Distributed Servers | `catalog_verified` | `extract_verified` | DAP Grid Slice | Arbitrary | Server-dependent | Direct binary array slicing |
+
+---
+
+## Dataset DOIs & Authoritative Citations
+
+- **MERRA-2 Reanalysis**: Global Modeling and Assimilation Office (GMAO) (2015). *MERRA-2 monthly mean surface meteorology*. NASA GES DISC. [doi:10.5067/60Q177EW27LW](https://doi.org/10.5067/60Q177EW27LW)
+- **NASA POWER Project**: Stackhouse, P. W., et al. (2024). *NASA POWER Release 8: Prediction of Worldwide Energy Resources*. NASA Langley Research Center. [https://power.larc.nasa.gov](https://power.larc.nasa.gov)
+- **MODIS Vegetation Indices (MOD13C2)**: Didan, K. (2015). *MOD13C2 MODIS/Terra Vegetation Indices Monthly L3 Global 0.05Deg CMG V006*. NASA LP DAAC. [doi:10.5067/MODIS/MOD13C2.006](https://doi.org/10.5067/MODIS/MOD13C2.006)
+- **GPCP Precipitation (v2.3)**: Adler, R. F., et al. (2018). *Global Precipitation Climatology Project (GPCP) Monthly Analysis (New Version 2.3)*. NOAA NCEI. [doi:10.7289/V56971M6](https://doi.org/10.7289/V56971M6)
+- **CERES SYN1deg Surface Fluxes**: Doelling, D. R., et al. (2016). *CERES Synoptic 1-Deg (SYN1deg) Product*. NASA Langley Atmospheric Science Data Center. [doi:10.5067/Terra+Aqua/CERES/SYN1deg-Month_L3.004A](https://doi.org/10.5067/Terra+Aqua/CERES/SYN1deg-Month_L3.004A)
+- **GLDAS Noah Land Surface Model**: Rodell, M., et al. (2004). *The Global Land Data Assimilation System*. Bulletin of the AMS. [doi:10.1175/BAMS-85-3-381](https://doi.org/10.1175/BAMS-85-3-381)
+- **GPM IMERG Early Precipitation**: Huffman, G. J., et al. (2020). *GPM IMERG Early Precipitation L3 1 day 0.1 degree x 0.1 degree V07*. NASA GES DISC. [doi:10.5067/GPM/IMERGDE/DAY/07](https://doi.org/10.5067/GPM/IMERGDE/DAY/07)
+

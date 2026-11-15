@@ -368,7 +368,7 @@ async function executeDirectResearchSearch(
 
   const sources = new Set(body.sources ?? ["openalex", "datacite"]);
   const sort = body.sort ?? "relevance";
-  const limit = Math.min(50, Math.max(1, body.per_source_limit ?? 15));
+  const limit = Math.min(50, Math.max(1, body.per_source_limit ?? 10));
 
   const providerStatus: Record<string, string> = {};
   const openAlexItems: ResearchWorkItem[] = [];
