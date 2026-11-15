@@ -37,7 +37,7 @@ npx serve documentation -p 3001
 
 3. Register the page in `documentation/assets/docs.js`. Find the `NAV` array at the top of the file and add an entry in the appropriate section:
    ```js
-   { id: "my-new-page", title: "My New Page", icon: "📄" }
+   { id: "my-new-page", title: "My New Page", icon: "description" }
    ```
    The `id` must exactly match the filename (without `.md`).
 
@@ -56,7 +56,7 @@ documentation/
     ├── getting-started.md
     ├── quick-start.md
     ├── workspace-overview.md
-    ├── system-intelligence.md
+    ├── super-intelligence.md
     ├── data-selection.md
     ├── data-preview.md
     ├── visualize.md

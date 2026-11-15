@@ -34,7 +34,7 @@ Iris provides two parallel investigation workflows that share the same statistic
 For custom, user-directed investigations using live data from NASA and NOAA.
 
 ```
-System Intelligence
+Super Intelligence
        ↓
 Data Selection
        ↓
@@ -61,18 +61,32 @@ Use this track to explore pre-computed global trends and open selected locations
 
 ---
 
+### Forecast-First Track — Future Precipitation Outlooks
+
+For short-term (72-hour) probabilistic weather predictions linking future ECMWF ensembles with recent NASA GPM IMERG satellite context:
+
+```
+Landing Globe Story Cards
+         ↓
+Data Analysis (Forecast Workspace · ?forecastId=...)
+```
+
+Use this track to evaluate immediate precipitation risk across 6 configured benchmark points.
+
+---
+
 ## Workspace sections
 
-### 🤖 System Intelligence
+### Super Intelligence
 *Entry point for Track A.*
 
 A natural language interface that translates your investigation question into structured data catalog searches across NASA CMR, POWER, AppEEARS, and other providers.
 
-[Learn more →](#system-intelligence)
+[Learn more →](#super-intelligence)
 
 ---
 
-### 📊 Data Selection
+### Data Selection
 *Step 2 of Track A.*
 
 Configure your extraction parameters: dataset, time window, spatial extent, cadence, and aggregation method. Includes an interactive map for spatial selection.
@@ -81,7 +95,7 @@ Configure your extraction parameters: dataset, time window, spatial extent, cade
 
 ---
 
-### 👁️ Data Preview
+### Data Preview
 *Step 3 of Track A.*
 
 Inspect the extracted time-series before analysis. Shows a gap-aware chart, quality KPIs, a footprint map, and allows CSV/JSON export of raw observations.
@@ -90,7 +104,7 @@ Inspect the extracted time-series before analysis. Shows a gap-aware chart, qual
 
 ---
 
-### 📈 Data Analysis (Case File)
+### Data Analysis (Case File)
 *The shared scientific analysis engine for both tracks.*
 
 Runs the full statistical pipeline: STL seasonal decomposition, Mann-Kendall trend test, Sen's slope, change-point detection, and anomaly identification. Produces a complete, exportable Case File.
@@ -99,23 +113,32 @@ Runs the full statistical pipeline: STL seasonal decomposition, Mann-Kendall tre
 
 ---
 
-### 🌐 Living Globe
-*Entry point for Track B.*
+### Living Globe
+*Spatial Observation Viewer & Global Reference.*
 
-A 3D interactive globe showing pre-computed trend direction and significance for every 0.5° × 0.5° grid cell on Earth across six core climate variables.
+An interactive 3D globe (and 2D map fallback) rendering authentic monthly spatial fields from NASA POWER AWS S3 direct-access Zarr stores across 11 physical variables (temperature, precipitation rate, soil wetness, snow depth, solar radiation, pressure, wind). Grid cells can be inspected for numeric values, bounding footprints, and source provenance. It operates alongside the backend Global Trend Cube (`/api/v1/cube/globe`), which indexes 20 pre-computed study anchor nodes and decadal trends.
 
 [Learn more →](#globe)
 
 ---
 
-### 📋 Case Studies
+### Case Studies
 Pre-built, guided investigations that demonstrate how Iris works. Each case study is based on real data and walks through the full evidence trail for a known environmental event or trend.
 
 [Learn more →](#case-studies)
 
 ---
 
-### 📄 Existing Research
+### Precipitation Forecasts
+*Future weather prediction engine.*
+
+Presents 72-hour 51-member ECMWF precipitation ensembles across 3-hour increments, rolling 24-hour totals, and daily sums. Displays the central 80% ensemble uncertainty ribbon alongside antecedent 7-day NASA GPM IMERG daily satellite observations.
+
+[Learn more →](#forecasts)
+
+---
+
+### Existing Research
 Connects the active dataset to published peer-reviewed literature, NASA technical reports, and IPCC references relevant to the variable and region under investigation.
 
 ---
