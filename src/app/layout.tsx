@@ -18,6 +18,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="stylesheet" href="/cesium/Widgets/widgets.css" />
+      </head>
       <body>
         <ThemeProvider>{children}</ThemeProvider>
       </body>

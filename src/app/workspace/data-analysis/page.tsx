@@ -870,9 +870,22 @@ function HistoricalAnalysis() {
 
                 {!extractedPreview && (
                   <div className="da-cadence-switcher">
-                    <span className="da-cadence-label">
-                      Sampling cadence (tests dataset compatibility):
-                    </span>
+                    <div className="da-param-label-row" style={{ marginBottom: 4 }}>
+                      <span className="da-cadence-label">
+                        Sampling cadence (tests dataset compatibility):
+                      </span>
+                      <span
+                        className="da-info-trigger"
+                        tabIndex={0}
+                        title="Temporal aggregation interval of observations. High frequencies (daily) support short-scale regime shift testing, while monthly series support STL seasonal decomposition and decadal trend tests."
+                        aria-label="Sampling cadence info"
+                      >
+                        i
+                        <span className="da-info-tooltip" role="tooltip">
+                          Temporal aggregation interval of observations. High frequencies (daily) support short-scale regime shift testing, while monthly series support STL seasonal decomposition and decadal trend tests.
+                        </span>
+                      </span>
+                    </div>
                     <div className="segmented da-cadence-Readout" role="group" aria-label="Dataset cadence">
                       {(["Daily", "Monthly", "Yearly"] as DataCadence[]).map((cad) => (
                         <button
@@ -892,7 +905,20 @@ function HistoricalAnalysis() {
               {!extractedPreview && (
                 <div className="da-period-control">
                   <div className="range-heading">
-                    <div className="field-label">Observation period</div>
+                    <div className="da-param-label-row" style={{ margin: 0, gap: 6 }}>
+                      <div className="field-label">Observation period</div>
+                      <span
+                        className="da-info-trigger"
+                        tabIndex={0}
+                        title="Temporal observation window used for all statistical models. Adjusting bounds tests sample sensitivity and excludes incomplete boundary years."
+                        aria-label="Observation period info"
+                      >
+                        i
+                        <span className="da-info-tooltip" role="tooltip">
+                          Temporal observation window used for all statistical models. Adjusting bounds tests sample sensitivity and excludes incomplete boundary years.
+                        </span>
+                      </span>
+                    </div>
                     <span className="year-readout">
                       {startYear} — {endYear} ({endYear - startYear + 1} yrs)
                     </span>
@@ -947,10 +973,15 @@ function HistoricalAnalysis() {
                   <label className="analysis-select-label" htmlFor="seasonal-adjustment">
                     Seasonal treatment
                   </label>
-                  <span className="da-info-trigger" tabIndex={0} aria-label="Seasonal treatment info">
+                  <span
+                    className="da-info-trigger"
+                    tabIndex={0}
+                    title="Decomposes intra-annual cycles. STL uses LOESS smoothing to extract seasonal, secular trend, and residual components. Climatology subtracts multi-year monthly averages."
+                    aria-label="Seasonal treatment info"
+                  >
                     i
                     <span className="da-info-tooltip" role="tooltip">
-                      Decomposes intra-annual cycles. STL uses LOESS smoothing to extract seasonal, trend, and residual components. Climatology subtracts multi-year monthly averages.
+                      Decomposes intra-annual cycles. STL uses LOESS smoothing to extract seasonal, secular trend, and residual components. Climatology subtracts multi-year monthly averages.
                     </span>
                   </span>
                 </div>
@@ -1335,10 +1366,15 @@ function MethodParameterControls({
         <div className="da-param-row">
           <div className="da-param-label-row">
             <label htmlFor={`param-alpha-${method}`}>Significance threshold (α)</label>
-            <span className="da-info-trigger" tabIndex={0} aria-label="Significance threshold info">
+            <span
+              className="da-info-trigger"
+              tabIndex={0}
+              title="Maximum acceptable probability of Type I error (false rejection of null hypothesis H₀ of no trend). α = 0.05 corresponds to standard 95% confidence level; α = 0.01 provides stringent 99% confidence against false alarms."
+              aria-label="Significance threshold info"
+            >
               i
               <span className="da-info-tooltip" role="tooltip">
-                Probability threshold for rejecting the null hypothesis. α = 0.05 corresponds to standard 95% confidence; α = 0.01 provides stringent 99% confidence.
+                Maximum acceptable probability of Type I error (false rejection of null hypothesis H₀ of no trend). α = 0.05 corresponds to standard 95% confidence level; α = 0.01 provides stringent 99% confidence against false alarms.
               </span>
             </span>
           </div>
@@ -1358,10 +1394,15 @@ function MethodParameterControls({
         <div className="da-param-row">
           <div className="da-param-label-row">
             <label htmlFor="param-ols-ac">Serial correlation adjustment</label>
-            <span className="da-info-trigger" tabIndex={0} aria-label="Serial correlation adjustment info">
+            <span
+              className="da-info-trigger"
+              tabIndex={0}
+              title="Adjusts OLS standard errors for temporal persistence using the Quenouille–Santer effective sample size (n_eff), avoiding false trend significance from autocorrelated red noise."
+              aria-label="Serial correlation adjustment info"
+            >
               i
               <span className="da-info-tooltip" role="tooltip">
-                Adjusts standard errors for temporal persistence using the Quenouille–Santer effective sample size (n_eff), avoiding false trend significance from autocorrelated red noise.
+                Adjusts OLS standard errors for temporal persistence using the Quenouille–Santer effective sample size (n_eff), avoiding false trend significance from autocorrelated red noise.
               </span>
             </span>
           </div>
@@ -1386,10 +1427,15 @@ function MethodParameterControls({
           <div className="da-param-row">
             <div className="da-param-label-row">
               <label htmlFor="param-mk-corr">Variance formulation</label>
-              <span className="da-info-trigger" tabIndex={0} aria-label="Variance formulation info">
+              <span
+                className="da-info-trigger"
+                tabIndex={0}
+                title="Corrects the Mann–Kendall rank variance for auto-covariance among ranks up to lag k (Hamed & Rao 1998), preventing positive autocorrelation from exaggerating trend significance."
+                aria-label="Variance formulation info"
+              >
                 i
                 <span className="da-info-tooltip" role="tooltip">
-                  Corrects the Mann–Kendall variance for auto-covariance among ranks up to lag k (Hamed & Rao 1998), preventing positive autocorrelation from exaggerating trend significance.
+                  Corrects the Mann–Kendall rank variance for auto-covariance among ranks up to lag k (Hamed & Rao 1998), preventing positive autocorrelation from exaggerating trend significance.
                 </span>
               </span>
             </div>
@@ -1410,10 +1456,15 @@ function MethodParameterControls({
           <div className="da-param-row">
             <div className="da-param-label-row">
               <label htmlFor="param-mk-lag">Max autocorrelation lag (k)</label>
-              <span className="da-info-trigger" tabIndex={0} aria-label="Max lag info">
+              <span
+                className="da-info-trigger"
+                tabIndex={0}
+                title="Maximum number of monthly time lags checked for significant serial correlation in the rank series. 12 lags corresponds to one full annual cycle."
+                aria-label="Max lag info"
+              >
                 i
                 <span className="da-info-tooltip" role="tooltip">
-                  Maximum number of monthly time lags checked for significant serial correlation in the rank series.
+                  Maximum number of monthly time lags checked for significant serial correlation in the rank series. 12 lags corresponds to one full annual cycle.
                 </span>
               </span>
             </div>
@@ -1435,7 +1486,12 @@ function MethodParameterControls({
         <div className="da-param-row">
           <div className="da-param-label-row">
             <label htmlFor="param-sk-years">Min years per calendar month</label>
-            <span className="da-info-trigger" tabIndex={0} aria-label="Seasonal Kendall min years info">
+            <span
+              className="da-info-trigger"
+              tabIndex={0}
+              title="Minimum number of valid observed years required for a specific calendar month before including that month in the Mann–Kendall cross-season sum."
+              aria-label="Seasonal Kendall min years info"
+            >
               i
               <span className="da-info-tooltip" role="tooltip">
                 Minimum number of valid observed years required for a specific calendar month before including that month in the Mann–Kendall cross-season sum.
@@ -1461,10 +1517,15 @@ function MethodParameterControls({
           <div className="da-param-row">
             <div className="da-param-label-row">
               <label htmlFor="param-sen-ci">Rank confidence interval</label>
-              <span className="da-info-trigger" tabIndex={0} aria-label="Sen slope confidence corridor info">
+              <span
+                className="da-info-trigger"
+                tabIndex={0}
+                title="Two-sided non-parametric rank corridor for Sen's median slope estimator. 95% corridor indicates the range of probable decadal trajectories."
+                aria-label="Sen slope confidence corridor info"
+              >
                 i
                 <span className="da-info-tooltip" role="tooltip">
-                  Two-sided non-parametric rank corridor for Sen's median slope estimator. Standard is 95% corridor.
+                  Two-sided non-parametric rank corridor for Sen's median slope estimator. 95% corridor indicates the range of probable decadal trajectories.
                 </span>
               </span>
             </div>
@@ -1483,10 +1544,15 @@ function MethodParameterControls({
           <div className="da-param-row">
             <div className="da-param-label-row">
               <label htmlFor="param-sen-scale">Display rate unit</label>
-              <span className="da-info-trigger" tabIndex={0} aria-label="Display rate unit info">
+              <span
+                className="da-info-trigger"
+                tabIndex={0}
+                title="Temporal rate normalization for reporting change: per decade (unit / decade) or per year (unit / year)."
+                aria-label="Display rate unit info"
+              >
                 i
                 <span className="da-info-tooltip" role="tooltip">
-                  Temporal rate normalization for reporting change: per decade or per year.
+                  Temporal rate normalization for reporting change: per decade (unit / decade) or per year (unit / year).
                 </span>
               </span>
             </div>
@@ -1508,7 +1574,12 @@ function MethodParameterControls({
         <div className="da-param-row">
           <div className="da-param-label-row">
             <label htmlFor="param-pettitt-seg">Min observations per regime segment</label>
-            <span className="da-info-trigger" tabIndex={0} aria-label="Pettitt min segment info">
+            <span
+              className="da-info-trigger"
+              tabIndex={0}
+              title="Minimum consecutive observation steps required on either side of the candidate change point to declare a valid regime shift."
+              aria-label="Pettitt min segment info"
+            >
               i
               <span className="da-info-tooltip" role="tooltip">
                 Minimum consecutive observation steps required on either side of the candidate change point to declare a valid regime shift.
@@ -1534,10 +1605,15 @@ function MethodParameterControls({
           <div className="da-param-row">
             <div className="da-param-label-row">
               <label htmlFor="param-anom-z">Extreme flagging threshold (|z| ≥ τ)</label>
-              <span className="da-info-trigger" tabIndex={0} aria-label="Anomaly threshold info">
+              <span
+                className="da-info-trigger"
+                tabIndex={0}
+                title="Standardized residual score departure threshold for highlighting extreme outliers and tail departures (|z| ≥ 2.0 flags 2σ departures; |z| ≥ 3.0 highlights rare tail events)."
+                aria-label="Anomaly threshold info"
+              >
                 i
                 <span className="da-info-tooltip" role="tooltip">
-                  Standardized residual score departure threshold for highlighting extreme outliers and tail departures.
+                  Standardized residual score departure threshold for highlighting extreme outliers and tail departures (|z| ≥ 2.0 flags 2σ departures; |z| ≥ 3.0 highlights rare tail events).
                 </span>
               </span>
             </div>
@@ -1557,10 +1633,15 @@ function MethodParameterControls({
           <div className="da-param-row">
             <div className="da-param-label-row">
               <label htmlFor="param-anom-disp">Scale dispersion estimator</label>
-              <span className="da-info-trigger" tabIndex={0} aria-label="Dispersion estimator info">
+              <span
+                className="da-info-trigger"
+                tabIndex={0}
+                title="Method for calculating anomaly spread: Median Absolute Deviation (MAD, outlier-robust) vs classical sample standard deviation (SD)."
+                aria-label="Dispersion estimator info"
+              >
                 i
                 <span className="da-info-tooltip" role="tooltip">
-                  Method for calculating anomaly spread: Median Absolute Deviation (MAD, outlier-robust) vs classical standard deviation (SD).
+                  Method for calculating anomaly spread: Median Absolute Deviation (MAD, outlier-robust) vs classical sample standard deviation (SD).
                 </span>
               </span>
             </div>
@@ -1585,10 +1666,15 @@ function MethodParameterControls({
         <div className="da-param-row">
           <div className="da-param-label-row">
             <label htmlFor="param-fp-cap">Heatmap color saturation cap (|z|)</label>
-            <span className="da-info-trigger" tabIndex={0} aria-label="Heatmap color saturation info">
+            <span
+              className="da-info-trigger"
+              tabIndex={0}
+              title="Maximum absolute Z-score clamped at full saturation on the multi-year seasonal divergence heatmap (±2.5 z offers balanced contrast)."
+              aria-label="Heatmap color saturation info"
+            >
               i
               <span className="da-info-tooltip" role="tooltip">
-                Maximum absolute Z-score clamped at full saturation on the multi-year seasonal divergence heatmap.
+                Maximum absolute Z-score clamped at full saturation on the multi-year seasonal divergence heatmap (±2.5 z offers balanced contrast).
               </span>
             </span>
           </div>
@@ -1612,7 +1698,12 @@ function MethodParameterControls({
           <div className="da-param-row">
             <div className="da-param-label-row">
               <label htmlFor="param-cf-horizon">Outlook continuation horizon</label>
-              <span className="da-info-trigger" tabIndex={0} aria-label="Outlook continuation horizon info">
+              <span
+                className="da-info-trigger"
+                tabIndex={0}
+                title="Future projection period in years combining estimated trend and seasonal cycles for baseline outlook modeling."
+                aria-label="Outlook continuation horizon info"
+              >
                 i
                 <span className="da-info-tooltip" role="tooltip">
                   Future projection period in years combining estimated trend and seasonal cycles for baseline outlook modeling.
@@ -1635,10 +1726,15 @@ function MethodParameterControls({
           <div className="da-param-row">
             <div className="da-param-label-row">
               <label htmlFor="param-cf-stripes">Stripes min valid months/year</label>
-              <span className="da-info-trigger" tabIndex={0} aria-label="Stripes minimum valid months info">
+              <span
+                className="da-info-trigger"
+                tabIndex={0}
+                title="Minimum number of valid observed months required in a calendar year to render that year in the warming stripes graphic (WMO standard ≥ 10 months)."
+                aria-label="Stripes minimum valid months info"
+              >
                 i
                 <span className="da-info-tooltip" role="tooltip">
-                  Minimum number of valid observed months required in a calendar year to render that year in the warming stripes graphic.
+                  Minimum number of valid observed months required in a calendar year to render that year in the warming stripes graphic (WMO standard ≥ 10 months).
                 </span>
               </span>
             </div>
@@ -1656,7 +1752,20 @@ function MethodParameterControls({
             </select>
           </div>
           <div className="da-param-row">
-            <label htmlFor="param-cf-tri">Trend triangle min sub-window</label>
+            <div className="da-param-label-row">
+              <label htmlFor="param-cf-tri">Trend triangle min sub-window</label>
+              <span
+                className="da-info-trigger"
+                tabIndex={0}
+                title="Minimum sub-window length in years evaluated in the running trend triangle matrix (typically ≥ 5 years to suppress short-scale noise)."
+                aria-label="Trend triangle min window info"
+              >
+                i
+                <span className="da-info-tooltip" role="tooltip">
+                  Minimum sub-window length in years evaluated in the running trend triangle matrix (typically ≥ 5 years to suppress short-scale noise).
+                </span>
+              </span>
+            </div>
             <select
               id="param-cf-tri"
               value={String(parameters.triangle_min_window_years)}
@@ -3444,6 +3553,90 @@ function SeasonalFingerprintSectionBody({
   );
 }
 
+const PARAMETER_EXPLANATIONS: Record<string, string> = {
+  // Method parameter controls:
+  "Significance threshold (α)":
+    "Maximum acceptable probability of Type I error (false rejection of null hypothesis H₀ of no trend). α = 0.05 corresponds to standard 95% confidence level; α = 0.01 provides stringent 99% confidence against false alarms.",
+  "Serial correlation adjustment":
+    "Adjusts OLS standard errors for temporal persistence using Quenouille–Santer effective sample size (n_eff), avoiding false trend significance from autocorrelated red noise.",
+  "Variance formulation":
+    "Corrects Mann–Kendall rank variance for serial auto-covariance up to lag k (Hamed & Rao 1998), preventing positive autocorrelation from falsely claiming significant trend.",
+  "Max autocorrelation lag (k)":
+    "Maximum number of monthly time lags checked for significant serial correlation in the rank series. 12 lags represents one full annual seasonal cycle.",
+  "Min years per calendar month":
+    "Minimum number of valid observed years required for an individual calendar month before including that month in the Seasonal Kendall cross-season trend sum.",
+  "Rank confidence interval":
+    "Two-sided non-parametric confidence corridor for Sen's median pairwise slope. 95% corridor indicates the range of probable decadal trajectories.",
+  "Display rate unit":
+    "Temporal normalization for reporting trend rate: per decade (standard for climate shifts) or per year.",
+  "Min observations per regime segment":
+    "Minimum consecutive observations required on either side of a candidate change point before confirming a structural regime shift (Pettitt test).",
+  "Extreme flagging threshold (|z| ≥ τ)":
+    "Standardized residual departure threshold (Z-score) for highlighting extreme climate anomalies. |z| ≥ 2.0 flags 2σ departures; |z| ≥ 3.0 highlights rare tail events.",
+  "Scale dispersion estimator":
+    "Dispersion scale used to normalize residuals: Robust Median Absolute Deviation (MAD, resistant to extreme outliers) vs Classical sample standard deviation (SD).",
+  "Heatmap color saturation cap (|z|)":
+    "Z-score magnitude at which heatmap cell colors saturate at 100% intensity on the multi-year seasonal divergence grid.",
+  "Outlook continuation horizon":
+    "Future projection period in years combining estimated secular trend with extracted seasonal harmonics for baseline outlook modeling.",
+  "Stripes min valid months/year":
+    "Minimum valid observed months required in a calendar year to calculate an annual mean for the warming stripes graphic (WMO standard ≥ 10 months).",
+  "Trend triangle min sub-window":
+    "Minimum sub-window length in years evaluated across all start/end year pairs in the running trend triangle matrix (typically ≥ 5 years to suppress short-scale noise).",
+  "Seasonal treatment":
+    "Decomposes series into seasonal harmonic cycles, secular trends, and stochastic residuals using Loess (STL) or 12-month climatology departure averages.",
+  "Sampling cadence":
+    "Temporal aggregation interval of observations. Monthly data is standard for multi-year trend tests and seasonal decomposition.",
+  "Observation period":
+    "Temporal observation window used for all statistical models. Adjusting bounds tests sample sensitivity and excludes incomplete boundary years.",
+
+  // Metric cards on Results:
+  "OLS Decadal Slope (β₁)":
+    "Estimated rate of change per decade from ordinary least-squares linear regression fit to the observed time series, with 95% confidence corridor.",
+  "Student t-Test":
+    "Statistical hypothesis test evaluating whether linear trend slope differs significantly from zero, reporting two-tailed p-value and degrees of freedom.",
+  "Variance Explained (R²)":
+    "Coefficient of determination indicating the fraction of total variance explained by the linear trend model versus unexplained stochastic residuals.",
+  "Serial Correlation Rule":
+    "Indicates whether effective sample size (n_eff) adjustment was applied to account for temporal persistence (lag-1 autocorrelation r₁).",
+  "Mann–Kendall p-value":
+    "Two-tailed significance probability from the non-parametric Mann–Kendall test for monotonic trend, testing the null hypothesis H₀ of no trend.",
+  "Kendall’s Tau (τ)":
+    "Non-parametric rank correlation coefficient measuring monotonic association between time and observed values (ranges from -1 to +1).",
+  "Lag-1 Autocorrelation (r₁)":
+    "Correlation between observations separated by one time step, indicating degree of temporal memory or persistence in the series.",
+  "BH-FDR Adjusted q":
+    "Benjamini–Hochberg False Discovery Rate adjusted p-value controlling for multiple hypothesis testing across concurrent statistical evaluations.",
+  "Seasonal Kendall Z_SK":
+    "Standardized seasonal Mann–Kendall test statistic aggregating separate rank tests for each calendar month to avoid seasonal bias.",
+  "Homogeneity Chi-Square":
+    "Tests whether trend slopes across different calendar months are statistically homogeneous or whether trend varies by season.",
+  "Cross-Season Median Slope":
+    "Seasonal Sen's slope estimator computing the median of slopes calculated only between pairs of observations in the same calendar month.",
+  "Sen’s Decadal Slope (Q)":
+    "Median of all pairwise slopes between distinct observation times, robust against up to 29% gross outliers and non-normal residuals.",
+  "95% Confidence Corridor":
+    "Non-parametric rank-based confidence bounds [Q_low, Q_high] enclosing the true trend slope with 95% probability.",
+  "Total Decadal Shift":
+    "Cumulative physical change in observed units implied by Sen's median slope over the entire selected observation period.",
+  "Outlier Breakdown Point":
+    "The proportion of arbitrary extreme outliers (up to 29.3%) the non-parametric Sen estimator can tolerate before the slope estimate breaks down.",
+  "Candidate Breakpoint Date":
+    "The timestamp where cumulative rank sum reaches its extreme value, indicating the most probable abrupt structural regime shift.",
+  "Pre-Breakpoint Mean":
+    "Mean observed value calculated over the regime period preceding the candidate structural change point.",
+  "Post-Breakpoint Mean":
+    "Mean observed value calculated over the regime period following the candidate structural change point.",
+  "Regime Step Shift (Δμ)":
+    "Difference between post-breakpoint mean and pre-breakpoint mean, quantifying the magnitude of the structural regime transition.",
+  "Highest Positive Departure":
+    "Maximum positive standardized anomaly Z-score observed in the period, identifying the most severe positive climatic departure.",
+  "Lowest Negative Departure":
+    "Minimum negative standardized anomaly Z-score observed in the period, identifying the most severe negative climatic departure.",
+  "Scale Dispersion Estimator":
+    "The statistical dispersion metric (MAD vs SD) used to scale raw residuals into standardized Z-scores.",
+};
+
 function Metric({
   label,
   value,
@@ -3457,11 +3650,27 @@ function Metric({
   detail: string;
   tone?: string;
 }) {
+  const explanation =
+    PARAMETER_EXPLANATIONS[label] ||
+    (label.startsWith("Flagged Anomalies")
+      ? "Count and proportion of observation periods exhibiting standardized departures greater than the specified Z-score threshold."
+      : detail || label);
+
   return (
     <div className="metric">
       <div className="metric-label">
-        {label}
-        <Icon name="info" size={13} />
+        <span>{label}</span>
+        <span
+          className="da-info-trigger"
+          tabIndex={0}
+          title={explanation}
+          aria-label={`${label} explanation`}
+        >
+          i
+          <span className="da-info-tooltip" role="tooltip">
+            {explanation}
+          </span>
+        </span>
       </div>
       <div>
         <strong>{value}</strong>

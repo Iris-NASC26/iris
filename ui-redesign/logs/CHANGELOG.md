@@ -5,6 +5,178 @@
 
 ---
 
+## [2026-11-15 21:11] Sidebar Navigation — New "Predictions" Section with In Development Tag
+
+### 1. Summary
+- Moved **Forecasts** out of the "Explore" section into a dedicated section in the sidebar navigation: **"Predictions"**.
+- Added the `"In Development"` pill badge directly next to the **"PREDICTIONS"** section heading using `.dashboard-nav-dev-tag`.
+- Retained **"Case Studies"** and **"Existing Research"** under the "Explore" section.
+
+### 2. Files Modified
+- `src/app/workspace/layout.tsx`:
+  - Added navigation group `{ label: "Predictions", tag: "In Development", items: [{ to: "/workspace/forecasts", text: "Forecasts", icon: "activity" }] }`.
+
+### 3. Verification & Guardrails
+- [x] TypeScript compiler: `pnpm tsc --noEmit` passed with 0 errors.
+- [x] Test suite: `pnpm test:visualization` passed 115/115 tests across 10 test suites.
+
+---
+
+## [2026-11-15 21:10] Research Page Redesign, Default Search Limit 10, Data Controls & Button Hover Contrast
+
+### 1. Summary
+- **Default Search Limit**: Changed default literature/dataset research search limit to 10 records per source (20 combined across OpenAlex and DataCite) across frontend state (`src/app/workspace/research/page.tsx`), Next.js API route (`src/app/api/v1/research/search/route.ts`), and backend Pydantic models (`backend/schemas.py`).
+- **Existing Research Workspace Redesign**: Fully redesigned `.research-workspace-page` according to the HeroUI v3 Emerald design system tokens:
+  - Sidebar / Control panel with HeroUI Surface Tertiary, refined typography, and compact Form / Select / Checkbox Card controls with focus rings.
+  - Retrieved Dataset Card using HeroUI Card & Stat layout with emerald soft icon and semantic metadata list.
+  - Search Header & Search Field adopting HeroUI SearchField and Card styling, with primary button (HeroUI solid emerald) and dataset search button (HeroUI soft accent).
+  - Onboarding Guide with HeroUI Alert banner and card recipes.
+  - Metrics Grid adopting HeroUI Card + Stat metrics display with tabular figures.
+  - Filter Bar using HeroUI ToggleButtonGroup segmented controls with active/hover states in both modes.
+  - Results List with HeroUI List Item rows, clean source badges (OpenAlex emerald chip, DataCite blue/info chip, Open Access green chip), and action buttons.
+- **Data Visualization Button Hover Fix**:
+  - Fixed button hover text invisibility across light and dark modes in `src/features/visualization/visualization.css`. Previously, `.viz-button:hover` applied `color: var(--accent-foreground)` on `background: var(--accent-soft)`. In light mode, `--accent-foreground` is white (`#ffffff`) on pale mint background (`#eaf8f1`), rendering text invisible; in dark mode, `--accent-foreground` is dark ink (`#042419`) on dark emerald background (`#15382b`), rendering text invisible.
+  - Replaced hover text color with `var(--accent-soft-foreground)` (`#087f5b` in light mode for 4.57:1 contrast; `#34d399` in dark mode for 6.42:1 contrast), ensuring text and button boundaries remain clearly visible on hover in both themes.
+  - Added dedicated `:hover`, `:active`, `[aria-pressed=true]`, and `:focus-visible` styling for all visualization buttons (`.viz-button`, `.viz-primary`, `.viz-search button`, `.viz-view-tabs button`, `.viz-chart-types button`, `.viz-table-pages button`, `.viz-camera-controls button`, `.viz-segment button`, `.viz-loaded-list button`).
+- **Data Controls Section Redesign**:
+  - Redesigned `.viz-controls`, `.viz-control-section`, `.viz-step`, `.viz-product-list`, `.viz-product`, and form controls in `src/features/visualization/visualization.css` to use HeroUI v3 semantic surface tokens, field tokens, and checkbox card recipes.
+
+### 2. Files Modified
+- `src/app/workspace/research/page.tsx`:
+  - Set default `perSourceLimit` state to `10`.
+- `src/app/api/v1/research/search/route.ts`:
+  - Set default `per_source_limit` fallback to `10`.
+- `backend/schemas.py`:
+  - Updated `ResearchSearchRequest.per_source_limit` default to `10`.
+- `src/app/globals.css`:
+  - Comprehensive HeroUI v3 styling for `.research-workspace-page`.
+- `src/features/visualization/visualization.css`:
+  - Button hover visibility fix for both light and dark modes.
+  - Redesign of `.viz-controls` and data control sections using HeroUI tokens.
+- `src/features/visualization/presentation/presentation.css`:
+  - Observation scrub button hover color contrast fix.
+
+### 3. Verification & Guardrails
+- [x] Test suite: `pnpm test:visualization` passed 115/115 tests across 10 test suites.
+- [x] Production build: `pnpm build` completed successfully (34/34 pages static/dynamic).
+- [x] Contrast & visibility verified in both light and dark modes.
+
+---
+
+## [2026-11-15 21:05] Geometric Visualization — 3D Globe Canvas & Cesium Widgets Layout Fix
+
+### 1. Summary
+- Resolved the 3D visualization layout collapse where the Cesium globe rendered as a 300×150 black rectangle in the top-left corner with unstyled credit text (`CESIUM ion Data attribution`) overflowing into the container.
+- **Root Cause**: Cesium's runtime CSS (`/cesium/Widgets/widgets.css`) was not linked in the root HTML `<head>`. Because `engine.ts` was loaded dynamically at runtime via `await import('./cesium/engine')`, Webpack did not emit/inject Cesium's widget styles, causing `.cesium-viewer`, `.cesium-widget`, and `<canvas>` to lack `width: 100%; height: 100%` and `.cesium-viewer-bottom` to lack absolute positioning.
+- **Fixes Applied**:
+  1. Linked `/cesium/Widgets/widgets.css` directly in `src/app/layout.tsx` (`<head>`) and added dynamic fallback injection in `src/features/visualization/Globe.tsx`.
+  2. Added resilient, comprehensive layout rules in `src/features/visualization/visualization.css` and `src/app/globals.css` ensuring `.viz-three-mount`, `.cesium-viewer`, `.cesium-widget`, and `canvas` always expand to `100%` width and height (`position: absolute; inset: 0;`), with styled, translucent credit bar at the bottom.
+  3. Added `resize()` method to `GlobeEngine` in `src/features/visualization/cesium/engine.ts` and wired a `ResizeObserver` on `mount.current` in `src/features/visualization/Globe.tsx` to ensure canvas buffers match viewport dimensions instantly across all window or layout resize events.
+
+### 2. Files Modified
+- `src/app/layout.tsx`:
+  - Added `<link rel="stylesheet" href="/cesium/Widgets/widgets.css" />` to `<head>`.
+- `src/features/visualization/Globe.tsx`:
+  - Added dynamic stylesheet check in `useEffect`.
+  - Added `ResizeObserver` observing `mount.current` to call `engine.current?.resize()`.
+  - Triggered `created.resize()` immediately on engine initialization.
+- `src/features/visualization/cesium/engine.ts`:
+  - Added public `resize()` method and called `this.viewer.resize()` in constructor.
+- `src/features/visualization/visualization.css` & `src/app/globals.css`:
+  - Added complete positioning and sizing rules for `.cesium-viewer`, `.cesium-viewer-cesiumWidgetContainer`, `.cesium-widget`, `canvas`, and `.cesium-viewer-bottom`.
+
+### 3. Verification & Guardrails
+- [x] TypeScript compiler: `pnpm tsc --noEmit` passed with 0 errors.
+- [x] Test suite: `pnpm test:visualization` passed 115/115 tests across 10 test suites.
+- [x] CSS brace matching: `globals.css` (2599 / 2599), `visualization.css` (354 / 354).
+
+---
+
+## [2026-11-15 20:50] Geometric Visualization — Top Button Visibility, Sidebar Menu Label & In Development Tag
+
+### 1. Summary
+- Resolved button visibility issue on the Geometric Visualization (`/workspace/globe`) header where "Open Data Visualization" was rendered white-on-white due to CSS class precedence overriding the button background. Added dedicated styling `.viz-primary-explore-btn` with signature HeroUI emerald gradient (`linear-gradient(135deg, #10b981 0%, #059669 100%)`), crisp white text and icon (`#ffffff !important`), hover elevation, and proper contrast across both light and dark themes.
+- Updated the sidebar navigation in `src/app/workspace/layout.tsx`:
+  - Placed the `"In Development"` badge/pill right next to the section heading `"GLOBAL EVIDENCE CUBE"`.
+  - Kept the navigation item button text cleanly as `"Geometric Visualization"`.
+  - Added `.dashboard-nav-label-row` and `.dashboard-nav-dev-tag` in `src/app/globals.css` with responsive hiding on collapsed sidebar state.
+- Removed AI-generated synthetic data:
+  - Removed `<section className="hazard-layer-links">` from `src/features/visualization/MapWorkspace.tsx` and removed unused forecast imports.
+  - Replaced marketing copy (`"Your data, in place."`) in `src/features/visualization/Globe.tsx` with technical label `"Spatial Coordinate Grid"` and descriptive prompt `"Select a variable and coordinate bounds to load and inspect spatial grid cells."`.
+  - Cleaned duplicate "In Development" eyebrow in `src/features/visualization/Workspace.tsx`.
+
+### 2. Files Modified
+- `src/app/workspace/layout.tsx`:
+  - Added `tag: "In Development"` to `navigation` group and rendered `.dashboard-nav-dev-tag` beside `.dashboard-nav-label`.
+  - Set menu item text cleanly to `"Geometric Visualization"`.
+- `src/features/visualization/Workspace.tsx`:
+  - Updated header button to `<Link className="viz-primary-explore-btn" href="/workspace/visualize"><Icon name="chart" size={15}/> <span>Open Data Visualization</span></Link>`.
+- `src/features/visualization/visualization.css`:
+  - Added `.viz-primary-explore-btn` styles with emerald gradient, white text/icon, and hover elevation.
+- `src/app/globals.css`:
+  - Added `.dashboard-nav-label-row` and `.dashboard-nav-dev-tag` with light and dark mode tokens.
+  - Added `.viz-primary-explore-btn` styling to ensure consistency across the application.
+- `src/features/visualization/MapWorkspace.tsx`:
+  - Removed unused imports and synthetic upcoming forecasts section.
+- `src/features/visualization/Globe.tsx`:
+  - Replaced placeholder marketing copy with descriptive technical labels.
+
+### 3. Verification & Guardrails
+- [x] TypeScript compiler: `pnpm tsc --noEmit` passed with 0 errors.
+- [x] Test suite: `pnpm test:visualization` passed 115/115 tests across 10 test suites.
+- [x] CSS brace matching: `globals.css` (2580 / 2580), `visualization.css` (318 / 318).
+- [x] 100% of Cesium, Three.js, spatial variables, and data contracts preserved.
+
+---
+
+## [2026-11-15 20:25] Floating Assistant Bubble — Prominent Emerald Capsule & "Talk to AI" Label
+
+### 1. Summary
+- Upgraded the floating AI assistant button in `src/components/dashboard/IrisAssistant.tsx` from an ambiguous round icon to a prominent, high-visibility capsule pill displaying `"Talk to AI"`.
+- Styled `.iris-assistant-launcher` with a signature HeroUI emerald gradient (`linear-gradient(135deg, #10b981 0%, #059669 100%)`), crisp white typography, an elevated drop shadow (`0 4px 14px rgba(16, 185, 129, 0.35)`), and smooth hover interaction (`translateY(-2px) scale(1.02)` with expanded glow).
+- Enhanced accessibility with `aria-label="Talk to AI"`, native tooltip `title="Talk to AI — Iris Intelligent Assistant"`, and keyboard focus-visible outline.
+
+### 2. Files Modified
+- `src/components/dashboard/IrisAssistant.tsx`:
+  - Added `<span className="iris-assistant-launcher-text">Talk to AI</span>` inside the launcher button.
+- `src/app/globals.css`:
+  - Replaced square 48px button styling with full capsule pill design, emerald gradient, and hover lift.
+
+### 3. Verification & Guardrails
+- [x] TypeScript compiler: `pnpm tsc --noEmit` passed with 0 errors.
+- [x] Test suite: `pnpm test:visualization` passed 115/115 tests across 10 test suites.
+- [x] CSS brace matching: 2577 opens, 2577 closes.
+
+---
+
+## [2026-11-15 20:10] Data Analysis — Comprehensive (i) Parameter Explanations & Tooltip Display Fix
+
+### 1. Summary
+- Resolved issue where hovering `(i)` icons in Data Analysis did not display parameter explanations due to upward positioning (`bottom: calc(100% + 7px)`) being clipped by `.panel-scroll`'s `overflow: hidden`, missing color variable fallbacks, and lack of hover tooltips on the Metric summary cards.
+- Repositioned `.da-info-tooltip` to drop downwards below the trigger (`top: calc(100% + 6px); right: 0; left: auto;`) with high z-index (`9999`), resilient background (`var(--overlay, #ffffff)` / dark mode `#1c221f`), dark foreground text, elevated drop shadow, and non-clipped boundaries.
+- Added native browser `title="..."` attributes to every `.da-info-trigger` as an infallible native fallback across all devices and browsers.
+- Expanded the `(i)` tooltip explanations across **all 17 configurable parameters and preprocessing options** in the sidebar:
+  - Significance threshold (α), Serial correlation adjustment (Quenouille–Santer), Variance formulation (Hamed–Rao), Max autocorrelation lag (k), Min years per calendar month, Rank confidence interval (Sen's slope), Display rate unit, Min observations per regime segment (Pettitt), Extreme flagging threshold (|z| ≥ τ), Scale dispersion estimator (MAD vs SD), Heatmap color saturation cap, Outlook continuation horizon, Stripes min valid months/year, Trend triangle min window, Seasonal treatment, Sampling cadence, and Observation period.
+- Rebuilt the `Metric` component across all 8 statistical method result views to display rich, plain-English scientific explanations when hovering the `(i)` trigger on every output card (OLS Slope, Student t-Test, R², Serial Correlation Rule, Mann–Kendall p-value, Kendall's Tau, Lag-1 Autocorrelation, BH-FDR Adjusted q, Seasonal Kendall Z_SK, Homogeneity Chi-Square, Sen's Decadal Slope, Breakdown Point, Pettitt Breakpoint, Step Shift Δμ, Anomaly Flagging, and Dispersion Estimators).
+- Cleaned duplicate CSS blocks in `src/app/globals.css` and verified CSS brace balance (2575 opens, 2575 closes).
+
+### 2. Files Modified
+- `src/app/globals.css`:
+  - Upgraded `.da-info-trigger`, `.da-info-tooltip`, and `.metric .metric-label` rules with downward offset, z-index 9999, and full theme variable fallbacks in light and dark modes.
+  - Removed duplicate CSS rule blocks at end of file.
+- `src/app/workspace/data-analysis/page.tsx`:
+  - Added `PARAMETER_EXPLANATIONS` dictionary covering all parameter inputs and analysis output metrics.
+  - Added `(i)` trigger and tooltips to `Sampling cadence`, `Observation period`, and `Trend triangle min sub-window`.
+  - Upgraded `Metric` component to wrap `(i)` icon with `.da-info-trigger`, `.da-info-tooltip`, and `title="..."`.
+
+### 3. Verification & Guardrails
+- [x] TypeScript compiler: `pnpm tsc --noEmit` passed with 0 errors.
+- [x] Test suite: `pnpm test:visualization` passed 115/115 tests across 10 test suites.
+- [x] CSS brace matching: 2575 opens, 2575 closes.
+- [x] 100% of statistical methods, parameters, and callback contracts intact.
+
+---
+
 ## [2026-11-15 19:50] Data Analysis & Data Preview — View Filtering, Analysis Terminology, and Layout Lock
 
 ### 1. Summary

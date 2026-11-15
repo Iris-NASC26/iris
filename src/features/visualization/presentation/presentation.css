@@ -191,6 +191,7 @@
 .viz-observation-scrub button:hover:not(:disabled) {
   border-color: var(--accent, var(--green));
   background: var(--accent-soft, var(--green-soft));
+  color: var(--accent-soft-foreground, var(--green));
 }
 .viz-observation-scrub button:disabled {
   opacity: 0.3;

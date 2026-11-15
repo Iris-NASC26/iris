@@ -41,7 +41,7 @@ export default function ResearchPage() {
     "datacite",
   ]);
   const [sortOrder, setSortOrder] = useState<ResearchSortOrder>("relevance");
-  const [perSourceLimit, setPerSourceLimit] = useState<number>(15);
+  const [perSourceLimit, setPerSourceLimit] = useState<number>(10);
   const [providerFilter, setProviderFilter] = useState<ProviderFilter>("ALL");
 
   const [searchState, setSearchState] = useState<SearchState>("empty");
