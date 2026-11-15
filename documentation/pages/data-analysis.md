@@ -1,140 +1,55 @@
-# Data Analysis — User-Directed Analysis
+# Data Analysis — Interactive Workbench & Step-by-Step Case File
 
-The **Data Analysis** page lets you choose how to prepare and analyze an observed series. Results are calculated only after you select methods and press **Run selected analysis**.
+The **Data Analysis** page is Iris's interactive statistical workbench. Instead of a static batch of checkboxes, it provides an intuitive card-based method selector, per-method parameter controls, automatic dataset compatibility checks, step-by-step cumulative execution, and downloadable high-resolution charts.
 
 > Navigate to it via: **Workspace → Data Analysis** in the left sidebar.
 
 ---
 
-## What is a Case File?
+## 1. Dataset Compatibility & Readiness
 
-A Case File is Iris's structured output for a completed investigation. It is:
+Not every statistical method is valid for every temporal frequency or sample size. For example, **Daily** or **Yearly** datasets cannot be analyzed with calendar-month methods such as **Seasonal Kendall** or the **12-Month Seasonal Fingerprint**, whereas **Monthly** datasets spanning multiple years support all eight methods.
 
-- **Reproducible** — given the same inputs (dataset, region, time window), it will always produce identical results
-- **Transparent** — every statistical value is accompanied by its source, method, and assumptions
-- **Exportable** — download as JSON or CSV for use in papers, presentations, or further analysis
-- **Traceable** — includes a full ISO 19115 / PROV-O provenance record linking the result back to the original upstream data
-
-Each Case File is assigned a unique ID (shown in the workspace top bar) that can be used to reload the same analysis.
+At the top of the left control panel, Iris inspects your active dataset and displays a **Dataset Compatibility Profile**:
+- **Cadence Badge**: Shows whether the active series is `Daily`, `8-Day`, `16-Day`, `Monthly`, `Seasonal`, or `Yearly`.
+- **Observation Coverage**: Reports valid observation count, completeness percentage, and year span.
+- **Per-Method Eligibility**: Each analysis card displays a clear `Compatible` badge or a specific requirement badge (e.g., `Requires Monthly Data` or `Requires ≥ 10 Valid Points`) explaining why a method is enabled or locked for the current dataset.
 
 ---
 
-## Running the analysis
+## 2. Intuitive Method Cards, Parameters & `(i)` Documentation Links
 
-Open Data Analysis from a completed extraction preview, choose a **Seasonal treatment**, select one or more analysis methods, and submit. Opening the page or loading an extraction does not automatically run analysis. When there is no extraction, a live NASA POWER series can be requested only for a supported NASA POWER selection. Provider or analysis failures are shown as errors rather than replaced with generated results.
+Each analysis method is presented as an interactive card in the left pane:
 
-Available seasonal treatments:
-
-- **Automatic** — uses robust STL (period 12) for complete regular monthly series of at least two years; otherwise it uses calendar-month climatology.
-- **Calendar-month climatology** — explicitly removes each calendar month's mean.
-- **Robust STL** — requires at least 24 complete consecutive monthly observations; the service reports an error instead of silently substituting another method if the record is unsuitable.
-- **No seasonal adjustment** — analyzes the observed values without subtracting a seasonal component.
-
-The pipeline sorts source observations, retains QA flags and missing intervals, and excludes missing/flagged/non-finite values from inference without filling gaps. The selected seasonal treatment is applied before trend and anomaly methods; Seasonal Kendall compares matching calendar months from the observed series.
-
-Select any methods you need:
-
-1. **OLS linear trend and t-test** — estimates a linear slope using elapsed calendar time and tests \(H_0:\beta_1=0\) with an autocorrelation-adjusted effective degrees of freedom.
-2. **Hamed–Rao Mann–Kendall test** — tests monotonic trend with tie correction and a variance correction for serial rank autocorrelation.
-3. **Seasonal Kendall test** — aggregates like-calendar-month comparisons to test a trend while controlling for recurring annual seasonality.
-4. **Sen's slope and 95% interval** — reports a robust median pairwise slope and rank-based confidence interval.
-5. **Pettitt change-point screen** — reports an approximate single-breakpoint diagnostic when supported by the record.
-6. **Anomaly review** — flags observed |z| ≥ 2 values for review; anomalies are not removed from trend analysis.
-7. **Seasonal fingerprint** — displays a year-by-month view of observed values and seasonal anomalies.
-8. **Full Case File diagnostics** — adds evidence grade, caveats, robustness, provenance, and supporting context.
-
-Changing the selection clears any prior result. The right pane displays the latest submitted analysis and only the methods selected for that run.
+1. **Hover `(i)` Tooltip**: Hovering over (or focusing) the `(i)` icon on any method card reveals a concise explanation of the statistical method, what it tests, and when to use it.
+2. **Click `(i)` to Open Full Documentation**: Clicking the `(i)` icon opens the method's dedicated documentation page in a new browser tab with complete mathematical formulas, pipeline steps, parameter definitions, and interpretation guides:
+   - [Linear Trend · OLS t-Test](#method-ols)
+   - [Mann–Kendall Trend Test (Hamed–Rao)](#method-hamed-rao-mk)
+   - [Seasonal Kendall Test](#method-seasonal-kendall)
+   - [Sen's Slope Estimator](#method-sen-slope)
+   - [Pettitt Change-Point Screen](#method-pettitt)
+   - [Anomaly Review](#method-anomalies)
+   - [Seasonal Fingerprint Heatmap](#method-seasonal-fingerprint)
+   - [Full Case File Diagnostics](#method-case-file-diagnostics)
+3. **Adjustable Method Parameters**: Expanding or selecting a method card lets you customize its statistical parameters (such as significance level \(\alpha\), confidence interval width, autocorrelation lag limit, anomaly \(|z|\) threshold, MAD vs. SD dispersion, minimum segment length, or outlook horizon) before running or re-running that method.
 
 ---
 
-## Interpreting selected results
+## 3. Step-by-Step Cumulative Analysis Workflow
 
-When Hamed–Rao Mann–Kendall is selected, the result includes a plain-language summary:
+You do **not** have to select and run all analyses in a single step:
 
-| Verdict | Meaning |
-|---|---|
-| **Significant increasing/decreasing trend** | The autocorrelation-adjusted Mann–Kendall test has p < 0.05; slope and uncertainty are reported alongside it |
-| **No statistically significant trend detected** | The test did not reach p < 0.05; this does not prove that the trend is zero |
-
-A p-value is not the probability that a trend is true. The page shows p-values and confidence intervals directly instead of converting \(1-p\) to a misleading confidence percentage.
+- **Run One Method at a Time**: You can first select and run **Linear trend · OLS t-test** (either via the card's quick **Run** button or the main action button). Its results immediately appear in a dedicated section on the right pane.
+- **Add Additional Analyses Later**: Next, you can select **Mann–Kendall trend test** or **Pettitt change-point screen** and run it. Iris preserves your initial OLS t-test results and appends the new analysis section on the right pane—you never have to run your initial analysis twice.
+- **Update Parameters & Re-Run In Place**: If you adjust a parameter for a method you already ran (for example, changing the Anomaly \(|z|\) threshold from `2.0` to `1.5`), you can re-run just that method to update its section while keeping all other completed sections intact.
 
 ---
 
-## Reading the charts
+## 4. Separate Method Sections & Downloadable Charts
 
-### Raw vs. deseasonalized signal
-
-The first chart shows two overlaid views of your data:
-
-- **Raw observations** — values from the extraction, with QA-invalid values omitted and gaps left open
-- **Seasonal cycle** — observed calendar-month climatology values
-- **Deseasonalized anomaly** — the observed value minus its calendar-month mean, with Sen's slope overlaid
-
-Comparing raw and deseasonalized views reveals whether a trend is real or simply a reflection of seasonal timing shifts.
-
-### Anomaly panel
-
-A secondary chart highlights observations that fall outside the expected range. Each anomaly shows:
-
-- Its date and value
-- How many standard deviations it is from the seasonal mean
-- Whether it is a positive (above) or negative (below) anomaly
-
-> **Why anomalies matter:** A single extreme year can dominate a linear regression slope. The Mann-Kendall test and Sen's slope are specifically chosen because they are resistant to outliers — but anomalies may still indicate measurement errors or physically interesting events worth investigating further.
-
----
-
-## Statistical summary panel
-
-A summary of key statistical outputs appears for the methods selected:
-
-| Metric | Description |
-|---|---|
-| **OLS slope and t-test** | Parametric linear rate, t statistic, adjusted degrees of freedom, two-sided p-value, and 95% slope interval |
-| **Hamed–Rao Mann–Kendall** | Autocorrelation-adjusted monotonic trend Z, Kendall tau, p-value, lag-1 rank correlation, and effective sample size |
-| **Seasonal Kendall** | Like-months-across-years test; unavailable if the record has too few repeated months |
-| **Sen's slope and 95% interval** | Robust median pairwise change per decade and rank-based confidence interval |
-| **BH FDR q-value** | Adjusted result for the explicitly declared family of tests in this Case File |
-| **Change point** | Candidate single breakpoint from Pettitt's non-parametric screen; not proof of a regime shift |
-
-The year-by-month seasonal fingerprint displays actual observed anomalies. Blank cells represent missing or QA-excluded observations. Anomaly flags are review cues and are not deleted from the trend analysis.
-
----
-
-## Evidence grade
-
-Each Case File receives an **Evidence Grade** (A through D) based on:
-
-| Grade | Criteria |
-|---|---|
-| **A** | ≥ 30 years of data, ≥ 90% completeness, p < 0.01, parametric/non-parametric concordance |
-| **B** | ≥ 20 years, ≥ 80% completeness, p < 0.05 |
-| **C** | ≥ 10 years, ≥ 70% completeness, p < 0.10 |
-| **D** | Short record, high missingness, or marginally significant result |
-
-Evidence grades are included only when **Full Case File diagnostics** is selected. They provide a quick readability indicator and should not be treated as a substitute for inspecting the method assumptions, data coverage, or provenance.
-
----
-
-## Provenance record
-
-At the bottom of the Case File, the full provenance chain is displayed:
-
-- Upstream data provider and product version
-- Extraction timestamp (UTC)
-- Processing pipeline version
-- Spatial reduction method used
-- Statistical engine parameters
-- Unique result hash (SHA-256 of the input data)
-
-This record ensures that any result can be independently verified and reproduced.
-
----
-
-## Exporting the Case File
-
-Click **"Export"** to download:
-
-- **Full Case File (JSON)** — all statistics, charts data, metadata, and provenance in a structured format
-- **Observations (CSV)** — raw and deseasonalized time series with anomaly flags
-- **Summary (PDF)** — a formatted report suitable for sharing *(coming soon)*
+On the right-hand results pane:
+- **Completed Analyses Navigation Bar**: Shows all completed analysis steps in order so you can jump directly to any section or export the full Case File (CSV / JSON).
+- **Dedicated Section per Analysis Method**: Every executed analysis method is rendered in its own structured card section with:
+  - Exact statistical values, confidence intervals, test statistics, and parameter badges
+  - Method-specific visualization with accurate axis ticks, interactive hover readouts, and value callouts
+  - **Download Image (PNG)** button on every chart so you can export publication-ready figures directly from any analysis section.

@@ -227,6 +227,88 @@ class TrendStatisticsTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "duplicate timestamps"):
             execute_case_file_analysis(duplicate_series, request, "live_nasa_power")
 
+    def test_custom_method_parameters_and_daily_cadence_are_honored(self):
+        dates = pd.date_range("2020-01-01", periods=90, freq="D")
+        values = np.linspace(10.0, 18.0, len(dates)) + np.sin(np.arange(len(dates)) / 5.0)
+        values[45] = 29.0  # strong positive outlier
+        request = CaseFileAnalysisRequest(
+            dataset_name="Daily temperature",
+            parameter_code="T2M",
+            unit="C",
+            location="Test region",
+            start_year=2020,
+            end_year=2020,
+            cadence="Daily",
+            alpha=0.01,
+            seasonal_adjustment="none",
+            analysis_methods=["ols", "hamed_rao_mk", "sen_slope", "pettitt", "anomalies"],
+            anomaly_z_threshold=1.5,
+            anomaly_dispersion_method="mad",
+            sens_confidence_level=0.90,
+            outlook_horizon_years=6,
+        )
+
+        result = execute_case_file_analysis(
+            series=pd.Series(values, index=dates),
+            req=request,
+            provenance_mode="live_extracted_result",
+        )
+
+        self.assertEqual(result.cadence, "Daily")
+        self.assertEqual(result.analysis_series[0].timestamp, "2020-01-01")
+        self.assertEqual(result.anomaly_threshold_used, 1.5)
+        self.assertEqual(result.anomaly_dispersion_used, "mad")
+        self.assertGreater(result.anomaly_count, 0)
+        self.assertGreater(len(result.lag_autocorrelations), 0)
+        self.assertGreater(len(result.pettitt_ut_series), 0)
+        self.assertIsNotNone(result.ols_r_squared)
+
+    def test_frontend_payload_1981_2025_with_527_valid_months_succeeds(self) -> None:
+        dates = pd.date_range("1981-01-01", periods=540, freq="MS")
+        idx = np.arange(len(dates), dtype=float)
+        values = 18.0 + 3.5 * np.sin(2.0 * np.pi * idx / 12.0) + 0.004 * idx
+        values[:13] = np.nan  # 527 valid observations out of 540 (98%)
+
+        req = CaseFileAnalysisRequest.model_validate(
+            {
+                "job_id": "job-1981-2025",
+                "dataset_id": "T2M_MAX",
+                "dataset_name": "Temperature at 2 Meters Maximum",
+                "parameter_code": "T2M_MAX",
+                "unit": "C",
+                "location": "Selected area (38.85°, -93.89°)",
+                "latitude": None,
+                "longitude": None,
+                "start_year": 1981,
+                "end_year": 2025,
+                "seasonal_adjustment": "auto",
+                "analysis_methods": ["ols", "hamed_rao_mk", "sen_slope"],
+                "cadence": "Monthly",
+                "alpha": 0.05,
+                "ols_autocorrelation_adjustment": True,
+                "mk_autocorrelation_correction": "hamed_rao",
+                "mk_max_lag": 12,
+                "seasonal_kendall_min_years": 3,
+                "sens_confidence_level": 0.95,
+                "sens_rate_scale": "decade",
+                "pettitt_min_segment": 6,
+                "anomaly_z_threshold": 2.0,
+                "anomaly_dispersion_method": "robust_mad",
+                "fingerprint_color_cap": 2.5,
+                "outlook_horizon_years": 6,
+                "stripes_min_months": 10,
+                "triangle_min_window_years": 5,
+            }
+        )
+        result = execute_case_file_analysis(
+            series=pd.Series(values, index=dates),
+            req=req,
+            provenance_mode="live_extracted_result",
+        )
+        self.assertEqual(result.valid_months_count, 527)
+        self.assertEqual(result.start_year, 1981)
+        self.assertEqual(result.end_year, 2025)
+
 
 if __name__ == "__main__":
     unittest.main()
