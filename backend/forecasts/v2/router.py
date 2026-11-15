@@ -637,3 +637,130 @@ def refresh(identifier: str, payload: dict | None = None,
     spec = _spec(payload)
     spec.setdefault("backfill_days", 14)  # refresh is incremental by default
     return jobs.enqueue("ingest", r["location_id"], spec.get("idem", f"refresh-{datetime.now(UTC):%Y%m%d}"), spec)
+
+
+# ---- durable operations (Phase 7) — server-owned store, admin-gated ----
+
+from .operations import integrity as _ops_integrity  # noqa: E402
+from .operations import monitoring as _ops_monitoring  # noqa: E402
+from .operations import releases as _ops_releases  # noqa: E402
+from .operations import runner as _ops_runner  # noqa: E402
+from .operations import schedules as _ops_schedules  # noqa: E402
+
+OPS_DB = jobs.DB_PATH
+OPS_ROOT = jobs.DB_PATH.parent / "v2" / "ops"
+
+
+@router.get("/ops/schedules")
+def ops_schedules_list():
+    return {"schedules": _ops_schedules.list_all(OPS_DB)}
+
+
+@router.post("/ops/schedules")
+def ops_schedule_create(payload: dict,
+                        x_iris_admin: str | None = Header(default=None)):
+    _admin_guard(x_iris_admin)
+    spec = _spec(payload)
+    try:
+        return _ops_schedules.create(
+            OPS_DB, kind=spec["kind"], binding=spec.get("binding", {}),
+            cadence_seconds=int(spec.get("cadence_seconds", 86400)),
+            enabled=bool(spec.get("enabled", False)),
+            budget=spec.get("budget"))
+    except (KeyError, ValueError) as e:
+        raise HTTPException(422, f"Invalid schedule: {e}") from None
+
+
+@router.post("/ops/schedules/{sid}/state")
+def ops_schedule_state(sid: str, payload: dict,
+                       x_iris_admin: str | None = Header(default=None)):
+    _admin_guard(x_iris_admin)
+    if "enabled" not in payload:
+        raise HTTPException(422, "expected {'enabled': bool}")
+    s = _ops_schedules.set_enabled(OPS_DB, sid, bool(payload["enabled"]))
+    if s is None:
+        raise HTTPException(404, "Unknown schedule.")
+    return s
+
+
+@router.post("/ops/pause")
+def ops_pause(x_iris_admin: str | None = Header(default=None)):
+    _admin_guard(x_iris_admin)
+    return {"paused": True,
+            "affected": _ops_schedules.set_paused(OPS_DB, True)}
+
+
+@router.post("/ops/resume")
+def ops_resume(x_iris_admin: str | None = Header(default=None)):
+    _admin_guard(x_iris_admin)
+    return {"paused": False,
+            "affected": _ops_schedules.set_paused(OPS_DB, False)}
+
+
+@router.get("/ops/due")
+def ops_due():
+    return {"due": _ops_schedules.due(OPS_DB)}
+
+
+@router.post("/ops/tick")
+def ops_tick(x_iris_admin: str | None = Header(default=None)):
+    _admin_guard(x_iris_admin)
+    return {"plans": _ops_runner.plan_due(OPS_DB)}
+
+
+@router.get("/ops/releases/{location_id}/{target}")
+def ops_releases(location_id: str, target: str):
+    ctx = {"location_id": location_id, "target": target}
+    return {"releases": _ops_releases.list_releases(OPS_ROOT, ctx),
+            "active": _ops_releases.active(OPS_ROOT, ctx)}
+
+
+@router.post("/ops/releases/validate")
+def ops_release_validate(payload: dict,
+                         x_iris_admin: str | None = Header(default=None)):
+    _admin_guard(x_iris_admin)
+    man = _spec(payload).get("manifest")
+    if not man:
+        raise HTTPException(422, "expected {'manifest': {...}}")
+    return _ops_releases.validate(OPS_ROOT, man)
+
+
+@router.post("/ops/releases/promote")
+def ops_release_promote(payload: dict,
+                        x_iris_admin: str | None = Header(default=None)):
+    _admin_guard(x_iris_admin)
+    spec = _spec(payload)
+    man = spec.get("manifest")
+    if not man:
+        raise HTTPException(422, "expected {'manifest': {...}}")
+    return _ops_releases.promote(
+        OPS_ROOT, man, expected_active=spec.get("expected_active"),
+        actor=spec.get("actor", "api"))
+
+
+@router.post("/ops/releases/rollback")
+def ops_release_rollback(payload: dict,
+                         x_iris_admin: str | None = Header(default=None)):
+    _admin_guard(x_iris_admin)
+    return _ops_releases.rollback(OPS_ROOT,
+                                  _spec(payload).get("context") or {})
+
+
+@router.get("/ops/status/{location_id}/{target}")
+def ops_status(location_id: str, target: str):
+    ctx = {"location_id": location_id, "target": target}
+    return _ops_monitoring.status(OPS_ROOT, ctx,
+                                  release=_ops_releases.active(OPS_ROOT, ctx))
+
+
+@router.get("/ops/integrity")
+def ops_integrity():
+    return _ops_integrity.check(OPS_ROOT)
+
+
+@router.get("/ops/runs/{run_id}")
+def ops_run(run_id: str):
+    out = _ops_runner.reopen(OPS_ROOT, run_id)
+    if out.get("status") == "not_found":
+        raise HTTPException(404, "Unknown operations run.")
+    return out
