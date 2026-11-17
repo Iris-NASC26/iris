@@ -169,11 +169,30 @@ Iris reports both the raw p-value and the FDR-adjusted **q-value**. The signific
 
 ---
 
-## What Iris does NOT do
+## End-to-End Platform Architecture & User Workflow
 
-- **Iris does not establish causation.** A statistically significant trend shows that something has changed consistently; it does not explain why.
-- **Iris does not forecast.** Trend continuation projections (if shown) are mathematical extrapolations with widening uncertainty bounds, not climate model predictions.
-- **Iris does not use AI for scientific computation.** All statistics are deterministic. The AI component (Gemini) is limited to parsing your query and explaining results in plain language.
+Iris connects four analytical tracks on top of a shared deterministic scientific engine and SHA-256 provenance spine:
+
+1. **Step 01 — Frame the Inquiry & Confirm Keywords (`/workspace/intelligence`)**:
+   Submit a natural-language question, environmental event, or regional hypothesis. Iris enforces a **Two-Phase Keyword Confirmation Gate**: zero external catalog requests fire on page load; `gemini-3.5-flash-lite` (backed by a deterministic NASA GCMD ontology and Open-Meteo geocoder fallback) extracts subject domain, geographic coordinates/bounding box, temporal range, and candidate search keywords. You review/edit the keywords, select from **10 live upstream data catalogs** (`NASA POWER`, `NASA CMR`, `NASA AppEEARS`, `NASA GES DISC`, `NASA Harmony`, `NOAA CDO`, `NOAA OneStop`, `OPeNDAP`, `EODAG`, `Copernicus CDS`), and click **Confirm and search**.
+2. **Step 02 — Configure Spatial, Temporal & Physical Parameters (`/workspace/data-selection`)**:
+   Choose an extract-verified time-series product, clamp dates to authoritative archive bounds, select a native or coarser temporal cadence (`Daily`, `8-Day`, `16-Day`, `Monthly`, `Seasonal`, `Yearly` — artificial oversampling is blocked), enforce physically valid aggregation (`mean` for state variables; `sum` for precipitation/runoff), and draw a Point or Bounding Box on the interactive MapLibre map.
+3. **Step 03 — Inspect Data Quality & Completeness (`/workspace/data-preview`)**:
+   Track the 4-stage extraction pipeline (`Request Submitted` $\rightarrow$ `Subsetting & QA Masking` $\rightarrow$ `Temporal Resampling` $\rightarrow$ `Ready for Preview`), audit completeness KPIs (with an automated warning when missingness exceeds 15%), inspect the **gap-aware time-series chart** (fill values `-999.0` and flagged observations are isolated with reason codes and never bridged by straight lines), export ISO 19115 CSV/JSON, and pass the immutable SHA-256 `jobId` / `result_id` to analysis.
+4. **Step 04 — Execute the 8-Method Statistical Case File Workbench (`/workspace/data-analysis`)**:
+   Review the automatic **Dataset Compatibility Profile**, select one of four **Seasonal Pre-Treatments** (`Automatic`, `Robust STL Decomposition`, `Calendar-Month Climatology`, or `No Adjustment`), and run any of the **8 interactive statistical method cards** cumulatively (`OLS t-test`, `Hamed–Rao Mann–Kendall`, `Seasonal Kendall`, `Sen's Slope`, `Pettitt Change-Point`, `Anomaly Review`, `Seasonal Fingerprint`, `Full Case File Diagnostics`) across **Explorer**, **Student**, and **Scientist** narrative registers.
+5. **Step 05 — Multi-Panel 2D/3D Studio & Planetary Exploration (`/workspace/visualize`, `/workspace/globe`)**:
+   Explore linked 2D time series, **3D Time Tracks**, **3D Seasonal Landscapes** (with gap-safe quad partitioning), **3D Seasonal Orbits**, and multi-location **95% CI Trend Intervals** in the Dockview Studio, or load **11 authentic monthly NASA POWER AWS S3 Zarr spatial layers** onto the token-free **CesiumJS 3D Living Globe** (with progressive NASA GIBS WMTS tiles, cosine-latitude-weighted overviews, and 2D equirectangular fallback).
+6. **Step 06 — History-Only ML Forecasts, Disaster Forensics & Scholarly Literature (`/workspace/forecasts`, `/workspace/case-studies`, `/workspace/research`)**:
+   Register any geographic point (`loc-*`) or bounded area (`area-*`) in **Forecasts** to train and evaluate history-only quantile regression models (`iris.ml-forecast.v2`) across 13+ Earthdata/reanalysis targets clipped to declared availability lags (`now - lag`) with conformal calibration and baseline skill gating—or inspect 72-hour 51-member ECMWF precipitation ensembles with member-first accumulation and 7-day NASA GPM IMERG V07 context. Reconstruct extreme events (`Nepal Floods 2024`, `Cyclone Ditwah 2025`) with issue-time cutoffs in **Case Studies**, and link active datasets to peer-reviewed literature via **OpenAlex** and **DataCite** in **Existing Research**.
+
+---
+
+## What Iris does — and its strict scientific boundaries
+
+- **Iris does not establish causation from statistical correlation.** A statistically significant trend shows that an environmental signal has changed consistently over the observed period; formal physical attribution requires dedicated climate-model attribution experiments.
+- **Iris separates historical trend inference from empirical forecasting.** Trend continuation bounds in Data Analysis are mathematical extrapolations of Sen's slope, whereas forward predictions in `/workspace/forecasts` are produced by history-only quantile models (`iris.ml-forecast.v2`) evaluated on chronological folds with purge/embargo and gated against persistence and seasonal climatology baselines.
+- **Iris never uses AI for numerical computation.** All statistics, slopes, $p$-values, $q$-values, and Evidence Grades are computed deterministically by SciPy, Statsmodels, and NumPy. The conversational AI (`gemini-3.5-flash-lite`) is strictly restricted to parsing search queries and formatting explanations from verified statistics.
 
 ---
 

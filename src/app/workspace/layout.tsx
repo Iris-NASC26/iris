@@ -1,13 +1,13 @@
 "use client";
 
-import { Suspense, useCallback, useEffect, useState, type ReactNode } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { Icon, type IconName } from "@/components/ui/Icon";
 import { DashboardProvider, useDashboard } from "@/context/DashboardContext";
 import { useTheme } from "@/context/ThemeContext";
 import { OnboardingTour } from "@/components/dashboard/OnboardingTour";
-import { VisualizationProvider } from "@/features/visualization/store";
+import { VisualizationProvider, useVisualizations } from "@/features/visualization/store";
 import { IrisAssistant } from "@/components/dashboard/IrisAssistant";
 import { DOCS_URL } from "@/lib/docs";
 import { investigation } from '@/features/hazards/model';
@@ -68,9 +68,19 @@ const pageTitles: Record<string, [string, string]> = {
 
 function DashboardFrame({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const forecastPage = pathname === '/workspace/forecasts';
   const activeInvestigation = pathname?.startsWith('/workspace/case-studies/') ? investigation(pathname.split('/').pop() ?? '') : undefined;
-  const { dataset, region, extractedPreview } = useDashboard();
+  const {
+    dataset,
+    region,
+    extractedPreview,
+    caseStudyPreviews,
+    activeManualCaseId,
+    loadManualCaseStudy,
+  } = useDashboard();
+  const vizStore = useVisualizations();
+  const lastSyncedCaseRef = useRef<string>("");
   const isEmptyDataPreview = extractedPreview === null;
   const { dark, toggleTheme } = useTheme();
   const [collapsed, setCollapsed] = useState(false);
@@ -78,6 +88,86 @@ function DashboardFrame({ children }: { children: ReactNode }) {
   const [tourOpen, setTourOpen] = useState(false);
   const [highlightedTourRoute, setHighlightedTourRoute] = useState<string | null>(null);
   const [hydrated, setHydrated] = useState(false);
+
+  // Auto-load case study datasets when arriving with ?caseStudy=<id> or ?case=<id>&autoload=1
+  useEffect(() => {
+    const requestedCase =
+      searchParams.get("caseStudy") ||
+      (searchParams.get("autoload") === "1" ? searchParams.get("case") : null);
+    const preferredVar = searchParams.get("variable") || undefined;
+    if (!requestedCase) return;
+    const syncKey = `${requestedCase}|${preferredVar || ""}`;
+    if (lastSyncedCaseRef.current === syncKey && activeManualCaseId === requestedCase) return;
+    lastSyncedCaseRef.current = syncKey;
+    void loadManualCaseStudy(requestedCase, preferredVar);
+  }, [activeManualCaseId, loadManualCaseStudy, searchParams]);
+
+  // Whenever caseStudyPreviews are loaded, ingest all series into Data Visualization Studio
+  useEffect(() => {
+    if (!caseStudyPreviews.length) return;
+    for (const preview of caseStudyPreviews) {
+      try {
+        vizStore.add(preview);
+      } catch {
+        // Ignore if MAX_SERIES reached
+      }
+    }
+    // Also pre-bind statistical analysis for the active preview so Visualization Studio has Evidence & Rates ready
+    const primaryMonthly =
+      caseStudyPreviews.find((p) => p.extraction_config.target_frequency === "Monthly") ??
+      caseStudyPreviews[0];
+    if (primaryMonthly) {
+      const sYr = Number(primaryMonthly.extraction_config.start_date.slice(0, 4)) || 2020;
+      const eYr = Number(primaryMonthly.extraction_config.end_date.slice(0, 4)) || 2026;
+      const methods = [
+        "ols",
+        "hamed_rao_mk",
+        "seasonal_kendall",
+        "sen_slope",
+        "pettitt",
+        "anomalies",
+        "seasonal_fingerprint",
+        "case_file_diagnostics",
+      ];
+      void fetch("/api/v1/analyze/case-file", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          job_id: primaryMonthly.job_id,
+          dataset_id: primaryMonthly.product.variable_id,
+          dataset_name: primaryMonthly.product.variable_name,
+          parameter_code: primaryMonthly.product.variable_id,
+          unit: primaryMonthly.summary_stats.unit,
+          location: primaryMonthly.extraction_config.region_name,
+          latitude: primaryMonthly.extraction_config.point_lat ?? 0,
+          longitude: primaryMonthly.extraction_config.point_lon ?? 0,
+          start_year: sYr,
+          end_year: eYr,
+          seasonal_adjustment: "auto",
+          analysis_methods: methods,
+          cadence: primaryMonthly.extraction_config.target_frequency,
+        }),
+      })
+        .then((r) => (r.ok ? r.json() : null))
+        .then((res) => {
+          if (res && primaryMonthly.extraction_config.target_frequency === "Monthly") {
+            try {
+              vizStore.publishAnalysis(
+                primaryMonthly,
+                {
+                  seasonal: "auto",
+                  methods: methods as never,
+                },
+                res,
+              );
+            } catch {
+              // ignore
+            }
+          }
+        })
+        .catch(() => {});
+    }
+  }, [caseStudyPreviews]);
 
   useEffect(() => {
     try {

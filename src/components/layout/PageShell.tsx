@@ -46,7 +46,8 @@ export function PageShell({ children, section, title, description, action }: She
         <div className="footer-links">
           <Link href="/methodology">Methods</Link>
           <Link href="/data">Data sources</Link>
-          <Link href="/about">Project</Link>
+          <Link href="/about">Project &amp; Team</Link>
+          <a href="mailto:info@projectiris.earth">Contact us</a>
         </div>
         <span className="footer-note">Built with public Earth observation data</span>
       </footer>

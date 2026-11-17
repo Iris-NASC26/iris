@@ -25,6 +25,9 @@ export function DataPreviewView({ routeJobId }: { routeJobId?: string }) {
     extractedPreview,
     activeProduct,
     selectedProducts,
+    caseStudyPreviews,
+    loadingCaseStudy,
+    switchCaseStudyDataset,
     setExtractedPreview,
     setAutoRunCase,
   } = useDashboard();
@@ -167,8 +170,8 @@ export function DataPreviewView({ routeJobId }: { routeJobId?: string }) {
             <span>01</span> Data Preview
           </span>
           <h2>
-            {loadingPreview
-              ? "Loading saved data preview…"
+            {loadingPreview || loadingCaseStudy
+              ? "Loading case study & saved data preview…"
               : hasSelectedDataset
                 ? "A dataset is selected, but no data has been retrieved yet."
                 : "No dataset has been selected, and no data has been retrieved yet."}
@@ -318,8 +321,62 @@ export function DataPreviewView({ routeJobId }: { routeJobId?: string }) {
             <button className="dp-proceed-btn" onClick={handleProceedToAnalysis} type="button">
               Proceed to Analysis <Icon name="arrow" size={15} />
             </button>
+            <button
+              className="dp-secondary-btn"
+              onClick={() =>
+                router.push(`/workspace/visualize?jobId=${encodeURIComponent(preview.job_id)}`)
+              }
+              type="button"
+            >
+              Open Visualization <Icon name="chart" size={14} />
+            </button>
           </div>
         </div>
+
+        {caseStudyPreviews.length > 1 && (
+          <div
+            style={{
+              marginTop: "14px",
+              padding: "12px 14px",
+              borderRadius: "10px",
+              border: "1px solid var(--border)",
+              background: "var(--surface-secondary, var(--panel))",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: "12px",
+              flexWrap: "wrap",
+            }}
+          >
+            <span style={{ fontSize: "11px", fontWeight: 700, color: "var(--muted)" }}>
+              Loaded Case Study Datasets ({caseStudyPreviews.length}):
+            </span>
+            <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+              {caseStudyPreviews.map((cp) => {
+                const isActive = cp.job_id === preview.job_id;
+                return (
+                  <button
+                    key={cp.job_id}
+                    type="button"
+                    onClick={() => switchCaseStudyDataset(cp.job_id)}
+                    style={{
+                      padding: "6px 12px",
+                      borderRadius: "7px",
+                      border: isActive ? "1px solid var(--accent, var(--green))" : "1px solid var(--border)",
+                      background: isActive ? "var(--accent, var(--green))" : "var(--surface, var(--card))",
+                      color: isActive ? "#fff" : "var(--foreground, var(--text))",
+                      fontSize: "11px",
+                      fontWeight: 600,
+                      cursor: "pointer",
+                    }}
+                  >
+                    {cp.product.variable_name} ({cp.summary_stats.unit})
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Explicit Provenance & Scientific Explanation Strip */}
         <div className="dp-provenance-strip">

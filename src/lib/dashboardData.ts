@@ -33,36 +33,36 @@ export const datasets: Dataset[] = [
     name: "Near-surface air temperature",
     code: "T2M",
     category: "Atmosphere",
-    source: "NASA POWER / MERRA-2",
+    source: "NASA POWER / MERRA-2 / AIRS",
     unit: "°C",
     resolution: "0.5° × 0.625°",
     coverage: "1981–present",
     description:
-      "Average air temperature two meters above the surface, comparable to a standard weather station measurement.",
+      "Average air temperature near the surface, comparable to a standard weather station or orbital infrared sounder measurement.",
   },
   {
     id: "precipitation",
-    name: "Precipitation",
+    name: "Precipitation & Storm Runoff",
     code: "PRECTOTCORR",
     category: "Water",
-    source: "NASA POWER / GPM",
+    source: "NASA GES DISC / GPM IMERG / GLDAS",
     unit: "mm / day",
-    resolution: "0.5° × 0.625°",
-    coverage: "1981–present",
+    resolution: "0.1° – 0.25°",
+    coverage: "2000–present",
     description:
-      "Bias-corrected precipitation rate used to investigate drought, wet periods, and long-term rainfall change.",
+      "Satellite-gauge precipitation and storm surface runoff used to investigate extreme floods, cyclones, and hydrological whiplash.",
   },
   {
     id: "soil-moisture",
-    name: "Topsoil moisture",
-    code: "GWETTOP",
+    name: "Soil moisture content",
+    code: "SoilMoi",
     category: "Land",
-    source: "NASA POWER / MERRA-2",
-    unit: "0–1 index",
-    resolution: "0.5° × 0.625°",
-    coverage: "1981–present",
+    source: "NASA GES DISC / GLDAS Noah & CLSM",
+    unit: "kg m-2",
+    resolution: "0.25°",
+    coverage: "2000–present",
     description:
-      "Relative wetness in the upper soil layer, useful for tracing agricultural and ecological drought stress.",
+      "Surface and deep root-zone soil moisture content used to trace watershed saturation and infiltration capacity.",
   },
   {
     id: "vegetation",
@@ -78,111 +78,119 @@ export const datasets: Dataset[] = [
   },
   {
     id: "snow",
-    name: "Snow cover fraction",
-    code: "NDSI_SNOW_COVER",
+    name: "Snow water equivalent & Ground heat flux",
+    code: "SWE_inst",
     category: "Cryosphere",
-    source: "MODIS MOD10C1",
-    unit: "%",
-    resolution: "0.05°",
+    source: "NASA GES DISC / GLDAS-2.1",
+    unit: "kg m-2",
+    resolution: "0.25° – 1.0°",
     coverage: "2000–present",
     description:
-      "The proportion of a grid cell covered by snow, derived from daily MODIS observations.",
+      "High-altitude snowpack water equivalent and downward ground heat flux driving spring snowmelt and permafrost thaw.",
   },
 ];
 
 export const caseStudies: CaseStudy[] = [
   {
-    id: "IR–042",
-    title: "Two decades of urban warming",
-    location: "Los Angeles County, CA",
-    region: "Los Angeles County",
-    bbox: "33.70, −118.95, 34.82, −117.62",
-    phenomenon: "Extreme heat",
+    id: "nepal-glacier-flood-2026",
+    title: "2026 Nepal Flood & Glacier Disaster",
+    location: "Rasuwa / Trishuli & Lirung Corridor, Nepal",
+    region: "Rasuwa / Trishuli Basin, Nepal",
+    bbox: "28.00, 85.00, 28.60, 85.80",
+    phenomenon: "Flood & Glacier",
+    datasetId: "precipitation",
+    startYear: 2020,
+    endYear: 2026,
+    finding: "+0.15 °C/yr · +423% SWE",
+    confidence: "p = 0.0016",
+    source: "NASA GES DISC (MERRA-2 / GLDAS-2.1 / GPM)",
+  },
+  {
+    id: "sri-lanka-cyclone-ditwah-2025",
+    title: "2025 Sri Lanka Cyclone Ditwah Disaster",
+    location: "Sri Lanka National Bounding Box",
+    region: "Sri Lanka National Bounding Box",
+    bbox: "5.91, 79.69, 9.83, 81.87",
+    phenomenon: "Cyclone & Runoff",
+    datasetId: "precipitation",
+    startYear: 2014,
+    endYear: 2026,
+    finding: "+8.97σ Runoff · +3.9σ Rain",
+    confidence: "+8.97σ Anomaly",
+    source: "NASA GES DISC (GLDAS Noah v2.1)",
+  },
+  {
+    id: "saudi-arabia-hajj-heat-2024",
+    title: "2024 Saudi Arabia Hajj Extreme Heat Crisis",
+    location: "Mecca Region, Saudi Arabia",
+    region: "Mecca Region, Saudi Arabia",
+    bbox: "20.50, 39.00, 22.50, 41.00",
+    phenomenon: "Extreme Heat",
     datasetId: "temperature",
-    startYear: 2005,
-    endYear: 2025,
-    finding: "+0.42 °C / decade",
-    confidence: "99.86%",
-    source: "NASA POWER / MERRA-2",
+    startYear: 2004,
+    endYear: 2026,
+    finding: ">36.5 °C Grid · >51 °C Urban",
+    confidence: "22-Yr Upper-Tail Peak",
+    source: "NASA GES DISC (Aqua AIRS v7.0)",
   },
   {
-    id: "IR–038",
-    title: "The signature of a historic drought",
-    location: "Central Valley, CA",
-    region: "California Central Valley",
-    bbox: "35.00, −122.60, 40.80, −118.50",
-    phenomenon: "Drought",
+    id: "libya-pakistan-compound-floods",
+    title: "Derna (Libya 2023) & Pakistan (2022) Mega-Floods",
+    location: "Wadi Derna (Libya) & Southern Pakistan",
+    region: "Southern Pakistan & Wadi Derna",
+    bbox: "23.50, 66.50, 28.50, 70.50",
+    phenomenon: "Compound Floods",
     datasetId: "soil-moisture",
-    startYear: 2001,
-    endYear: 2024,
-    finding: "−0.07 index / decade",
-    confidence: "98.2%",
-    source: "NASA POWER / MERRA-2",
+    startYear: 2004,
+    endYear: 2026,
+    finding: ">100 mm/d Libya · >31 kg/m² Soil",
+    confidence: "22-Yr Record Peak",
+    source: "NASA GES DISC (GPM IMERG / GLDAS / MODIS)",
   },
   {
-    id: "IR–031",
-    title: "Forest resilience under pressure",
-    location: "Amazon Basin, Brazil",
-    region: "Central Amazon Basin",
-    bbox: "−8.50, −68.00, 1.00, −52.00",
-    phenomenon: "Vegetation",
-    datasetId: "vegetation",
-    startYear: 2003,
-    endYear: 2024,
-    finding: "−0.08 NDVI / decade",
-    confidence: "95.4%",
-    source: "MODIS MOD13C2",
-  },
-  {
-    id: "IR–024",
-    title: "Himalayan snow retreat",
-    location: "Koshi Basin, Nepal",
-    region: "Central Himalaya",
-    bbox: "26.70, 85.00, 29.20, 89.20",
-    phenomenon: "Snow & ice",
-    datasetId: "snow",
-    startYear: 2001,
-    endYear: 2024,
-    finding: "−3.8% cover / decade",
-    confidence: "97.7%",
-    source: "MODIS MOD10C1",
+    id: "usa-hurricane-helene-2024",
+    title: "2024 Southeastern USA Hurricane Helene Whiplash",
+    location: "Florida Big Bend to Western NC, USA",
+    region: "Southeastern USA Corridor",
+    bbox: "29.00, −84.50, 36.50, −81.00",
+    phenomenon: "Hurricane & Whiplash",
+    datasetId: "precipitation",
+    startYear: 2019,
+    endYear: 2026,
+    finding: "212.52 kg/m² Rain · 2.51× Runoff",
+    confidence: "p < 0.0001 (Soil) · p = 0.0462 (Rain)",
+    source: "NASA GES DISC (NLDAS-2 / GLDAS-2.2 / MERRA-2)",
   },
 ];
 
 export const intelligenceSuggestions = [
-  "Show me drought signals in California since 2001",
-  "Has the Amazon become less green over the past 20 years?",
-  "Map this headline: Himalayan snow cover is retreating",
+  "Analyze rainfall and glacier thaw in Rasuwa / Trishuli, Nepal (2020–2026)",
+  "Examine Cyclone Ditwah storm surface runoff and soil saturation in Sri Lanka",
+  "Investigate Hurricane Helene rainfall and soil moisture whiplash in Southeastern USA",
 ];
 
 export function parseIntelligencePrompt(prompt: string) {
   const normalized = prompt.toLowerCase();
-  const isSnow = normalized.includes("snow") || normalized.includes("himalaya");
-  const isAmazon = normalized.includes("amazon") || normalized.includes("green");
-  const isDrought =
-    normalized.includes("drought") ||
-    normalized.includes("soil") ||
-    normalized.includes("california");
-  const selectedCase = isSnow
-    ? caseStudies[3]
-    : isAmazon
-      ? caseStudies[2]
-      : isDrought
-        ? caseStudies[1]
-        : caseStudies[0];
+  const isNepal = normalized.includes("nepal") || normalized.includes("glacier") || normalized.includes("rasuwa");
+  const isSriLanka = normalized.includes("sri lanka") || normalized.includes("ditwah") || normalized.includes("colombo");
+  const isSaudi = normalized.includes("saudi") || normalized.includes("mecca") || normalized.includes("hajj") || normalized.includes("heat");
+  const isLibyaPak = normalized.includes("libya") || normalized.includes("derna") || normalized.includes("pakistan");
+  const selectedCase = isNepal
+    ? caseStudies[0]
+    : isSriLanka
+      ? caseStudies[1]
+      : isSaudi
+        ? caseStudies[2]
+        : isLibyaPak
+          ? caseStudies[3]
+          : caseStudies[4];
   const dataset = datasets.find((item) => item.id === selectedCase.datasetId) ?? datasets[0];
 
   return {
     category: dataset.category,
-    topic: isSnow
-      ? "Snow / Ice Extent"
-      : isAmazon
-        ? "Vegetation Index"
-        : isDrought
-          ? "Land Surface Moisture"
-          : "Surface Air Temperature",
+    topic: selectedCase.phenomenon,
     dataset,
     selectedCase,
-    interpretation: `I matched this question to ${dataset.name} for ${selectedCase.region}. The suggested period balances available observations with a record long enough for trend testing.`,
+    interpretation: `Matched this question to ${dataset.name} for ${selectedCase.region} (${selectedCase.startYear}–${selectedCase.endYear}).`,
   };
 }

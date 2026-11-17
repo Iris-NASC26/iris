@@ -6,28 +6,40 @@ import { PageShell } from "@/components/layout/PageShell";
 
 const workflow = [
   {
-    icon: "search" as IconName,
-    title: "Define an investigation",
-    text: "Search any region, select an environmental phenomenon, and choose the historical period that matters to your question.",
-    detail: "Region · Variable · Timeframe",
+    icon: "sparkles" as IconName,
+    title: "Ask in Iris Intelligence",
+    text: "Describe your question in plain English. Confirm the suggested search keywords to search across 10 public space and weather catalogs at once.",
+    detail: "Plain-English Search · 10 Catalogs",
+  },
+  {
+    icon: "box" as IconName,
+    title: "Configure in Data Selection",
+    text: "Pick your dataset, choose a date range and time step (Daily, Monthly, or Yearly), and click a point or draw a study region on the interactive map.",
+    detail: "Region · Timeframe · Frequency",
   },
   {
     icon: "layers" as IconName,
-    title: "Build the evidence trail",
-    text: "Iris retrieves, quality-checks, spatially averages, and prepares observations from trusted scientific providers.",
-    detail: "Source · Quality · Transform",
+    title: "Inspect in Data Preview",
+    text: "Review completeness statistics, check the preview chart with missing periods clearly marked, and download clean CSV or JSON tables.",
+    detail: "Quality Check · Gap-Aware Chart",
   },
   {
     icon: "activity" as IconName,
-    title: "Interrogate the signal",
-    text: "Compare raw and deseasonalized records, test trend significance, estimate the rate of change, and inspect anomalies.",
-    detail: "Trend · Slope · Anomaly",
+    title: "Test in Data Analysis",
+    text: "Remove the repeating seasonal cycle and run up to 8 statistical tests step by step across Explorer, Student, and Scientist explanation modes.",
+    detail: "8 Statistical Methods · Grade A–D",
   },
   {
-    icon: "sparkles" as IconName,
-    title: "Follow the next clue",
-    text: "Use physically related variables to test a plausible explanation and develop a more complete environmental story.",
-    detail: "Hypothesis · Overlay · Compare",
+    icon: "globe" as IconName,
+    title: "Explore in 2D/3D & Living Globe",
+    text: "Compare linked 2D and 3D seasonal charts in the Visualization Studio, or explore 11 global monthly environmental layers on the 3D Living Globe.",
+    detail: "3D Seasonal Views · Global Maps",
+  },
+  {
+    icon: "book" as IconName,
+    title: "Forecasts, Case Studies & Research",
+    text: "Generate short-term forecasts trained on historical data, explore solved disaster case studies, and find related scientific papers.",
+    detail: "Historical ML · Research Citations",
   },
 ];
 
@@ -39,8 +51,8 @@ export default function PlatformPage() {
           Open the workbench <Icon name="arrow" size={16} />
         </Link>
       }
-      description="A connected analytical environment for turning public Earth observations into clear, traceable, and statistically defensible findings."
-      section="The platform"
+      description="A connected, easy-to-use analytical environment for turning public Earth observations into clear, traceable, and statistically sound findings."
+      section="The Platform"
       title="One workspace for the entire investigation"
     >
       <section className="platform-showcase">
@@ -49,7 +61,7 @@ export default function PlatformPage() {
             <span />
             <span />
             <span />
-            <div>app.iris.earth/workspace</div>
+            <div>Iris Workspace · Data Analysis Case File</div>
           </div>
           <div className="platform-browser-body">
             <aside>
@@ -57,52 +69,114 @@ export default function PlatformPage() {
                 <Icon name="globe" size={16} /> Iris
               </div>
               <small>Investigation setup</small>
-              <label>Location</label>
+              <label>Location &amp; Variable</label>
               <div>
-                <Icon name="search" size={12} /> Los Angeles County
+                <Icon name="search" size={12} /> Los Angeles County · Air Temp
               </div>
-              <label>Phenomenon</label>
+              <label>Seasonal Adjustment</label>
               <div className="platform-mini-tabs">
-                <b>Heat</b>
-                <span>Drought</span>
-                <span>Vegetation</span>
+                <b>Auto</b>
+                <span>Monthly</span>
+                <span>None</span>
               </div>
-              <label>Investigation period</label>
+              <label>Period: 2005–2025 (Monthly)</label>
               <i className="platform-mini-range" />
-              <button type="button">Run forensic analysis</button>
+              <button type="button">Run statistical analysis</button>
             </aside>
             <div className="platform-browser-analysis">
               <div className="platform-mini-verdict">
                 <Icon name="arrow" size={18} />
                 <div>
-                  <small>Detective verdict</small>
-                  <strong>Significant warming trend detected</strong>
+                  <small>Case File Verdict</small>
+                  <strong>Statistically significant warming trend detected</strong>
                 </div>
-                <b>99.86%</b>
+                <b>Grade A</b>
               </div>
               <div className="platform-mini-metrics">
                 <span>
-                  <small>Decadal rate</small>
-                  <b>+0.42°C</b>
+                  <small>Sen&apos;s slope</small>
+                  <b>+0.42 °C / dec</b>
                 </span>
                 <span>
-                  <small>Total change</small>
-                  <b>+0.84°C</b>
+                  <small>Significance</small>
+                  <b>p = 0.0014</b>
                 </span>
                 <span>
-                  <small>MK p-value</small>
-                  <b>0.0014</b>
+                  <small>Data coverage</small>
+                  <b>100% valid</b>
                 </span>
               </div>
-              <div className="platform-mini-chart">
-                <strong>Temperature over time</strong>
-                <svg viewBox="0 0 520 180" aria-label="Example warming trend chart">
-                  {[38, 78, 118, 158].map((y) => (
-                    <line key={y} x1="10" x2="510" y1={y} y2={y} />
-                  ))}
-                  <path d="M10 150 C55 138 65 145 105 122 S165 129 205 103 S270 105 310 81 S370 75 410 57 S470 46 510 25" />
-                  <path className="platform-slope" d="M10 154 L510 30" />
-                </svg>
+              <div
+                className="platform-mini-chart"
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
+                  gap: "8px",
+                }}
+              >
+                <strong>Completed Analysis Steps (Case IR–042)</strong>
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr",
+                    gap: "8px",
+                    fontSize: "10px",
+                  }}
+                >
+                  <div
+                    style={{
+                      padding: "8px 10px",
+                      borderRadius: "6px",
+                      border: "1px solid var(--border)",
+                      background: "var(--card-soft)",
+                    }}
+                  >
+                    <b>1. Linear Trend (OLS)</b>
+                    <div style={{ color: "var(--muted)", marginTop: "2px" }}>
+                      +0.42 °C per decade · Significant
+                    </div>
+                  </div>
+                  <div
+                    style={{
+                      padding: "8px 10px",
+                      borderRadius: "6px",
+                      border: "1px solid var(--border)",
+                      background: "var(--card-soft)",
+                    }}
+                  >
+                    <b>2. Mann–Kendall Trend Test</b>
+                    <div style={{ color: "var(--muted)", marginTop: "2px" }}>
+                      p = 0.0014 · Persistence-corrected
+                    </div>
+                  </div>
+                  <div
+                    style={{
+                      padding: "8px 10px",
+                      borderRadius: "6px",
+                      border: "1px solid var(--border)",
+                      background: "var(--card-soft)",
+                    }}
+                  >
+                    <b>3. Sen&apos;s Slope Rate of Change</b>
+                    <div style={{ color: "var(--muted)", marginTop: "2px" }}>
+                      +0.42 °C/dec (95% range: +0.31 to +0.53)
+                    </div>
+                  </div>
+                  <div
+                    style={{
+                      padding: "8px 10px",
+                      borderRadius: "6px",
+                      border: "1px solid var(--border)",
+                      background: "var(--card-soft)",
+                    }}
+                  >
+                    <b>4. Full Case File Summary</b>
+                    <div style={{ color: "var(--muted)", marginTop: "2px" }}>
+                      Evidence Grade A · Explorer / Student / Scientist
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -110,15 +184,15 @@ export default function PlatformPage() {
         <div className="platform-float float-verdict">
           <Icon name="check" size={15} />
           <span>
-            <small>Evidence status</small>
-            <strong>High confidence</strong>
+            <small>100% Real Data</small>
+            <strong>Verified NASA Record</strong>
           </span>
         </div>
         <div className="platform-float float-clue">
           <Icon name="sparkles" size={15} />
           <span>
-            <small>Next clue</small>
-            <strong>Overlay soil moisture</strong>
+            <small>Clear Explanations</small>
+            <strong>Explorer, Student &amp; Scientist</strong>
           </span>
         </div>
       </section>
@@ -128,13 +202,16 @@ export default function PlatformPage() {
           <div className="section-kicker">
             <span>End to end</span> Investigation workflow
           </div>
-          <h2>From a question to a defensible answer</h2>
+          <h2>From a plain-English question to a complete Case File</h2>
           <p>
-            The platform keeps context, computation, and interpretation connected through every
-            stage.
+            The platform keeps your search, quality checks, statistical tests, 3D visualizations,
+            and research citations connected at every step.
           </p>
         </div>
-        <div className="platform-workflow-grid">
+        <div
+          className="platform-workflow-grid"
+          style={{ gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))" }}
+        >
           {workflow.map((item, index) => (
             <article key={item.title}>
               <div>
@@ -149,52 +226,6 @@ export default function PlatformPage() {
         </div>
       </section>
 
-      <section className="platform-feature-row">
-        <div className="platform-feature-copy">
-          <div className="section-kicker">
-            <span>Visual analysis</span> See the whole signal
-          </div>
-          <h2>Raw observations and underlying change, side by side.</h2>
-          <p>
-            Move smoothly between seasonal data and the prepared signal. Anomalies remain visible,
-            Sen’s slope stays explicit, and every metric keeps its unit and uncertainty.
-          </p>
-          <ul>
-            <li>
-              <Icon name="check" size={15} /> Interactive time-series exploration
-            </li>
-            <li>
-              <Icon name="check" size={15} /> Deseasonalized signal comparison
-            </li>
-            <li>
-              <Icon name="check" size={15} /> CSV, PNG, and report exports
-            </li>
-          </ul>
-        </div>
-        <div className="platform-chart-card">
-          <div>
-            <span>Near-surface air temperature</span>
-            <b>Deseasonalized</b>
-          </div>
-          <svg viewBox="0 0 600 280">
-            {[45, 95, 145, 195, 245].map((y) => (
-              <line key={y} x1="30" x2="570" y1={y} y2={y} />
-            ))}
-            <path
-              className="platform-chart-area"
-              d="M30 230 C75 210 95 224 140 190 S200 191 245 160 S305 167 350 124 S410 137 450 91 S520 84 570 55 L570 260 L30 260Z"
-            />
-            <path
-              className="platform-chart-signal"
-              d="M30 230 C75 210 95 224 140 190 S200 191 245 160 S305 167 350 124 S410 137 450 91 S520 84 570 55"
-            />
-            <path className="platform-chart-trend" d="M30 235 L570 62" />
-            <circle cx="450" cy="91" r="6" />
-            <circle cx="528" cy="79" r="6" />
-          </svg>
-        </div>
-      </section>
-
       <section className="platform-capabilities">
         <div>
           <div className="section-kicker">
@@ -206,30 +237,40 @@ export default function PlatformPage() {
           <article>
             <Icon name="globe" size={20} />
             <div>
-              <strong>Spatial investigation</strong>
-              <p>Search regions or draw a precise area of interest directly on the map.</p>
+              <strong>3D Living Globe &amp; Global Layers</strong>
+              <p>
+                Explore 11 monthly global variables on an interactive 3D globe or draw a custom
+                study area on the 2D map.
+              </p>
             </div>
           </article>
           <article>
             <Icon name="activity" size={20} />
             <div>
-              <strong>Robust statistics</strong>
-              <p>Mann–Kendall significance and Sen’s slope effect size are calculated together.</p>
+              <strong>8-Method Statistical Workbench</strong>
+              <p>
+                Run linear regression, Mann–Kendall, Seasonal Kendall, Sen&apos;s slope, change-point
+                detection, and anomaly reviews step by step.
+              </p>
             </div>
           </article>
           <article>
             <Icon name="layers" size={20} />
             <div>
-              <strong>Connected variables</strong>
-              <p>Overlay related Earth-system signals without losing the original investigation.</p>
+              <strong>Historical Machine Learning Forecasts</strong>
+              <p>
+                Select any location on Earth to view short-term predictions with uncertainty ranges
+                and honest baseline comparisons.
+              </p>
             </div>
           </article>
           <article>
             <Icon name="file" size={20} />
             <div>
-              <strong>Traceable exports</strong>
+              <strong>Connected Literature &amp; Exports</strong>
               <p>
-                Download analysis-ready data and presentation-ready evidence with metadata intact.
+                Find peer-reviewed scientific papers related to your dataset and download clean CSV,
+                JSON, and PNG reports.
               </p>
             </div>
           </article>
