@@ -7,6 +7,7 @@ import { Icon, type IconName } from "@/components/ui/Icon";
 import { PublicNavbar } from "@/components/layout/PublicNavbar";
 import { useTheme } from "@/context/ThemeContext";
 import { forecastHref } from "@/features/forecasts/model";
+import { MANUAL_CASE_STUDIES_PURPOSE } from "@/lib/manualCaseStudies";
 
 const CobeGlobe = dynamic(
   () => import("@/features/landing/CobeGlobe").then((m) => m.CobeGlobe),
@@ -18,7 +19,7 @@ const CobeGlobe = dynamic(
   }
 );
 
-/* ─── Offerings Data (3 Interactive Product Modes) ───────────────────────── */
+/* ─── Offerings Data (4 Clear Investigation Pathways) ──────────────────── */
 
 interface WorkflowStep {
   num: string;
@@ -40,88 +41,115 @@ interface ProductOffering {
 const OFFERINGS: ProductOffering[] = [
   {
     id: "track-a",
-    tabLabel: "Live Ad-Hoc Investigation",
-    badge: "Track A · Live Ad-Hoc Investigation",
-    title: "User-Directed Discovery from Any Question",
+    tabLabel: "Custom Investigation",
+    badge: "Pathway 1 · Live Discovery & Case File",
+    title: "Turn Any Plain-English Question into a Verified Case File",
     description:
-      "Start with any plain-language inquiry or custom Earth observation product. Iris scopes parameters, verifies spatial-temporal coverage, and executes the full statistical pipeline on the fly.",
-    ctaText: "Start an ad-hoc investigation",
+      "Start with any question about environmental change. Iris helps you find matching satellite or weather station data across 10 public agencies, previews the data quality, and runs step-by-step statistical tests.",
+    ctaText: "Start an investigation",
     ctaHref: "/workspace/intelligence",
     steps: [
       {
         num: "01",
-        title: "Frame with Super Intelligence",
-        text: "Describe an inquiry in natural language; AI parses domain, region, and temporal horizons.",
+        title: "Ask in Plain English",
+        text: "Describe your question in Iris Intelligence, review the suggested search keywords, and search across 10 public space and weather catalogs at once.",
       },
       {
         num: "02",
-        title: "Gap-Preserving QC",
-        text: "Inspect observational completeness; missing satellite values are excluded, never fabricated.",
+        title: "Select Region & Preview Quality",
+        text: "Pick a point or draw a region on the map, choose your date range, and inspect the raw observations with missing periods clearly highlighted.",
       },
       {
         num: "03",
-        title: "Deterministic Case File",
-        text: "Execute Hamed–Rao Mann–Kendall and Theil–Sen slope tests to assign cryptographic Evidence Grades.",
+        title: "Run Statistical Tests & Visualize",
+        text: "Run up to 8 statistical methods, explore 2D and 3D seasonal charts, and connect your findings to published research papers.",
       },
     ],
   },
   {
     id: "track-b",
-    tabLabel: "Global Trend Cube (3D)",
-    badge: "Track B · Global Trend Cube",
-    title: "Instant Planetary Exploration Across 44 Years",
+    tabLabel: "3D Living Globe",
+    badge: "Pathway 2 · Global Spatial Maps",
+    title: "Explore 11 Monthly Environmental Layers Across the Planet",
     description:
-      "Explore pre-computed, verified multi-decadal trends across 11 physical variables streamed directly from NASA POWER AWS S3 Zarr stores into an interactive 3D virtual globe.",
-    ctaText: "Explore the Living Globe",
+      "Inspect real monthly global maps from NASA—covering air temperature, rainfall, soil wetness, snow depth, wind, pressure, and sunlight—on an interactive 3D globe or 2D world map.",
+    ctaText: "Open the 3D Globe",
     ctaHref: "/workspace/globe",
     steps: [
       {
         num: "01",
-        title: "Select Environmental Layer",
-        text: "Choose from 11 physical variables including surface temperature, precipitation, and soil moisture.",
+        title: "Choose an Environmental Layer",
+        text: "Select from 11 monthly variables including surface temperature, precipitation rate, topsoil wetness, snow depth, and solar radiation.",
       },
       {
         num: "02",
-        title: "3D/2D Planetary Inspection",
-        text: "Inspect multi-resolution raster tiles in 3D CesiumJS with smooth fallback to MapLibre 2D.",
+        title: "Explore Global or Regional Views",
+        text: "Load the entire planet or focus on a specific region, step through historical months, and switch smoothly between 3D globe and 2D map views.",
       },
       {
         num: "03",
-        title: "Benchmark Drilldown",
-        text: "Access 20 curated global climate benchmark nodes and peer-reviewed literature citations.",
+        title: "Inspect Grid Cells & Benchmarks",
+        text: "Click any grid cell on Earth to read its measured value and date, or explore 20 global climate benchmark locations.",
       },
     ],
   },
   {
     id: "mode-forecasts",
-    tabLabel: "Dataset ML Forecasts",
-    badge: "Forecasting · iris.ml-forecast.v2",
-    title: "History-Only Empirical ML Predictions",
+    tabLabel: "Environmental Forecasts",
+    badge: "Pathway 3 · Historical Machine Learning",
+    title: "Short-Term Outlooks for Any Point or Region on Earth",
     description:
-      "Forward environmental outlooks powered by gradient-boosted quantile models trained exclusively on past observations—no future provider inputs, no relabeled forecasts.",
-    ctaText: "Explore dataset forecasts",
+      "Select one of six benchmark locations or pick any custom point or region on the map. Iris trains local machine learning models strictly on historical observations to estimate upcoming conditions with clear uncertainty ranges.",
+    ctaText: "Explore forecasts",
     ctaHref: "/workspace/forecasts",
     steps: [
       {
         num: "01",
-        title: "Target Formulation",
-        text: "Select from 12 Earthdata variables (rainfall, SMAP soil moisture, MERRA-2 temperature, MODIS NDVI).",
+        title: "Pick Any Location & Variable",
+        text: "Choose a point or draw a region anywhere on Earth and select from 13+ variables including rainfall, temperature, soil moisture, and vegetation.",
       },
       {
         num: "02",
-        title: "Chronological 4-Fold Split",
-        text: "Partition past records strictly by calendar time with zero future data leakage.",
+        title: "Train on Historical Records",
+        text: "Models learn exclusively from past observations and generate predictions with a 10th-to-90th percentile uncertainty range.",
       },
       {
         num: "03",
-        title: "Calibrated Quantile Outlook",
-        text: "Produce direct 3-horizon predictions with 10th–90th percentile uncertainty corridors.",
+        title: "Honest Baseline Comparisons",
+        text: "Every forecast is tested against simple historical averages—and clearly labeled as an Experimental Preview if it does not beat the baseline.",
+      },
+    ],
+  },
+  {
+    id: "track-d",
+    tabLabel: "Case Studies & Research",
+    badge: "Pathway 4 · Guided Stories & Literature",
+    title: "Learn from Real Disasters, Solved Cases & Scientific Papers",
+    description:
+      "Step through guided multi-decade climate investigations, examine major flood and cyclone events using what was known before landfall, and find peer-reviewed scientific studies.",
+    ctaText: "Browse case studies",
+    ctaHref: "/workspace/case-studies",
+    steps: [
+      {
+        num: "01",
+        title: "Disaster Event Timelines",
+        text: "Examine the September 2024 Nepal Floods and November 2025 Cyclone Ditwah in Sri Lanka by comparing pre-event warnings with daily rainfall records.",
+      },
+      {
+        num: "02",
+        title: "Guided Benchmark Cases",
+        text: "Explore solved investigations with interactive learning checkpoints and toggle between Explorer, Student, and Scientist explanations.",
+      },
+      {
+        num: "03",
+        title: "Connected Research Library",
+        text: "Automatically find peer-reviewed scientific articles and published datasets matching your active region and environmental variable.",
       },
     ],
   },
 ];
 
-/* ─── Key Capabilities (4-Item Compact) ─────────────────────────────────── */
+/* ─── Key Capabilities (4 Clear Benefits) ──────────────────────────────── */
 
 const KEY_CAPABILITIES: Array<{
   icon: IconName;
@@ -131,110 +159,143 @@ const KEY_CAPABILITIES: Array<{
   label: string;
 }> = [
   {
+    icon: "layers",
+    title: "10 Public Data Catalogs",
+    text: "Search across NASA, NOAA, and European Copernicus archives from a single plain-English query after confirming your search keywords.",
+    stat: "10 Sources",
+    label: "Space & weather agency archives",
+  },
+  {
     icon: "activity",
-    title: "Non-Parametric Significance",
-    text: "Mann–Kendall rank tests avoid fragile Gaussian normality assumptions and handle non-linear environmental shifts without distortion.",
-    stat: "p < 0.05",
-    label: "Hypothesis rejection threshold",
-  },
-  {
-    icon: "search",
-    title: "Autocorrelation Defense",
-    text: "Hamed–Rao (1998) variance inflation across lags 1–24 prevents false trend detections caused by persistent weather spells.",
-    stat: "n_eff",
-    label: "Effective sample size correction",
-  },
-  {
-    icon: "thermometer",
-    title: "Outlier-Resistant Rates",
-    text: "Theil–Sen estimator computes median pairwise slopes resistant to up to 29% extreme anomalies, cloud dropouts, or sensor spikes.",
-    stat: "95% CI",
-    label: "Rank-based confidence bounds",
+    title: "8 Statistical Analysis Methods",
+    text: "Combine standard linear regression with outlier-resistant Mann–Kendall and Sen's slope tests that account for seasonality and weather persistence.",
+    stat: "8 Methods",
+    label: "Step-by-step statistical workbench",
   },
   {
     icon: "check",
-    title: "Cryptographic Evidence Grades",
-    text: "Objective A–D rubric evaluating completeness (≥90%), test concordance, and audit trails. 0% synthetic data in production.",
+    title: "100% Real Observations",
+    text: "Iris never invents or fills in fake data across missing satellite months. Gaps stay clearly visible in every chart, table, and 3D view.",
+    stat: "0% Synthetic",
+    label: "Authentic public observations only",
+  },
+  {
+    icon: "globe",
+    title: "Built for Every Audience",
+    text: "Every investigation assigns a clear Evidence Grade (A–D) and lets you switch between Explorer, Student, and Scientist explanation modes.",
     stat: "Grade A–D",
-    label: "Deterministic audit grading",
+    label: "Clear reliability grading",
   },
 ];
 
-/* ─── Process Pipeline Steps (4-Item Compact) ──────────────────────────── */
+/* ─── 6-Step User Investigation Pipeline ───────────────────────────────── */
 
 const PIPELINE_STEPS = [
   {
     num: "01",
-    title: "Data Ingestion & Provider Routing",
-    text: "Stream raw observation records directly from NASA POWER, CMR, AppEEARS, and ECMWF catalogs without alterations.",
+    title: "Ask a Question in Iris Intelligence",
+    text: "Type what you want to study in plain English. Review the suggested search keywords and search across 10 public space and weather catalogs.",
   },
   {
     num: "02",
-    title: "Signal Preparation & Gap Preservation",
-    text: "Apply robust STL seasonal decomposition while isolating missing intervals—never fabricating synthetic fillers.",
+    title: "Choose Your Region & Dates in Data Selection",
+    text: "Select a dataset, pick your date range and time step (Daily, Monthly, or Yearly), and click a point or draw a region on the interactive map.",
   },
   {
     num: "03",
-    title: "Autocorrelation-Adjusted Testing",
-    text: "Compute serial correlation coefficients across 24 lags and adjust variance to eliminate false trend claims.",
+    title: "Check Data Quality in Data Preview",
+    text: "Review completeness statistics, inspect the time-series chart with missing periods clearly marked, and verify your study area on the map.",
   },
   {
     num: "04",
-    title: "Evidence Synthesis & Case File",
-    text: "Calculate Theil–Sen decadal slopes, evaluate sensor caveats, and compile an immutable SHA-256 evidence package.",
+    title: "Run Statistical Tests in Data Analysis",
+    text: "Remove the repeating seasonal cycle and run up to 8 statistical tests step by step to measure the trend rate, significance, and Evidence Grade.",
+  },
+  {
+    num: "05",
+    title: "Explore 2D/3D Charts & the Living Globe",
+    text: "Compare multi-panel 2D and 3D seasonal charts in Data Visualization, or explore 11 global monthly environmental layers on the 3D Living Globe.",
+  },
+  {
+    num: "06",
+    title: "View Forecasts, Case Studies & Research",
+    text: "Generate short-term machine learning forecasts for any location, explore solved disaster case studies, and cite peer-reviewed research papers.",
   },
 ];
 
-/* ─── Significant Benchmark Cases (3 Items) ────────────────────────────── */
+/* ─── Real Platform Overview Tabs (Simple & Clear) ─────────────────────── */
 
-interface SignificantCase {
-  id: string;
-  icon: IconName;
-  place: string;
-  title: string;
-  value: string;
-  meta: string;
-  tone: string;
-  summary: string;
-}
-
-const SIGNIFICANT_CASES: SignificantCase[] = [
+const WORKBENCH_METHODS_PREVIEW = [
   {
-    id: "la-warming",
-    icon: "thermometer",
-    place: "Los Angeles County, USA",
-    title: "Urban Heat Island & Warming Trajectory",
-    value: "+0.42°C",
-    meta: "per decade · p = 0.0014 (Hamed–Rao)",
-    tone: "warm",
-    summary:
-      "MERRA-2 near-surface temperature analysis reveals sustained multi-decadal warming with robust statistical significance across all 24 autocorrelation lags.",
+    name: "1. Linear Trend (OLS t-Test)",
+    summary: "Fits a straight trend line over time and tests whether the slope is statistically significant.",
+    scope: "All time steps",
   },
   {
-    id: "cv-drought",
-    icon: "activity",
-    place: "Central Valley, USA",
-    title: "Decadal Agricultural Precipitation Deficit",
-    value: "−18.7mm",
-    meta: "per decade · n_eff = 114 (Corrected)",
-    tone: "dry",
-    summary:
-      "GPM IMERG and GLDAS soil moisture records uncover severe long-term precipitation declines with effective sample size correction removing seasonality artifacts.",
+    name: "2. Mann–Kendall Trend Test",
+    summary: "Tests whether values consistently rise or fall over time while correcting for weather persistence.",
+    scope: "All time steps",
   },
   {
-    id: "amazon-canopy",
-    icon: "layers",
-    place: "Amazon Basin, Brazil",
-    title: "Tropical Forest Canopy Stress & Resilience",
-    value: "−0.08",
-    meta: "NDVI per decade · Grade A Evidence",
-    tone: "forest",
-    summary:
-      "MODIS vegetation index tracking demonstrates canopy moisture loss in deforested corridors, corroborated by optical sensor quality flags and high completeness.",
+    name: "3. Seasonal Kendall Test",
+    summary: "Compares matching calendar months (Jan vs. Jan, Feb vs. Feb) across years.",
+    scope: "Monthly data",
+  },
+  {
+    name: "4. Sen’s Slope Rate of Change",
+    summary: "Calculates the median rate of change per decade so extreme outlier years cannot skew the result.",
+    scope: "All time steps",
+  },
+  {
+    name: "5. Pettitt Change-Point Detection",
+    summary: "Finds the exact date when a sudden step-change or shift occurred in the record.",
+    scope: "All time steps",
+  },
+  {
+    name: "6. Anomaly Review",
+    summary: "Flags unusual highs and lows (such as heatwaves or droughts) beyond normal seasonal variation.",
+    scope: "All time steps",
+  },
+  {
+    name: "7. Seasonal Fingerprint Heatmap",
+    summary: "Displays a Year × Month heatmap and monthly slopes to show which seasons are changing fastest.",
+    scope: "Monthly data",
+  },
+  {
+    name: "8. Full Case File Diagnostics",
+    summary: "Assigns an Evidence Grade (A–D), builds warming stripes, and checks trend stability across time windows.",
+    scope: "All time steps",
   },
 ];
 
-/* ─── Team Members (6 Members) ─────────────────────────────────────────── */
+const LIVE_PROVIDERS_PREVIEW = [
+  { name: "NASA POWER", agency: "Surface meteorology, rainfall, soil wetness & solar radiation", state: "Direct retrieval" },
+  { name: "NASA GES DISC", agency: "GLDAS land hydrology & MERRA-2 climate records", state: "Direct retrieval" },
+  { name: "NOAA Climate Data Online", agency: "Global weather station daily & monthly summaries", state: "Direct retrieval" },
+  { name: "NOAA OneStop", agency: "Enterprise climate, ocean & atmospheric archives", state: "Direct retrieval" },
+  { name: "NASA OPeNDAP Cloud", agency: "Cloud grid slicing for global reanalysis series", state: "Direct retrieval" },
+  { name: "EODAG Federated Search", agency: "International satellite & climate data gateway", state: "Direct retrieval" },
+  { name: "Copernicus Climate Data Store", agency: "ECMWF ERA5 & ERA5-Land global reanalysis", state: "Direct retrieval" },
+  { name: "NASA AppEEARS", agency: "MODIS & VIIRS vegetation (NDVI) & land surface temp", state: "Catalog & sign-in" },
+  { name: "NASA Harmony", agency: "Earthdata Cloud regional subsetting service", state: "Catalog & sign-in" },
+  { name: "NASA Earthdata Catalog (CMR)", agency: "Master directory of NASA satellite missions", state: "Catalog search" },
+];
+
+const ZARR_GLOBE_LAYERS_PREVIEW = [
+  { label: "Air Temperature at 2 m", unit: "°C", group: "Temperature" },
+  { label: "Earth Skin Surface Temperature", unit: "°C", group: "Temperature" },
+  { label: "Dew / Frost Point at 2 m", unit: "°C", group: "Temperature" },
+  { label: "Corrected Precipitation Rate", unit: "mm / day", group: "Water & Snow" },
+  { label: "Snow Depth", unit: "cm", group: "Water & Snow" },
+  { label: "Surface Topsoil Wetness (0–5 cm)", unit: "0–1 index", group: "Land" },
+  { label: "Root-Zone Soil Wetness (0–100 cm)", unit: "0–1 index", group: "Land" },
+  { label: "Relative Humidity at 2 m", unit: "%", group: "Atmosphere" },
+  { label: "Wind Speed at 10 m", unit: "m / s", group: "Atmosphere" },
+  { label: "Surface Atmospheric Pressure", unit: "hPa", group: "Atmosphere" },
+  { label: "Surface Sunlight (Shortwave Irradiance)", unit: "W / m²", group: "Radiation" },
+];
+
+/* ─── Team Members (6 Contributors) ────────────────────────────────────── */
 
 interface TeamMember {
   id: string;
@@ -251,7 +312,7 @@ const TEAM_MEMBERS: TeamMember[] = [
     num: "01",
     name: "Navida Jayaweera",
     role: "Backend Development, Team Lead, Research",
-    focus: "FastAPI microservices and data pipelines, backend architecture leadership, and Earth observation research.",
+    focus: "Backend services and data pipelines, system architecture leadership, and Earth observation research.",
     image: "/navida.jpg",
   },
   {
@@ -259,7 +320,7 @@ const TEAM_MEMBERS: TeamMember[] = [
     num: "02",
     name: "Oshadha Shiro",
     role: "Frontend Dev, Forecasting, Documentation",
-    focus: "Next.js 15 user interface, interactive predictive forecasting interfaces, and end-to-end platform documentation.",
+    focus: "Web application interface, interactive forecasting workflows, and platform documentation.",
     image: "/oshadha.jpeg",
   },
   {
@@ -267,7 +328,7 @@ const TEAM_MEMBERS: TeamMember[] = [
     num: "03",
     name: "Vimukthi Prashan",
     role: "ML Dev, Forecasting, Data Visualization",
-    focus: "Empirical machine learning forecasting models (iris.ml-forecast.v2), quantile regressors, and 3D visual landscapes.",
+    focus: "Historical machine learning forecasting models, uncertainty intervals, and 3D visual landscapes.",
     image: "/vimukthi.jpeg",
   },
   {
@@ -275,7 +336,7 @@ const TEAM_MEMBERS: TeamMember[] = [
     num: "04",
     name: "Dinodh Dassanayake",
     role: "Data Analyzing, Research, Documentation",
-    focus: "Multi-decadal satellite data analysis, Earth observation literature research, and scientific methodology documentation.",
+    focus: "Multi-decadal satellite data analysis, Earth observation literature research, and methodology documentation.",
     image: "/dinodh.jpeg",
   },
   {
@@ -283,7 +344,7 @@ const TEAM_MEMBERS: TeamMember[] = [
     num: "05",
     name: "Shenon Kaushika",
     role: "Data Analyzing, Research, Documentation",
-    focus: "Observational time-series data analysis, environmental anomaly synthesis, and benchmark case documentation.",
+    focus: "Observational time-series data analysis, environmental anomaly review, and benchmark case documentation.",
     image: "/shenon.jpeg",
   },
   {
@@ -296,24 +357,24 @@ const TEAM_MEMBERS: TeamMember[] = [
   },
 ];
 
-/* ─── Frequently Asked Questions (4 Items) ─────────────────────────────── */
+/* ─── Frequently Asked Questions ───────────────────────────────────────── */
 
 const FAQS = [
   {
-    q: "Why use Mann–Kendall instead of ordinary linear regression?",
-    a: "Environmental and satellite time series frequently violate the core assumptions of Ordinary Least Squares (OLS) regression: residuals are rarely normally distributed, sensor noise creates extreme outliers, and weather anomalies introduce spikes. The Mann–Kendall test evaluates relative ranks rather than raw values, making it strictly monotonic, outlier-resistant, and free of Gaussian distribution assumptions.",
+    q: "How do I run an investigation on Iris from start to finish?",
+    a: "Start in Iris Intelligence by typing your question in plain English and confirming the suggested search keywords to search 10 public data catalogs. Next, choose your dataset, region, and dates in Data Selection. Check the data completeness and preview chart in Data Preview. Then run statistical trend tests in Data Analysis, explore 2D and 3D seasonal charts in Data Visualization or the 3D Living Globe, and find matching scientific papers in Existing Research.",
   },
   {
-    q: "How does Iris eliminate false alarms caused by serial autocorrelation?",
-    a: "Environmental signals exhibit persistence: a hot month is frequently followed by another hot month. Standard statistical tests mistake this serial correlation for a genuine long-term trend, artificially inflating confidence. Iris applies the Hamed & Rao (1998) variance inflation factor across up to 24 lags to calculate the true effective sample size (n_eff), ensuring reported trends reflect sustained decadal direction.",
+    q: "Why does Iris use Mann–Kendall and Sen's slope alongside linear regression?",
+    a: "Environmental records often have strong seasonal swings and occasional extreme weather years (such as a major El Niño) that can tilt a standard straight regression line. Mann–Kendall tests whether values consistently rise or fall over time, while Sen's slope calculates the median rate of change so single extreme years cannot distort the result. Running both gives a much more trustworthy answer.",
   },
   {
     q: "What do the Evidence Grades (Grade A through Grade D) mean?",
-    a: "Evidence Grades provide a transparent, objective measure of scientific reliability. Grade A indicates ≥90% observational completeness, strong parametric and non-parametric convergence, and no significant sensor caveats. Grade B indicates minor gaps or known optical caveats (such as monsoon cloud obscuration in MODIS). Grade C reflects tentative findings requiring caution, and Grade D indicates insufficient record length or severe data discontinuities.",
+    a: "Every Case File receives an Evidence Grade from A to D so you can see how strong the finding is at a glance. Grade A means a long, nearly complete record (90%+ valid data) where multiple statistical tests agree on a significant trend. Grade B indicates a clear trend with minor data gaps or seasonal sensor notes (such as monsoon clouds). Grade C means an emerging signal that needs a longer record, and Grade D means the data is too short or noisy to draw a firm conclusion.",
   },
   {
-    q: "How does the Super Intelligence AI assistant work without hallucinating?",
-    a: "Iris implements a hard architectural firewall between language processing and statistical computation. The AI model (Gemini Flash-Lite) parses research questions into structured queries (domain, region coordinates, dates) and formats explanations across three audience registers. It has zero access to numerical computation: all p-values, slopes, and Case Files are computed deterministically by SciPy and Statsmodels.",
+    q: "Does the AI assistant ever calculate statistics or invent numbers?",
+    a: "Never. The AI assistant only helps translate your plain-English question into search keywords and explains completed results in clear language. All trend rates, p-values, charts, and forecasts are calculated strictly by standard mathematical formulas using real observations.",
   },
 ];
 
@@ -322,7 +383,9 @@ const FAQS = [
 export default function LandingPage() {
   const { dark, toggleTheme } = useTheme();
   const [activeOffering, setActiveOffering] = useState<number>(0);
-  const [activeSignalMode, setActiveSignalMode] = useState<"all" | "slope" | "anomalies">("all");
+  const [activeSignalMode, setActiveSignalMode] = useState<"methods" | "providers" | "zarr">(
+    "methods"
+  );
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
   const toggleFaq = (index: number) => {
@@ -351,16 +414,17 @@ export default function LandingPage() {
             <em>before they become headlines.</em>
           </h1>
           <p>
-            Turn 40+ years of NASA, NOAA, and ECMWF Earth observations into transparent,
-            statistically defensible case files—without hiding the science.
+            Search 10 public space and weather catalogs in plain English, explore 3D global
+            satellite maps, run clear statistical trend tests, and view short-term environmental
+            forecasts—all grounded in 100% real observations.
           </p>
           <div className="landing-hero-actions">
             <Link className="landing-primary-cta" href="/workspace">
               Start investigating <Icon name="arrow" size={16} />
             </Link>
-            <a className="landing-secondary-cta" href="#offerings">
-              Explore workflows <Icon name="arrow" size={15} />
-            </a>
+            <Link className="landing-secondary-cta" href="/methodology">
+              How it works <Icon name="arrow" size={15} />
+            </Link>
           </div>
 
           {/* Animated Downward Chevron */}
@@ -385,10 +449,9 @@ export default function LandingPage() {
               <div className="landing-kicker">Explore upcoming conditions</div>
               <h2>See what the historical record can tell us next.</h2>
               <p>
-                Explore local machine-learning forecasts, prediction ranges, and model
-                evaluations built from historical weather and Earth observation records at
-                six configured benchmark points worldwide. Each forecast includes its full
-                source data and measured baseline skill.
+                Explore short-term environmental forecasts, uncertainty ranges, and accuracy checks
+                built from historical weather and satellite records at six benchmark locations
+                worldwide—or pick any point or region on Earth inside the Forecasts workspace.
               </p>
               <Link href={forecastHref("colombo")}>
                 Explore a forecast <Icon name="arrow" size={15} />
@@ -403,15 +466,17 @@ export default function LandingPage() {
         <section className="signal-marquee" aria-label="Available environmental signals">
           <div>
             {[
-              "Air temperature (MERRA-2)",
-              "Soil moisture (SMAP / GLDAS)",
-              "Vegetation index (MODIS NDVI)",
-              "Precipitation (GPM IMERG)",
-              "Land surface temp (MODIS LST)",
-              "Snow cover fraction",
-              "Solar radiation (CERES)",
-              "Air temperature (MERRA-2)",
-              "Soil moisture (SMAP / GLDAS)",
+              "Near-Surface Air Temperature (NASA POWER)",
+              "Precipitation Rate (NASA MERRA-2 & GPM)",
+              "Surface & Root-Zone Soil Wetness (NASA & GLDAS)",
+              "Vegetation Greenness NDVI (NASA MODIS & VIIRS)",
+              "Snow Depth & Snow Cover (NASA MODIS)",
+              "Surface Sunlight & Solar Radiation (NASA CERES)",
+              "Soil Moisture (NASA SMAP)",
+              "Global Climate Reanalysis (Copernicus ERA5)",
+              "Ground Weather Stations (NOAA Climate Data)",
+              "Near-Surface Air Temperature (NASA POWER)",
+              "Precipitation Rate (NASA MERRA-2 & GPM)",
             ].map((item, index) => (
               <span key={`${item}-${index}`}>
                 <i />
@@ -421,18 +486,18 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* ─── 2. INTERACTIVE OFFERINGS (3 PRODUCT MODES) ──────────────── */}
+        {/* ─── 2. INTERACTIVE OFFERINGS (4 PATHWAYS) ───────────────────── */}
         <section className="landing-offerings-section" id="offerings">
           <div className="landing-section-heading centered">
-            <div className="landing-kicker">Three investigative pathways</div>
+            <div className="landing-kicker">Four ways to explore</div>
             <h2>
-              Choose the workflow that matches
+              Choose the pathway that matches
               <br />
-              <em>your scientific question.</em>
+              <em>your question.</em>
             </h2>
             <p>
-              Whether you need live ad-hoc data discovery, planetary gridded trends, or
-              history-only machine learning outlooks, Iris provides an auditable path.
+              Whether you want to investigate a local question, explore a 3D global map, check
+              upcoming conditions, or learn from solved case studies, Iris guides you step by step.
             </p>
           </div>
 
@@ -482,18 +547,18 @@ export default function LandingPage() {
           </article>
         </section>
 
-        {/* ─── 3. KEY CAPABILITIES (4 STANDALONE BENEFIT CARDS) ────────── */}
+        {/* ─── 3. KEY CAPABILITIES (4 CORE BENEFITS) ───────────────────── */}
         <section className="landing-section platform-section" id="features">
           <div className="landing-section-heading centered">
-            <div className="landing-kicker">Defensible methodology</div>
+            <div className="landing-kicker">What makes Iris unique</div>
             <h2>
-              Every clue you need.
+              Rigorous science.
               <br />
-              <em>One evidence trail.</em>
+              <em>Clear enough for everyone.</em>
             </h2>
             <p>
-              Iris brings data discovery, robust statistics, visual analysis, and multi-level
-              interpretation into one connected, auditable scientific workflow.
+              Iris combines trusted satellite archives, outlier-resistant statistics, and plain
+              language so anyone can investigate environmental change with confidence.
             </p>
           </div>
 
@@ -517,23 +582,23 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* ─── 4. HOW IT WORKS (4 STEPS + INTERACTIVE DEMO) ────────────── */}
+        {/* ─── 4. HOW IT WORKS (6-STEP GUIDE + PLATFORM EXPLORER) ──────── */}
         <section className="landing-section how-it-works-section" id="how-it-works">
           <div className="landing-section-heading centered">
-            <div className="landing-kicker">Transparent by design</div>
+            <div className="landing-kicker">Step-by-step workflow</div>
             <h2>
-              From raw environmental signal
+              How to investigate a signal
               <br />
-              <em>to irrefutable evidence.</em>
+              <em>from start to finish.</em>
             </h2>
             <p>
-              Iris never generates a mysterious confidence score. Every conclusion exposes its
-              data provenance, transformation choices, and mathematical assumptions.
+              Follow six simple steps across the workspace—and explore the real statistical tests,
+              public data providers, and global map layers included in Iris.
             </p>
           </div>
 
-          <div className="how-it-works-grid">
-            {/* Left: 4 Pipeline Steps */}
+          <div className="how-it-works-grid" style={{ alignItems: "start" }}>
+            {/* Left: 6 User Steps */}
             <div className="how-process-steps">
               {PIPELINE_STEPS.map((step) => (
                 <div className="process-step-item" key={step.num}>
@@ -544,145 +609,301 @@ export default function LandingPage() {
                   </div>
                 </div>
               ))}
+              <div style={{ marginTop: "8px", display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                <Link className="landing-primary-cta" href="/methodology">
+                  Full methodology guide <Icon name="arrow" size={14} />
+                </Link>
+                <Link className="landing-secondary-cta" href="/data">
+                  Browse our data <Icon name="arrow" size={14} />
+                </Link>
+              </div>
             </div>
 
-            {/* Right: Interactive Signal Inspection Demo */}
+            {/* Right: Clean Interactive Overview of What's Inside Iris */}
             <div className="how-proof-column">
-              <div className="signal-demo">
-                <div className="signal-demo-head">
-                  <span>Near-surface temperature (MERRA-2)</span>
-                  <strong>+0.42°C / decade · p = 0.0014</strong>
-                </div>
-
-                <div className="signal-layer-controls">
-                  <button
-                    type="button"
-                    onClick={() => setActiveSignalMode("all")}
-                    className={`signal-layer-btn${activeSignalMode === "all" ? " active" : ""}`}
-                  >
-                    All layers
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setActiveSignalMode("slope")}
-                    className={`signal-layer-btn${activeSignalMode === "slope" ? " active" : ""}`}
-                  >
-                    Theil–Sen slope
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setActiveSignalMode("anomalies")}
-                    className={`signal-layer-btn${activeSignalMode === "anomalies" ? " active" : ""}`}
-                  >
-                    Flagged anomalies
-                  </button>
-                </div>
-
-                <svg
-                  viewBox="0 0 600 300"
-                  aria-label="Temperature observations showing an upward trend"
+              <div
+                className="offering-block"
+                style={{ padding: "24px", borderRadius: "14px" }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    gap: "12px",
+                    flexWrap: "wrap",
+                    marginBottom: "14px",
+                  }}
                 >
-                  <defs>
-                    <linearGradient id="landingChart" x1="0" x2="0" y1="0" y2="1">
-                      <stop offset="0" stopColor="#34d399" stopOpacity=".32" />
-                      <stop offset="1" stopColor="#34d399" stopOpacity="0" />
-                    </linearGradient>
-                  </defs>
-                  {[55, 105, 155, 205, 255].map((y) => (
-                    <line key={y} x1="30" x2="570" y1={y} y2={y} />
-                  ))}
-                  <path
-                    d="M30 245 C85 220 95 235 140 198 S210 188 255 165 S320 153 365 125 S425 135 470 84 S530 92 570 51 L570 270 L30 270Z"
-                    fill="url(#landingChart)"
-                    stroke="none"
-                  />
-                  {(activeSignalMode === "all" || activeSignalMode === "slope") && (
-                    <path
-                      className="demo-signal-line"
-                      d="M30 245 C85 220 95 235 140 198 S210 188 255 165 S320 153 365 125 S425 135 470 84 S530 92 570 51"
-                    />
-                  )}
-                  {(activeSignalMode === "all" || activeSignalMode === "slope") && (
-                    <path className="demo-trend-line" d="M30 244 L570 63" />
-                  )}
-                  {(activeSignalMode === "all" || activeSignalMode === "anomalies") && (
-                    <>
-                      <circle cx="470" cy="84" r="7" style={{ fill: "#fbbf24", stroke: "var(--panel)", strokeWidth: 2 }} />
-                      <circle cx="532" cy="87" r="7" style={{ fill: "#fbbf24", stroke: "var(--panel)", strokeWidth: 2 }} />
-                    </>
-                  )}
-                  <text x="30" y="290">
-                    2005
-                  </text>
-                  <text x="278" y="290">
-                    2015
-                  </text>
-                  <text x="535" y="290">
-                    2025
-                  </text>
-                </svg>
-                <div className="signal-demo-foot">
-                  <span>
-                    <i className="raw" /> Observed signal
-                  </span>
-                  <span>
-                    <i className="slope" /> Theil–Sen slope
-                  </span>
-                  <span>
-                    <i className="outlier" /> Flagged anomaly (|z| ≥ 2)
-                  </span>
+                  <div>
+                    <span className="offering-badge" style={{ marginBottom: "4px" }}>
+                      <Icon name="activity" size={11} /> Inside the Workbench
+                    </span>
+                    <h3 style={{ fontSize: "16px", margin: "4px 0 0" }}>
+                      {activeSignalMode === "methods"
+                        ? "8 Statistical Analysis Methods"
+                        : activeSignalMode === "providers"
+                        ? "10 Connected Public Data Catalogs"
+                        : "11 Global 3D Map Layers"}
+                    </h3>
+                  </div>
+                </div>
+
+                <div
+                  className="signal-layer-controls"
+                  style={{ justifyContent: "flex-start", flexWrap: "wrap", marginBottom: "16px" }}
+                >
+                  <button
+                    type="button"
+                    onClick={() => setActiveSignalMode("methods")}
+                    className={`signal-layer-btn${activeSignalMode === "methods" ? " active" : ""}`}
+                  >
+                    8 Analysis Methods
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveSignalMode("providers")}
+                    className={`signal-layer-btn${activeSignalMode === "providers" ? " active" : ""}`}
+                  >
+                    10 Data Providers
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveSignalMode("zarr")}
+                    className={`signal-layer-btn${activeSignalMode === "zarr" ? " active" : ""}`}
+                  >
+                    11 Globe Layers
+                  </button>
+                </div>
+
+                {activeSignalMode === "methods" && (
+                  <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                    {WORKBENCH_METHODS_PREVIEW.map((m) => (
+                      <div
+                        key={m.name}
+                        style={{
+                          padding: "10px 12px",
+                          borderRadius: "8px",
+                          border: "1px solid var(--border)",
+                          background: "var(--panel)",
+                          display: "grid",
+                          gap: "3px",
+                        }}
+                      >
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            gap: "8px",
+                            flexWrap: "wrap",
+                          }}
+                        >
+                          <strong style={{ fontSize: "11.5px", color: "var(--text)" }}>
+                            {m.name}
+                          </strong>
+                          <span
+                            style={{
+                              fontSize: "9.5px",
+                              color: "var(--green)",
+                              fontWeight: 600,
+                            }}
+                          >
+                            {m.scope}
+                          </span>
+                        </div>
+                        <div style={{ fontSize: "10.5px", color: "var(--muted)", lineHeight: 1.45 }}>
+                          {m.summary}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {activeSignalMode === "providers" && (
+                  <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                    {LIVE_PROVIDERS_PREVIEW.map((p) => (
+                      <div
+                        key={p.name}
+                        style={{
+                          padding: "9px 12px",
+                          borderRadius: "8px",
+                          border: "1px solid var(--border)",
+                          background: "var(--panel)",
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          gap: "10px",
+                          flexWrap: "wrap",
+                        }}
+                      >
+                        <div>
+                          <strong style={{ fontSize: "11.5px", display: "block" }}>{p.name}</strong>
+                          <span style={{ fontSize: "10px", color: "var(--muted)" }}>
+                            {p.agency}
+                          </span>
+                        </div>
+                        <span
+                          style={{
+                            fontSize: "9.5px",
+                            padding: "3px 8px",
+                            borderRadius: "6px",
+                            background: "var(--green-soft)",
+                            color: "var(--green)",
+                            fontWeight: 600,
+                          }}
+                        >
+                          {p.state}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {activeSignalMode === "zarr" && (
+                  <div style={{ display: "flex", flexDirection: "column", gap: "7px" }}>
+                    {ZARR_GLOBE_LAYERS_PREVIEW.map((z) => (
+                      <div
+                        key={z.label}
+                        style={{
+                          padding: "8px 12px",
+                          borderRadius: "8px",
+                          border: "1px solid var(--border)",
+                          background: "var(--panel)",
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          gap: "10px",
+                          flexWrap: "wrap",
+                        }}
+                      >
+                        <div>
+                          <strong style={{ fontSize: "11px" }}>{z.label}</strong>
+                          <span
+                            style={{
+                              marginLeft: "8px",
+                              fontSize: "10px",
+                              color: "var(--green)",
+                              fontWeight: 600,
+                            }}
+                          >
+                            ({z.unit})
+                          </span>
+                        </div>
+                        <span style={{ fontSize: "10px", color: "var(--muted)" }}>{z.group}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <div
+                  style={{
+                    marginTop: "14px",
+                    paddingTop: "12px",
+                    borderTop: "1px solid var(--border)",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    flexWrap: "wrap",
+                    gap: "8px",
+                    fontSize: "10.5px",
+                    color: "var(--muted)",
+                  }}
+                >
+                  <span>100% real observations · Clear Explorer, Student &amp; Scientist modes</span>
+                  <Link
+                    href="/workspace/data-analysis"
+                    style={{
+                      color: "var(--green)",
+                      fontWeight: 650,
+                      textDecoration: "none",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "4px",
+                    }}
+                  >
+                    Open Data Analysis <Icon name="arrow" size={12} />
+                  </Link>
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* ─── 6. SIGNIFICANT BENCHMARK USE CASES ───────────────────────── */}
-        <section className="cases-section-compact" id="cases">
+        {/* ─── 5. CASE STUDIES PURPOSE & EFFICIENCY BENCHMARK ──────────── */}
+        <section className="landing-manual-cases-section" id="cases">
           <div className="landing-section-heading centered">
-            <div className="landing-kicker">Validated case files</div>
+            <div className="landing-kicker">Manual Analysis vs. Iris Platform Benchmark</div>
             <h2>
-              Significant investigations
+              Why We Built Manual Case Studies
               <br />
-              <em>grounded in real data.</em>
+              <em>and what they do.</em>
             </h2>
             <p>
-              Explore three hallmark environmental case files built with multi-decadal
-              observational records and strict non-parametric verification.
+              {MANUAL_CASE_STUDIES_PURPOSE.summary}
             </p>
           </div>
 
-          <div className="cases-compact-grid">
-            {SIGNIFICANT_CASES.map((item) => (
-              <article className={`landing-case-card ${item.tone}`} key={item.id}>
-                <div className="landing-case-art">
-                  <span>
-                    <Icon name={item.icon} size={22} />
-                  </span>
-                  <i />
-                  <i />
-                  <i />
+          {/* Why & What Overview Cards */}
+          <div className="landing-manual-compare-grid">
+            {MANUAL_CASE_STUDIES_PURPOSE.comparisonMetrics.map((metric) => (
+              <article className="landing-manual-compare-card" key={metric.label}>
+                <div className="landing-manual-compare-head">
+                  <strong>{metric.label}</strong>
+                  <span>{metric.speedup}</span>
                 </div>
-                <div className="landing-case-body">
-                  <small>{item.place}</small>
-                  <h3>{item.title}</h3>
-                  <p style={{ margin: "6px 0 12px", fontSize: "10.5px", color: "var(--muted)", lineHeight: 1.55 }}>
-                    {item.summary}
-                  </p>
-                  <div>
-                    <strong>{item.value}</strong>
-                    <span>{item.meta}</span>
-                  </div>
-                  <Link href="/workspace" aria-label={`Open ${item.title}`}>
-                    <Icon name="arrow" size={16} />
-                  </Link>
+                <div className="landing-manual-compare-row manual">
+                  <small>Manual Research Team Analysis</small>
+                  <p>{metric.manual}</p>
+                </div>
+                <div className="landing-manual-compare-row iris">
+                  <small>What the Iris Case Studies Do</small>
+                  <p>{metric.iris}</p>
                 </div>
               </article>
             ))}
           </div>
+
+          <div
+            className="offering-block"
+            style={{
+              padding: "28px",
+              borderRadius: "14px",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              gap: "24px",
+              flexWrap: "wrap",
+            }}
+          >
+            <div style={{ maxWidth: "680px" }}>
+              <span className="offering-badge" style={{ marginBottom: "8px" }}>
+                <Icon name="book" size={12} /> What the Case Studies Do in the Workspace
+              </span>
+              <h3 style={{ margin: "6px 0 8px", fontSize: "20px" }}>
+                One-Click Dataset Loading Across Data Preview, Analysis &amp; Visualization
+              </h3>
+              <p style={{ margin: 0, fontSize: "12px", lineHeight: 1.65, color: "var(--muted)" }}>
+                Our research team compiled 5 manual NASA Giovanni disaster investigations so you can
+                compare traditional manual Earth trend analysis directly against our platform. When
+                you open any case study in the dashboard, Iris automatically queries and loads its
+                authentic satellite datasets straight into Data Preview, runs the statistical trend
+                tests in Data Analysis, and plots the multi-sensor series in the Visualization
+                Studio.
+              </p>
+            </div>
+            <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+              <Link className="landing-primary-cta" href="/case-studies">
+                Explore Case Studies <Icon name="arrow" size={14} />
+              </Link>
+              <Link className="landing-secondary-cta" href="/workspace/case-studies">
+                Open in Dashboard <Icon name="arrow" size={14} />
+              </Link>
+            </div>
+          </div>
         </section>
 
-        {/* ─── 7. TEAM (6 MEMBERS WITH PLACEHOLDERS) ────────────────────── */}
+        {/* ─── 6. TEAM (6 CONTRIBUTORS) ────────────────────────────────── */}
         <section className="team-section" id="team">
           <div className="landing-section-heading centered">
             <div className="landing-kicker">Contributors &amp; Architecture</div>
@@ -692,8 +913,8 @@ export default function LandingPage() {
               <em>and research contributors.</em>
             </h2>
             <p>
-              The multidisciplinary team behind Iris combining climate science, non-parametric
-              statistics, geospatial engineering, and machine learning.
+              The multidisciplinary team behind Project Iris combining climate science, statistical
+              analysis, geospatial engineering, and machine learning.
             </p>
           </div>
 
@@ -724,7 +945,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* ─── 8. FREQUENTLY ASKED QUESTIONS (ACCORDION - 4 ITEMS) ──────── */}
+        {/* ─── 7. FREQUENTLY ASKED QUESTIONS (ACCORDION) ───────────────── */}
         <section className="faq-section" id="faq">
           <div className="landing-section-heading centered">
             <div className="landing-kicker">Frequently asked questions</div>
@@ -734,8 +955,8 @@ export default function LandingPage() {
               <em>We have answers.</em>
             </h2>
             <p>
-              Everything you need to know about Iris’s statistical methodology, data providers,
-              and AI governance.
+              Everything you need to know about how Iris works, our statistical methods, and our
+              data sources.
             </p>
           </div>
 
@@ -774,8 +995,8 @@ export default function LandingPage() {
             Find the story in the data.
           </h2>
           <p>
-            Select any region, choose an environmental variable, and build a defensible evidence
-            trail in minutes.
+            Select any region, choose an environmental variable, and build a clear, trustworthy
+            evidence trail in minutes.
           </p>
           <Link href="/workspace">
             Open Iris <Icon name="arrow" size={17} />
@@ -783,7 +1004,7 @@ export default function LandingPage() {
         </section>
       </main>
 
-      {/* ─── 9. GROUPED FOOTER ─────────────────────────────────────────── */}
+      {/* ─── 8. GROUPED FOOTER ─────────────────────────────────────────── */}
       <footer className="landing-footer">
         <div className="landing-footer-container">
           <div className="landing-footer-grid">
@@ -793,25 +1014,25 @@ export default function LandingPage() {
                 <strong style={{ fontSize: "16px", letterSpacing: "-0.03em" }}>Iris</strong>
               </div>
               <p>
-                Open Earth intelligence platform bridging multi-decadal observations and
-                transparent, non-parametric statistical evidence.
+                Open Earth intelligence platform turning decades of public satellite and weather
+                observations into clear, trustworthy evidence.
               </p>
             </div>
 
             <div className="landing-footer-col">
-              <h4>Platform</h4>
+              <h4>Workspace</h4>
               <ul>
                 <li>
-                  <Link href="/workspace">Investigative Workspace</Link>
+                  <Link href="/workspace/intelligence">Iris Intelligence</Link>
                 </li>
                 <li>
-                  <Link href="/workspace/globe">Living Globe (3D)</Link>
+                  <Link href="/workspace/data-analysis">Data Analysis</Link>
                 </li>
                 <li>
-                  <Link href="/workspace/forecasts">Dataset Forecasts</Link>
+                  <Link href="/workspace/globe">3D Living Globe</Link>
                 </li>
                 <li>
-                  <Link href="/case-studies">Case Studies Library</Link>
+                  <Link href="/workspace/forecasts">Forecasts</Link>
                 </li>
               </ul>
             </div>
@@ -820,16 +1041,16 @@ export default function LandingPage() {
               <h4>Science &amp; Data</h4>
               <ul>
                 <li>
-                  <Link href="/methodology">Scientific Methodology</Link>
+                  <Link href="/methodology">Methodology</Link>
                 </li>
                 <li>
-                  <Link href="/data">Earth Observation Catalog</Link>
+                  <Link href="/data">Our Data</Link>
                 </li>
                 <li>
-                  <Link href="/platform">Platform Architecture</Link>
+                  <Link href="/case-studies">Case Studies</Link>
                 </li>
                 <li>
-                  <Link href="/about">Mission &amp; Values</Link>
+                  <Link href="/about">About &amp; Team</Link>
                 </li>
               </ul>
             </div>
@@ -861,11 +1082,11 @@ export default function LandingPage() {
             </div>
 
             <div className="landing-footer-col">
-              <h4>Resources</h4>
+              <h4>Resources &amp; Contact</h4>
               <ul>
                 <li>
                   <a
-                    href="https://github.com/search?q=Iris&type=repositories"
+                    href="https://github.com/Iris-NASC26/iris"
                     target="_blank"
                     rel="noreferrer"
                   >
@@ -873,27 +1094,24 @@ export default function LandingPage() {
                   </a>
                 </li>
                 <li>
-                  <a href="mailto:info@iris.earth">Contact Team</a>
+                  <a href="mailto:info@projectiris.earth">info@projectiris.earth</a>
                 </li>
                 <li>
-                  <span style={{ color: "var(--faint)", fontSize: "9px" }}>
-                    Status: Operational
-                  </span>
+                  <Link href="/about#contact">Contact Us</Link>
                 </li>
               </ul>
             </div>
           </div>
 
           <div className="landing-footer-bottom">
-            <span>Built with publicly funded NASA, NOAA, and ECMWF Earth observation data.</span>
-            <span>© {new Date().getFullYear()} Iris Earth Intelligence. Open Science.</span>
+            <span>Built with publicly funded NASA, NOAA, and European Earth observation data.</span>
+            <span>© {new Date().getFullYear()} Project Iris Earth Intelligence. Open Science.</span>
           </div>
         </div>
       </footer>
     </div>
   );
 }
-
 
 /* ─── PRODUCT PREVIEW COMPONENT ────────────────────────────────────────── */
 
@@ -910,7 +1128,7 @@ function ProductPreview() {
             <span />
           </div>
           <div className="window-address">
-            <Icon name="globe" size={11} /> app.iris.earth
+            <Icon name="globe" size={11} /> Iris Visualization Studio
           </div>
           <span>IR</span>
         </div>
@@ -923,11 +1141,11 @@ function ProductPreview() {
       </div>
       <div className="floating-insight insight-left">
         <span>
-          <Icon name="sparkles" size={14} />
+          <Icon name="layers" size={14} />
         </span>
         <div>
-          <small>Next clue</small>
-          <strong>Investigate soil moisture</strong>
+          <small>Connected catalogs</small>
+          <strong>10 Public Space &amp; Weather Sources</strong>
         </div>
       </div>
       <div className="floating-insight insight-right">
@@ -935,8 +1153,8 @@ function ProductPreview() {
           <Icon name="check" size={14} />
         </span>
         <div>
-          <small>Confidence</small>
-          <strong>Statistically significant (Grade A)</strong>
+          <small>Evidence quality</small>
+          <strong>100% Real Data · Grade A–D</strong>
         </div>
       </div>
     </div>

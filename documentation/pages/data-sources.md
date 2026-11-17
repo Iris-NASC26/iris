@@ -137,17 +137,6 @@ Iris preserves the original flag codes rather than silently discarding flagged v
 
 ---
 
-## Requesting additional providers
-
-As Iris development progresses, additional upstream providers will be integrated. Planned additions include:
-
-- **Copernicus Climate Data Store (CDS)** — ERA5 reanalysis
-- **ESA CCI** — Climate Change Initiative long-term satellite records
-- **OpenDAP / THREDDS** — Direct access to NetCDF time series
-- **NOAA NCEI** — Extended paleoclimate and instrumental records
-
----
-
 ## Authentic Spatial Variables Catalogue (Living Globe Grids)
 
 The Living Globe renders genuine monthly gridded fields directly from NASA POWER AWS S3 Zarr stores (`https://nasa-power.s3.us-west-2.amazonaws.com/`). The 11 active spatial layers include:
@@ -168,20 +157,22 @@ The Living Globe renders genuine monthly gridded fields directly from NASA POWER
 
 ---
 
-## Provider Capability Matrix (SRS v1.0)
+## 10-Provider Live Capability Matrix (`backend/services/capability_matrix.py`)
 
-Every provider connected to Iris is categorized by its verification status, authentication model, and extraction capabilities:
+Every upstream provider connected to Iris is categorized by its verification status, authentication model, and extraction capabilities:
 
 | Provider | Agency | Catalog State | Extraction State | Geometry | Cadence | Auth Mechanism | Quota / Guardrail |
 |---|---|---|---|---|---|---|---|
-| **NASA POWER** | NASA Langley | `extract_verified` | `extract_verified` | Point, BBox | Daily, Monthly | Open Access (No Token) | Bounded concurrency (2 threads) |
-| **NASA AppEEARS** | USGS / NASA | `catalog_verified` | `extract_verified` | Point, Polygon | 8-day, 16-day | Earthdata Bearer Token | Async polling job queue |
-| **NASA CMR / Harmony** | NASA EOSDIS | `catalog_verified` | `extract_verified` | BBox, Granule | Native orbit | Earthdata Cloud Token | Max 20 concurrent granules |
-| **NASA GES DISC (GiC)** | NASA Goddard | `catalog_verified` | `extract_verified` | Point, BBox | Hourly, Daily | Earthdata Login | GiC REST (legacy Data Rods retired) |
-| **NOAA CDO** | NOAA NCEI | `catalog_verified` | `extract_verified` | Point (Station) | Daily, Monthly | User API Token (`cdo_token`) | 5 requests/sec, 10,000/day |
-| **Copernicus / EODAG** | ESA / EU | `catalog_verified` | `credential_required` | BBox, Orbit | Daily, Monthly | Copernicus Data Space OAuth2 | User credentials required |
-| **CSA / Geo.ca** | Canadian Space Agency | `catalog_verified` | `catalog_only` | National Extent | Daily | Open Metadata | Discovery verified; extraction pending |
-| **OPeNDAP** | Distributed Servers | `catalog_verified` | `extract_verified` | DAP Grid Slice | Arbitrary | Server-dependent | Direct binary array slicing |
+| **NASA POWER** | NASA Langley / GMAO MERRA-2 | `extract_verified` | `extract_verified` | Point, BBox | Daily, Monthly, Yearly | Open Access (No Token) | Masks `-999.0` fill values; regional cosine-lat weighted means |
+| **NASA GES DISC (GiC)** | NASA Goddard | `extract_verified` | `extract_verified` | Point | Daily, Monthly | Earthdata Bearer Token | GiC REST endpoint (legacy CGI Data Rods retired) |
+| **NASA AppEEARS** | NASA LP DAAC / USGS | `catalog_verified` | `credential_required` | Point, BBox | 8-Day, 16-Day, Monthly | Earthdata Session Token | Async polling job queue with MODIS/VIIRS `_QC` bitmasking |
+| **NASA CMR** | NASA EOSDIS | `catalog_verified` | `catalog_only` | Point, BBox | All native cadences | Public UMM-JSON API | Granule & collection discovery routing to POWER/GiC/OPeNDAP |
+| **NASA Harmony** | NASA Earthdata Cloud | `catalog_verified` | `credential_required` | BBox, Point | Daily, Monthly | Earthdata Bearer Token | Async cloud NetCDF4/Zarr subsetting |
+| **NOAA CDO v2** | NOAA NCEI | `extract_verified` | `extract_verified` | Point, BBox | Daily, Monthly, Yearly | NOAA CDO Token (`token`) | 5 req/sec, 10,000/day; GHCND & GSOM station extraction |
+| **NOAA OneStop** | NOAA NCEI Enterprise | `extract_verified` | `extract_verified` | Point, BBox | Daily, Monthly, Yearly | Public OneStop Search API | Collection discovery + NCEI metric station/gridded series |
+| **NASA OPeNDAP** | Earthdata Hyrax Cloud | `extract_verified` | `extract_verified` | Point (Grid Slice) | Monthly, Yearly | Earthdata Bearer Token | Direct `.ascii?var[time][lat][lon]` constraint slicing |
+| **EODAG v4.10** | CS GROUP / Federated EO | `extract_verified` | `extract_verified` | Point, BBox | Daily, Monthly, Yearly | `EODataAccessGateway` | Federated STAC optical cloud cover & ERA5 reanalysis series |
+| **Copernicus CDS** | ECMWF C3S / CADS v1 | `extract_verified` | `extract_verified` | Point, BBox | Daily, Monthly, Yearly | `PRIVATE-TOKEN` CDS Key | CADS STAC Catalogue v1 + ERA5 / ERA5-Land reanalysis |
 
 ---
 

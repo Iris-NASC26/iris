@@ -1,0 +1,22 @@
+Title:,"Time Series, Area-Averaged of Soil moisture content (100 - 200 cm underground) monthly 0.25 deg. [GLDAS Model (monthly)"
+User Start Date:,2013-12-01T00:00:00Z
+User End Date:,2026-11-30T23:59:59Z
+User Bounding Box:,"85,28,85.8,28.6"
+Data Bounding Box:,"85.125,28.125,85.625,28.375"
+URL to Reproduce Results:,"https://giovanni.gsfc.nasa.gov/giovanni/#service=ArAvTs&starttime=2013-12-01T00:00:00Z&endtime=2026-11-30T23:59:59Z&bbox=85,28,85.8,28.6&data=GLDAS_NOAH025_M_2_0_Qsm_acc%2CGLDAS_NOAH025_M_2_1_Qg_tavg%2CGLDAS_NOAH025_M_2_0_SoilMoi100_200cm_inst%2CGLDAS_NOAH025_M_2_0_Qs_acc&portal=GIOVANNI&format=json"
+Fill Value (GLDAS_NOAH025_M_2_0_SoilMoi100_200cm_inst):, -9999
+
+time, GLDAS_NOAH025_M_2_0_SoilMoi100_200cm_inst
+2013-12-01 00:00:00,297.98877
+2014-01-01 00:00:00,289.910339
+2014-02-01 00:00:00,285.084839
+2014-03-01 00:00:00,280.682709
+2014-04-01 00:00:00,275.941467
+2014-05-01 00:00:00,271.451721
+2014-06-01 00:00:00,271.432404
+2014-07-01 00:00:00,306.003998
+2014-08-01 00:00:00,344.86618
+2014-09-01 00:00:00,340.854584
+2014-10-01 00:00:00,321.343384
+2014-11-01 00:00:00,304.762512
+2014-12-01 00:00:00,293.295837

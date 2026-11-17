@@ -54,12 +54,15 @@ export type DashboardState = {
   selectedCase: CaseStudy;
   signalMode: SignalMode;
   autoRunCase: boolean;
-  // Live Data Retrieval Pipeline State
+  // Live Data Retrieval & Case Study Pipeline State
   discoveryResult: DiscoveryResponse;
   selectedProducts: DataProduct[];
   activeProduct: DataProduct | null;
   extractionConfig: ExtractionRequest;
   extractedPreview: PreviewResponse | null;
+  caseStudyPreviews: PreviewResponse[];
+  activeManualCaseId: string | null;
+  loadingCaseStudy: boolean;
 };
 
 export type DashboardContextValue = DashboardState & {
@@ -72,6 +75,11 @@ export type DashboardContextValue = DashboardState & {
   setSignalMode: (value: SignalMode) => void;
   setAutoRunCase: (value: boolean) => void;
   loadCase: (value: CaseStudy, shouldAutoRun?: boolean) => void;
+  loadManualCaseStudy: (
+    caseId: string,
+    preferredVariableId?: string,
+  ) => Promise<PreviewResponse[]>;
+  switchCaseStudyDataset: (jobIdOrVariableId: string) => void;
   setDiscoveryResult: (value: DiscoveryResponse) => void;
   setSelectedProducts: Dispatch<SetStateAction<DataProduct[]>>;
   setActiveProduct: (value: DataProduct) => void;
@@ -117,7 +125,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   const [signalMode, setSignalMode] = useState<SignalMode>("anomaly");
   const [autoRunCase, setAutoRunCase] = useState(false);
 
-  // Live pipeline state (populated strictly from real NASA API responses)
+  // Live pipeline state
   const [discoveryResult, setDiscoveryResult] = useState<DiscoveryResponse>(EMPTY_DISCOVERY_STATE);
   const [activeProduct, setActiveProductState] = useState<DataProduct | null>(null);
   const [selectedProducts, setSelectedProducts] = useState<DataProduct[]>([]);
@@ -140,6 +148,10 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
     spatial_reduction: "mean",
   });
   const [extractedPreview, setExtractedPreview] = useState<PreviewResponse | null>(null);
+  const [caseStudyPreviews, setCaseStudyPreviews] = useState<PreviewResponse[]>([]);
+  const [activeManualCaseId, setActiveManualCaseId] = useState<string | null>(null);
+  const [loadingCaseStudy, setLoadingCaseStudy] = useState(false);
+
   const [siConversationStage, setSIConversationStage] =
     useState<SIConversationStage>("topic_discovery");
   const [siPendingIntent, setSIPendingIntent] = useState<ExtractedIntent | null>(null);
@@ -165,7 +177,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
       mappedId = "vegetation";
     } else if (varUpper.includes("SNOW") || varUpper.includes("CRYOSPHERE") || varUpper.includes("ICE")) {
       mappedId = "snow";
-    } else if (varUpper.includes("PREC") || varUpper.includes("PRCP") || varUpper.includes("RAIN")) {
+    } else if (varUpper.includes("PREC") || varUpper.includes("PRCP") || varUpper.includes("RAIN") || varUpper.includes("QS_ACC")) {
       mappedId = "precipitation";
     }
     setDataset({
@@ -216,7 +228,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
           : product.temporal_start > "2015-01-01"
             ? product.temporal_start
             : "2015-01-01";
-      const nextEnd = inferred?.endDate || "2024-12-31";
+      const nextEnd = inferred?.endDate || product.temporal_end || "2026-10-01";
       const defaultLayer = product.available_layers[0];
       const agg =
         defaultLayer?.recommended_aggregation ||
@@ -230,7 +242,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
         `${nextBbox[1].toFixed(2)}, ${nextBbox[0].toFixed(2)}, ${nextBbox[3].toFixed(2)}, ${nextBbox[2].toFixed(2)}`,
       );
       setStartYear(Number(nextStart.slice(0, 4)) || 2015);
-      setEndYear(Number(nextEnd.slice(0, 4)) || 2024);
+      setEndYear(Number(nextEnd.slice(0, 4)) || 2026);
 
       setExtractionConfig((prev) => ({
         ...prev,
@@ -249,25 +261,108 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
                 : (product.native_frequency as ExtractionRequest["target_frequency"])) || "Monthly",
         temporal_aggregation: agg,
         spatial_level: inferred?.spatialLevel || prev.spatial_level,
-        spatial_Submode:
-          product.source_api === "NASA POWER" ||
-          product.source_api === "NASA GES DISC" ||
-          product.source_api === "OPeNDAP" ||
-          product.source_api === "Copernicus CDS" ||
-          product.source_api === "EODAG"
-            ? "point"
-            : prev.spatial_Submode,
+        spatial_Submode: "bbox",
         region_name: nextRegion,
         bbox: nextBbox,
         point_lat: inferred?.center?.[0] ?? Number(((nextBbox[1] + nextBbox[3]) / 2).toFixed(4)),
         point_lon: inferred?.center?.[1] ?? Number(((nextBbox[0] + nextBbox[2]) / 2).toFixed(4)),
       }));
+
+      // If this product belongs to the loaded manual case study, also sync extractedPreview
+      const matchingPreview = caseStudyPreviews.find(
+        (p) => p.product.product_id === product.product_id || p.product.variable_id === product.variable_id,
+      );
+      if (matchingPreview) {
+        setExtractedPreview(matchingPreview);
+      }
     },
-    [extractionConfig.bbox, extractionConfig.region_name, syncLegacyDataset],
+    [caseStudyPreviews, extractionConfig.bbox, extractionConfig.region_name, syncLegacyDataset],
   );
 
-  // NOTE: Per strict API gating policy, zero catalog or extraction API requests are sent on page mount.
-  // Catalog searches are only triggered after the user confirms the AI's proposed keywords.
+  const applyPreviewToWorkspace = useCallback(
+    (targetPreview: PreviewResponse) => {
+      const prod = targetPreview.product;
+      const cfg = targetPreview.extraction_config;
+      setActiveProductState(prod);
+      syncLegacyDataset(prod);
+      setExtractionConfig(cfg);
+      setExtractedPreview(targetPreview);
+      setLocation(cfg.region_name);
+      setRegion(cfg.region_name);
+      setBbox(
+        `${cfg.bbox[1].toFixed(2)}, ${cfg.bbox[0].toFixed(2)}, ${cfg.bbox[3].toFixed(2)}, ${cfg.bbox[2].toFixed(2)}`,
+      );
+      setStartYear(Number(cfg.start_date.slice(0, 4)) || 2020);
+      setEndYear(Number(cfg.end_date.slice(0, 4)) || 2026);
+    },
+    [syncLegacyDataset],
+  );
+
+  const switchCaseStudyDataset = useCallback(
+    (jobIdOrVariableId: string) => {
+      const target = caseStudyPreviews.find(
+        (p) =>
+          p.job_id === jobIdOrVariableId ||
+          p.product.variable_id === jobIdOrVariableId ||
+          p.product.product_id === jobIdOrVariableId,
+      );
+      if (!target) return;
+      applyPreviewToWorkspace(target);
+      setAutoRunCase(true);
+    },
+    [applyPreviewToWorkspace, caseStudyPreviews],
+  );
+
+  const loadManualCaseStudy = useCallback(
+    async (caseId: string, preferredVariableId?: string): Promise<PreviewResponse[]> => {
+      setLoadingCaseStudy(true);
+      try {
+        const res = await fetch(
+          `/api/v1/manual-case-studies/load?caseId=${encodeURIComponent(caseId)}`,
+          { cache: "no-store" },
+        );
+        if (!res.ok) {
+          throw new Error(`Failed to load case study datasets (${res.status})`);
+        }
+        const data = (await res.json()) as {
+          caseId: string;
+          discovery: DiscoveryResponse;
+          previews: PreviewResponse[];
+        };
+
+        const previews = data.previews || [];
+        const products = data.discovery?.products || previews.map((p) => p.product);
+
+        setActiveManualCaseId(data.caseId);
+        setDiscoveryResult(data.discovery);
+        setSelectedProducts(products);
+        setCaseStudyPreviews(previews);
+
+        const matchedCaseMeta =
+          caseStudies.find((c) => c.id === data.caseId) ?? caseStudies[0];
+        setSelectedCase(matchedCaseMeta);
+
+        const chosenPreview =
+          (preferredVariableId
+            ? previews.find(
+                (p) =>
+                  p.product.variable_id === preferredVariableId ||
+                  p.product.product_id === preferredVariableId ||
+                  p.job_id === preferredVariableId,
+              )
+            : undefined) ?? previews[0];
+
+        if (chosenPreview) {
+          applyPreviewToWorkspace(chosenPreview);
+        }
+        setAutoRunCase(true);
+        return previews;
+      } finally {
+        setLoadingCaseStudy(false);
+      }
+    },
+    [applyPreviewToWorkspace],
+  );
 
   const value = useMemo<DashboardContextValue>(
     () => ({
@@ -285,6 +380,9 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
       activeProduct,
       extractionConfig,
       extractedPreview,
+      caseStudyPreviews,
+      activeManualCaseId,
+      loadingCaseStudy,
       siConversationStage,
       siPendingIntent,
       siPendingKeywords,
@@ -309,6 +407,8 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
       setSITurns,
       setSISelectedProviders,
       selectProductForConfiguration,
+      loadManualCaseStudy,
+      switchCaseStudyDataset,
       loadCase: (nextCase, shouldAutoRun = false) => {
         setSelectedCase(nextCase);
         setLocation(nextCase.location);
@@ -318,17 +418,22 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
         setEndYear(nextCase.endYear);
         setDataset(datasets.find((item) => item.id === nextCase.datasetId) ?? datasets[0]);
         setAutoRunCase(shouldAutoRun);
+        void loadManualCaseStudy(nextCase.id);
       },
     }),
     [
+      activeManualCaseId,
       activeProduct,
       autoRunCase,
       bbox,
+      caseStudyPreviews,
       dataset,
       discoveryResult,
       endYear,
       extractedPreview,
       extractionConfig,
+      loadManualCaseStudy,
+      loadingCaseStudy,
       location,
       region,
       selectProductForConfiguration,
@@ -342,6 +447,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
       siSelectedProviders,
       siTurns,
       startYear,
+      switchCaseStudyDataset,
     ],
   );
 

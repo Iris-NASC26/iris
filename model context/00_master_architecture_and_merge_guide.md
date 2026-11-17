@@ -103,10 +103,13 @@ Every module, component, and agent operating in this repository must adhere to t
 
 ## 5. Model Context Suite Reading Order
 
-This `model context` directory is organized into 5 authoritative documents designed for both human engineers and autonomous AI agents:
+This `model context` directory is organized into authoritative specification documents designed for both human engineers and autonomous AI agents:
 
 1. [00_master_architecture_and_merge_guide.md](file:///c:/Users/navid/Desktop/Iris/model%20context/00_master_architecture_and_merge_guide.md) *(This Document)*: High-level vision, version reconciliation, dual-track architecture, and governing principles.
 2. [01_integrated_srs_requirements_matrix.md](file:///c:/Users/navid/Desktop/Iris/model%20context/01_integrated_srs_requirements_matrix.md): Exhaustive requirements traceability matrix (VC, DS, DP, GL, SC, AN, VZ, FC, ED, DA, PV, VL) and acceptance criteria.
 3. [02_live_data_retrieval_and_providers.md](file:///c:/Users/navid/Desktop/Iris/model%20context/02_live_data_retrieval_and_providers.md): Technical specification of the live retrieval pipeline, Gemini SI router, provider adapters, asynchronous job store, and Data Preview.
 4. [03_global_trend_cube_and_science_pipeline.md](file:///c:/Users/navid/Desktop/Iris/model%20context/03_global_trend_cube_and_science_pipeline.md): Mathematical formulations, statistical algorithms, Global Trend Cube specifications, Living Globe, and evidence grading.
 5. [04_codebase_developer_handbook.md](file:///c:/Users/navid/Desktop/Iris/model%20context/04_codebase_developer_handbook.md): Practical developer handbook: directory layout, FastAPI backend, Next.js frontend, state management, API routes, testing, and extension procedures.
+6. [05_visual_analysis_and_statistics_plan.md](file:///c:/Users/navid/Desktop/Iris/model%20context/05_visual_analysis_and_statistics_plan.md): Data Analysis Scientific Case File implementation plan, transformations, and statistical estimators.
+7. [api_data_retrieval_implementation.md](file:///c:/Users/navid/Desktop/Iris/model%20context/api_data_retrieval_implementation.md): 10-platform live API data retrieval and two-phase conversational SI implementation reference.
+8. [methodology.md](file:///c:/Users/navid/Desktop/Iris/model%20context/methodology.md): Complete platform methodology, end-to-end user workflow across all workspace tracks, solution uniqueness, 8-method statistical reference, and 10-provider capability matrix.

@@ -12,13 +12,7 @@ import {
   type PreviewResponse,
   type TemporalFrequency,
 } from "@/lib/dataRetrievalEngine";
-import {
-  createDevelopmentDemoPreview,
-  DEVELOPMENT_DEMO_BBOX,
-  DEVELOPMENT_DEMO_DISCOVERY,
-  DEVELOPMENT_DEMO_PRODUCTS,
-  isDevelopmentDemoProduct,
-} from "@/lib/developmentDemoData";
+import { isDevelopmentDemoProduct } from "@/lib/developmentDemoData";
 import { MAX_SELECTION_SPAN_DEGREES } from "@/lib/spatialLimits";
 
 const IrisMap = dynamic(
@@ -126,10 +120,10 @@ function DataSelectionWorkspaceInner() {
     activeProduct,
     selectedProducts,
     setSelectedProducts,
-    setDiscoveryResult,
     extractionConfig,
     setExtractionConfig,
     setExtractedPreview,
+    caseStudyPreviews,
     selectProductForConfiguration,
     setLocation,
     setRegion,
@@ -173,29 +167,6 @@ function DataSelectionWorkspaceInner() {
       return (b.relevance_score || 0) - (a.relevance_score || 0);
     });
   }, [products, sourceFilter, sortBy]);
-
-  const loadDevelopmentDemoData = () => {
-    const [primaryProduct] = DEVELOPMENT_DEMO_PRODUCTS;
-    setDiscoveryResult(DEVELOPMENT_DEMO_DISCOVERY);
-    setSelectedProducts(DEVELOPMENT_DEMO_PRODUCTS);
-    setExtractedPreview(null);
-    setError("");
-    setSelectionNotice("");
-    selectProductForConfiguration(primaryProduct, {
-      regionName: DEVELOPMENT_DEMO_DISCOVERY.intent.inferred_region_name,
-      spatialLevel: "regional",
-      bbox: DEVELOPMENT_DEMO_BBOX,
-      center: DEVELOPMENT_DEMO_DISCOVERY.intent.inferred_Center,
-      startDate: DEVELOPMENT_DEMO_DISCOVERY.intent.inferred_start_date,
-      endDate: DEVELOPMENT_DEMO_DISCOVERY.intent.inferred_end_date,
-      frequency: "Monthly",
-    });
-    setExtractionConfig((previous) => ({
-      ...previous,
-      spatial_level: "regional",
-      spatial_Submode: "bbox",
-    }));
-  };
 
   useEffect(() => {
     if (products.length === 0) return;
@@ -407,19 +378,21 @@ function DataSelectionWorkspaceInner() {
           .map((item) => ({ product_id: item.product_id, variable_id: item.variable_id })),
       };
 
-      if (isDevelopmentDemoProduct(product.product_id)) {
-        const data = createDevelopmentDemoPreview(payload, product);
-        setExtractedPreview(data);
-        setLocation(payload.region_name);
-        setRegion(payload.region_name);
+      const matchedCasePreview = caseStudyPreviews.find(
+        (p) =>
+          p.product.product_id === product.product_id ||
+          p.product.variable_id === product.variable_id,
+      );
+      if (matchedCasePreview) {
+        setExtractedPreview(matchedCasePreview);
+        setLocation(matchedCasePreview.extraction_config.region_name);
+        setRegion(matchedCasePreview.extraction_config.region_name);
         setBbox(
-          isGlobal
-            ? "-90.00, -180.00, 90.00, 180.00"
-            : `${minLat.toFixed(2)}, ${minLon.toFixed(2)}, ${maxLat.toFixed(2)}, ${maxLon.toFixed(2)}`,
+          `${minLat.toFixed(2)}, ${minLon.toFixed(2)}, ${maxLat.toFixed(2)}, ${maxLon.toFixed(2)}`,
         );
-        setStartYear(Number(payload.start_date.slice(0, 4)) || 2015);
-        setEndYear(Number(payload.end_date.slice(0, 4)) || 2024);
-        router.push(`/workspace/data-preview?jobId=${encodeURIComponent(data.job_id)}`);
+        setStartYear(Number(matchedCasePreview.extraction_config.start_date.slice(0, 4)) || 2020);
+        setEndYear(Number(matchedCasePreview.extraction_config.end_date.slice(0, 4)) || 2026);
+        router.push(`/workspace/data-preview?jobId=${encodeURIComponent(matchedCasePreview.job_id)}`);
         return;
       }
 
@@ -475,15 +448,13 @@ function DataSelectionWorkspaceInner() {
               >
                 Open Iris Intelligence <Icon name="arrow" size={14} />
               </button>
-              {process.env.NODE_ENV === "development" && (
-                <button
-                  className="ds-link-btn"
-                  onClick={loadDevelopmentDemoData}
-                  type="button"
-                >
-                  Load local demo data
-                </button>
-              )}
+              <button
+                className="ds-link-btn"
+                onClick={() => router.push("/workspace/case-studies")}
+                type="button"
+              >
+                Browse 5 Manual Case Studies
+              </button>
             </div>
           </div>
         </section>

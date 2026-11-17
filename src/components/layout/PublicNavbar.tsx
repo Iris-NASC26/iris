@@ -76,7 +76,7 @@ export function PublicNavbar({
         <a
           aria-label="View GitHub repository"
           className="landing-nav-icon"
-          href="https://github.com/search?q=Iris&type=repositories"
+          href="https://github.com/Iris-NASC26/iris"
           rel="noreferrer"
           target="_blank"
           title="GitHub repository"

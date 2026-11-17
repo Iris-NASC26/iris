@@ -419,6 +419,7 @@ function HistoricalAnalysis() {
   const { publishAnalysis, invalidateAnalysis } = useVisualizations();
   const {
     autoRunCase,
+    caseStudyPreviews,
     dataset,
     endYear,
     extractedPreview,
@@ -430,6 +431,7 @@ function HistoricalAnalysis() {
     setStartYear,
     signalMode,
     startYear,
+    switchCaseStudyDataset,
   } = useDashboard();
 
   const [analysis, setAnalysis] = useState<AnalysisState>("empty");
@@ -454,10 +456,6 @@ function HistoricalAnalysis() {
     },
     [],
   );
-
-  useEffect(() => {
-    if (autoRunCase) setAutoRunCase(false);
-  }, [autoRunCase, setAutoRunCase]);
 
   const notify = useCallback((message: string) => {
     setToast(message);
@@ -770,6 +768,18 @@ function HistoricalAnalysis() {
     void executeMethods(selectedMethods);
   }, [executeMethods, selectedMethods]);
 
+  useEffect(() => {
+    if (!autoRunCase || !extractedPreview) return;
+    setAutoRunCase(false);
+    const allCompatible = ANALYSIS_METHODS.filter(
+      (m) => compatibilityMap[m.id]?.compatible,
+    ).map((m) => m.id);
+    if (allCompatible.length > 0) {
+      setSelectedMethods(allCompatible);
+      void executeMethods(allCompatible);
+    }
+  }, [autoRunCase, compatibilityMap, executeMethods, extractedPreview, setAutoRunCase]);
+
   const toggleMethod = (method: AnalysisMethod) => {
     if (!compatibilityMap[method]?.compatible) return;
     setSelectedMethods((current) =>
@@ -867,6 +877,39 @@ function HistoricalAnalysis() {
                     </span>
                   </div>
                 </div>
+
+                {caseStudyPreviews.length > 1 && (
+                  <div style={{ marginTop: "10px", paddingTop: "10px", borderTop: "1px solid var(--border)" }}>
+                    <small style={{ display: "block", fontSize: "10px", fontWeight: 700, color: "var(--muted)", marginBottom: "6px" }}>
+                      Switch Case Study Dataset ({caseStudyPreviews.length}):
+                    </small>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
+                      {caseStudyPreviews.map((cp) => {
+                        const isActive = cp.job_id === extractedPreview?.job_id;
+                        return (
+                          <button
+                            key={cp.job_id}
+                            type="button"
+                            onClick={() => switchCaseStudyDataset(cp.job_id)}
+                            style={{
+                              textAlign: "left",
+                              padding: "6px 9px",
+                              borderRadius: "6px",
+                              border: isActive ? "1px solid var(--green)" : "1px solid var(--border)",
+                              background: isActive ? "var(--green-soft)" : "var(--card)",
+                              color: isActive ? "var(--green)" : "var(--text)",
+                              fontSize: "10.5px",
+                              fontWeight: isActive ? 700 : 500,
+                              cursor: "pointer",
+                            }}
+                          >
+                            {cp.product.variable_name} ({cp.summary_stats.unit})
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
 
                 {!extractedPreview && (
                   <div className="da-cadence-switcher">
